@@ -14,6 +14,7 @@ export type SignupInput = {
   phone: string
   email: string
   password: string
+  consent_datenschutz: boolean
   consent_agb: boolean
   consent_data_processing: boolean
   consent_authority_to_act: boolean
@@ -22,15 +23,18 @@ export type SignupInput = {
 // 'root' → form-level banner (rate limit, generic, consents).
 // Other keys → shown inline below the matching field.
 export type SignupResultField =
-  | keyof Omit<SignupInput, 'consent_agb' | 'consent_data_processing' | 'consent_authority_to_act'>
+  | keyof Omit<
+      SignupInput,
+      | 'consent_datenschutz'
+      | 'consent_agb'
+      | 'consent_data_processing'
+      | 'consent_authority_to_act'
+    >
   | 'root'
 
 export type SignupResult = { ok: true } | { ok: false; field: SignupResultField; error: string }
 
 // ── Supabase Auth error → German message ──────────────────────────────────────
-//
-// Supabase returns English error strings. We map every known pattern here so
-// raw English never reaches the browser.
 
 function mapSupabaseError(message: string): { field: SignupResultField; error: string } {
   const m = message.toLowerCase()
@@ -49,7 +53,6 @@ function mapSupabaseError(message: string): { field: SignupResultField; error: s
   if (m.includes('password') && (m.includes('short') || m.includes('weak') || m.includes('least'))) {
     return { field: 'password', error: e.passwordLength }
   }
-  // Supabase has a typo ("to many") in some versions — handle both.
   if (m.includes('rate limit') || m.includes('too many') || m.includes('to many requests')) {
     return { field: 'root', error: e.rateLimitError }
   }
@@ -57,11 +60,7 @@ function mapSupabaseError(message: string): { field: SignupResultField; error: s
   return { field: 'root', error: e.generic }
 }
 
-// ── Loose server-side validation ───────────────────────────────────────────────
-//
-// These checks mirror the Zod schema in form.tsx.  They are the security
-// backstop for tampered submissions; the client never reaches the server with
-// invalid input during normal operation.
+// ── Server-side validation ─────────────────────────────────────────────────────
 
 // Basic email syntax; Supabase does the authoritative check.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
@@ -69,66 +68,89 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 export async function signupAction(input: SignupInput): Promise<SignupResult> {
   const e = de.signup.errors
 
-  // Validate in form order so the first visible field error is what the user sees.
+  // Field validation — checked in form order so the first visible error shows.
   if (!input.first_name?.trim()) return { ok: false, field: 'first_name', error: e.firstNameRequired }
-  if (!input.last_name?.trim()) return { ok: false, field: 'last_name', error: e.lastNameRequired }
-  if (!input.phone) return { ok: false, field: 'phone', error: e.phoneRequired }
+  if (!input.last_name?.trim())  return { ok: false, field: 'last_name',  error: e.lastNameRequired }
+  if (!input.phone)              return { ok: false, field: 'phone',       error: e.phoneRequired }
   // isValidPhoneNumber uses libphonenumber-js — same library as the client-side check.
   if (!isValidPhoneNumber(input.phone)) return { ok: false, field: 'phone', error: e.phoneInvalid }
   if (!input.email || !EMAIL_RE.test(input.email)) return { ok: false, field: 'email', error: e.emailInvalid }
   if (!input.password || input.password.length < 8) return { ok: false, field: 'password', error: e.passwordLength }
-  if (!input.consent_agb || !input.consent_data_processing || !input.consent_authority_to_act) {
+  if (
+    !input.consent_datenschutz ||
+    !input.consent_agb ||
+    !input.consent_data_processing ||
+    !input.consent_authority_to_act
+  ) {
     return { ok: false, field: 'root', error: e.consents }
   }
 
-  // Build the confirmation-email redirect URL.
-  // NEXT_PUBLIC_SITE_URL is set on Vercel; fall back to the request origin in dev.
-  const headersList = await headers()
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    headersList.get('origin') ??
-    'http://localhost:3000'
-  const emailRedirectTo = `${siteUrl}/auth/callback`
+  try {
+    // Build the confirmation-email redirect URL.
+    // NEXT_PUBLIC_SITE_URL is set on Vercel; falls back to the request origin in dev.
+    const headersList = await headers()
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ??
+      headersList.get('origin') ??
+      'http://localhost:3000'
+    const emailRedirectTo = `${siteUrl}/auth/callback`
 
-  const supabase = await createClient()
-  const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-    email: input.email,
-    password: input.password,
-    options: {
-      data: { first_name: input.first_name.trim(), last_name: input.last_name.trim() },
-      emailRedirectTo,
-    },
-  })
+    const supabase = await createClient()
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: input.email,
+      password: input.password,
+      options: {
+        data: { first_name: input.first_name.trim(), last_name: input.last_name.trim() },
+        emailRedirectTo,
+      },
+    })
 
-  if (signUpError) {
-    const mapped = mapSupabaseError(signUpError.message)
-    return { ok: false, ...mapped }
-  }
+    if (signUpError) {
+      const mapped = mapSupabaseError(signUpError.message)
+      return { ok: false, ...mapped }
+    }
 
-  if (!signUpData.user) {
+    if (!signUpData.user) {
+      return { ok: false, field: 'root', error: e.generic }
+    }
+
+    // Store GDPR consent timestamps via admin client.
+    // Uses the secret key (SUPABASE_SECRET_KEY) to bypass RLS — the profile row
+    // was just inserted by the DB trigger and the user's JWT isn't in the session
+    // yet when email confirmation is enabled.
+    const now = new Date().toISOString()
+    const adminClient = await createAdminClient()
+    const { error: updateError } = await adminClient
+      .from('profiles')
+      .update({
+        phone: input.phone,
+        consent_datenschutz_at: now,
+        consent_agb_at: now,
+        consent_data_processing_at: now,
+        consent_authority_to_act_at: now,
+      })
+      .eq('id', signUpData.user.id)
+
+    if (updateError) {
+      // Log server-side so the error appears in Vercel function logs.
+      console.error('[signupAction] profile update failed:', updateError.message)
+      // The user was created in Supabase Auth — return generic error so they can
+      // retry; Supabase will surface "already registered" on the next attempt,
+      // at which point the admin has time to fix the env var / schema issue.
+      return { ok: false, field: 'root', error: e.generic }
+    }
+
+    if (signUpData.session) {
+      redirect('/case')
+    }
+
+    // Email confirmation is required — session not returned yet.
+    return { ok: true }
+  } catch (err) {
+    // Catches unhandled errors (e.g. SUPABASE_SECRET_KEY missing in Vercel,
+    // network timeouts) so the user always sees a German message, never the
+    // white Next.js "A server error occurred" page.
+    console.error('[signupAction] unexpected error:', err)
     return { ok: false, field: 'root', error: e.generic }
   }
-
-  // Store GDPR consent timestamps via admin client.
-  // The admin client bypasses RLS — required here because the profile row was
-  // just inserted by the trigger and the user's own JWT isn't on the session yet
-  // when email confirmation is enabled.
-  const now = new Date().toISOString()
-  const adminClient = await createAdminClient()
-  await adminClient
-    .from('profiles')
-    .update({
-      phone: input.phone,
-      consent_agb_at: now,
-      consent_data_processing_at: now,
-      consent_authority_to_act_at: now,
-    })
-    .eq('id', signUpData.user.id)
-
-  if (signUpData.session) {
-    redirect('/case')
-  }
-
-  // Email confirmation is required — session not returned yet.
-  return { ok: true }
 }

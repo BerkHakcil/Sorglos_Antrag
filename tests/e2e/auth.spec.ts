@@ -31,6 +31,7 @@ async function fillSignupForm(
     phone?: string | false
     email?: string
     password?: string
+    checkDatenschutz?: boolean
     checkAgb?: boolean
     checkDataProcessing?: boolean
     checkAuthorityToAct?: boolean
@@ -42,6 +43,7 @@ async function fillSignupForm(
     phone = VALID_PHONE_NATIONAL,
     email = RUN_EMAIL,
     password = PASSWORD,
+    checkDatenschutz = true,
     checkAgb = true,
     checkDataProcessing = true,
     checkAuthorityToAct = true,
@@ -54,6 +56,7 @@ async function fillSignupForm(
   }
   await page.locator('[name=email]').fill(email)
   await page.locator('[name=password]').fill(password)
+  if (checkDatenschutz) await page.locator('[name=consent_datenschutz]').check()
   if (checkAgb) await page.locator('[name=consent_agb]').check()
   if (checkDataProcessing) await page.locator('[name=consent_data_processing]').check()
   if (checkAuthorityToAct) await page.locator('[name=consent_authority_to_act]').check()
@@ -164,6 +167,7 @@ test.describe.serial('Auth flow', () => {
     await page.locator('[data-testid=phone-input]').fill(VALID_PHONE_NATIONAL)
     await page.locator('[name=email]').fill(testEmail)
     await page.locator('[name=password]').fill('kurz') // too short — triggers error
+    await page.locator('[name=consent_datenschutz]').check()
     await page.locator('[name=consent_agb]').check()
     await page.locator('[name=consent_data_processing]').check()
     await page.locator('[name=consent_authority_to_act]').check()
@@ -182,23 +186,57 @@ test.describe.serial('Auth flow', () => {
     // Phone input is not blank.
     await expect(page.locator('[data-testid=phone-input]')).not.toHaveValue('')
 
-    // All three checkboxes remain checked.
+    // All four checkboxes remain checked.
+    await expect(page.locator('[name=consent_datenschutz]')).toBeChecked()
     await expect(page.locator('[name=consent_agb]')).toBeChecked()
     await expect(page.locator('[name=consent_data_processing]')).toBeChecked()
     await expect(page.locator('[name=consent_authority_to_act]')).toBeChecked()
   })
 
-  // ── 7. Missing consents → German error ──────────────────────────────────
+  // ── 7a. Missing Datenschutz → German error ──────────────────────────────
 
-  test('signup without all consents → German consent error shown', async ({ page }) => {
+  test('signup without Datenschutz consent → German consent error shown', async ({ page }) => {
     await page.goto('/signup')
     await fillSignupForm(page, {
-      email: `no-consent+${Date.now()}@hzp-test.invalid`,
+      email: `no-dsgvo+${Date.now()}@hzp-test.invalid`,
+      checkDatenschutz: false,
+    })
+    await page.getByRole('button', { name: 'Registrieren' }).click()
+
+    const alert = page.getByRole('alert')
+    await expect(alert).toBeVisible()
+    await expect(alert).toContainText('Bedingungen')
+    await expect(page).toHaveURL(/\/signup/)
+  })
+
+  // ── 7b. Missing AGB (but Datenschutz checked) → German error ────────────
+
+  test('signup without AGB consent → German consent error shown', async ({ page }) => {
+    await page.goto('/signup')
+    await fillSignupForm(page, {
+      email: `no-agb+${Date.now()}@hzp-test.invalid`,
+      checkAgb: false,
+    })
+    await page.getByRole('button', { name: 'Registrieren' }).click()
+
+    const alert = page.getByRole('alert')
+    await expect(alert).toBeVisible()
+    await expect(alert).toContainText('Bedingungen')
+    await expect(page).toHaveURL(/\/signup/)
+  })
+
+  // ── 7c. Missing authority-to-act → German error ──────────────────────────
+
+  test('signup without authority-to-act consent → German consent error shown', async ({
+    page,
+  }) => {
+    await page.goto('/signup')
+    await fillSignupForm(page, {
+      email: `no-auth+${Date.now()}@hzp-test.invalid`,
       checkAuthorityToAct: false,
     })
     await page.getByRole('button', { name: 'Registrieren' }).click()
 
-    // Zod surfaces the consent error; the form shows it in a role="alert" banner.
     const alert = page.getByRole('alert')
     await expect(alert).toBeVisible()
     await expect(alert).toContainText('Bedingungen')

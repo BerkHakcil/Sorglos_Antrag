@@ -64,17 +64,21 @@ export const de = {
     },
 
     consents: {
-      // Checkbox 1 — AGB + Datenschutz.  Parts are split because two links are
-      // embedded inside the sentence.
+      // Checkbox 1 — Datenschutz acknowledgment (separate from AGB).
+      datenschutz: {
+        prefix: 'Ich habe die ',
+        linkText: 'Datenschutzerklärung',
+        suffix: ' zur Kenntnis genommen.',
+      },
+
+      // Checkbox 2 — AGB agreement.
       agb: {
         prefix: 'Ich habe die ',
-        agbLinkText: 'Allgemeinen Geschäftsbedingungen',
-        connector: ' und die ',
-        datenschutzLinkText: 'Datenschutzerklärung',
+        linkText: 'Allgemeinen Geschäftsbedingungen',
         suffix: ' gelesen und stimme ihnen zu.',
       },
 
-      // Checkbox 2 — data processing.
+      // Checkbox 3 — data processing.
       dataProcessing: {
         label:
           'Ich stimme der Verarbeitung meiner personenbezogenen Daten zur Bearbeitung meines Antrags zu.',
@@ -114,8 +118,8 @@ export const de = {
       // Generic "this field is required" — used for browser setCustomValidity on email/password.
       fieldRequired: 'Pflichtfeld.',
       passwordLength: 'Das Passwort muss mindestens 8 Zeichen lang sein.',
-      // Shown when fewer than all three consent checkboxes are checked.
-      consents: 'Bitte akzeptieren Sie alle drei Bedingungen, um sich zu registrieren.',
+      // Shown when fewer than all four consent checkboxes are checked.
+      consents: 'Bitte akzeptieren Sie alle Bedingungen, um sich zu registrieren.',
       // Supabase-level errors — mapped from raw Supabase Auth error messages.
       emailTaken: 'Diese E-Mail-Adresse ist bereits registriert.',
       // co-founder to confirm

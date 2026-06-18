@@ -31,6 +31,7 @@ const signupSchema = z.object({
     .refine((v) => isValidPhoneNumber(v), s.errors.phoneInvalid),
   email: z.string().min(1, s.errors.fieldRequired).email(s.errors.emailInvalid),
   password: z.string().min(1, s.errors.fieldRequired).min(8, s.errors.passwordLength),
+  consent_datenschutz: z.boolean().refine((v) => v, { message: s.errors.consents }),
   consent_agb: z.boolean().refine((v) => v, { message: s.errors.consents }),
   consent_data_processing: z.boolean().refine((v) => v, { message: s.errors.consents }),
   consent_authority_to_act: z.boolean().refine((v) => v, { message: s.errors.consents }),
@@ -62,6 +63,7 @@ export function SignupForm() {
       phone: '',
       email: '',
       password: '',
+      consent_datenschutz: false,
       consent_agb: false,
       consent_data_processing: false,
       consent_authority_to_act: false,
@@ -79,7 +81,6 @@ export function SignupForm() {
       } else if (result.field === 'root') {
         setError('root', { type: 'server', message: result.error })
       } else {
-        // result.field is a key of SignupInput
         setError(result.field as SignupResultField & keyof SignupInput, {
           type: 'server',
           message: result.error,
@@ -99,17 +100,17 @@ export function SignupForm() {
     )
   }
 
-  // A consent error can come from Zod (any of the three checkbox fields) or
-  // from the server (stored on root).  Surface whichever fires first.
+  // A consent error can come from Zod (any consent field) or from the server (root).
   const consentErrorMsg =
     errors.root?.message ||
+    errors.consent_datenschutz?.message ||
     errors.consent_agb?.message ||
     errors.consent_data_processing?.message ||
     errors.consent_authority_to_act?.message
 
   return (
-    // noValidate disables all native HTML5 browser validation bubbles (which
-    // show English messages).  All validation is handled by Zod + react-hook-form.
+    // noValidate disables native HTML5 browser validation bubbles (English messages).
+    // All validation is handled by Zod + react-hook-form.
     <form onSubmit={onSubmit} noValidate className="space-y-4">
       {/* ── Top-level errors (server generic / rate-limit / consents) ── */}
       {consentErrorMsg && (
@@ -168,7 +169,7 @@ export function SignupForm() {
         </label>
         {/*
           PhoneInput drives RHF via setValue; its underlying <input> has no
-          name attribute and is NOT submitted.  The server action receives the
+          name attribute and is NOT submitted. The server action receives the
           E.164 value directly from the SignupInput object.
         */}
         <PhoneInput
@@ -253,7 +254,23 @@ export function SignupForm() {
 
       {/* ── Consents ─────────────────────────────────────── */}
       <div className="border-border bg-muted/30 space-y-3 rounded-md border p-3">
-        {/* 1 — AGB + Datenschutz */}
+        {/* 1 — Datenschutz */}
+        <label className="flex cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            className="accent-primary mt-0.5 h-4 w-4 shrink-0"
+            {...register('consent_datenschutz')}
+          />
+          <span className="text-sm leading-snug">
+            {s.consents.datenschutz.prefix}
+            <Link href="/datenschutz" className="underline underline-offset-2" target="_blank">
+              {s.consents.datenschutz.linkText}
+            </Link>
+            {s.consents.datenschutz.suffix}
+          </span>
+        </label>
+
+        {/* 2 — AGB */}
         <label className="flex cursor-pointer items-start gap-3">
           <input
             type="checkbox"
@@ -263,17 +280,13 @@ export function SignupForm() {
           <span className="text-sm leading-snug">
             {s.consents.agb.prefix}
             <Link href="/agb" className="underline underline-offset-2" target="_blank">
-              {s.consents.agb.agbLinkText}
-            </Link>
-            {s.consents.agb.connector}
-            <Link href="/datenschutz" className="underline underline-offset-2" target="_blank">
-              {s.consents.agb.datenschutzLinkText}
+              {s.consents.agb.linkText}
             </Link>
             {s.consents.agb.suffix}
           </span>
         </label>
 
-        {/* 2 — Data processing */}
+        {/* 3 — Data processing */}
         <label className="flex cursor-pointer items-start gap-3">
           <input
             type="checkbox"
@@ -289,7 +302,7 @@ export function SignupForm() {
           </span>
         </label>
 
-        {/* 3 — Authority to act */}
+        {/* 4 — Authority to act */}
         <label className="flex cursor-pointer items-start gap-3">
           <input
             type="checkbox"
