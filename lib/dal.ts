@@ -60,6 +60,70 @@ export async function getCareHomes() {
   return data ?? []
 }
 
+// ── Answer loading (M3) ───────────────────────────────────────────────────────
+
+export type SavedAnswer = {
+  question_id: string
+  question_key: string
+  group_instance: string
+  value: unknown
+}
+
+/**
+ * Loads all saved answers for a case.
+ * Caller must supply a caseId obtained from getCase() — ownership is already verified there.
+ *
+ * Returns:
+ *   answersMap  — question_key → value for 'default' instance (used by isVisible / buildNav)
+ *   answersRaw  — every row including repeatable group instances
+ */
+export async function getCaseAnswers(caseId: string): Promise<{
+  answersMap: Record<string, unknown>
+  answersRaw: SavedAnswer[]
+}> {
+  const supabase = await createClient()
+
+  const { data: answers, error } = await supabase
+    .from('answer')
+    .select('question_id, group_instance, value')
+    .eq('case_id', caseId)
+
+  if (error) throw new Error('Antworten konnten nicht geladen werden')
+
+  const rows = answers ?? []
+  const qIds = [...new Set(rows.map((r) => r.question_id))]
+
+  const keyMap: Record<string, string> = {}
+  if (qIds.length > 0) {
+    const { data: qs } = await supabase
+      .from('question')
+      .select('id, key')
+      .in('id', qIds)
+    for (const q of qs ?? []) keyMap[q.id] = q.key
+  }
+
+  const answersMap: Record<string, unknown> = {}
+  const answersRaw: SavedAnswer[] = []
+
+  for (const row of rows) {
+    const key = keyMap[row.question_id]
+    if (!key) continue
+
+    answersRaw.push({
+      question_id: row.question_id,
+      question_key: key,
+      group_instance: row.group_instance,
+      value: row.value,
+    })
+
+    if (row.group_instance === 'default') {
+      answersMap[key] = row.value
+    }
+  }
+
+  return { answersMap, answersRaw }
+}
+
 /** Returns the fallback questionnaire id (social_office_id IS NULL). */
 export async function getFallbackQuestionnaireId(): Promise<string> {
   await verifySession()

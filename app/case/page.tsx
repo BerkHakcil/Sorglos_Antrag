@@ -1,8 +1,9 @@
-import { getCase, getCareHomes } from '@/lib/dal'
+import { getCase, getCareHomes, getCaseAnswers } from '@/lib/dal'
+import { loadQuestionnaire } from '@/lib/questionnaire-engine'
 import { de } from '@/lib/strings/de'
 import { CareHomeSelector } from './care-home-selector'
 import { PlzForm } from './plz-form'
-import { QuestionnaireView } from './questionnaire-view'
+import { ChatView } from './chat-view'
 import { logoutAction } from './actions'
 
 export const metadata = { title: de.case.pageTitle }
@@ -64,19 +65,20 @@ export default async function CasePage() {
           </div>
         )}
 
-        {/* ── Step 2: PLZ entry (shown after care home is selected) */}
+        {/* ── Step 2: PLZ entry ────────────────────────────────── */}
         {caseData.care_home_id && caseData.plz_resolution_status === 'unclear' && (
           <div className="border-border bg-card rounded-xl border p-6 shadow-sm">
             <PlzForm />
           </div>
         )}
 
-        {/* ── Step 3: Questionnaire ───────────────────────────── */}
+        {/* ── Step 3: Questionnaire chat ───────────────────────── */}
         {caseData.questionnaire_id && (
           <div className="border-border bg-card rounded-xl border p-6 shadow-sm">
-            <QuestionnaireView
+            <ChatSection
+              caseId={caseData.id}
               questionnaireId={caseData.questionnaire_id}
-              answers={{}}
+              caseStatus={caseData.status}
             />
           </div>
         )}
@@ -85,8 +87,30 @@ export default async function CasePage() {
   )
 }
 
-// Server sub-component that loads care homes — keeps page.tsx fully async
 async function CareHomeSelectorSection() {
   const careHomes = await getCareHomes()
   return <CareHomeSelector careHomes={careHomes} />
+}
+
+async function ChatSection({
+  caseId,
+  questionnaireId,
+  caseStatus,
+}: {
+  caseId: string
+  questionnaireId: string
+  caseStatus: string
+}) {
+  const [questionnaire, { answersMap }] = await Promise.all([
+    loadQuestionnaire(questionnaireId),
+    getCaseAnswers(caseId),
+  ])
+
+  return (
+    <ChatView
+      questionnaire={questionnaire}
+      initialAnswersMap={answersMap}
+      caseStatus={caseStatus}
+    />
+  )
 }

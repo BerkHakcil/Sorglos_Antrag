@@ -188,5 +188,40 @@ export const de = {
       in_progress: 'In Bearbeitung',
       under_review: 'In Prüfung',
     } as Record<string, string>,
+
+    chat: {
+      stepLabel: 'Schritt 3: Fragebogen ausfüllen',
+      nextButton: 'Weiter',
+      skipButton: 'Weiß ich gerade nicht',
+      savingButton: 'Speichern …',
+      // {answered} and {total} are replaced at render time
+      progressLabel: '{answered} von {total} Pflichtfeldern beantwortet',
+      allAnsweredHeading: 'Alle Pflichtfelder beantwortet',
+      allAnsweredMessage:
+        'Angaben werden geprüft und Antrag wird erstellt.',
+      editLockedMessage:
+        'Der Antrag wurde zur Prüfung eingereicht. Änderungen sind nicht mehr möglich.',
+      skippedBadge: 'Übersprungen',
+
+      errors: {
+        generic: 'Antwort konnte nicht gespeichert werden. Bitte erneut versuchen.',
+        editLocked: 'Der Antrag ist bereits zur Prüfung eingereicht.',
+      },
+
+      validationErrors: {
+        required: 'Dieses Feld ist erforderlich.',
+        // {min} / {max} replaced at runtime
+        minLength: 'Mindestens {min} Zeichen erforderlich.',
+        maxLength: 'Höchstens {max} Zeichen erlaubt.',
+        invalidDate: 'Ungültiges Datum.',
+        invalidNumber: 'Bitte eine gültige Zahl eingeben.',
+        invalidYesNo: 'Bitte Ja oder Nein auswählen.',
+        invalidSelect: 'Bitte eine gültige Option auswählen.',
+        invalidAddress: 'Bitte Straße, Postleitzahl und Ort angeben.',
+        invalidPerson: 'Bitte Vorname und Nachname angeben.',
+        invalidIban: 'Bitte eine gültige IBAN eingeben.',
+        generic: 'Ungültige Eingabe.',
+      },
+    },
   },
 } as const

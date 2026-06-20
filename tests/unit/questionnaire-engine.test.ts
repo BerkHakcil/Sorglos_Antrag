@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { isVisible, type VisibilityRule, type Question, type Category } from '@/lib/questionnaire-engine'
+import { buildNav, type LoadedQuestionnaire } from '@/lib/questionnaire-nav'
 
 // ─── Helpers ──────────────────────────────────────────────
 
@@ -149,5 +150,184 @@ describe('category question ordering', () => {
     )
     expect(visible.find((q) => q.key === 'conditional')).toBeDefined()
     expect(visible).toHaveLength(4)
+  })
+})
+
+// ─── buildNav — helpers ────────────────────────────────────
+
+function makeQuestionnaire(questionOverrides: Partial<Question>[]): LoadedQuestionnaire {
+  return {
+    id: 'qn1',
+    name: 'Test',
+    categories: [
+      {
+        id: 'cat1',
+        key: 'cat1',
+        sort_order: 0,
+        label_de: 'Kategorie 1',
+        questions: questionOverrides.map((o, i) =>
+          makeQuestion({ id: `q${i}`, key: `q${i}`, sort_order: i, ...o }),
+        ),
+      },
+    ],
+  }
+}
+
+// ─── buildNav — progress denominator ─────────────────────
+
+describe('buildNav — progress denominator', () => {
+  it('counts only visible required questions', () => {
+    const q = makeQuestionnaire([
+      { key: 'trigger', is_required: true },
+      {
+        key: 'conditional',
+        is_required: true,
+        sort_order: 1,
+        visibility_rule: { question_key: 'trigger', value: 'Ja' },
+      },
+    ])
+    // trigger not yet answered → conditional hidden → denominator = 1
+    expect(buildNav(q, {}).totalRequired).toBe(1)
+  })
+
+  it('denominator grows when trigger is answered and conditional becomes visible', () => {
+    const q = makeQuestionnaire([
+      { key: 'trigger', is_required: true },
+      {
+        key: 'conditional',
+        is_required: true,
+        sort_order: 1,
+        visibility_rule: { question_key: 'trigger', value: 'Ja' },
+      },
+    ])
+    expect(buildNav(q, { trigger: 'Ja' }).totalRequired).toBe(2)
+  })
+
+  it('optional questions do not count toward denominator', () => {
+    const q = makeQuestionnaire([
+      { key: 'a', is_required: true },
+      { key: 'b', is_required: false, sort_order: 1 },
+    ])
+    expect(buildNav(q, {}).totalRequired).toBe(1)
+  })
+})
+
+// ─── buildNav — answered count and progress ───────────────
+
+describe('buildNav — answered count and progressPercent', () => {
+  it('starts at 0% with no answers', () => {
+    const q = makeQuestionnaire([
+      { key: 'a', is_required: true },
+      { key: 'b', is_required: true, sort_order: 1 },
+    ])
+    const nav = buildNav(q, {})
+    expect(nav.answeredRequired).toBe(0)
+    expect(nav.progressPercent).toBe(0)
+    expect(nav.allRequiredAnswered).toBe(false)
+  })
+
+  it('reaches 100% when all required are answered', () => {
+    const q = makeQuestionnaire([
+      { key: 'a', is_required: true },
+      { key: 'b', is_required: true, sort_order: 1 },
+    ])
+    const nav = buildNav(q, { a: 'yes', b: 'no' })
+    expect(nav.answeredRequired).toBe(2)
+    expect(nav.progressPercent).toBe(100)
+    expect(nav.allRequiredAnswered).toBe(true)
+  })
+
+  it('optional answered questions are not counted in answeredRequired', () => {
+    const q = makeQuestionnaire([
+      { key: 'req', is_required: true },
+      { key: 'opt', is_required: false, sort_order: 1 },
+    ])
+    const nav = buildNav(q, { req: 'x', opt: 'y' })
+    expect(nav.answeredRequired).toBe(1)
+    expect(nav.totalRequired).toBe(1)
+  })
+
+  it('empty questionnaire → 100% progress', () => {
+    const q: LoadedQuestionnaire = { id: 'x', name: 'Empty', categories: [] }
+    const nav = buildNav(q, {})
+    expect(nav.progressPercent).toBe(100)
+    expect(nav.allRequiredAnswered).toBe(true)
+  })
+})
+
+// ─── buildNav — nextQuestion / resumeQuestion ─────────────
+
+describe('buildNav — nextQuestion and resumeQuestion', () => {
+  it('nextQuestion is the first unanswered question', () => {
+    const q = makeQuestionnaire([
+      { key: 'a', is_required: true },
+      { key: 'b', is_required: false, sort_order: 1 },
+    ])
+    const nav = buildNav(q, { a: 'yes' })
+    expect(nav.nextQuestion?.key).toBe('b')
+  })
+
+  it('skipped question is excluded from nextQuestion', () => {
+    const q = makeQuestionnaire([
+      { key: 'a', is_required: true },
+      { key: 'b', is_required: true, sort_order: 1 },
+    ])
+    const nav = buildNav(q, {}, new Set(['q0']))
+    expect(nav.nextQuestion?.key).toBe('b')
+  })
+
+  it('resumeQuestion skips optional unanswered in favour of first required', () => {
+    const q = makeQuestionnaire([
+      { key: 'opt', is_required: false },
+      { key: 'req', is_required: true, sort_order: 1 },
+    ])
+    const nav = buildNav(q, {})
+    // nextQuestion = first unanswered (optional first), resumeQuestion = first required
+    expect(nav.nextQuestion?.key).toBe('opt')
+    expect(nav.resumeQuestion?.key).toBe('req')
+  })
+
+  it('nextQuestion is null when everything is answered or skipped', () => {
+    const q = makeQuestionnaire([{ key: 'a', is_required: true }])
+    const nav = buildNav(q, { a: 'yes' })
+    expect(nav.nextQuestion).toBeNull()
+  })
+})
+
+// ─── buildNav — per-section openRequiredCount ─────────────
+
+describe('buildNav — per-section openRequiredCount', () => {
+  it('section counts open required correctly', () => {
+    const questionnaire: LoadedQuestionnaire = {
+      id: 'qn',
+      name: 'Multi-section',
+      categories: [
+        {
+          id: 'cat1',
+          key: 'cat1',
+          sort_order: 0,
+          label_de: 'Sektion 1',
+          questions: [
+            makeQuestion({ id: 'q0', key: 'a', is_required: true, sort_order: 0 }),
+            makeQuestion({ id: 'q1', key: 'b', is_required: true, sort_order: 1 }),
+          ],
+        },
+        {
+          id: 'cat2',
+          key: 'cat2',
+          sort_order: 1,
+          label_de: 'Sektion 2',
+          questions: [
+            makeQuestion({ id: 'q2', key: 'c', is_required: true, sort_order: 0 }),
+          ],
+        },
+      ],
+    }
+
+    const nav = buildNav(questionnaire, { a: 'yes' })
+    expect(nav.sections[0].openRequiredCount).toBe(1) // b still open
+    expect(nav.sections[1].openRequiredCount).toBe(1) // c open
+    expect(nav.sections[0].totalRequired).toBe(2)
+    expect(nav.sections[1].totalRequired).toBe(1)
   })
 })

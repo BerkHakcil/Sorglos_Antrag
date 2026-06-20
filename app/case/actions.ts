@@ -115,6 +115,148 @@ export async function resolvePlzAction(plz: string): Promise<ResolvePlzResult> {
   return { ok: true, status: 'unsupported' }
 }
 
+// ── Step 3: Save an answer (M3) ───────────────────────────────────────────────
+
+export type SaveAnswerInput = {
+  questionId: string
+  groupInstance: string // 'default' for non-repeating questions
+  value: unknown
+}
+
+export type SaveAnswerResult = { ok: true } | { ok: false; error: string }
+
+export async function saveAnswerAction(input: SaveAnswerInput): Promise<SaveAnswerResult> {
+  const { userId } = await verifySession()
+  const supabase = await createClient()
+
+  const { data: caseRow } = await supabase
+    .from('cases')
+    .select('id, status, questionnaire_id')
+    .eq('user_id', userId)
+    .single()
+
+  if (!caseRow) return { ok: false, error: de.case.chat.errors.generic }
+  if (caseRow.status === 'under_review') return { ok: false, error: de.case.chat.errors.editLocked }
+
+  const { data: qRow } = await supabase
+    .from('question')
+    .select('id, answer_type, is_required, validation, category_id')
+    .eq('id', input.questionId)
+    .single()
+
+  if (!qRow) return { ok: false, error: de.case.chat.errors.generic }
+
+  // Security: question must belong to the user's assigned questionnaire
+  const { data: catRow } = await supabase
+    .from('category')
+    .select('id')
+    .eq('id', qRow.category_id)
+    .eq('questionnaire_id', caseRow.questionnaire_id)
+    .maybeSingle()
+
+  if (!catRow) return { ok: false, error: de.case.chat.errors.generic }
+
+  const validErr = validateAnswerValue(
+    qRow.answer_type,
+    qRow.is_required,
+    qRow.validation as Record<string, unknown> | null,
+    input.value,
+  )
+  if (validErr) return { ok: false, error: validErr }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error: upsertErr } = await (supabase as any).from('answer').upsert(
+    {
+      case_id: caseRow.id,
+      question_id: input.questionId,
+      group_instance: input.groupInstance,
+      value: input.value,
+    },
+    { onConflict: 'case_id,question_id,group_instance' },
+  )
+
+  if (upsertErr) return { ok: false, error: de.case.chat.errors.generic }
+
+  revalidatePath('/case')
+  return { ok: true }
+}
+
+// ── Server-side answer validation ─────────────────────────────────────────────
+
+function validateAnswerValue(
+  answerType: string,
+  isRequired: boolean,
+  validation: Record<string, unknown> | null,
+  value: unknown,
+): string | null {
+  const v = de.case.chat.validationErrors
+
+  const isEmpty =
+    value === null ||
+    value === undefined ||
+    value === '' ||
+    (Array.isArray(value) && value.length === 0)
+
+  if (isRequired && isEmpty) return v.required
+  if (isEmpty) return null
+
+  switch (answerType) {
+    case 'short_text':
+    case 'long_text': {
+      if (typeof value !== 'string') return v.generic
+      const minLen = validation?.min_length as number | undefined
+      const maxLen = validation?.max_length as number | undefined
+      if (minLen && value.length < minLen) return v.minLength.replace('{min}', String(minLen))
+      if (maxLen && value.length > maxLen) return v.maxLength.replace('{max}', String(maxLen))
+      return null
+    }
+
+    case 'number':
+    case 'amount': {
+      const num = typeof value === 'number' ? value : parseFloat(String(value))
+      if (isNaN(num)) return v.invalidNumber
+      const min = validation?.min as number | undefined
+      const max = validation?.max as number | undefined
+      if (min !== undefined && num < min) return v.invalidNumber
+      if (max !== undefined && num > max) return v.invalidNumber
+      return null
+    }
+
+    case 'date':
+      return typeof value === 'string' && !isNaN(new Date(value).getTime()) ? null : v.invalidDate
+
+    case 'yes_no':
+      return value === 'Ja' || value === 'Nein' ? null : v.invalidYesNo
+
+    case 'single_select':
+      return typeof value === 'string' && value ? null : v.invalidSelect
+
+    case 'multi_select':
+      return Array.isArray(value) ? null : v.invalidSelect
+
+    case 'address': {
+      const a = value as Record<string, string>
+      if (!a?.street?.trim() || !a?.plz?.trim() || !a?.city?.trim()) return v.invalidAddress
+      return null
+    }
+
+    case 'person': {
+      const p = value as Record<string, string>
+      if (!p?.first_name?.trim() || !p?.last_name?.trim()) return v.invalidPerson
+      return null
+    }
+
+    case 'bank_account': {
+      const b = value as Record<string, string>
+      if (!b?.iban?.trim()) return v.invalidIban
+      return null
+    }
+
+    default:
+      return null
+  }
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 async function getCaseId(

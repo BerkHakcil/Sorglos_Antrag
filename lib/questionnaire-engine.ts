@@ -1,87 +1,29 @@
 /**
- * Questionnaire engine — data loading and visibility filtering.
+ * Questionnaire engine — DB loader.
  *
- * All question definitions (prompts, types, options, order, groups) come
- * from the database. Zero question IDs or per-office logic appear here;
- * the engine is fully generic.
+ * Pure types and navigation logic live in:
+ *   lib/questionnaire-types.ts  — shared types (server + client safe)
+ *   lib/questionnaire-nav.ts    — isVisible, buildNav, formatAnswerForDisplay (client safe)
  *
- * Visibility filtering: a question is visible when its visibility_rule is
- * satisfied by the current set of saved answers.  With no answers (M2 display)
- * only unconditional questions (visibility_rule IS NULL) are shown — that is
- * correct behaviour; conditional questions appear as answers are saved in M3.
+ * This file re-exports both so existing imports from '@/lib/questionnaire-engine' keep working.
+ * Server-only: imports createClient from @/lib/supabase/server — do not import in Client Components.
  */
 
 import { createClient } from '@/lib/supabase/server'
 
-// ── Public types ──────────────────────────────────────────────────────────────
+// ── Re-exports (backward compat) ──────────────────────────────────────────────
 
-export type VisibilityRule =
-  | { question_key: string; value: string }
-  | { question_key: string; not_value: string }
-  | { question_key: string; not_empty: true }
-  | { question_key: string; in_values: string[] }
+export type {
+  VisibilityRule,
+  QuestionOption,
+  Question,
+  Category,
+  LoadedQuestionnaire,
+} from './questionnaire-types'
 
-export type QuestionOption = {
-  id: string
-  key: string
-  sort_order: number
-  label_de: string
-  value: string
-}
+export { isVisible } from './questionnaire-nav'
 
-export type Question = {
-  id: string
-  key: string
-  sort_order: number
-  answer_type: string
-  is_required: boolean
-  prompt_de: string
-  help_de: string | null
-  validation: Record<string, unknown> | null
-  visibility_rule: VisibilityRule | null
-  group_id: string | null
-  group_key: string | null
-  group_label_de: string | null
-  group_is_repeatable: boolean | null
-  group_sort_order: number | null
-  options: QuestionOption[]
-}
-
-export type Category = {
-  id: string
-  key: string
-  sort_order: number
-  label_de: string
-  questions: Question[]
-}
-
-export type LoadedQuestionnaire = {
-  id: string
-  name: string
-  categories: Category[]
-}
-
-// ── Visibility filter (pure — no I/O) ─────────────────────────────────────────
-
-/**
- * Returns true if the question should be visible given the current answers.
- * `answers` maps question_key → JSONB value (string, boolean, etc.).
- */
-export function isVisible(
-  rule: VisibilityRule | null | undefined,
-  answers: Record<string, unknown>,
-): boolean {
-  if (!rule) return true
-  const answer = answers[(rule as { question_key: string }).question_key]
-
-  if ('in_values' in rule) {
-    return Array.isArray(rule.in_values) && rule.in_values.includes(answer as string)
-  }
-  if ('value' in rule) return answer === rule.value
-  if ('not_value' in rule) return answer !== rule.not_value
-  if ('not_empty' in rule) return answer !== undefined && answer !== null && answer !== ''
-  return true
-}
+import type { Question, Category, LoadedQuestionnaire, QuestionOption } from './questionnaire-types'
 
 // ── DB loader ─────────────────────────────────────────────────────────────────
 
@@ -170,7 +112,7 @@ export async function loadQuestionnaire(
       prompt_de: q.prompt_de,
       help_de: q.help_de,
       validation: q.validation as Record<string, unknown> | null,
-      visibility_rule: q.visibility_rule as VisibilityRule | null,
+      visibility_rule: q.visibility_rule as import('./questionnaire-types').VisibilityRule | null,
       group_id: q.group_id,
       group_key: grp?.key ?? null,
       group_label_de: grp?.label_de ?? null,
