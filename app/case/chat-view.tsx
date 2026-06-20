@@ -58,7 +58,13 @@ function ProgressBar({ nav }: { nav: NavState }) {
   )
 }
 
-function AnsweredBubble({ question, prevQuestion }: { question: NavQuestion; prevQuestion?: NavQuestion }) {
+function AnsweredBubble({
+  question,
+  prevQuestion,
+}: {
+  question: NavQuestion
+  prevQuestion?: NavQuestion
+}) {
   const showSectionHeader = !prevQuestion || prevQuestion.categoryId !== question.categoryId
   const displayValue = formatAnswerForDisplay(question, question.savedValue)
 
@@ -98,8 +104,6 @@ function CurrentQuestionCard({
   onSave: () => void
   onSkip: () => void
 }) {
-  const showSectionHeader = true // always show for the current question card
-
   return (
     <div className="border-border bg-card rounded-xl border p-5 shadow-sm space-y-4">
       <div className="border-border border-b pb-2">
@@ -161,8 +165,9 @@ function EditLockedCard() {
 export function ChatView({ questionnaire, initialAnswersMap, caseStatus }: Props) {
   const [answersMap, setAnswersMap] = useState<Record<string, unknown>>(initialAnswersMap)
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set())
-  const [currentValue, setCurrentValue] = useState<unknown>(null)
-  const [validationError, setValidationError] = useState<string | null>(null)
+  // Per-question draft values — avoids useEffect setState by keying by question ID
+  const [answerDrafts, setAnswerDrafts] = useState<Record<string, unknown>>({})
+  const [draftErrors, setDraftErrors] = useState<Record<string, string>>({})
   const [isPending, startTransition] = useTransition()
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -174,19 +179,22 @@ export function ChatView({ questionnaire, initialAnswersMap, caseStatus }: Props
   const currentQ = nav.nextQuestion
   const isLocked = caseStatus === 'under_review'
 
-  // Reset input value when the current question changes
-  useEffect(() => {
-    if (currentQ) {
-      setCurrentValue(emptyValueFor(currentQ.answer_type))
-      setValidationError(null)
-    }
-  }, [currentQ?.id])
+  // currentValue and validationError are derived — no useEffect needed
+  const currentValue = currentQ
+    ? (answerDrafts[currentQ.id] ?? emptyValueFor(currentQ.answer_type))
+    : null
+  const validationError = currentQ ? (draftErrors[currentQ.id] ?? null) : null
 
-  // Scroll to the current question card when a new one appears
+  // Scroll to the current question card when answered count grows
   const answeredCount = nav.flatVisible.filter((q) => q.isAnswered).length
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [answeredCount])
+
+  const handleChange = (v: unknown) => {
+    if (!currentQ) return
+    setAnswerDrafts((prev) => ({ ...prev, [currentQ.id]: v }))
+  }
 
   const handleSave = () => {
     if (!currentQ || isPending) return
@@ -199,20 +207,23 @@ export function ChatView({ questionnaire, initialAnswersMap, caseStatus }: Props
       })
 
       if (!result.ok) {
-        setValidationError(result.error)
+        setDraftErrors((prev) => ({ ...prev, [currentQ.id]: result.error }))
         return
       }
 
-      // Optimistic update — nav recomputes, next question appears
+      // Optimistic update — nav recomputes, next question becomes currentQ
       setAnswersMap((prev) => ({ ...prev, [currentQ.key]: currentValue }))
+      // Clear the draft; the saved value now lives in answersMap
+      setAnswerDrafts((prev) => { const n = { ...prev }; delete n[currentQ.id]; return n })
+      setDraftErrors((prev) => { const n = { ...prev }; delete n[currentQ.id]; return n })
     })
   }
 
   const handleSkip = () => {
     if (!currentQ || isPending) return
     setSkippedIds((prev) => new Set([...prev, currentQ.id]))
-    setCurrentValue(null)
-    setValidationError(null)
+    setAnswerDrafts((prev) => { const n = { ...prev }; delete n[currentQ.id]; return n })
+    setDraftErrors((prev) => { const n = { ...prev }; delete n[currentQ.id]; return n })
   }
 
   const answeredQuestions = nav.flatVisible.filter((q) => q.isAnswered)
@@ -248,7 +259,7 @@ export function ChatView({ questionnaire, initialAnswersMap, caseStatus }: Props
           <CurrentQuestionCard
             question={currentQ}
             value={currentValue}
-            onChange={setCurrentValue}
+            onChange={handleChange}
             error={validationError}
             saving={isPending}
             onSave={handleSave}

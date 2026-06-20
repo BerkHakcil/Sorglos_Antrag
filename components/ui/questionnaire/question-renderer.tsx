@@ -253,7 +253,7 @@ function BankAccountInput({ question, value, onChange }: InputProps) {
   )
 }
 
-function DocumentUploadInput(_props: InputProps) {
+function DocumentUploadInput(_: InputProps) {
   return (
     <div className="border-border bg-muted/30 rounded-md border border-dashed px-4 py-3 text-sm text-muted-foreground">
       Dokument-Upload (folgt in Meilenstein 4)

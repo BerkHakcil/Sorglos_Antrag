@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isVisible, type VisibilityRule, type Question, type Category } from '@/lib/questionnaire-engine'
+import { isVisible, type VisibilityRule, type Question } from '@/lib/questionnaire-engine'
 import { buildNav, type LoadedQuestionnaire } from '@/lib/questionnaire-nav'
 
 // ─── Helpers ──────────────────────────────────────────────

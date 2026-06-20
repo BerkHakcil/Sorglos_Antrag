@@ -71,6 +71,7 @@ export function SignupForm() {
   })
 
   // Phone value is managed through RHF state; PhoneInput drives it via setValue.
+  // eslint-disable-next-line react-hooks/incompatible-library -- RHF watch is intentionally not memoized; PhoneInput re-renders are acceptable here
   const phoneValue = watch('phone') as PhoneValue | undefined
 
   const onSubmit = handleSubmit((data) => {
