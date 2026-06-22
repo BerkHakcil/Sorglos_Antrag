@@ -292,6 +292,31 @@ describe('buildNav — nextQuestion and resumeQuestion', () => {
     const nav = buildNav(q, { a: 'yes' })
     expect(nav.nextQuestion).toBeNull()
   })
+
+  it('nextSkippedQuestion returns the first skipped unanswered question', () => {
+    const q = makeQuestionnaire([
+      { key: 'a', is_required: true },
+      { key: 'b', is_required: true, sort_order: 1 },
+    ])
+    const nav = buildNav(q, {}, new Set(['q0']))
+    expect(nav.nextQuestion?.key).toBe('b')
+    expect(nav.nextSkippedQuestion?.key).toBe('a')
+  })
+
+  it('nextSkippedQuestion is null when no questions are skipped', () => {
+    const q = makeQuestionnaire([{ key: 'a', is_required: true }])
+    expect(buildNav(q, {}).nextSkippedQuestion).toBeNull()
+  })
+
+  it('document_upload questions are excluded from buildNav', () => {
+    const q = makeQuestionnaire([
+      { key: 'name', is_required: true, answer_type: 'short_text' },
+      { key: 'doc', is_required: true, answer_type: 'document_upload', sort_order: 1 },
+    ])
+    const nav = buildNav(q, {})
+    expect(nav.flatVisible.map((q) => q.key)).toEqual(['name'])
+    expect(nav.totalRequired).toBe(1)
+  })
 })
 
 // ─── buildNav — per-section openRequiredCount ─────────────

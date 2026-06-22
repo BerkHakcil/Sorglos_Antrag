@@ -4,7 +4,11 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { de } from '@/lib/strings/de'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
-import { isValidPhoneNumber } from 'react-phone-number-input'
+// libphonenumber-js/min is the server-safe validation lib; importing from
+// react-phone-number-input here would pull its React component into the SSR
+// bundle, causing "Super expression must either be null or a function" at
+// module evaluation time on Vercel.
+import { isValidPhoneNumber } from 'libphonenumber-js/min'
 
 // ── Shared types (imported as `type` in form.tsx) ─────────────────────────────
 

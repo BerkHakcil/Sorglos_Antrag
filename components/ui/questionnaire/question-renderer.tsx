@@ -13,6 +13,7 @@ import type { Question, QuestionOption } from '@/lib/questionnaire-types'
 import { de } from '@/lib/strings/de'
 
 const s = de.case.questionnaire
+const sc = de.case.chat
 
 // ── Shared props type ─────────────────────────────────────────────────────────
 
@@ -20,50 +21,65 @@ type InputProps = {
   question: Question
   value?: unknown
   onChange?: (value: unknown) => void
+  /** Called when the user presses Enter (or Shift+Enter for long_text) to advance. */
+  onSubmit?: () => void
 }
 
 // ── Individual input components ───────────────────────────────────────────────
 
-function ShortTextInput({ question, value, onChange }: InputProps) {
+function ShortTextInput({ question, value, onChange, onSubmit }: InputProps) {
   return (
     <input
       type="text"
       disabled={!onChange}
       value={typeof value === 'string' ? value : ''}
       onChange={(e) => onChange?.(e.target.value)}
+      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
       aria-label={question.prompt_de}
       className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
     />
   )
 }
 
-function LongTextInput({ question, value, onChange }: InputProps) {
+function LongTextInput({ question, value, onChange, onSubmit }: InputProps) {
   return (
-    <textarea
-      disabled={!onChange}
-      rows={3}
-      value={typeof value === 'string' ? value : ''}
-      onChange={(e) => onChange?.(e.target.value)}
-      aria-label={question.prompt_de}
-      className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
-    />
+    <div className="space-y-1">
+      <textarea
+        disabled={!onChange}
+        rows={3}
+        value={typeof value === 'string' ? value : ''}
+        onChange={(e) => onChange?.(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && e.shiftKey) {
+            e.preventDefault()
+            onSubmit?.()
+          }
+        }}
+        aria-label={question.prompt_de}
+        className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
+      />
+      {onSubmit && (
+        <p className="text-muted-foreground text-xs">{sc.longTextHint}</p>
+      )}
+    </div>
   )
 }
 
-function NumberInput({ question, value, onChange }: InputProps) {
+function NumberInput({ question, value, onChange, onSubmit }: InputProps) {
   return (
     <input
       type="number"
       disabled={!onChange}
       value={value !== null && value !== undefined && value !== '' ? String(value) : ''}
       onChange={(e) => onChange?.(e.target.value === '' ? '' : parseFloat(e.target.value))}
+      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
       aria-label={question.prompt_de}
       className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
     />
   )
 }
 
-function AmountInput({ question, value, onChange }: InputProps) {
+function AmountInput({ question, value, onChange, onSubmit }: InputProps) {
   return (
     <div className="flex items-center gap-2">
       <input
@@ -72,6 +88,7 @@ function AmountInput({ question, value, onChange }: InputProps) {
         step="0.01"
         value={value !== null && value !== undefined && value !== '' ? String(value) : ''}
         onChange={(e) => onChange?.(e.target.value === '' ? '' : parseFloat(e.target.value))}
+        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
         aria-label={question.prompt_de}
         className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
       />
@@ -80,22 +97,26 @@ function AmountInput({ question, value, onChange }: InputProps) {
   )
 }
 
-function DateInput({ question, value, onChange }: InputProps) {
+function DateInput({ question, value, onChange, onSubmit }: InputProps) {
   return (
     <input
       type="date"
       disabled={!onChange}
       value={typeof value === 'string' ? value : ''}
       onChange={(e) => onChange?.(e.target.value)}
+      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
       aria-label={question.prompt_de}
       className="border-border bg-muted/30 rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
     />
   )
 }
 
-function YesNoInput({ question, value, onChange }: InputProps) {
+function YesNoInput({ question, value, onChange, onSubmit }: InputProps) {
   return (
-    <div className="flex gap-4">
+    <div
+      className="flex gap-4"
+      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
+    >
       {(['Ja', 'Nein'] as const).map((opt) => (
         <label
           key={opt}
@@ -121,12 +142,14 @@ function SingleSelectInput({
   options,
   value,
   onChange,
+  onSubmit,
 }: InputProps & { options: QuestionOption[] }) {
   return (
     <select
       disabled={!onChange}
       value={typeof value === 'string' ? value : ''}
       onChange={(e) => onChange?.(e.target.value)}
+      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
       aria-label={question.prompt_de}
       className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
     >
@@ -172,7 +195,7 @@ function MultiSelectInput({
   )
 }
 
-function AddressInput({ question, value, onChange }: InputProps) {
+function AddressInput({ question, value, onChange, onSubmit }: InputProps) {
   const addr = (value as Record<string, string> | null | undefined) ?? {}
   const update = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     onChange?.({ ...addr, [field]: e.target.value })
@@ -191,6 +214,7 @@ function AddressInput({ question, value, onChange }: InputProps) {
           placeholder={placeholder}
           value={addr[field] ?? ''}
           onChange={update(field)}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
           aria-label={`${question.prompt_de} – ${placeholder}`}
           className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
         />
@@ -199,7 +223,7 @@ function AddressInput({ question, value, onChange }: InputProps) {
   )
 }
 
-function PersonInput({ question, value, onChange }: InputProps) {
+function PersonInput({ question, value, onChange, onSubmit }: InputProps) {
   const person = (value as Record<string, string> | null | undefined) ?? {}
   const update = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     onChange?.({ ...person, [field]: e.target.value })
@@ -218,6 +242,7 @@ function PersonInput({ question, value, onChange }: InputProps) {
           placeholder={placeholder}
           value={person[field] ?? ''}
           onChange={update(field)}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
           aria-label={`${question.prompt_de} – ${placeholder}`}
           className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
         />
@@ -226,7 +251,7 @@ function PersonInput({ question, value, onChange }: InputProps) {
   )
 }
 
-function BankAccountInput({ question, value, onChange }: InputProps) {
+function BankAccountInput({ question, value, onChange, onSubmit }: InputProps) {
   const bank = (value as Record<string, string> | null | undefined) ?? {}
   const update = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     onChange?.({ ...bank, [field]: e.target.value })
@@ -245,6 +270,7 @@ function BankAccountInput({ question, value, onChange }: InputProps) {
           placeholder={placeholder}
           value={bank[field] ?? ''}
           onChange={update(field)}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
           aria-label={`${question.prompt_de} – ${placeholder}`}
           className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
         />
@@ -253,7 +279,8 @@ function BankAccountInput({ question, value, onChange }: InputProps) {
   )
 }
 
-function DocumentUploadInput(_: InputProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function DocumentUploadInput(_props: InputProps) {
   return (
     <div className="border-border bg-muted/30 rounded-md border border-dashed px-4 py-3 text-sm text-muted-foreground">
       Dokument-Upload (folgt in Meilenstein 4)
@@ -267,30 +294,33 @@ export function QuestionRenderer({
   question,
   value,
   onChange,
+  onSubmit,
 }: {
   question: Question
   /** Current answer value. Undefined = no value (read-only / not yet answered). */
   value?: unknown
   /** When provided, renders in interactive mode. When absent, renders disabled (read-only). */
   onChange?: (value: unknown) => void
+  /** Called when Enter is pressed in applicable inputs to advance to the next question. */
+  onSubmit?: () => void
 }) {
   const opts = question.options
 
   const input = (() => {
     switch (question.answer_type) {
-      case 'short_text':      return <ShortTextInput question={question} value={value} onChange={onChange} />
-      case 'long_text':       return <LongTextInput question={question} value={value} onChange={onChange} />
-      case 'number':          return <NumberInput question={question} value={value} onChange={onChange} />
-      case 'amount':          return <AmountInput question={question} value={value} onChange={onChange} />
-      case 'date':            return <DateInput question={question} value={value} onChange={onChange} />
-      case 'yes_no':          return <YesNoInput question={question} value={value} onChange={onChange} />
-      case 'single_select':   return <SingleSelectInput question={question} options={opts} value={value} onChange={onChange} />
+      case 'short_text':      return <ShortTextInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+      case 'long_text':       return <LongTextInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+      case 'number':          return <NumberInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+      case 'amount':          return <AmountInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+      case 'date':            return <DateInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+      case 'yes_no':          return <YesNoInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+      case 'single_select':   return <SingleSelectInput question={question} options={opts} value={value} onChange={onChange} onSubmit={onSubmit} />
       case 'multi_select':    return <MultiSelectInput question={question} options={opts} value={value} onChange={onChange} />
-      case 'address':         return <AddressInput question={question} value={value} onChange={onChange} />
-      case 'person':          return <PersonInput question={question} value={value} onChange={onChange} />
-      case 'bank_account':    return <BankAccountInput question={question} value={value} onChange={onChange} />
-      case 'document_upload': return <DocumentUploadInput question={question} value={value} onChange={onChange} />
-      default:                return <ShortTextInput question={question} value={value} onChange={onChange} />
+      case 'address':         return <AddressInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+      case 'person':          return <PersonInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+      case 'bank_account':    return <BankAccountInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+      case 'document_upload': return <DocumentUploadInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+      default:                return <ShortTextInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
     }
   })()
 

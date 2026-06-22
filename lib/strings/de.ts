@@ -194,6 +194,11 @@ export const de = {
       nextButton: 'Weiter',
       skipButton: 'Weiß ich gerade nicht',
       savingButton: 'Speichern …',
+      editButton: 'Bearbeiten',
+      editSaveButton: 'Änderung speichern',
+      editCancelButton: 'Abbrechen',
+      reaskNote: 'Diese Frage haben Sie übersprungen. Bitte beantworten Sie sie jetzt.',
+      longTextHint: 'Shift + Enter zum Absenden',
       // {answered} and {total} are replaced at render time
       progressLabel: '{answered} von {total} Pflichtfeldern beantwortet',
       allAnsweredHeading: 'Alle Pflichtfelder beantwortet',

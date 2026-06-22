@@ -54,6 +54,8 @@ export type NavState = {
   nextQuestion: NavQuestion | null
   /** First unanswered applicable required question not in skippedIds — resume target after login */
   resumeQuestion: NavQuestion | null
+  /** First skipped unanswered question — re-asked when nextQuestion is null */
+  nextSkippedQuestion: NavQuestion | null
   totalRequired: number
   answeredRequired: number
   progressPercent: number
@@ -82,6 +84,7 @@ export function buildNav(
     const navQuestions: NavQuestion[] = []
 
     for (const q of cat.questions) {
+      if (q.answer_type === 'document_upload') continue  // M5: documents handled separately
       if (!isVisible(q.visibility_rule, answersMap)) continue
 
       const rawValue = answersMap[q.key]
@@ -115,12 +118,15 @@ export function buildNav(
     flatVisible.find((q) => !q.isAnswered && !skippedIds.has(q.id)) ?? null
   const resumeQuestion =
     flatVisible.find((q) => q.is_required && !q.isAnswered && !skippedIds.has(q.id)) ?? null
+  const nextSkippedQuestion =
+    flatVisible.find((q) => !q.isAnswered && skippedIds.has(q.id)) ?? null
 
   return {
     sections,
     flatVisible,
     nextQuestion,
     resumeQuestion,
+    nextSkippedQuestion,
     totalRequired,
     answeredRequired,
     progressPercent,
