@@ -4,6 +4,11 @@
 // Questionnaire content (questions, options, help texts) stays in the DB.
 
 export const de = {
+  brand: {
+    name: 'Sorglos Antrag',
+    tagline: 'Heimkosten einfach geregelt.',
+  },
+
   login: {
     errors: {
       emailNotConfirmed:
@@ -141,11 +146,15 @@ export const de = {
     body: 'Die vollständige Datenschutzerklärung wird in Kürze veröffentlicht.',
     backLink: 'Zurück zur Registrierung',
   },
+
   case: {
-    pageTitle: 'Mein Antrag – Hilfe zur Pflege',
+    pageTitle: 'Mein Antrag – Sorglos Antrag',
     heading: 'Mein Antrag',
-    subheading: 'Hilfe zur Pflege',
+    subheading: 'Mein Hilfe zur Pflege Antrag',
     logoutButton: 'Abmelden',
+    caseIdLabel: 'Fall-ID',
+    plzLabel: 'PLZ vor Heimeinzug',
+    statusLabel: 'Status',
 
     careHome: {
       heading: 'Schritt 1: Pflegeheim auswählen',
@@ -162,7 +171,7 @@ export const de = {
         'Bitte geben Sie die Postleitzahl der Wohnung an, in der die pflegebedürftige Person ' +
         'zuletzt gelebt hat (vor dem Einzug ins Pflegeheim).',
       label: 'Postleitzahl (5 Ziffern)',
-      placeholder: 'z. B. 10115',
+      placeholder: 'z. B. 10115',
       submitButton: 'Postleitzahl bestätigen',
       loadingButton: 'Wird geprüft …',
       errorInvalidFormat: 'Bitte geben Sie eine gültige 5-stellige Postleitzahl ein.',
@@ -175,8 +184,7 @@ export const de = {
     questionnaire: {
       patientBannerTitle: 'Angaben zur pflegebedürftigen Person',
       patientBannerBody:
-        'Die folgenden Fragen betreffen ausschließlich die Person, die im Pflegeheim lebt – ' +
-        'nicht Sie als Antragsteller.',
+        'Die folgenden Fragen beziehen sich ausschließlich auf die Person, die im Pflegeheim lebt, sie ist der Antragsteller.',
       requiredBadge: 'Pflichtfeld',
       optionalBadge: 'Optional',
       groupEmptyHint:
@@ -187,6 +195,7 @@ export const de = {
     statusLabels: {
       in_progress: 'In Bearbeitung',
       under_review: 'In Prüfung',
+      completed: 'Fragebogen vollständig',
     } as Record<string, string>,
 
     chat: {
@@ -200,13 +209,24 @@ export const de = {
       reaskNote: 'Diese Frage haben Sie übersprungen. Bitte beantworten Sie sie jetzt.',
       longTextHint: 'Shift + Enter zum Absenden',
       // {answered} and {total} are replaced at render time
-      progressLabel: '{answered} von {total} Pflichtfeldern beantwortet',
-      allAnsweredHeading: 'Alle Pflichtfelder beantwortet',
+      progressLabel: '{answered} von {total} Fragen beantwortet',
+      allAnsweredHeading: 'Sie haben alle Fragen beantwortet!',
       allAnsweredMessage:
-        'Angaben werden geprüft und Antrag wird erstellt.',
+        'Wir prüfen nun alle Ihre Angaben und übertragen diese in das Antragsformular. ' +
+        'Sofern Dinge unklar sind, melden wir uns bei Ihnen.',
       editLockedMessage:
         'Der Antrag wurde zur Prüfung eingereicht. Änderungen sind nicht mehr möglich.',
       skippedBadge: 'Übersprungen',
+
+      repeatableGroup: {
+        // {group} is replaced with the group label (e.g. "Rente / Pension")
+        anotherPrompt: 'Möchten Sie eine weitere {group} hinzufügen?',
+        yesButton: 'Ja, hinzufügen',
+        noButton: 'Nein, weiter',
+        removeInstanceLabel: 'Eintrag entfernen',
+        // {group} and {index} replaced at render time
+        instanceLabel: '{group} {index}',
+      },
 
       errors: {
         generic: 'Antwort konnte nicht gespeichert werden. Bitte erneut versuchen.',

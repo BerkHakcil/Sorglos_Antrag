@@ -20,6 +20,8 @@ function makeQuestion(overrides: Partial<Question> = {}): Question {
     group_label_de: null,
     group_is_repeatable: null,
     group_sort_order: null,
+    group_min_count: null,
+    group_max_count: null,
     options: [],
     ...overrides,
   }
@@ -272,7 +274,7 @@ describe('buildNav — nextQuestion and resumeQuestion', () => {
       { key: 'a', is_required: true },
       { key: 'b', is_required: true, sort_order: 1 },
     ])
-    const nav = buildNav(q, {}, new Set(['q0']))
+    const nav = buildNav(q, {}, {}, {}, new Set(), new Set(['q0']))
     expect(nav.nextQuestion?.key).toBe('b')
   })
 
@@ -298,7 +300,7 @@ describe('buildNav — nextQuestion and resumeQuestion', () => {
       { key: 'a', is_required: true },
       { key: 'b', is_required: true, sort_order: 1 },
     ])
-    const nav = buildNav(q, {}, new Set(['q0']))
+    const nav = buildNav(q, {}, {}, {}, new Set(), new Set(['q0']))
     expect(nav.nextQuestion?.key).toBe('b')
     expect(nav.nextSkippedQuestion?.key).toBe('a')
   })

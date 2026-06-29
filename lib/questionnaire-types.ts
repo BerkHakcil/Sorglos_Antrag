@@ -29,6 +29,8 @@ export type Question = {
   group_label_de: string | null
   group_is_repeatable: boolean | null
   group_sort_order: number | null
+  group_min_count: number | null
+  group_max_count: number | null
   options: QuestionOption[]
 }
 

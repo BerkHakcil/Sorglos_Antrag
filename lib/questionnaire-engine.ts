@@ -66,7 +66,7 @@ export async function loadQuestionnaire(
       id, key, sort_order, answer_type, is_required,
       prompt_de, help_de, validation, visibility_rule, group_id, category_id,
       question_group (
-        id, key, sort_order, label_de, is_repeatable
+        id, key, sort_order, label_de, is_repeatable, min_count, max_count
       )
     `)
     .in('category_id', catIds)
@@ -118,6 +118,8 @@ export async function loadQuestionnaire(
       group_label_de: grp?.label_de ?? null,
       group_is_repeatable: grp?.is_repeatable ?? null,
       group_sort_order: grp?.sort_order ?? null,
+      group_min_count: grp?.min_count ?? null,
+      group_max_count: grp?.max_count ?? null,
       options: optsByQuestion[q.id] ?? [],
     }
     if (!qsByCategory[q.category_id]) qsByCategory[q.category_id] = []

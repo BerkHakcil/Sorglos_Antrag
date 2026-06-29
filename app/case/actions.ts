@@ -181,6 +181,47 @@ export async function saveAnswerAction(input: SaveAnswerInput): Promise<SaveAnsw
   return { ok: true }
 }
 
+// ── Step 3b: Delete a repeatable group instance ───────────────────────────────
+
+export type DeleteGroupInstanceInput = {
+  groupKey: string
+  instanceId: string
+}
+
+export type DeleteGroupInstanceResult = { ok: true } | { ok: false; error: string }
+
+export async function deleteGroupInstanceAction(
+  input: DeleteGroupInstanceInput,
+): Promise<DeleteGroupInstanceResult> {
+  const { userId } = await verifySession()
+  const supabase = await createClient()
+
+  const { data: caseRow } = await supabase
+    .from('cases')
+    .select('id, status')
+    .eq('user_id', userId)
+    .single()
+
+  if (!caseRow) return { ok: false, error: de.case.chat.errors.generic }
+  if (caseRow.status === 'under_review') return { ok: false, error: de.case.chat.errors.editLocked }
+
+  // Safety: this action must never delete 'default' answers
+  if (!input.instanceId || input.instanceId === 'default') {
+    return { ok: false, error: de.case.chat.errors.generic }
+  }
+
+  const { error } = await supabase
+    .from('answer')
+    .delete()
+    .eq('case_id', caseRow.id)
+    .eq('group_instance', input.instanceId)
+
+  if (error) return { ok: false, error: de.case.chat.errors.generic }
+
+  revalidatePath('/case')
+  return { ok: true }
+}
+
 // ── Server-side answer validation ─────────────────────────────────────────────
 
 function validateAnswerValue(

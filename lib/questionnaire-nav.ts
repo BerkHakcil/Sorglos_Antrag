@@ -2,8 +2,8 @@
  * Pure navigation engine — no server imports, safe for Client Components.
  *
  * Exports:
- *   isVisible   — visibility-rule predicate (also re-exported via questionnaire-engine for M2 compat)
- *   buildNav    — derives full nav/progress state from loaded questionnaire + saved answers
+ *   isVisible           — visibility-rule predicate
+ *   buildNav            — derives full nav/progress state from loaded questionnaire + saved answers
  *   formatAnswerForDisplay — human-readable German answer string for chat history
  */
 
@@ -38,6 +38,10 @@ export type NavQuestion = Question & {
   categoryLabel: string
   isAnswered: boolean
   savedValue: unknown
+  /** null for non-repeatable questions; stable UUID for a specific group instance */
+  instanceId: string | null
+  /** 1-based index within the group; 0 for non-repeatable questions */
+  instanceIndex: number
 }
 
 export type SectionNav = {
@@ -45,6 +49,14 @@ export type SectionNav = {
   navQuestions: NavQuestion[]
   openRequiredCount: number
   totalRequired: number
+}
+
+/** Returned when all questions of the last group instance are answered and more can be added. */
+export type GroupPromptInfo = {
+  groupKey: string
+  groupLabelDe: string
+  instanceCount: number
+  maxCount: number | null
 }
 
 export type NavState = {
@@ -60,6 +72,14 @@ export type NavState = {
   answeredRequired: number
   progressPercent: number
   allRequiredAnswered: boolean
+  /** Non-null when the user should be asked "add another?" for a completed repeatable group */
+  groupPrompt: GroupPromptInfo | null
+}
+
+// ── Skip key helper ───────────────────────────────────────────────────────────
+
+function skipKey(q: NavQuestion): string {
+  return q.instanceId ? `${q.id}:${q.instanceId}` : q.id
 }
 
 // ── Navigation builder ────────────────────────────────────────────────────────
@@ -68,27 +88,87 @@ export type NavState = {
  * Derives complete navigation state from a loaded questionnaire + current answers.
  * Pure — no I/O. Re-run on every answer save to recompute progress and next question.
  *
- * @param questionnaire  loaded from loadQuestionnaire()
- * @param answersMap     question_key → JSONB value (from getCaseAnswers())
- * @param skippedIds     question IDs skipped this session — client state only, not persisted
+ * For repeatable groups, pass groupInstances (groupKey → ordered instanceIds) and
+ * groupAnswers (instanceId → {questionKey → value}).  Both default to empty so
+ * callers that don't use groups can omit them.
+ *
+ * dismissedGroups: set of groupKeys where the user clicked "Nein" on the "add another?"
+ * prompt this session — suppresses the GroupPromptInfo for that group.
+ *
+ * skippedIds: compound keys (`questionId:instanceId` for group questions,
+ * `questionId` for non-group) of questions the user skipped this session.
  */
 export function buildNav(
   questionnaire: LoadedQuestionnaire,
   answersMap: Record<string, unknown>,
+  groupInstances: Record<string, string[]> = {},
+  groupAnswers: Record<string, Record<string, unknown>> = {},
+  dismissedGroups: Set<string> = new Set(),
   skippedIds: Set<string> = new Set(),
 ): NavState {
   const sections: SectionNav[] = []
   const flatVisible: NavQuestion[] = []
 
+  // Track which repeatable group_keys we have already expanded in this pass
+  const expandedGroupKeys = new Set<string>()
+
   for (const cat of questionnaire.categories) {
     const navQuestions: NavQuestion[] = []
 
     for (const q of cat.questions) {
-      if (q.answer_type === 'document_upload') continue  // M5: documents handled separately
+      if (q.answer_type === 'document_upload') continue
+
+      // ── Repeatable group expansion ──────────────────────────────────────────
+      if (q.group_is_repeatable && q.group_key) {
+        if (expandedGroupKeys.has(q.group_key)) continue
+        expandedGroupKeys.add(q.group_key)
+
+        // All questions in this group for this category, in sort_order
+        const groupQs = cat.questions.filter(
+          (gq) => gq.group_key === q.group_key && gq.answer_type !== 'document_upload',
+        )
+
+        const instances = groupInstances[q.group_key] ?? []
+
+        for (let idx = 0; idx < instances.length; idx++) {
+          const instanceId = instances[idx]
+          // Combine global answers with this instance's answers so that both
+          // cross-group visibility rules (e.g. "other_income = Ja") and
+          // intra-group rules (e.g. "pension_type not_empty") evaluate correctly.
+          const instanceAnswers = { ...answersMap, ...(groupAnswers[instanceId] ?? {}) }
+
+          for (const gq of groupQs) {
+            if (!isVisible(gq.visibility_rule, instanceAnswers)) continue
+
+            const rawValue = (groupAnswers[instanceId] ?? {})[gq.key]
+            const isAnswered =
+              rawValue !== undefined &&
+              rawValue !== null &&
+              rawValue !== '' &&
+              !(Array.isArray(rawValue) && rawValue.length === 0)
+
+            navQuestions.push({
+              ...gq,
+              categoryId: cat.id,
+              categoryLabel: cat.label_de,
+              isAnswered,
+              savedValue: rawValue ?? null,
+              instanceId,
+              instanceIndex: idx + 1,
+            })
+          }
+        }
+        continue
+      }
+
+      // ── Regular (non-repeatable) question ───────────────────────────────────
       if (!isVisible(q.visibility_rule, answersMap)) continue
 
       const rawValue = answersMap[q.key]
-      const isAnswered = rawValue !== undefined && rawValue !== null && rawValue !== '' &&
+      const isAnswered =
+        rawValue !== undefined &&
+        rawValue !== null &&
+        rawValue !== '' &&
         !(Array.isArray(rawValue) && rawValue.length === 0)
 
       navQuestions.push({
@@ -97,6 +177,8 @@ export function buildNav(
         categoryLabel: cat.label_de,
         isAnswered,
         savedValue: rawValue ?? null,
+        instanceId: null,
+        instanceIndex: 0,
       })
     }
 
@@ -115,11 +197,46 @@ export function buildNav(
     totalRequired > 0 ? Math.round((answeredRequired / totalRequired) * 100) : 100
 
   const nextQuestion =
-    flatVisible.find((q) => !q.isAnswered && !skippedIds.has(q.id)) ?? null
+    flatVisible.find((q) => !q.isAnswered && !skippedIds.has(skipKey(q))) ?? null
   const resumeQuestion =
-    flatVisible.find((q) => q.is_required && !q.isAnswered && !skippedIds.has(q.id)) ?? null
+    flatVisible.find((q) => q.is_required && !q.isAnswered && !skippedIds.has(skipKey(q))) ?? null
   const nextSkippedQuestion =
-    flatVisible.find((q) => !q.isAnswered && skippedIds.has(q.id)) ?? null
+    flatVisible.find((q) => !q.isAnswered && skippedIds.has(skipKey(q))) ?? null
+
+  // ── Group prompt detection ──────────────────────────────────────────────────
+  // Show "add another?" for the first group that:
+  //  1. has visible questions in flatVisible (cross-group visibility may hide them all)
+  //  2. all those questions are answered
+  //  3. is not dismissed this session
+  //  4. is not at max_count
+  //  5. its last question in flatVisible comes before nextQuestion (or there is no nextQuestion)
+  let groupPrompt: GroupPromptInfo | null = null
+
+  const nextIdx = nextQuestion ? flatVisible.indexOf(nextQuestion) : flatVisible.length
+
+  for (const [groupKey, instances] of Object.entries(groupInstances)) {
+    if (instances.length === 0) continue
+    if (dismissedGroups.has(groupKey)) continue
+
+    const groupNavQs = flatVisible.filter((q) => q.group_key === groupKey)
+    if (groupNavQs.length === 0) continue  // cross-group visibility hid everything
+
+    if (!groupNavQs.every((q) => q.isAnswered)) continue
+
+    const lastGroupIdx = flatVisible.indexOf(groupNavQs[groupNavQs.length - 1])
+    if (lastGroupIdx >= nextIdx) continue  // group questions sit after the current cursor
+
+    const maxCount = groupNavQs[0]?.group_max_count ?? null
+    if (maxCount !== null && instances.length >= maxCount) continue
+
+    groupPrompt = {
+      groupKey,
+      groupLabelDe: groupNavQs[0]?.group_label_de ?? groupKey,
+      instanceCount: instances.length,
+      maxCount,
+    }
+    break
+  }
 
   return {
     sections,
@@ -131,6 +248,7 @@ export function buildNav(
     answeredRequired,
     progressPercent,
     allRequiredAnswered: totalRequired === 0 || answeredRequired === totalRequired,
+    groupPrompt,
   }
 }
 
