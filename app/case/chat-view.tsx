@@ -374,13 +374,16 @@ export function ChatView({
     el.scrollTop = el.scrollHeight
   }, [answeredCount])
 
-  // ── Category header: show only when entering a new category/instance ───────
+  // ── Category header: show only when category changes or a new group instance starts ──
+  // Comparing instanceId alone was wrong: group-UUID → null (same category) incorrectly
+  // triggered the header. We only want the header for a new GROUP instance (activeQ has
+  // a non-null instanceId and it differs from the last answered one).
   const lastAnsweredQ = answeredQuestions[answeredQuestions.length - 1] ?? null
   const showCatHeader: boolean = !activeQ
     ? false
     : !lastAnsweredQ ||
       lastAnsweredQ.categoryId !== activeQ.categoryId ||
-      lastAnsweredQ.instanceId !== activeQ.instanceId
+      (activeQ.instanceId !== null && lastAnsweredQ.instanceId !== activeQ.instanceId)
 
   // ── Event handlers ─────────────────────────────────────────────────────────
 
