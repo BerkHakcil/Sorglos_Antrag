@@ -206,13 +206,11 @@ export function buildNav(
   // ── Group prompt detection ──────────────────────────────────────────────────
   // Show "add another?" for the first group that:
   //  1. has visible questions in flatVisible (cross-group visibility may hide them all)
-  //  2. all those questions are answered
+  //  2. ALL those questions are answered (sufficient guard — if the group isn't
+  //     complete the user hasn't "passed" it yet, so no false positives)
   //  3. is not dismissed this session
   //  4. is not at max_count
-  //  5. its last question in flatVisible comes before nextQuestion (or there is no nextQuestion)
   let groupPrompt: GroupPromptInfo | null = null
-
-  const nextIdx = nextQuestion ? flatVisible.indexOf(nextQuestion) : flatVisible.length
 
   for (const [groupKey, instances] of Object.entries(groupInstances)) {
     if (instances.length === 0) continue
@@ -222,9 +220,6 @@ export function buildNav(
     if (groupNavQs.length === 0) continue  // cross-group visibility hid everything
 
     if (!groupNavQs.every((q) => q.isAnswered)) continue
-
-    const lastGroupIdx = flatVisible.indexOf(groupNavQs[groupNavQs.length - 1])
-    if (lastGroupIdx >= nextIdx) continue  // group questions sit after the current cursor
 
     const maxCount = groupNavQs[0]?.group_max_count ?? null
     if (maxCount !== null && instances.length >= maxCount) continue
