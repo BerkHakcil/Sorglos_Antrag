@@ -123,7 +123,7 @@ export async function signupAction(input: SignupInput): Promise<SignupResult> {
     // was just inserted by the DB trigger and the user's JWT isn't in the session
     // yet when email confirmation is enabled.
     const now = new Date().toISOString()
-    const adminClient = await createAdminClient()
+    const adminClient = createAdminClient()
     const { error: updateError } = await adminClient
       .from('profiles')
       .update({

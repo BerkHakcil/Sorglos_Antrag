@@ -50,7 +50,7 @@ export async function resolvePlzAction(plz: string): Promise<ResolvePlzResult> {
 
   const { userId } = await verifySession()
   const supabase = await createClient()
-  const adminClient = await createAdminClient()
+  const adminClient = createAdminClient()
 
   // Range query: plz_from <= plz AND plz_to >= plz, highest priority first
   const { data: rules, error: ruleErr } = await supabase
@@ -197,7 +197,7 @@ export async function saveAnswerAction(input: SaveAnswerInput): Promise<SaveAnsw
     // status_event has no INSERT RLS policy (service-role only by design) so we
     // need the admin client here. The cases UPDATE uses the user client so RLS
     // confirms ownership before the status change.
-    const adminClient = await createAdminClient()
+    const adminClient = createAdminClient()
 
     await supabase.from('cases').update({ status: 'under_review' }).eq('id', caseRow.id)
 
