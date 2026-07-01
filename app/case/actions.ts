@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { verifySession, getFallbackQuestionnaireId, getCaseAnswers, type SavedAnswer } from '@/lib/dal'
 import { de } from '@/lib/strings/de'
 import { loadQuestionnaire } from '@/lib/questionnaire-engine'
@@ -50,6 +50,7 @@ export async function resolvePlzAction(plz: string): Promise<ResolvePlzResult> {
 
   const { userId } = await verifySession()
   const supabase = await createClient()
+  const adminClient = await createAdminClient()
 
   // Range query: plz_from <= plz AND plz_to >= plz, highest priority first
   const { data: rules, error: ruleErr } = await supabase
@@ -86,7 +87,7 @@ export async function resolvePlzAction(plz: string): Promise<ResolvePlzResult> {
       })
       .eq('user_id', userId)
 
-    await supabase.from('status_event').insert({
+    await adminClient.from('status_event').insert({
       case_id: await getCaseId(userId, supabase),
       event_type: 'social_office_resolved',
       payload: { plz, social_office_id: match.social_office_id, questionnaire_id: questionnaireId },
@@ -108,7 +109,7 @@ export async function resolvePlzAction(plz: string): Promise<ResolvePlzResult> {
     })
     .eq('user_id', userId)
 
-  await supabase.from('status_event').insert({
+  await adminClient.from('status_event').insert({
     case_id: await getCaseId(userId, supabase),
     event_type: 'social_office_unresolved',
     payload: { plz, reason: 'no_matching_rule' },
@@ -193,17 +194,22 @@ export async function saveAnswerAction(input: SaveAnswerInput): Promise<SaveAnsw
   const nav = buildNav(questionnaire, answersMap, groupInstances, groupAnswers)
 
   if (nav.allRequiredAnswered) {
+    // status_event has no INSERT RLS policy (service-role only by design) so we
+    // need the admin client here. The cases UPDATE uses the user client so RLS
+    // confirms ownership before the status change.
+    const adminClient = await createAdminClient()
+
     await supabase.from('cases').update({ status: 'under_review' }).eq('id', caseRow.id)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { count } = await (supabase as any)
+    // Idempotent: check first so replaying saveAnswerAction doesn't write duplicates.
+    const { count } = await adminClient
       .from('status_event')
       .select('id', { count: 'exact', head: true })
       .eq('case_id', caseRow.id)
       .eq('event_type', 'mandatory_complete')
 
     if ((count ?? 0) === 0) {
-      await supabase.from('status_event').insert({
+      await adminClient.from('status_event').insert({
         case_id: caseRow.id,
         event_type: 'mandatory_complete',
         payload: { answered_required: nav.answeredRequired, total_required: nav.totalRequired },
