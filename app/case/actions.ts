@@ -2,8 +2,11 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { verifySession, getFallbackQuestionnaireId } from '@/lib/dal'
+import { verifySession, getFallbackQuestionnaireId, getCaseAnswers, type SavedAnswer } from '@/lib/dal'
 import { de } from '@/lib/strings/de'
+import { loadQuestionnaire } from '@/lib/questionnaire-engine'
+import { buildNav } from '@/lib/questionnaire-nav'
+import type { LoadedQuestionnaire } from '@/lib/questionnaire-types'
 
 const PLZ_RE = /^\d{5}$/
 
@@ -177,6 +180,38 @@ export async function saveAnswerAction(input: SaveAnswerInput): Promise<SaveAnsw
 
   if (upsertErr) return { ok: false, error: de.case.chat.errors.generic }
 
+  // ── Completion gate ───────────────────────────────────────────────────────────
+  // Recompute after every save using the same buildNav logic as the client so the
+  // two can never diverge. The guard at line 139 prevents any save once under_review,
+  // so there is no path where a later edit can un-complete the case.
+  const [questionnaire, { answersMap, answersRaw }] = await Promise.all([
+    loadQuestionnaire(caseRow.questionnaire_id),
+    getCaseAnswers(caseRow.id),
+  ])
+
+  const { groupInstances, groupAnswers } = deriveGroupDataForCompletion(questionnaire, answersRaw)
+  const nav = buildNav(questionnaire, answersMap, groupInstances, groupAnswers)
+
+  if (nav.allRequiredAnswered) {
+    await supabase.from('cases').update({ status: 'under_review' }).eq('id', caseRow.id)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { count } = await (supabase as any)
+      .from('status_event')
+      .select('id', { count: 'exact', head: true })
+      .eq('case_id', caseRow.id)
+      .eq('event_type', 'mandatory_complete')
+
+    if ((count ?? 0) === 0) {
+      await supabase.from('status_event').insert({
+        case_id: caseRow.id,
+        event_type: 'mandatory_complete',
+        payload: { answered_required: nav.answeredRequired, total_required: nav.totalRequired },
+      })
+    }
+  }
+  // ─────────────────────────────────────────────────────────────────────────────
+
   revalidatePath('/case')
   return { ok: true }
 }
@@ -311,4 +346,55 @@ async function getCaseId(
     .eq('user_id', userId)
     .single()
   return data?.id ?? ''
+}
+
+/**
+ * Mirrors page.tsx's deriveGroupData for the server-side completion check.
+ * Adds a placeholder instance for repeatable groups with no saved answers so
+ * buildNav counts their required questions (prevents false-positive completion
+ * when the user hasn't started a required repeatable group yet).
+ */
+function deriveGroupDataForCompletion(
+  questionnaire: LoadedQuestionnaire,
+  answersRaw: SavedAnswer[],
+): {
+  groupInstances: Record<string, string[]>
+  groupAnswers: Record<string, Record<string, unknown>>
+} {
+  const qidToGroup = new Map<string, { groupKey: string; questionKey: string }>()
+  const repGroupKeys = new Set<string>()
+  for (const cat of questionnaire.categories) {
+    for (const q of cat.questions) {
+      if (q.group_key && q.group_is_repeatable) {
+        qidToGroup.set(q.id, { groupKey: q.group_key, questionKey: q.key })
+        repGroupKeys.add(q.group_key)
+      }
+    }
+  }
+
+  const groupInstances: Record<string, string[]> = {}
+  const groupAnswers: Record<string, Record<string, unknown>> = {}
+
+  for (const a of answersRaw) {
+    if (a.group_instance === 'default') continue
+    const info = qidToGroup.get(a.question_id)
+    if (!info) continue
+    const { groupKey, questionKey } = info
+    if (!groupInstances[groupKey]) groupInstances[groupKey] = []
+    if (!groupInstances[groupKey].includes(a.group_instance)) {
+      groupInstances[groupKey].push(a.group_instance)
+    }
+    if (!groupAnswers[a.group_instance]) groupAnswers[a.group_instance] = {}
+    groupAnswers[a.group_instance][questionKey] = a.value
+  }
+
+  // Without a placeholder, buildNav skips the group entirely → its required
+  // questions are excluded from totalRequired → allRequiredAnswered is falsely true.
+  for (const gk of repGroupKeys) {
+    if (!groupInstances[gk]) {
+      groupInstances[gk] = ['00000000-0000-0000-0000-000000000000']
+    }
+  }
+
+  return { groupInstances, groupAnswers }
 }
