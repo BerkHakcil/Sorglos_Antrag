@@ -1,4 +1,4 @@
-﻿-- ============================================================
+-- ============================================================
 -- supabase/migrations/20260615000001_real_plz_data.sql
 -- Imports 375 social offices + 8 159 PLZ rules from plz_de.xlsx.
 -- Berlin districts consolidated → existing Sozialamt Berlin entry.
