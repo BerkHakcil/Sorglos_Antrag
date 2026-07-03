@@ -135,11 +135,36 @@ describe('resolveOffice — Berlin individual-code rules', () => {
 describe('resolveOffice — real care-home PLZ scenarios (from plz_de.xlsx)', () => {
   // Mirrors the structure produced by migration 20260615000001:
   // each PLZ is a single-code rule (plz_from === plz_to), all priority 1.
-  const BERLIN: PlzRule  = { plz_from: '13187', plz_to: '13187', priority: 1, social_office_id: 'berlin' }
-  const ESSEN: PlzRule   = { plz_from: '45326', plz_to: '45326', priority: 1, social_office_id: 'essen' }
-  const RECKLING: PlzRule = { plz_from: '45968', plz_to: '45968', priority: 1, social_office_id: 'reck' }
-  const DUISBURG: PlzRule = { plz_from: '47198', plz_to: '47198', priority: 1, social_office_id: 'du' }
-  const STADE: PlzRule   = { plz_from: '21680', plz_to: '21680', priority: 1, social_office_id: 'stade' }
+  const BERLIN: PlzRule = {
+    plz_from: '13187',
+    plz_to: '13187',
+    priority: 1,
+    social_office_id: 'berlin',
+  }
+  const ESSEN: PlzRule = {
+    plz_from: '45326',
+    plz_to: '45326',
+    priority: 1,
+    social_office_id: 'essen',
+  }
+  const RECKLING: PlzRule = {
+    plz_from: '45968',
+    plz_to: '45968',
+    priority: 1,
+    social_office_id: 'reck',
+  }
+  const DUISBURG: PlzRule = {
+    plz_from: '47198',
+    plz_to: '47198',
+    priority: 1,
+    social_office_id: 'du',
+  }
+  const STADE: PlzRule = {
+    plz_from: '21680',
+    plz_to: '21680',
+    priority: 1,
+    social_office_id: 'stade',
+  }
   const allRules = [BERLIN, ESSEN, RECKLING, DUISBURG, STADE]
 
   it('routes 13187 (Haus Pankow) to Berlin', () => {

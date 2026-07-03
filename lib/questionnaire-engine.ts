@@ -32,9 +32,7 @@ import type { Question, Category, LoadedQuestionnaire, QuestionOption } from './
  * Returns categories → questions (with group metadata + options) in sort order.
  * Does NOT filter by visibility — the caller applies isVisible() as needed.
  */
-export async function loadQuestionnaire(
-  questionnaireId: string,
-): Promise<LoadedQuestionnaire> {
+export async function loadQuestionnaire(questionnaireId: string): Promise<LoadedQuestionnaire> {
   const supabase = await createClient()
 
   // 1. Questionnaire metadata
@@ -62,13 +60,15 @@ export async function loadQuestionnaire(
   // 3. Questions with group join (sorted within each category)
   const { data: qs, error: qsErr } = await supabase
     .from('question')
-    .select(`
+    .select(
+      `
       id, key, sort_order, answer_type, is_required,
       prompt_de, help_de, validation, visibility_rule, group_id, category_id,
       question_group (
         id, key, sort_order, label_de, is_repeatable, min_count, max_count
       )
-    `)
+    `
+    )
     .in('category_id', catIds)
     .order('sort_order')
   if (qsErr) throw new Error('Fragen nicht geladen')
@@ -100,9 +100,7 @@ export async function loadQuestionnaire(
 
   const qsByCategory: Record<string, Question[]> = {}
   for (const q of qs ?? []) {
-    const grp = Array.isArray(q.question_group)
-      ? q.question_group[0]
-      : q.question_group
+    const grp = Array.isArray(q.question_group) ? q.question_group[0] : q.question_group
     const question: Question = {
       id: q.id,
       key: q.key,

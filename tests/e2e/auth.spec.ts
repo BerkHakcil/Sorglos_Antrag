@@ -227,9 +227,7 @@ test.describe.serial('Auth flow', () => {
 
   // ── 7c. Missing authority-to-act → German error ──────────────────────────
 
-  test('signup without authority-to-act consent → German consent error shown', async ({
-    page,
-  }) => {
+  test('signup without authority-to-act consent → German consent error shown', async ({ page }) => {
     await page.goto('/signup')
     await fillSignupForm(page, {
       email: `no-auth+${Date.now()}@hzp-test.invalid`,

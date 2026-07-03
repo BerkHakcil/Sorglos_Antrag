@@ -188,7 +188,7 @@ export function SignupForm() {
           aria-describedby={errors.phone ? 'phone-error' : undefined}
           aria-invalid={!!errors.phone}
           className={cn(
-            'flex w-full items-stretch overflow-hidden rounded-md border bg-background focus-within:ring-2',
+            'bg-background flex w-full items-stretch overflow-hidden rounded-md border focus-within:ring-2',
             errors.phone
               ? 'border-destructive focus-within:ring-destructive'
               : 'border-border focus-within:ring-ring'

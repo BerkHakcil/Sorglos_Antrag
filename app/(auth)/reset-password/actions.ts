@@ -20,9 +20,7 @@ export async function resetPasswordAction(
   // NEXT_PUBLIC_SITE_URL is set on Vercel; fall back to the request origin in dev.
   const headersList = await headers()
   const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    headersList.get('origin') ??
-    'http://localhost:3000'
+    process.env.NEXT_PUBLIC_SITE_URL ?? headersList.get('origin') ?? 'http://localhost:3000'
   const redirectTo = `${siteUrl}/auth/callback?next=/update-password`
 
   const supabase = await createClient()

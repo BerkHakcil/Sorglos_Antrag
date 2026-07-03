@@ -17,7 +17,9 @@ export default function GlobalError({ reset }: { error: Error; reset: () => void
         }}
       >
         <div style={{ maxWidth: '30rem', textAlign: 'center' }}>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.75rem', color: '#111' }}>
+          <h1
+            style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.75rem', color: '#111' }}
+          >
             Ein Fehler ist aufgetreten
           </h1>
           <p style={{ color: '#555', marginBottom: '1.5rem', lineHeight: 1.6 }}>

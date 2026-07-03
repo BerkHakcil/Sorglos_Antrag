@@ -108,7 +108,12 @@ describe('isVisible — not_empty rule', () => {
 describe('isVisible — in_values rule (spouse section)', () => {
   const rule: VisibilityRule = {
     question_key: 'marital_status',
-    in_values: ['verheiratet', 'eingetragene Lebenspartnerschaft', 'dauernd getrennt lebend', 'eheähnliche Gemeinschaft'],
+    in_values: [
+      'verheiratet',
+      'eingetragene Lebenspartnerschaft',
+      'dauernd getrennt lebend',
+      'eheähnliche Gemeinschaft',
+    ],
   }
 
   it('is visible for a status with a partner', () => {
@@ -132,11 +137,15 @@ describe('isVisible — in_values rule (spouse section)', () => {
 
 describe('category question ordering', () => {
   const questions: Question[] = [
-    makeQuestion({ id: 'q3', key: 'last_name',   sort_order: 2, visibility_rule: null }),
-    makeQuestion({ id: 'q1', key: 'first_name',  sort_order: 0, visibility_rule: null }),
-    makeQuestion({ id: 'q2', key: 'birth_name',  sort_order: 1, visibility_rule: null }),
-    makeQuestion({ id: 'q4', key: 'conditional', sort_order: 3,
-      visibility_rule: { question_key: 'prior_social_aid', value: 'Ja' } }),
+    makeQuestion({ id: 'q3', key: 'last_name', sort_order: 2, visibility_rule: null }),
+    makeQuestion({ id: 'q1', key: 'first_name', sort_order: 0, visibility_rule: null }),
+    makeQuestion({ id: 'q2', key: 'birth_name', sort_order: 1, visibility_rule: null }),
+    makeQuestion({
+      id: 'q4',
+      key: 'conditional',
+      sort_order: 3,
+      visibility_rule: { question_key: 'prior_social_aid', value: 'Ja' },
+    }),
   ]
 
   it('visible questions appear in sort_order order', () => {
@@ -173,7 +182,7 @@ function makeQuestionnaire(questionOverrides: Partial<Question>[]): LoadedQuesti
         sort_order: 0,
         label_de: 'Kategorie 1',
         questions: questionOverrides.map((o, i) =>
-          makeQuestion({ id: `q${i}`, key: `q${i}`, sort_order: i, ...o }),
+          makeQuestion({ id: `q${i}`, key: `q${i}`, sort_order: i, ...o })
         ),
       },
     ],
@@ -349,9 +358,7 @@ describe('buildNav — per-section openRequiredCount', () => {
           key: 'cat2',
           sort_order: 1,
           label_de: 'Sektion 2',
-          questions: [
-            makeQuestion({ id: 'q2', key: 'c', is_required: true, sort_order: 0 }),
-          ],
+          questions: [makeQuestion({ id: 'q2', key: 'c', is_required: true, sort_order: 0 })],
         },
       ],
     }
@@ -404,11 +411,19 @@ describe('isVisible — transitive visibility (controller chain)', () => {
   it('gated on a VISIBLE controller behaves as before', () => {
     // married → controller visible; issued shows when controller != "Nein"
     expect(
-      isVisible(issuedRule, { marital_status: 'verheiratet', spouse_special_origin_rights: 'Spätaussiedler' }, rules),
+      isVisible(
+        issuedRule,
+        { marital_status: 'verheiratet', spouse_special_origin_rights: 'Spätaussiedler' },
+        rules
+      )
     ).toBe(true)
     // married + controller == "Nein" → issued hidden
     expect(
-      isVisible(issuedRule, { marital_status: 'verheiratet', spouse_special_origin_rights: 'Nein' }, rules),
+      isVisible(
+        issuedRule,
+        { marital_status: 'verheiratet', spouse_special_origin_rights: 'Nein' },
+        rules
+      )
     ).toBe(false)
   })
 
@@ -458,20 +473,34 @@ describe('findStaleAnswerRefs', () => {
 
   it('flags answer rows whose question is not currently visible', () => {
     // single → spouse_special_origin_rights hidden, but it has a saved answer.
-    const nav = buildNav(chain, { marital_status: 'ledig', spouse_special_origin_rights: 'Spätaussiedler' })
+    const nav = buildNav(chain, {
+      marital_status: 'ledig',
+      spouse_special_origin_rights: 'Spätaussiedler',
+    })
     const answersRaw = [
       { question_id: 'q0', question_key: 'marital_status', group_instance: 'default' },
-      { question_id: 'q1', question_key: 'spouse_special_origin_rights', group_instance: 'default' },
+      {
+        question_id: 'q1',
+        question_key: 'spouse_special_origin_rights',
+        group_instance: 'default',
+      },
     ]
     const stale = findStaleAnswerRefs(nav.flatVisible, answersRaw)
     expect(stale.map((s) => s.question_key)).toEqual(['spouse_special_origin_rights'])
   })
 
   it('returns nothing when every answered question is visible', () => {
-    const nav = buildNav(chain, { marital_status: 'verheiratet', spouse_special_origin_rights: 'Spätaussiedler' })
+    const nav = buildNav(chain, {
+      marital_status: 'verheiratet',
+      spouse_special_origin_rights: 'Spätaussiedler',
+    })
     const answersRaw = [
       { question_id: 'q0', question_key: 'marital_status', group_instance: 'default' },
-      { question_id: 'q1', question_key: 'spouse_special_origin_rights', group_instance: 'default' },
+      {
+        question_id: 'q1',
+        question_key: 'spouse_special_origin_rights',
+        group_instance: 'default',
+      },
     ]
     expect(findStaleAnswerRefs(nav.flatVisible, answersRaw)).toHaveLength(0)
   })

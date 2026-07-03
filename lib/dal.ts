@@ -33,7 +33,7 @@ export async function getCase() {
   const { data, error } = await supabase
     .from('cases')
     .select(
-      'id, status, care_home_id, social_office_id, questionnaire_id, plz_before_move, plz_resolution_status, created_at, updated_at',
+      'id, status, care_home_id, social_office_id, questionnaire_id, plz_before_move, plz_resolution_status, created_at, updated_at'
     )
     .eq('user_id', userId)
     .single()
@@ -95,10 +95,7 @@ export async function getCaseAnswers(caseId: string): Promise<{
 
   const keyMap: Record<string, string> = {}
   if (qIds.length > 0) {
-    const { data: qs } = await supabase
-      .from('question')
-      .select('id, key')
-      .in('id', qIds)
+    const { data: qs } = await supabase.from('question').select('id, key').in('id', qIds)
     for (const q of qs ?? []) keyMap[q.id] = q.key
   }
 
@@ -154,9 +151,7 @@ export async function getStaticContent(): Promise<StaticContent> {
   const supabase = await createClient()
   // static_content is not in the generated DB types yet.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
-    .from('static_content')
-    .select('key, value_de')
+  const { data, error } = await (supabase as any).from('static_content').select('key, value_de')
 
   const byKey: Record<string, string> = {}
   if (error) {

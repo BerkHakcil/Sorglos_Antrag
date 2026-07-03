@@ -29,10 +29,7 @@ export type SignupInput = {
 export type SignupResultField =
   | keyof Omit<
       SignupInput,
-      | 'consent_datenschutz'
-      | 'consent_agb'
-      | 'consent_data_processing'
-      | 'consent_authority_to_act'
+      'consent_datenschutz' | 'consent_agb' | 'consent_data_processing' | 'consent_authority_to_act'
     >
   | 'root'
 
@@ -54,7 +51,10 @@ function mapSupabaseError(message: string): { field: SignupResultField; error: s
   ) {
     return { field: 'email', error: e.emailInvalid }
   }
-  if (m.includes('password') && (m.includes('short') || m.includes('weak') || m.includes('least'))) {
+  if (
+    m.includes('password') &&
+    (m.includes('short') || m.includes('weak') || m.includes('least'))
+  ) {
     return { field: 'password', error: e.passwordLength }
   }
   if (m.includes('rate limit') || m.includes('too many') || m.includes('to many requests')) {
@@ -73,13 +73,16 @@ export async function signupAction(input: SignupInput): Promise<SignupResult> {
   const e = de.signup.errors
 
   // Field validation — checked in form order so the first visible error shows.
-  if (!input.first_name?.trim()) return { ok: false, field: 'first_name', error: e.firstNameRequired }
-  if (!input.last_name?.trim())  return { ok: false, field: 'last_name',  error: e.lastNameRequired }
-  if (!input.phone)              return { ok: false, field: 'phone',       error: e.phoneRequired }
+  if (!input.first_name?.trim())
+    return { ok: false, field: 'first_name', error: e.firstNameRequired }
+  if (!input.last_name?.trim()) return { ok: false, field: 'last_name', error: e.lastNameRequired }
+  if (!input.phone) return { ok: false, field: 'phone', error: e.phoneRequired }
   // isValidPhoneNumber uses libphonenumber-js — same library as the client-side check.
   if (!isValidPhoneNumber(input.phone)) return { ok: false, field: 'phone', error: e.phoneInvalid }
-  if (!input.email || !EMAIL_RE.test(input.email)) return { ok: false, field: 'email', error: e.emailInvalid }
-  if (!input.password || input.password.length < 8) return { ok: false, field: 'password', error: e.passwordLength }
+  if (!input.email || !EMAIL_RE.test(input.email))
+    return { ok: false, field: 'email', error: e.emailInvalid }
+  if (!input.password || input.password.length < 8)
+    return { ok: false, field: 'password', error: e.passwordLength }
   if (
     !input.consent_datenschutz ||
     !input.consent_agb ||
@@ -94,9 +97,7 @@ export async function signupAction(input: SignupInput): Promise<SignupResult> {
     // NEXT_PUBLIC_SITE_URL is set on Vercel; falls back to the request origin in dev.
     const headersList = await headers()
     const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL ??
-      headersList.get('origin') ??
-      'http://localhost:3000'
+      process.env.NEXT_PUBLIC_SITE_URL ?? headersList.get('origin') ?? 'http://localhost:3000'
     const emailRedirectTo = `${siteUrl}/auth/callback`
 
     const supabase = await createClient()

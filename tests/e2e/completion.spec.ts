@@ -59,7 +59,7 @@ async function login(page: Page) {
 async function waitForIdle(page: Page, timeout = 15_000) {
   await page.waitForFunction(
     () => document.querySelectorAll<HTMLButtonElement>('button[disabled]').length === 0,
-    { timeout },
+    { timeout }
   )
 }
 
@@ -73,7 +73,7 @@ async function clickWeiter(page: Page) {
 }
 
 async function answerCurrentQuestion(
-  page: Page,
+  page: Page
 ): Promise<'done' | 'locked' | 'continue' | 'group_prompt' | 'stuck'> {
   // ── 1. Completion message ─────────────────────────────────────────────────
   if (
@@ -122,7 +122,7 @@ async function answerCurrentQuestion(
     const options = await sel.evaluate((s: HTMLSelectElement) =>
       Array.from(s.options)
         .filter((o) => o.value !== '')
-        .map((o) => ({ value: o.value, label: o.text.trim() })),
+        .map((o) => ({ value: o.value, label: o.text.trim() }))
     )
     const neinOpt = options.find((o) => o.label === 'Nein')
     const ledigOpt = options.find((o) => o.label === 'ledig' || o.label === 'Ledig')
@@ -238,10 +238,10 @@ test('complete all Berlin questionnaire questions → DB flips to under_review +
           .allTextContents()
           .catch(() => [] as string[])
         const matchesInHistory = historyHeadings.filter(
-          (h) => h.trim() === footerHeading.trim(),
+          (h) => h.trim() === footerHeading.trim()
         ).length
         console.log(
-          `[C5] After group prompt: footer="${footerHeading}", history matches=${matchesInHistory}`,
+          `[C5] After group prompt: footer="${footerHeading}", history matches=${matchesInHistory}`
         )
         if (matchesInHistory > 0) {
           criterion5Pass = false
@@ -269,9 +269,7 @@ test('complete all Berlin questionnaire questions → DB flips to under_review +
   const c1completion = await completionMsg.isVisible({ timeout: 2_000 }).catch(() => false)
   const c1locked = await lockedMsg.isVisible({ timeout: 2_000 }).catch(() => false)
   const c1 = c1completion || c1locked
-  console.log(
-    `[C1] completion msg=${c1completion}, locked msg=${c1locked} → c1=${c1}`,
-  )
+  console.log(`[C1] completion msg=${c1completion}, locked msg=${c1locked} → c1=${c1}`)
 
   // ── C2: DB status = under_review ────────────────────────────────────────────
   const { data: caseRow } = await adminDb
