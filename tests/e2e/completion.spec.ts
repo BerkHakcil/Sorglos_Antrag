@@ -16,12 +16,18 @@
 import { test, expect, type Page } from '@playwright/test'
 import { readFileSync } from 'fs'
 import { createClient } from '@supabase/supabase-js'
+import { config } from 'dotenv'
+
+config({ path: '.env.local' })
 
 const BASE = 'https://sorglos-antrag.vercel.app'
 
-const SUPABASE_URL = 'https://srtgqgueigyucanfzodb.supabase.co'
-const SERVICE_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNydGdxZ3VlaWd5dWNhbmZ6b2RiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDg1MTg5NSwiZXhwIjoyMDk2NDI3ODk1fQ.XLw1_2NaUFhuRSjA92SQufYJ2TY3NCrLLGbp78ONy0Q'
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SERVICE_KEY = process.env.SUPABASE_SECRET_KEY
+
+if (!SUPABASE_URL || !SERVICE_KEY) {
+  throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY in .env.local')
+}
 
 const adminDb = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
