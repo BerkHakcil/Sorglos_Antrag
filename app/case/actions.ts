@@ -2,7 +2,12 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
-import { verifySession, getFallbackQuestionnaireId, getCaseAnswers, type SavedAnswer } from '@/lib/dal'
+import {
+  verifySession,
+  getFallbackQuestionnaireId,
+  getCaseAnswers,
+  type SavedAnswer,
+} from '@/lib/dal'
 import { de } from '@/lib/strings/de'
 import { loadQuestionnaire } from '@/lib/questionnaire-engine'
 import { buildNav, findStaleAnswerRefs } from '@/lib/questionnaire-nav'
@@ -169,7 +174,7 @@ export async function saveAnswerAction(input: SaveAnswerInput): Promise<SaveAnsw
     qRow.answer_type,
     qRow.is_required,
     qRow.validation as Record<string, unknown> | null,
-    input.value,
+    input.value
   )
   if (validErr) return { ok: false, error: validErr }
 
@@ -181,7 +186,7 @@ export async function saveAnswerAction(input: SaveAnswerInput): Promise<SaveAnsw
       group_instance: input.groupInstance,
       value: input.value,
     },
-    { onConflict: 'case_id,question_id,group_instance' },
+    { onConflict: 'case_id,question_id,group_instance' }
   )
 
   if (upsertErr) return { ok: false, error: de.case.chat.errors.generic }
@@ -208,7 +213,7 @@ export async function saveAnswerAction(input: SaveAnswerInput): Promise<SaveAnsw
   // we still exclude it defensively.
   const clearedAnswers: ClearedAnswerRef[] = []
   const staleRefs = findStaleAnswerRefs(nav.flatVisible, answersRaw).filter(
-    (r) => !(r.question_id === input.questionId && r.group_instance === input.groupInstance),
+    (r) => !(r.question_id === input.questionId && r.group_instance === input.groupInstance)
   )
   if (staleRefs.length > 0) {
     await Promise.all(
@@ -218,8 +223,8 @@ export async function saveAnswerAction(input: SaveAnswerInput): Promise<SaveAnsw
           .delete()
           .eq('case_id', caseRow.id)
           .eq('question_id', r.question_id)
-          .eq('group_instance', r.group_instance),
-      ),
+          .eq('group_instance', r.group_instance)
+      )
     )
     for (const r of staleRefs) {
       clearedAnswers.push({ questionKey: r.question_key, groupInstance: r.group_instance })
@@ -270,7 +275,7 @@ export type DeleteGroupInstanceInput = {
 export type DeleteGroupInstanceResult = { ok: true } | { ok: false; error: string }
 
 export async function deleteGroupInstanceAction(
-  input: DeleteGroupInstanceInput,
+  input: DeleteGroupInstanceInput
 ): Promise<DeleteGroupInstanceResult> {
   const { userId } = await verifySession()
   const supabase = await createClient()
@@ -307,7 +312,7 @@ function validateAnswerValue(
   answerType: string,
   isRequired: boolean,
   validation: Record<string, unknown> | null,
-  value: unknown,
+  value: unknown
 ): string | null {
   const v = de.case.chat.validationErrors
 
@@ -382,13 +387,9 @@ function validateAnswerValue(
 async function getCaseId(
   userId: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: any,
+  supabase: any
 ): Promise<string> {
-  const { data } = await supabase
-    .from('cases')
-    .select('id')
-    .eq('user_id', userId)
-    .single()
+  const { data } = await supabase.from('cases').select('id').eq('user_id', userId).single()
   return data?.id ?? ''
 }
 
@@ -400,7 +401,7 @@ async function getCaseId(
  */
 function deriveGroupDataForCompletion(
   questionnaire: LoadedQuestionnaire,
-  answersRaw: SavedAnswer[],
+  answersRaw: SavedAnswer[]
 ): {
   groupInstances: Record<string, string[]>
   groupAnswers: Record<string, Record<string, unknown>>

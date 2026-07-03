@@ -34,7 +34,12 @@ function ShortTextInput({ question, value, onChange, onSubmit }: InputProps) {
       disabled={!onChange}
       value={typeof value === 'string' ? value : ''}
       onChange={(e) => onChange?.(e.target.value)}
-      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          onSubmit?.()
+        }
+      }}
       aria-label={question.prompt_de}
       className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
     />
@@ -58,9 +63,7 @@ function LongTextInput({ question, value, onChange, onSubmit }: InputProps) {
         aria-label={question.prompt_de}
         className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
       />
-      {onSubmit && (
-        <p className="text-muted-foreground text-xs">{sc.longTextHint}</p>
-      )}
+      {onSubmit && <p className="text-muted-foreground text-xs">{sc.longTextHint}</p>}
     </div>
   )
 }
@@ -72,7 +75,12 @@ function NumberInput({ question, value, onChange, onSubmit }: InputProps) {
       disabled={!onChange}
       value={value !== null && value !== undefined && value !== '' ? String(value) : ''}
       onChange={(e) => onChange?.(e.target.value === '' ? '' : parseFloat(e.target.value))}
-      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          onSubmit?.()
+        }
+      }}
       aria-label={question.prompt_de}
       className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
     />
@@ -88,7 +96,12 @@ function AmountInput({ question, value, onChange, onSubmit }: InputProps) {
         step="0.01"
         value={value !== null && value !== undefined && value !== '' ? String(value) : ''}
         onChange={(e) => onChange?.(e.target.value === '' ? '' : parseFloat(e.target.value))}
-        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault()
+            onSubmit?.()
+          }
+        }}
         aria-label={question.prompt_de}
         className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
       />
@@ -104,7 +117,12 @@ function DateInput({ question, value, onChange, onSubmit }: InputProps) {
       disabled={!onChange}
       value={typeof value === 'string' ? value : ''}
       onChange={(e) => onChange?.(e.target.value)}
-      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          onSubmit?.()
+        }
+      }}
       aria-label={question.prompt_de}
       className="border-border bg-muted/30 rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
     />
@@ -115,7 +133,12 @@ function YesNoInput({ question, value, onChange, onSubmit }: InputProps) {
   return (
     <div
       className="flex gap-4"
-      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          onSubmit?.()
+        }
+      }}
     >
       {(['Ja', 'Nein'] as const).map((opt) => (
         <label
@@ -149,7 +172,12 @@ function SingleSelectInput({
       disabled={!onChange}
       value={typeof value === 'string' ? value : ''}
       onChange={(e) => onChange?.(e.target.value)}
-      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          onSubmit?.()
+        }
+      }}
       aria-label={question.prompt_de}
       className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
     >
@@ -214,7 +242,12 @@ function AddressInput({ question, value, onChange, onSubmit }: InputProps) {
           placeholder={placeholder}
           value={addr[field] ?? ''}
           onChange={update(field)}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              onSubmit?.()
+            }
+          }}
           aria-label={`${question.prompt_de} – ${placeholder}`}
           className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
         />
@@ -242,7 +275,12 @@ function PersonInput({ question, value, onChange, onSubmit }: InputProps) {
           placeholder={placeholder}
           value={person[field] ?? ''}
           onChange={update(field)}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              onSubmit?.()
+            }
+          }}
           aria-label={`${question.prompt_de} – ${placeholder}`}
           className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
         />
@@ -270,7 +308,12 @@ function BankAccountInput({ question, value, onChange, onSubmit }: InputProps) {
           placeholder={placeholder}
           value={bank[field] ?? ''}
           onChange={update(field)}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit?.() } }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              onSubmit?.()
+            }
+          }}
           aria-label={`${question.prompt_de} – ${placeholder}`}
           className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
         />
@@ -282,7 +325,7 @@ function BankAccountInput({ question, value, onChange, onSubmit }: InputProps) {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function DocumentUploadInput(_props: InputProps) {
   return (
-    <div className="border-border bg-muted/30 rounded-md border border-dashed px-4 py-3 text-sm text-muted-foreground">
+    <div className="border-border bg-muted/30 text-muted-foreground rounded-md border border-dashed px-4 py-3 text-sm">
       Dokument-Upload (folgt in Meilenstein 4)
     </div>
   )
@@ -308,33 +351,101 @@ export function QuestionRenderer({
 
   const input = (() => {
     switch (question.answer_type) {
-      case 'short_text':      return <ShortTextInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
-      case 'long_text':       return <LongTextInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
-      case 'number':          return <NumberInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
-      case 'amount':          return <AmountInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
-      case 'date':            return <DateInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
-      case 'yes_no':          return <YesNoInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
-      case 'single_select':   return <SingleSelectInput question={question} options={opts} value={value} onChange={onChange} onSubmit={onSubmit} />
-      case 'multi_select':    return <MultiSelectInput question={question} options={opts} value={value} onChange={onChange} />
-      case 'address':         return <AddressInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
-      case 'person':          return <PersonInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
-      case 'bank_account':    return <BankAccountInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
-      case 'document_upload': return <DocumentUploadInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
-      default:                return <ShortTextInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+      case 'short_text':
+        return (
+          <ShortTextInput
+            question={question}
+            value={value}
+            onChange={onChange}
+            onSubmit={onSubmit}
+          />
+        )
+      case 'long_text':
+        return (
+          <LongTextInput
+            question={question}
+            value={value}
+            onChange={onChange}
+            onSubmit={onSubmit}
+          />
+        )
+      case 'number':
+        return (
+          <NumberInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+        )
+      case 'amount':
+        return (
+          <AmountInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+        )
+      case 'date':
+        return (
+          <DateInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+        )
+      case 'yes_no':
+        return (
+          <YesNoInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+        )
+      case 'single_select':
+        return (
+          <SingleSelectInput
+            question={question}
+            options={opts}
+            value={value}
+            onChange={onChange}
+            onSubmit={onSubmit}
+          />
+        )
+      case 'multi_select':
+        return (
+          <MultiSelectInput question={question} options={opts} value={value} onChange={onChange} />
+        )
+      case 'address':
+        return (
+          <AddressInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+        )
+      case 'person':
+        return (
+          <PersonInput question={question} value={value} onChange={onChange} onSubmit={onSubmit} />
+        )
+      case 'bank_account':
+        return (
+          <BankAccountInput
+            question={question}
+            value={value}
+            onChange={onChange}
+            onSubmit={onSubmit}
+          />
+        )
+      case 'document_upload':
+        return (
+          <DocumentUploadInput
+            question={question}
+            value={value}
+            onChange={onChange}
+            onSubmit={onSubmit}
+          />
+        )
+      default:
+        return (
+          <ShortTextInput
+            question={question}
+            value={value}
+            onChange={onChange}
+            onSubmit={onSubmit}
+          />
+        )
     }
   })()
 
   return (
     <div className="space-y-1.5">
       <div className="flex items-baseline gap-2">
-        <label className="text-sm font-medium leading-snug">{question.prompt_de}</label>
+        <label className="text-sm leading-snug font-medium">{question.prompt_de}</label>
         {!question.is_required && (
           <span className="text-muted-foreground shrink-0 text-xs">{s.optionalBadge}</span>
         )}
       </div>
-      {question.help_de && (
-        <p className="text-muted-foreground text-xs">{question.help_de}</p>
-      )}
+      {question.help_de && <p className="text-muted-foreground text-xs">{question.help_de}</p>}
       {input}
     </div>
   )

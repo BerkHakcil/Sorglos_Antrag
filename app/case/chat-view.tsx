@@ -39,11 +39,16 @@ type Props = {
 
 function emptyValueFor(answerType: string): unknown {
   switch (answerType) {
-    case 'address':      return { street: '', plz: '', city: '' }
-    case 'person':       return { first_name: '', last_name: '', birth_date: '' }
-    case 'bank_account': return { iban: '', bic: '', bank_name: '' }
-    case 'multi_select': return []
-    default:             return ''
+    case 'address':
+      return { street: '', plz: '', city: '' }
+    case 'person':
+      return { first_name: '', last_name: '', birth_date: '' }
+    case 'bank_account':
+      return { iban: '', bic: '', bank_name: '' }
+    case 'multi_select':
+      return []
+    default:
+      return ''
   }
 }
 
@@ -61,7 +66,7 @@ function ProgressBar({ nav }: { nav: NavState }) {
 
   return (
     <div className="space-y-1.5">
-      <div className="flex justify-between text-xs text-muted-foreground">
+      <div className="text-muted-foreground flex justify-between text-xs">
         <span>{label}</span>
         <span className="font-medium">{nav.progressPercent}%</span>
       </div>
@@ -96,9 +101,7 @@ function AnsweredBubble({
       prevQuestion?.categoryId !== question.categoryId)
 
   const showSectionHeader =
-    !prevQuestion ||
-    prevQuestion.categoryId !== question.categoryId ||
-    isNewInstance
+    !prevQuestion || prevQuestion.categoryId !== question.categoryId || isNewInstance
 
   const sectionLabel =
     question.instanceId && question.instanceIndex > 0
@@ -112,8 +115,8 @@ function AnsweredBubble({
   return (
     <>
       {showSectionHeader && (
-        <div className="border-border flex items-center justify-between border-b pb-1 pt-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <div className="border-border flex items-center justify-between border-b pt-2 pb-1">
+          <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
             {sectionLabel}
           </h3>
           {!locked && question.instanceId && isNewInstance && question.instanceIndex > 1 && (
@@ -185,27 +188,22 @@ function CurrentQuestionCard({
       : question.categoryLabel
 
   return (
-    <div className="border-border bg-card rounded-xl border p-5 shadow-sm space-y-4">
+    <div className="border-border bg-card space-y-4 rounded-xl border p-5 shadow-sm">
       {showCategoryHeader !== false && (
         <div className="border-border border-b pb-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
             {sectionLabel}
           </h3>
         </div>
       )}
 
       {isReask && (
-        <div className="bg-amber-50 dark:bg-amber-950/30 rounded-md border border-amber-200 dark:border-amber-700 px-3 py-2">
+        <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-700 dark:bg-amber-950/30">
           <p className="text-xs text-amber-800 dark:text-amber-300">{s.reaskNote}</p>
         </div>
       )}
 
-      <QuestionRenderer
-        question={question}
-        value={value}
-        onChange={onChange}
-        onSubmit={onSave}
-      />
+      <QuestionRenderer question={question} value={value} onChange={onChange} onSubmit={onSave} />
 
       {error && (
         <p role="alert" className="text-destructive text-xs">
@@ -262,7 +260,7 @@ function GroupPromptCard({
 }) {
   const question = s.repeatableGroup.anotherPrompt.replace('{group}', prompt.groupLabelDe)
   return (
-    <div className="border-border bg-card rounded-xl border p-5 shadow-sm space-y-4">
+    <div className="border-border bg-card space-y-4 rounded-xl border p-5 shadow-sm">
       <p className="text-sm font-medium">{question}</p>
       <div className="flex flex-wrap gap-3">
         <button
@@ -296,9 +294,7 @@ function AllAnsweredCard({ heading, message }: { heading: string; message: strin
 }
 
 function EditLockedCard() {
-  return (
-    <p className="text-center text-muted-foreground text-sm py-2">{s.editLockedMessage}</p>
-  )
+  return <p className="text-muted-foreground py-2 text-center text-sm">{s.editLockedMessage}</p>
 }
 
 // ── Main ChatView ─────────────────────────────────────────────────────────────
@@ -316,9 +312,11 @@ export function ChatView({
   const [answersMap, setAnswersMap] = useState<Record<string, unknown>>(initialAnswersMap)
 
   // groupInstances: groupKey → ordered list of stable instance UUIDs
-  const [groupInstances, setGroupInstances] = useState<Record<string, string[]>>(initialGroupInstances)
+  const [groupInstances, setGroupInstances] =
+    useState<Record<string, string[]>>(initialGroupInstances)
   // groupAnswers: instanceId → { questionKey → value }
-  const [groupAnswers, setGroupAnswers] = useState<Record<string, Record<string, unknown>>>(initialGroupAnswers)
+  const [groupAnswers, setGroupAnswers] =
+    useState<Record<string, Record<string, unknown>>>(initialGroupAnswers)
   // dismissedGroups: groupKeys where user clicked "Nein" this session
   const [dismissedGroups, setDismissedGroups] = useState<Set<string>>(new Set())
 
@@ -336,8 +334,16 @@ export function ChatView({
   const historyRef = useRef<HTMLDivElement>(null)
 
   const nav = useMemo(
-    () => buildNav(questionnaire, answersMap, groupInstances, groupAnswers, dismissedGroups, skippedIds),
-    [questionnaire, answersMap, groupInstances, groupAnswers, dismissedGroups, skippedIds],
+    () =>
+      buildNav(
+        questionnaire,
+        answersMap,
+        groupInstances,
+        groupAnswers,
+        dismissedGroups,
+        skippedIds
+      ),
+    [questionnaire, answersMap, groupInstances, groupAnswers, dismissedGroups, skippedIds]
   )
 
   const isLocked = caseStatus === 'under_review'
@@ -347,19 +353,20 @@ export function ChatView({
     caseStatus === 'under_review'
       ? (sc.statusLabels['under_review'] ?? caseStatus)
       : nav.allRequiredAnswered
-      ? (sc.statusLabels['completed'] ?? caseStatus)
-      : (sc.statusLabels['in_progress'] ?? caseStatus)
+        ? (sc.statusLabels['completed'] ?? caseStatus)
+        : (sc.statusLabels['in_progress'] ?? caseStatus)
 
   const statusClass =
     caseStatus === 'under_review'
       ? 'text-blue-600 dark:text-blue-400'
       : nav.allRequiredAnswered
-      ? 'text-green-600 dark:text-green-400'
-      : 'text-muted-foreground'
+        ? 'text-green-600 dark:text-green-400'
+        : 'text-muted-foreground'
 
   // ── Resolve the currently active question ──────────────────────────────────
   const editingQ = editingId
-    ? nav.flatVisible.find((q) => q.id === editingId && q.instanceId === editingInstanceId) ?? null
+    ? (nav.flatVisible.find((q) => q.id === editingId && q.instanceId === editingInstanceId) ??
+      null)
     : null
   const isReaskingSkipped = !editingId && !nav.nextQuestion && !!nav.nextSkippedQuestion
   const activeQ: NavQuestion | null =
@@ -367,9 +374,13 @@ export function ChatView({
 
   const dk = activeQ ? draftKey(activeQ.id, activeQ.instanceId) : null
   const currentValue: unknown = activeQ
-    ? (dk !== null ? (answerDrafts[dk] ?? emptyValueFor(activeQ.answer_type)) : emptyValueFor(activeQ.answer_type))
+    ? dk !== null
+      ? (answerDrafts[dk] ?? emptyValueFor(activeQ.answer_type))
+      : emptyValueFor(activeQ.answer_type)
     : null
-  const validationError = activeQ ? (draftErrors[draftKey(activeQ.id, activeQ.instanceId)] ?? null) : null
+  const validationError = activeQ
+    ? (draftErrors[draftKey(activeQ.id, activeQ.instanceId)] ?? null)
+    : null
 
   const answeredQuestions = nav.flatVisible.filter((q) => q.isAnswered)
   const answeredCount = answeredQuestions.length
@@ -405,7 +416,11 @@ export function ChatView({
       ...prev,
       [dk2]: prev[dk2] !== undefined ? prev[dk2] : savedVal,
     }))
-    setDraftErrors((prev) => { const n = { ...prev }; delete n[dk2]; return n })
+    setDraftErrors((prev) => {
+      const n = { ...prev }
+      delete n[dk2]
+      return n
+    })
   }
 
   const cancelEdit = () => {
@@ -415,8 +430,16 @@ export function ChatView({
     setEditingId(null)
     setEditingInstanceId(null)
     const dk2 = draftKey(id, iid)
-    setAnswerDrafts((prev) => { const n = { ...prev }; delete n[dk2]; return n })
-    setDraftErrors((prev) => { const n = { ...prev }; delete n[dk2]; return n })
+    setAnswerDrafts((prev) => {
+      const n = { ...prev }
+      delete n[dk2]
+      return n
+    })
+    setDraftErrors((prev) => {
+      const n = { ...prev }
+      delete n[dk2]
+      return n
+    })
   }
 
   const handleChange = (v: unknown) => {
@@ -427,7 +450,9 @@ export function ChatView({
   // Remove answers the server cleared because this save hid them (BUG B), so a
   // later re-show of the controller re-prompts instead of resurfacing stale data.
   const applyClearedAnswers = (cleared: { questionKey: string; groupInstance: string }[]) => {
-    const globalKeys = cleared.filter((c) => c.groupInstance === 'default').map((c) => c.questionKey)
+    const globalKeys = cleared
+      .filter((c) => c.groupInstance === 'default')
+      .map((c) => c.questionKey)
     const groupItems = cleared.filter((c) => c.groupInstance !== 'default')
     if (globalKeys.length > 0) {
       setAnswersMap((prev) => {
@@ -469,9 +494,20 @@ export function ChatView({
         ...prev,
         [instanceId]: { ...(prev[instanceId] ?? {}), [qKey]: value },
       }))
-      if (wasEditing) { setEditingId(null); setEditingInstanceId(null) }
-      setAnswerDrafts((prev) => { const n = { ...prev }; delete n[dk2]; return n })
-      setDraftErrors((prev) => { const n = { ...prev }; delete n[dk2]; return n })
+      if (wasEditing) {
+        setEditingId(null)
+        setEditingInstanceId(null)
+      }
+      setAnswerDrafts((prev) => {
+        const n = { ...prev }
+        delete n[dk2]
+        return n
+      })
+      setDraftErrors((prev) => {
+        const n = { ...prev }
+        delete n[dk2]
+        return n
+      })
 
       startTransition(async () => {
         const result = await saveAnswerAction({ questionId: qId, groupInstance: instanceId, value })
@@ -482,7 +518,10 @@ export function ChatView({
             else inst[qKey] = prevGroupValue
             return { ...prev, [instanceId]: inst }
           })
-          if (wasEditing) { setEditingId(qId); setEditingInstanceId(instanceId) }
+          if (wasEditing) {
+            setEditingId(qId)
+            setEditingInstanceId(instanceId)
+          }
           setAnswerDrafts((prev) => ({ ...prev, [dk2]: value }))
           setDraftErrors((prev) => ({ ...prev, [dk2]: result.error }))
         } else if (result.clearedAnswers.length > 0) {
@@ -494,18 +533,36 @@ export function ChatView({
       const prevValue = answersMap[qKey]
 
       setAnswersMap((prev) => ({ ...prev, [qKey]: value }))
-      if (wasEditing) { setEditingId(null); setEditingInstanceId(null) }
-      setAnswerDrafts((prev) => { const n = { ...prev }; delete n[dk2]; return n })
-      setDraftErrors((prev) => { const n = { ...prev }; delete n[dk2]; return n })
+      if (wasEditing) {
+        setEditingId(null)
+        setEditingInstanceId(null)
+      }
+      setAnswerDrafts((prev) => {
+        const n = { ...prev }
+        delete n[dk2]
+        return n
+      })
+      setDraftErrors((prev) => {
+        const n = { ...prev }
+        delete n[dk2]
+        return n
+      })
 
       startTransition(async () => {
         const result = await saveAnswerAction({ questionId: qId, groupInstance: 'default', value })
         if (!result.ok) {
           setAnswersMap((prev) => {
-            if (prevValue === undefined) { const n = { ...prev }; delete n[qKey]; return n }
+            if (prevValue === undefined) {
+              const n = { ...prev }
+              delete n[qKey]
+              return n
+            }
             return { ...prev, [qKey]: prevValue }
           })
-          if (wasEditing) { setEditingId(qId); setEditingInstanceId(null) }
+          if (wasEditing) {
+            setEditingId(qId)
+            setEditingInstanceId(null)
+          }
           setAnswerDrafts((prev) => ({ ...prev, [dk2]: value }))
           setDraftErrors((prev) => ({ ...prev, [dk2]: result.error }))
         } else if (result.clearedAnswers.length > 0) {
@@ -519,8 +576,16 @@ export function ChatView({
     // Skipping is not supported for group questions (no stable per-instance skip state)
     if (!activeQ || isPending || isReaskingSkipped || activeQ.instanceId !== null) return
     setSkippedIds((prev) => new Set([...prev, draftKey(activeQ.id, null)]))
-    setAnswerDrafts((prev) => { const n = { ...prev }; delete n[draftKey(activeQ.id, null)]; return n })
-    setDraftErrors((prev) => { const n = { ...prev }; delete n[draftKey(activeQ.id, null)]; return n })
+    setAnswerDrafts((prev) => {
+      const n = { ...prev }
+      delete n[draftKey(activeQ.id, null)]
+      return n
+    })
+    setDraftErrors((prev) => {
+      const n = { ...prev }
+      delete n[draftKey(activeQ.id, null)]
+      return n
+    })
   }
 
   const handleGroupYes = (groupKey: string) => {
@@ -554,7 +619,9 @@ export function ChatView({
     // Clear any drafts/errors for this instance
     setAnswerDrafts((prev) => {
       const n = { ...prev }
-      Object.keys(n).forEach((k) => { if (k.endsWith(`:${instanceId}`)) delete n[k] })
+      Object.keys(n).forEach((k) => {
+        if (k.endsWith(`:${instanceId}`)) delete n[k]
+      })
       return n
     })
     // If dismissal was set for this group, clear it so prompt can reappear
@@ -573,19 +640,20 @@ export function ChatView({
   const showGroupPrompt = !isLocked && !!nav.groupPrompt && !editingId
   // Show current question card when no group prompt is blocking and there is an active question
   const showQuestionCard = !isLocked && !showGroupPrompt && !!activeQ
-  const showAllDone = !isLocked && !editingId && nav.allRequiredAnswered && !nav.groupPrompt && !activeQ
+  const showAllDone =
+    !isLocked && !editingId && nav.allRequiredAnswered && !nav.groupPrompt && !activeQ
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex h-full flex-col">
       {/* ── Fixed top: subheader + progress bar ─────────────── */}
-      <div className="shrink-0 border-b border-border bg-card">
-        <div className="mx-auto max-w-2xl px-4 pt-3 pb-3 space-y-2">
+      <div className="border-border bg-card shrink-0 border-b">
+        <div className="mx-auto max-w-2xl space-y-2 px-4 pt-3 pb-3">
           {/* Subheader: title + case meta + live status */}
           <div className="space-y-1">
-            <h2 className="font-semibold text-sm">{content.caseSubheading}</h2>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+            <h2 className="text-sm font-semibold">{content.caseSubheading}</h2>
+            <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
               <span className="font-mono">{`${caseId.slice(0, 8)}…`}</span>
               {plzBeforeMove && <span>PLZ {plzBeforeMove}</span>}
               <span className={statusClass}>{derivedStatusLabel}</span>
@@ -598,13 +666,15 @@ export function ChatView({
 
       {/* ── Scrollable middle: patient banner + answered history ─ */}
       <div ref={historyRef} className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-2xl px-4 py-4 space-y-4">
+        <div className="mx-auto max-w-2xl space-y-4 px-4 py-4">
           {/* Patient notice */}
-          <div className="border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 rounded-lg p-4">
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
             <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
               {content.patientBannerTitle}
             </p>
-            <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">{content.patientBannerBody}</p>
+            <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">
+              {content.patientBannerBody}
+            </p>
           </div>
 
           {/* Answered Q&A history */}
@@ -627,7 +697,7 @@ export function ChatView({
       </div>
 
       {/* ── Pinned bottom: action area ───────────────────────── */}
-      <div className="shrink-0 border-t border-border bg-background">
+      <div className="border-border bg-background shrink-0 border-t">
         <div className="mx-auto max-w-2xl px-4 py-4">
           {isLocked ? (
             <EditLockedCard />

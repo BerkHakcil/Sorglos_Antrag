@@ -49,13 +49,16 @@ async function createUser(tag: string): Promise<{ userId: string; email: string;
   if (error) throw new Error(`createUser: ${error.message}`)
   const userId = data!.user.id
   const now = new Date().toISOString()
-  await adminDb.from('profiles').update({
-    phone: '+4915100000009',
-    consent_datenschutz_at: now,
-    consent_agb_at: now,
-    consent_data_processing_at: now,
-    consent_authority_to_act_at: now,
-  }).eq('id', userId)
+  await adminDb
+    .from('profiles')
+    .update({
+      phone: '+4915100000009',
+      consent_datenschutz_at: now,
+      consent_agb_at: now,
+      consent_data_processing_at: now,
+      consent_authority_to_act_at: now,
+    })
+    .eq('id', userId)
   const { data: c } = await adminDb.from('cases').select('id').eq('user_id', userId).single()
   return { userId, email, caseId: c!.id }
 }
@@ -83,7 +86,7 @@ async function setupCareHomeAndPlz(page: Page) {
 async function waitForIdle(page: Page, timeout = 15_000) {
   await page.waitForFunction(
     () => document.querySelectorAll<HTMLButtonElement>('button[disabled]').length === 0,
-    { timeout },
+    { timeout }
   )
 }
 
@@ -118,29 +121,37 @@ async function answerCountByKey(caseId: string, key: string): Promise<number> {
  * `reveal` selects a non-"Nein" option for the Sonderstatus + life-insurance
  * selects so their dependents surface. Everything else is answered minimally.
  */
-async function driveQuestionnaire(
-  page: Page,
-  opts: { maritalChoice: string; reveal: boolean },
-) {
+async function driveQuestionnaire(page: Page, opts: { maritalChoice: string; reveal: boolean }) {
   let stuck = 0
   for (let step = 1; step <= 260 && stuck < 5; step++) {
-    const done = await page.getByText('Sie haben alle Fragen beantwortet', { exact: false })
-      .isVisible({ timeout: 300 }).catch(() => false)
-    const locked = await page.getByText('Angaben werden geprüft', { exact: false })
-      .isVisible({ timeout: 300 }).catch(() => false)
+    const done = await page
+      .getByText('Sie haben alle Fragen beantwortet', { exact: false })
+      .isVisible({ timeout: 300 })
+      .catch(() => false)
+    const locked = await page
+      .getByText('Angaben werden geprüft', { exact: false })
+      .isVisible({ timeout: 300 })
+      .catch(() => false)
     if (done || locked) return
 
     const footer = page.locator('.shrink-0.border-t').last()
 
     const neinWeiter = page.getByRole('button', { name: 'Nein, weiter' })
     if (await neinWeiter.isVisible({ timeout: 300 }).catch(() => false)) {
-      await neinWeiter.click(); await page.waitForTimeout(150); await waitForIdle(page); stuck = 0; continue
+      await neinWeiter.click()
+      await page.waitForTimeout(150)
+      await waitForIdle(page)
+      stuck = 0
+      continue
     }
 
     // yes_no → always "Nein" to keep the path short
     const neinRadio = footer.locator('input[type=radio][value="Nein"]')
     if (await neinRadio.isVisible({ timeout: 300 }).catch(() => false)) {
-      await neinRadio.click(); await clickWeiter(page); stuck = 0; continue
+      await neinRadio.click()
+      await clickWeiter(page)
+      stuck = 0
+      continue
     }
 
     // single_select
@@ -148,37 +159,60 @@ async function driveQuestionnaire(
     if (await sel.isVisible({ timeout: 300 }).catch(() => false)) {
       const text = (await footerText(page)).toLowerCase()
       const options = await sel.evaluate((s: HTMLSelectElement) =>
-        Array.from(s.options).filter((o) => o.value !== '').map((o) => ({ value: o.value, label: o.text.trim() })),
+        Array.from(s.options)
+          .filter((o) => o.value !== '')
+          .map((o) => ({ value: o.value, label: o.text.trim() }))
       )
       let chosen: string
       if (text.includes('familienstand')) {
         chosen = options.find((o) => o.label === opts.maritalChoice)?.value ?? options[0].value
-      } else if (opts.reveal && (text.includes('sonderstatus') || (text.includes('lebens') && text.includes('sterbe')))) {
+      } else if (
+        opts.reveal &&
+        (text.includes('sonderstatus') || (text.includes('lebens') && text.includes('sterbe')))
+      ) {
         chosen = options.find((o) => o.label !== 'Nein')?.value ?? options[0].value
       } else {
         chosen = options.find((o) => o.label === 'Nein')?.value ?? options[0].value
       }
-      await sel.selectOption({ value: chosen }); await clickWeiter(page); stuck = 0; continue
+      await sel.selectOption({ value: chosen })
+      await clickWeiter(page)
+      stuck = 0
+      continue
     }
 
     const dateIn = footer.locator('input[type=date]')
     if (await dateIn.isVisible({ timeout: 300 }).catch(() => false)) {
-      await dateIn.fill('1960-06-15'); await clickWeiter(page); stuck = 0; continue
+      await dateIn.fill('1960-06-15')
+      await clickWeiter(page)
+      stuck = 0
+      continue
     }
     const numIn = footer.locator('input[type=number]')
     if (await numIn.isVisible({ timeout: 300 }).catch(() => false)) {
-      await numIn.fill('100'); await clickWeiter(page); stuck = 0; continue
+      await numIn.fill('100')
+      await clickWeiter(page)
+      stuck = 0
+      continue
     }
     const textIn = footer.locator('input[type=text]').first()
     if (await textIn.isVisible({ timeout: 300 }).catch(() => false)) {
-      await textIn.fill('Müller'); await clickWeiter(page); stuck = 0; continue
+      await textIn.fill('Müller')
+      await clickWeiter(page)
+      stuck = 0
+      continue
     }
     const chk = footer.locator('input[type=checkbox]').first()
     if (await chk.isVisible({ timeout: 300 }).catch(() => false)) {
       const skip = page.getByRole('button', { name: 'Weiß ich gerade nicht' })
-      if (await skip.isVisible({ timeout: 300 }).catch(() => false)) { await skip.click(); await waitForIdle(page) }
-      else { await chk.click(); await clickWeiter(page) }
-      stuck = 0; continue
+      if (await skip.isVisible({ timeout: 300 }).catch(() => false)) {
+        await skip.click()
+        await waitForIdle(page)
+      } else {
+        await chk.click()
+        await clickWeiter(page)
+      }
+      stuck = 0
+      continue
     }
     stuck++
     await page.waitForTimeout(1_500)
@@ -199,17 +233,27 @@ test('T1 married: spouse Sonderstatus + life-insurance dependents now appear', a
     const issued = await answerCountByKey(caseId, 'spouse_special_origin_rights_issued')
     const issuedBy = await answerCountByKey(caseId, 'spouse_special_origin_rights_issued_by')
     const lifeAmt = await answerCountByKey(caseId, 'spouse_life_insurance_amount')
-    console.log(`T1 answered counts → issued=${issued} issued_by=${issuedBy} life_amount=${lifeAmt}`)
+    console.log(
+      `T1 answered counts → issued=${issued} issued_by=${issuedBy} life_amount=${lifeAmt}`
+    )
 
-    expect(issued, 'spouse_special_origin_rights_issued must have been shown+answered').toBeGreaterThan(0)
-    expect(issuedBy, 'spouse_special_origin_rights_issued_by must have been shown+answered').toBeGreaterThan(0)
+    expect(
+      issued,
+      'spouse_special_origin_rights_issued must have been shown+answered'
+    ).toBeGreaterThan(0)
+    expect(
+      issuedBy,
+      'spouse_special_origin_rights_issued_by must have been shown+answered'
+    ).toBeGreaterThan(0)
     expect(lifeAmt, 'spouse_life_insurance_amount must have been shown+answered').toBeGreaterThan(0)
   } finally {
     await adminDb.auth.admin.deleteUser(userId)
   }
 })
 
-test('T2 single: the three spouse dependents stay hidden and do not block completion', async ({ page }) => {
+test('T2 single: the three spouse dependents stay hidden and do not block completion', async ({
+  page,
+}) => {
   const { userId, email, caseId } = await createUser('vis-single')
   try {
     await login(page, email)
@@ -220,12 +264,16 @@ test('T2 single: the three spouse dependents stay hidden and do not block comple
     const issuedBy = await answerCountByKey(caseId, 'spouse_special_origin_rights_issued_by')
     const lifeAmt = await answerCountByKey(caseId, 'spouse_life_insurance_amount')
     const { data: c } = await adminDb.from('cases').select('status').eq('id', caseId).single()
-    console.log(`T2 counts → issued=${issued} issued_by=${issuedBy} life_amount=${lifeAmt} status=${c?.status}`)
+    console.log(
+      `T2 counts → issued=${issued} issued_by=${issuedBy} life_amount=${lifeAmt} status=${c?.status}`
+    )
 
     expect(issued, 'spouse_special_origin_rights_issued must stay hidden for ledig').toBe(0)
     expect(issuedBy, 'spouse_special_origin_rights_issued_by must stay hidden for ledig').toBe(0)
     expect(lifeAmt, 'spouse_life_insurance_amount must stay hidden for ledig').toBe(0)
-    expect(c?.status, 'case still completes without the hidden spouse questions').toBe('under_review')
+    expect(c?.status, 'case still completes without the hidden spouse questions').toBe(
+      'under_review'
+    )
   } finally {
     await adminDb.auth.admin.deleteUser(userId)
   }
@@ -242,25 +290,52 @@ test('T3 Haftpflicht toggle Ja→Nein deletes the dependent answers (BUG B)', as
       .single()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const questionnaireId = (qRow as any).category.questionnaire_id
-    const { data: home } = await adminDb.from('care_home').select('id').eq('is_active', true).limit(1).single()
-    await adminDb.from('cases').update({
-      care_home_id: home!.id,
-      questionnaire_id: questionnaireId,
-      plz_before_move: '10115',
-      plz_resolution_status: 'resolved',
-    }).eq('id', caseId)
+    const { data: home } = await adminDb
+      .from('care_home')
+      .select('id')
+      .eq('is_active', true)
+      .limit(1)
+      .single()
+    await adminDb
+      .from('cases')
+      .update({
+        care_home_id: home!.id,
+        questionnaire_id: questionnaireId,
+        plz_before_move: '10115',
+        plz_resolution_status: 'resolved',
+      })
+      .eq('id', caseId)
 
     const { data: qs } = await adminDb
       .from('question')
       .select('id, key')
-      .in('key', ['general_liablity_insurance_yes_no', 'general_liablity_insurance_provider', 'general_liability_amount'])
+      .in('key', [
+        'general_liablity_insurance_yes_no',
+        'general_liablity_insurance_provider',
+        'general_liability_amount',
+      ])
     const idByKey = Object.fromEntries((qs ?? []).map((q) => [q.key, q.id]))
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (adminDb as any).from('answer').insert([
-      { case_id: caseId, question_id: idByKey['general_liablity_insurance_yes_no'], group_instance: 'default', value: 'Ja' },
-      { case_id: caseId, question_id: idByKey['general_liablity_insurance_provider'], group_instance: 'default', value: 'AXA Test' },
-      { case_id: caseId, question_id: idByKey['general_liability_amount'], group_instance: 'default', value: 50 },
+      {
+        case_id: caseId,
+        question_id: idByKey['general_liablity_insurance_yes_no'],
+        group_instance: 'default',
+        value: 'Ja',
+      },
+      {
+        case_id: caseId,
+        question_id: idByKey['general_liablity_insurance_provider'],
+        group_instance: 'default',
+        value: 'AXA Test',
+      },
+      {
+        case_id: caseId,
+        question_id: idByKey['general_liability_amount'],
+        group_instance: 'default',
+        value: 50,
+      },
     ])
 
     await login(page, email)
@@ -268,7 +343,9 @@ test('T3 Haftpflicht toggle Ja→Nein deletes the dependent answers (BUG B)', as
 
     // Edit the trigger bubble in history: Ja → Nein
     const triggerPrompt = 'Haben Sie eine Haftpflichtversicherung?'
-    const group = page.locator('div.space-y-1', { has: page.getByText(triggerPrompt, { exact: true }) })
+    const group = page.locator('div.space-y-1', {
+      has: page.getByText(triggerPrompt, { exact: true }),
+    })
     await group.getByRole('button', { name: 'Bearbeiten' }).click()
     await page.waitForTimeout(300)
     const footer = page.locator('.shrink-0.border-t').last()
@@ -286,7 +363,9 @@ test('T3 Haftpflicht toggle Ja→Nein deletes the dependent answers (BUG B)', as
       .eq('case_id', caseId)
       .eq('question_id', idByKey['general_liablity_insurance_yes_no'])
       .single()
-    console.log(`T3 after toggle → trigger=${JSON.stringify(trig?.value)} provider=${providerCount} amount=${amountCount}`)
+    console.log(
+      `T3 after toggle → trigger=${JSON.stringify(trig?.value)} provider=${providerCount} amount=${amountCount}`
+    )
 
     expect(trig?.value, 'trigger now Nein').toBe('Nein')
     expect(providerCount, 'provider answer must be deleted (BUG B)').toBe(0)

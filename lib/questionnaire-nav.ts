@@ -7,12 +7,7 @@
  *   formatAnswerForDisplay — human-readable German answer string for chat history
  */
 
-import type {
-  VisibilityRule,
-  Question,
-  Category,
-  LoadedQuestionnaire,
-} from './questionnaire-types'
+import type { VisibilityRule, Question, Category, LoadedQuestionnaire } from './questionnaire-types'
 
 export type { VisibilityRule, Question, Category, LoadedQuestionnaire }
 
@@ -24,7 +19,8 @@ export type RulesByKey = Map<string, VisibilityRule | null>
 /** Evaluates a single rule against answers — one level, no controller-chain check. */
 function matchesRule(rule: VisibilityRule, answers: Record<string, unknown>): boolean {
   const answer = answers[rule.question_key]
-  if ('in_values' in rule) return Array.isArray(rule.in_values) && rule.in_values.includes(answer as string)
+  if ('in_values' in rule)
+    return Array.isArray(rule.in_values) && rule.in_values.includes(answer as string)
   if ('value' in rule) return answer === rule.value
   if ('not_value' in rule) return answer !== rule.not_value
   if ('not_empty' in rule) return answer !== undefined && answer !== null && answer !== ''
@@ -51,7 +47,7 @@ export function isVisible(
   rule: VisibilityRule | null | undefined,
   answers: Record<string, unknown>,
   rulesByKey?: RulesByKey,
-  seen?: Set<string>,
+  seen?: Set<string>
 ): boolean {
   if (!rule) return true
   if (!matchesRule(rule, answers)) return false
@@ -86,7 +82,7 @@ export function buildRulesByKey(questionnaire: LoadedQuestionnaire): RulesByKey 
  */
 export function findStaleAnswerRefs(
   flatVisible: NavQuestion[],
-  answersRaw: { question_id: string; question_key: string; group_instance: string }[],
+  answersRaw: { question_id: string; question_key: string; group_instance: string }[]
 ): { question_id: string; question_key: string; group_instance: string }[] {
   const visible = new Set(flatVisible.map((q) => `${q.id}:${q.instanceId ?? 'default'}`))
   return answersRaw.filter((a) => !visible.has(`${a.question_id}:${a.group_instance}`))
@@ -165,7 +161,7 @@ export function buildNav(
   groupInstances: Record<string, string[]> = {},
   groupAnswers: Record<string, Record<string, unknown>> = {},
   dismissedGroups: Set<string> = new Set(),
-  skippedIds: Set<string> = new Set(),
+  skippedIds: Set<string> = new Set()
 ): NavState {
   const sections: SectionNav[] = []
   const flatVisible: NavQuestion[] = []
@@ -190,7 +186,7 @@ export function buildNav(
 
         // All questions in this group for this category, in sort_order
         const groupQs = cat.questions.filter(
-          (gq) => gq.group_key === q.group_key && gq.answer_type !== 'document_upload',
+          (gq) => gq.group_key === q.group_key && gq.answer_type !== 'document_upload'
         )
 
         const instances = groupInstances[q.group_key] ?? []
@@ -261,8 +257,7 @@ export function buildNav(
   const progressPercent =
     totalRequired > 0 ? Math.round((answeredRequired / totalRequired) * 100) : 100
 
-  const nextQuestion =
-    flatVisible.find((q) => !q.isAnswered && !skippedIds.has(skipKey(q))) ?? null
+  const nextQuestion = flatVisible.find((q) => !q.isAnswered && !skippedIds.has(skipKey(q))) ?? null
   const resumeQuestion =
     flatVisible.find((q) => q.is_required && !q.isAnswered && !skippedIds.has(skipKey(q))) ?? null
   const nextSkippedQuestion =
@@ -282,7 +277,7 @@ export function buildNav(
     if (dismissedGroups.has(groupKey)) continue
 
     const groupNavQs = flatVisible.filter((q) => q.group_key === groupKey)
-    if (groupNavQs.length === 0) continue  // cross-group visibility hid everything
+    if (groupNavQs.length === 0) continue // cross-group visibility hid everything
 
     if (!groupNavQs.every((q) => q.isAnswered)) continue
 
@@ -329,9 +324,7 @@ export function formatAnswerForDisplay(question: Question, value: unknown): stri
     case 'multi_select': {
       const vals = Array.isArray(value) ? (value as string[]) : []
       if (vals.length === 0) return '–'
-      return vals
-        .map((v) => question.options.find((o) => o.value === v)?.label_de ?? v)
-        .join(', ')
+      return vals.map((v) => question.options.find((o) => o.value === v)?.label_de ?? v).join(', ')
     }
 
     case 'date': {

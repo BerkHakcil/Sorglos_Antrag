@@ -35,7 +35,7 @@ const adminDb = createClient(SUPABASE_URL, SERVICE_KEY, {
 async function waitForIdle(page: Page, timeout = 15_000) {
   await page.waitForFunction(
     () => document.querySelectorAll<HTMLButtonElement>('button[disabled]').length === 0,
-    { timeout },
+    { timeout }
   )
 }
 
@@ -75,13 +75,16 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
   const userId = userData!.user.id
 
   const now = new Date().toISOString()
-  await adminDb.from('profiles').update({
-    phone: '+4915100000002',
-    consent_datenschutz_at: now,
-    consent_agb_at: now,
-    consent_data_processing_at: now,
-    consent_authority_to_act_at: now,
-  }).eq('id', userId)
+  await adminDb
+    .from('profiles')
+    .update({
+      phone: '+4915100000002',
+      consent_datenschutz_at: now,
+      consent_agb_at: now,
+      consent_data_processing_at: now,
+      consent_authority_to_act_at: now,
+    })
+    .eq('id', userId)
 
   const { data: caseData } = await adminDb.from('cases').select('id').eq('user_id', userId).single()
   const caseId = caseData!.id
@@ -150,7 +153,8 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
       // V1: Detect hat_rente by pension-specific text
       const isHatRente = footerText.toLowerCase().includes('rente') && !v1HatRenteAnsweredJa
       // V2: Detect spouse_wohngeld_yes_no by wohngeld text
-      const isWohngeldYesNo = footerText.toLowerCase().includes('wohngeld') && !v2WohngeldYesNoAnsweredJa
+      const isWohngeldYesNo =
+        footerText.toLowerCase().includes('wohngeld') && !v2WohngeldYesNoAnsweredJa
 
       if (isHatRente) {
         console.log(`[step ${step}] hat_rente → Ja ("${footerText.substring(0, 80).trim()}")`)
@@ -178,11 +182,15 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
       const options = await sel.evaluate((s: HTMLSelectElement) =>
         Array.from(s.options)
           .filter((o) => o.value !== '')
-          .map((o) => ({ value: o.value, label: o.text.trim() })),
+          .map((o) => ({ value: o.value, label: o.text.trim() }))
       )
       const verheiratet = options.find((o) => o.label === 'verheiratet')
       const ledig = options.find((o) => o.label === 'ledig' || o.label === 'Ledig')
-      const chosen = verheiratet ? verheiratet.value : ledig ? ledig.value : (options[0]?.value ?? '')
+      const chosen = verheiratet
+        ? verheiratet.value
+        : ledig
+          ? ledig.value
+          : (options[0]?.value ?? '')
       if (chosen) await sel.selectOption({ value: chosen })
       if (verheiratet) console.log(`[step ${step}] marital_status → "verheiratet"`)
       await clickWeiter(page)
@@ -246,22 +254,23 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
   const [{ data: rentenbetragQ }, { data: wohngeldAmountQ }, { data: wohngeldIdQ }] =
     await Promise.all([
       adminDb.from('question').select('visibility_rule').eq('key', 'rentenbetrag').single(),
-      adminDb.from('question').select('visibility_rule').eq('key', 'spouse_wohngeld_amount').single(),
+      adminDb
+        .from('question')
+        .select('visibility_rule')
+        .eq('key', 'spouse_wohngeld_amount')
+        .single(),
       adminDb.from('question').select('visibility_rule').eq('key', 'spouse_wohngeld_id').single(),
     ])
 
   // ── DB assertions: answers saved for this case ───────────────────────────────
   // If rentenbetrag was visible (rule fixed) the loop would have answered it.
   // Same for spouse_wohngeld_amount and spouse_wohngeld_id.
-  const [
-    { data: rentenbetragQRow },
-    { data: wohngeldAmountQRow },
-    { data: wohngeldIdQRow },
-  ] = await Promise.all([
-    adminDb.from('question').select('id').eq('key', 'rentenbetrag').single(),
-    adminDb.from('question').select('id').eq('key', 'spouse_wohngeld_amount').single(),
-    adminDb.from('question').select('id').eq('key', 'spouse_wohngeld_id').single(),
-  ])
+  const [{ data: rentenbetragQRow }, { data: wohngeldAmountQRow }, { data: wohngeldIdQRow }] =
+    await Promise.all([
+      adminDb.from('question').select('id').eq('key', 'rentenbetrag').single(),
+      adminDb.from('question').select('id').eq('key', 'spouse_wohngeld_amount').single(),
+      adminDb.from('question').select('id').eq('key', 'spouse_wohngeld_id').single(),
+    ])
 
   const [
     { count: rentenbetragAnswerCount },
@@ -269,14 +278,23 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
     { count: wohngeldIdAnswerCount },
   ] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (adminDb as any).from('answer').select('id', { count: 'exact', head: true })
-      .eq('case_id', caseId).eq('question_id', rentenbetragQRow!.id),
+    (adminDb as any)
+      .from('answer')
+      .select('id', { count: 'exact', head: true })
+      .eq('case_id', caseId)
+      .eq('question_id', rentenbetragQRow!.id),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (adminDb as any).from('answer').select('id', { count: 'exact', head: true })
-      .eq('case_id', caseId).eq('question_id', wohngeldAmountQRow!.id),
+    (adminDb as any)
+      .from('answer')
+      .select('id', { count: 'exact', head: true })
+      .eq('case_id', caseId)
+      .eq('question_id', wohngeldAmountQRow!.id),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (adminDb as any).from('answer').select('id', { count: 'exact', head: true })
-      .eq('case_id', caseId).eq('question_id', wohngeldIdQRow!.id),
+    (adminDb as any)
+      .from('answer')
+      .select('id', { count: 'exact', head: true })
+      .eq('case_id', caseId)
+      .eq('question_id', wohngeldIdQRow!.id),
   ])
 
   const v1RentenbetragAnswered = (rentenbetragAnswerCount ?? 0) > 0
@@ -286,28 +304,34 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
   console.log('\n══════════ STEP B VISIBILITY RESULTS ══════════')
   console.log(`V1 rentenbetrag DB rule:       ${JSON.stringify(rentenbetragQ?.visibility_rule)}`)
   console.log(`V1 hat_rente=Ja answered:      ${v1HatRenteAnsweredJa}`)
-  console.log(`V1 rentenbetrag saved in DB:   ${v1RentenbetragAnswered} (count=${rentenbetragAnswerCount})`)
+  console.log(
+    `V1 rentenbetrag saved in DB:   ${v1RentenbetragAnswered} (count=${rentenbetragAnswerCount})`
+  )
   console.log(`V2 wohngeld_amount DB rule:    ${JSON.stringify(wohngeldAmountQ?.visibility_rule)}`)
   console.log(`V2 wohngeld_id DB rule:        ${JSON.stringify(wohngeldIdQ?.visibility_rule)}`)
   console.log(`V2 spouse_wohngeld yes/no=Ja:  ${v2WohngeldYesNoAnsweredJa}`)
-  console.log(`V2 wohngeld_amount saved in DB:${v2WohngeldAmountAnswered} (count=${wohngeldAmountAnswerCount})`)
-  console.log(`V2 wohngeld_id saved in DB:    ${v2WohngeldIdAnswered} (count=${wohngeldIdAnswerCount})`)
+  console.log(
+    `V2 wohngeld_amount saved in DB:${v2WohngeldAmountAnswered} (count=${wohngeldAmountAnswerCount})`
+  )
+  console.log(
+    `V2 wohngeld_id saved in DB:    ${v2WohngeldIdAnswered} (count=${wohngeldIdAnswerCount})`
+  )
   console.log('════════════════════════════════════════════════\n')
 
   // DB: rentenbetrag visibility rule value must be the STRING "Ja" (not boolean true)
   expect(
     rentenbetragQ?.visibility_rule?.value,
-    'rentenbetrag visibility_rule.value must be string "Ja" not boolean true',
+    'rentenbetrag visibility_rule.value must be string "Ja" not boolean true'
   ).toBe('Ja')
 
   // DB: wohngeld rules must point to spouse_wohngeld_yes_no (not self-reference)
   expect(
     wohngeldAmountQ?.visibility_rule?.question_key,
-    'spouse_wohngeld_amount must reference spouse_wohngeld_yes_no',
+    'spouse_wohngeld_amount must reference spouse_wohngeld_yes_no'
   ).toBe('spouse_wohngeld_yes_no')
   expect(
     wohngeldIdQ?.visibility_rule?.question_key,
-    'spouse_wohngeld_id must reference spouse_wohngeld_yes_no',
+    'spouse_wohngeld_id must reference spouse_wohngeld_yes_no'
   ).toBe('spouse_wohngeld_yes_no')
 
   // UI flow: hat_rente must have been reached and answered Ja (logged at step detection)
@@ -318,15 +342,15 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
   // Answer saved in DB proves the question was visible to the loop and rendered
   expect(
     v1RentenbetragAnswered,
-    'rentenbetrag answer must exist in DB (proves it was visible after hat_rente=Ja)',
+    'rentenbetrag answer must exist in DB (proves it was visible after hat_rente=Ja)'
   ).toBe(true)
   expect(
     v2WohngeldAmountAnswered,
-    'spouse_wohngeld_amount answer must exist in DB (proves it was visible after yes_no=Ja)',
+    'spouse_wohngeld_amount answer must exist in DB (proves it was visible after yes_no=Ja)'
   ).toBe(true)
   expect(
     v2WohngeldIdAnswered,
-    'spouse_wohngeld_id answer must exist in DB (proves it was visible after yes_no=Ja)',
+    'spouse_wohngeld_id answer must exist in DB (proves it was visible after yes_no=Ja)'
   ).toBe(true)
 
   // ── Cleanup ─────────────────────────────────────────────────────────────────

@@ -1,5 +1,12 @@
 import Image from 'next/image'
-import { getCase, getCareHomes, getCaseAnswers, getStaticContent, type SavedAnswer, type StaticContent } from '@/lib/dal'
+import {
+  getCase,
+  getCareHomes,
+  getCaseAnswers,
+  getStaticContent,
+  type SavedAnswer,
+  type StaticContent,
+} from '@/lib/dal'
 import { loadQuestionnaire } from '@/lib/questionnaire-engine'
 import type { LoadedQuestionnaire } from '@/lib/questionnaire-types'
 import { de } from '@/lib/strings/de'
@@ -19,11 +26,11 @@ export default async function CasePage() {
   const hasQuestionnaire = !!caseData.questionnaire_id
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-background">
+    <div className="bg-background flex h-screen flex-col overflow-hidden">
       {/* ── Brand header — always pinned at top ─────────────── */}
-      <header className="shrink-0 border-b border-border bg-card">
-        <div className="mx-auto max-w-2xl px-4 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
+      <header className="border-border bg-card shrink-0 border-b">
+        <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-4 py-3">
+          <div className="flex min-w-0 items-center gap-3">
             {/* Logo lockup (icon + "Sorglos Antrag" wordmark) — replaces the brand
                 name text, which the image already contains. Tagline kept alongside. */}
             <Image
@@ -34,14 +41,14 @@ export default async function CasePage() {
               priority
               className="h-9 w-auto shrink-0 rounded-md"
             />
-            <p className="text-[11px] text-muted-foreground leading-tight min-w-0 truncate">
+            <p className="text-muted-foreground min-w-0 truncate text-[11px] leading-tight">
               {content.brandTagline}
             </p>
           </div>
           <form action={logoutAction} className="shrink-0">
             <button
               type="submit"
-              className="border border-border text-muted-foreground hover:bg-muted rounded-md px-3 py-1.5 text-xs"
+              className="border-border text-muted-foreground hover:bg-muted rounded-md border px-3 py-1.5 text-xs"
             >
               {s.logoutButton}
             </button>
@@ -63,11 +70,11 @@ export default async function CasePage() {
         </div>
       ) : (
         /* Pre-questionnaire: traditional scrollable card layout */
-        <div className="flex-1 overflow-y-auto bg-muted/40">
-          <div className="mx-auto max-w-2xl px-4 py-6 space-y-6">
+        <div className="bg-muted/40 flex-1 overflow-y-auto">
+          <div className="mx-auto max-w-2xl space-y-6 px-4 py-6">
             {/* Case meta */}
             <div className="border-border bg-card rounded-xl border p-6 shadow-sm">
-              <h2 className="font-semibold mb-3">{content.caseSubheading}</h2>
+              <h2 className="mb-3 font-semibold">{content.caseSubheading}</h2>
               <dl className="divide-border divide-y text-sm">
                 <div className="flex justify-between py-2">
                   <dt className="text-muted-foreground">{s.caseIdLabel}</dt>
@@ -85,7 +92,7 @@ export default async function CasePage() {
                 )}
                 {caseData.plz_resolution_status === 'unsupported' && (
                   <div className="py-2">
-                    <p className="text-amber-700 dark:text-amber-400 text-xs">
+                    <p className="text-xs text-amber-700 dark:text-amber-400">
                       {s.plz.unsupportedNotice}
                     </p>
                   </div>
@@ -162,7 +169,7 @@ async function ChatSection({
  */
 function deriveGroupData(
   questionnaire: LoadedQuestionnaire,
-  answersRaw: SavedAnswer[],
+  answersRaw: SavedAnswer[]
 ): {
   groupInstances: Record<string, string[]>
   groupAnswers: Record<string, Record<string, unknown>>

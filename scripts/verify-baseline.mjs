@@ -26,8 +26,8 @@ import { createClient } from '@supabase/supabase-js'
 import { config } from 'dotenv'
 config({ path: '.env.local' })
 
-const PROD_URL  = process.env.NEXT_PUBLIC_SUPABASE_URL
-const PROD_KEY  = process.env.SUPABASE_SECRET_KEY
+const PROD_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const PROD_KEY = process.env.SUPABASE_SECRET_KEY
 const LOCAL_URL = process.env.LOCAL_DATABASE_URL
 
 if (!PROD_URL || !PROD_KEY) {
@@ -35,47 +35,64 @@ if (!PROD_URL || !PROD_KEY) {
   process.exit(1)
 }
 
-const prod = createClient(PROD_URL, PROD_KEY, { auth: { autoRefreshToken: false, persistSession: false } })
+const prod = createClient(PROD_URL, PROD_KEY, {
+  auth: { autoRefreshToken: false, persistSession: false },
+})
 
 // ── Fetch production state ──────────────────────────────────────────────────
 
-const [
-  { data: prodCats  }, { data: prodGrps  },
-  { data: prodQs    }, { data: prodOpts  },
-] = await Promise.all([
-  prod.from('category').select('id, key, label_de, sort_order').order('sort_order'),
-  prod.from('question_group').select('id, category_id, key, sort_order, label_de, is_repeatable, min_count, max_count').order('category_id, sort_order'),
-  prod.from('question').select('id, category_id, group_id, key, sort_order, answer_type, is_required, prompt_de, help_de, validation, visibility_rule').order('category_id, sort_order'),
-  prod.from('question_option').select('id, question_id, key, sort_order, label_de, value').order('question_id, sort_order'),
-])
+const [{ data: prodCats }, { data: prodGrps }, { data: prodQs }, { data: prodOpts }] =
+  await Promise.all([
+    prod.from('category').select('id, key, label_de, sort_order').order('sort_order'),
+    prod
+      .from('question_group')
+      .select('id, category_id, key, sort_order, label_de, is_repeatable, min_count, max_count')
+      .order('category_id, sort_order'),
+    prod
+      .from('question')
+      .select(
+        'id, category_id, group_id, key, sort_order, answer_type, is_required, prompt_de, help_de, validation, visibility_rule'
+      )
+      .order('category_id, sort_order'),
+    prod
+      .from('question_option')
+      .select('id, question_id, key, sort_order, label_de, value')
+      .order('question_id, sort_order'),
+  ])
 
 console.log(`\n=== PRODUCTION STATE ===`)
 console.log(`Categories:  ${prodCats.length}`)
 console.log(`Groups:      ${prodGrps.length}`)
 console.log(`Questions:   ${prodQs.length}`)
 console.log(`Options:     ${prodOpts.length}`)
-console.log(`\nCategory keys: ${prodCats.map(c => `${c.key}(${c.label_de})`).join(', ')}`)
+console.log(`\nCategory keys: ${prodCats.map((c) => `${c.key}(${c.label_de})`).join(', ')}`)
 console.log(`Question count by answer_type:`)
 const byType = {}
 for (const q of prodQs) byType[q.answer_type] = (byType[q.answer_type] ?? 0) + 1
 for (const [type, count] of Object.entries(byType).sort()) console.log(`  ${type}: ${count}`)
 
 // Spot-check critical questions
-const criticalKeys = ['rentenbetrag', 'hat_rente', 'spouse_wohngeld_yes_no', 'spouse_wohngeld_amount', 'spouse_wohngeld_id']
+const criticalKeys = [
+  'rentenbetrag',
+  'hat_rente',
+  'spouse_wohngeld_yes_no',
+  'spouse_wohngeld_amount',
+  'spouse_wohngeld_id',
+]
 console.log(`\nCritical visibility rules:`)
 for (const key of criticalKeys) {
-  const q = prodQs.find(q => q.key === key)
+  const q = prodQs.find((q) => q.key === key)
   if (q) console.log(`  ${key}: ${JSON.stringify(q.visibility_rule)}`)
-  else    console.log(`  ${key}: NOT FOUND`)
+  else console.log(`  ${key}: NOT FOUND`)
 }
 
 if (!LOCAL_URL) {
   console.log(`\n[INFO] LOCAL_DATABASE_URL not set — production-only summary above.`)
   console.log(`To run the full diff: set LOCAL_DATABASE_URL and re-run after supabase db reset.`)
   console.log(`\n✅ Production state looks clean (${prodQs.length} questions, no document_upload).`)
-  const docQ = prodQs.filter(q => q.answer_type === 'document_upload')
+  const docQ = prodQs.filter((q) => q.answer_type === 'document_upload')
   if (docQ.length > 0) {
-    console.error(`❌ document_upload questions still exist: ${docQ.map(q => q.key).join(', ')}`)
+    console.error(`❌ document_upload questions still exist: ${docQ.map((q) => q.key).join(', ')}`)
     process.exit(1)
   }
   process.exit(0)
@@ -103,9 +120,15 @@ async function queryLocal(sql) {
 
 const [localCats, localGrps, localQs, localOpts] = await Promise.all([
   queryLocal(`SELECT id, key, label_de, sort_order FROM public.category ORDER BY sort_order`),
-  queryLocal(`SELECT id, category_id, key, sort_order, label_de, is_repeatable, min_count, max_count FROM public.question_group ORDER BY category_id, sort_order`),
-  queryLocal(`SELECT id, category_id, group_id, key, sort_order, answer_type, is_required, prompt_de, help_de, validation::text, visibility_rule::text FROM public.question ORDER BY category_id, sort_order`),
-  queryLocal(`SELECT id, question_id, key, sort_order, label_de, value FROM public.question_option ORDER BY question_id, sort_order`),
+  queryLocal(
+    `SELECT id, category_id, key, sort_order, label_de, is_repeatable, min_count, max_count FROM public.question_group ORDER BY category_id, sort_order`
+  ),
+  queryLocal(
+    `SELECT id, category_id, group_id, key, sort_order, answer_type, is_required, prompt_de, help_de, validation::text, visibility_rule::text FROM public.question ORDER BY category_id, sort_order`
+  ),
+  queryLocal(
+    `SELECT id, question_id, key, sort_order, label_de, value FROM public.question_option ORDER BY question_id, sort_order`
+  ),
 ])
 
 await pool.end()
@@ -127,7 +150,12 @@ let diffs = 0
 function canonicalize(v) {
   if (Array.isArray(v)) return v.map(canonicalize)
   if (v && typeof v === 'object') {
-    return Object.keys(v).sort().reduce((acc, k) => { acc[k] = canonicalize(v[k]); return acc }, {})
+    return Object.keys(v)
+      .sort()
+      .reduce((acc, k) => {
+        acc[k] = canonicalize(v[k])
+        return acc
+      }, {})
   }
   return v
 }
@@ -138,22 +166,26 @@ function normalize(v) {
   if (typeof v === 'string') {
     const t = v.trim()
     if (t.startsWith('{') || t.startsWith('[')) {
-      try { return JSON.stringify(canonicalize(JSON.parse(t))) } catch { /* not JSON, fall through */ }
+      try {
+        return JSON.stringify(canonicalize(JSON.parse(t)))
+      } catch {
+        /* not JSON, fall through */
+      }
     }
   }
   return String(v)
 }
 
 function diffArrays(label, prodRows, localRows, keyFn, fields) {
-  const prodMap  = Object.fromEntries(prodRows.map(r  => [keyFn(r),  r]))
-  const localMap = Object.fromEntries(localRows.map(r => [keyFn(r), r]))
+  const prodMap = Object.fromEntries(prodRows.map((r) => [keyFn(r), r]))
+  const localMap = Object.fromEntries(localRows.map((r) => [keyFn(r), r]))
 
-  const prodKeys  = new Set(Object.keys(prodMap))
+  const prodKeys = new Set(Object.keys(prodMap))
   const localKeys = new Set(Object.keys(localMap))
 
-  const missing  = [...prodKeys].filter(k => !localKeys.has(k))
-  const extra    = [...localKeys].filter(k => !prodKeys.has(k))
-  const changed  = []
+  const missing = [...prodKeys].filter((k) => !localKeys.has(k))
+  const extra = [...localKeys].filter((k) => !prodKeys.has(k))
+  const changed = []
 
   for (const key of prodKeys) {
     if (!localKeys.has(key)) continue
@@ -174,21 +206,42 @@ function diffArrays(label, prodRows, localRows, keyFn, fields) {
   }
 
   console.log(`\n❌ ${label}: DIFF FOUND`)
-  if (missing.length)  console.log(`  Missing in local (${missing.length}): ${missing.join(', ')}`)
-  if (extra.length)    console.log(`  Extra in local   (${extra.length}): ${extra.join(', ')}`)
+  if (missing.length) console.log(`  Missing in local (${missing.length}): ${missing.join(', ')}`)
+  if (extra.length) console.log(`  Extra in local   (${extra.length}): ${extra.join(', ')}`)
   for (const { key, diffs: ds } of changed.slice(0, 10)) {
     console.log(`  Changed: ${key}`)
-    ds.forEach(d => console.log(d))
+    ds.forEach((d) => console.log(d))
   }
   if (changed.length > 10) console.log(`  ... and ${changed.length - 10} more changes`)
   diffs += missing.length + extra.length + changed.length
 }
 
 console.log(`\n=== DIFF ===`)
-diffArrays('Categories',   prodCats,  localCats,  r => r.id, ['key','label_de','sort_order'])
-diffArrays('Groups',       prodGrps,  localGrps,  r => r.id, ['key','label_de','sort_order','is_repeatable','min_count','max_count'])
-diffArrays('Questions',    prodQs,    localQs,    r => r.key, ['category_id','group_id','sort_order','answer_type','is_required','prompt_de','help_de','validation','visibility_rule'])
-diffArrays('Options',      prodOpts,  localOpts,  r => `${r.question_id}/${r.key}`, ['sort_order','label_de','value'])
+diffArrays('Categories', prodCats, localCats, (r) => r.id, ['key', 'label_de', 'sort_order'])
+diffArrays('Groups', prodGrps, localGrps, (r) => r.id, [
+  'key',
+  'label_de',
+  'sort_order',
+  'is_repeatable',
+  'min_count',
+  'max_count',
+])
+diffArrays('Questions', prodQs, localQs, (r) => r.key, [
+  'category_id',
+  'group_id',
+  'sort_order',
+  'answer_type',
+  'is_required',
+  'prompt_de',
+  'help_de',
+  'validation',
+  'visibility_rule',
+])
+diffArrays('Options', prodOpts, localOpts, (r) => `${r.question_id}/${r.key}`, [
+  'sort_order',
+  'label_de',
+  'value',
+])
 
 console.log(`\n${'─'.repeat(50)}`)
 if (diffs === 0) {

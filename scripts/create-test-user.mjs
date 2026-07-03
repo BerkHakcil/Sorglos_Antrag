@@ -21,7 +21,7 @@ if (!SUPABASE_URL || !SERVICE_KEY) {
 }
 
 const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
-  auth: { autoRefreshToken: false, persistSession: false }
+  auth: { autoRefreshToken: false, persistSession: false },
 })
 
 const email = `pw-completion+${Date.now()}@hzp-test.invalid`
