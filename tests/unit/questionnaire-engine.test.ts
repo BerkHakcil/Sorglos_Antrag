@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { isVisible, type VisibilityRule, type Question } from '@/lib/questionnaire-engine'
-import { buildNav, type LoadedQuestionnaire } from '@/lib/questionnaire-nav'
+import {
+  buildNav,
+  buildRulesByKey,
+  findStaleAnswerRefs,
+  type LoadedQuestionnaire,
+} from '@/lib/questionnaire-nav'
 
 // ─── Helpers ──────────────────────────────────────────────
 
@@ -356,5 +361,118 @@ describe('buildNav — per-section openRequiredCount', () => {
     expect(nav.sections[1].openRequiredCount).toBe(1) // c open
     expect(nav.sections[0].totalRequired).toBe(2)
     expect(nav.sections[1].totalRequired).toBe(1)
+  })
+})
+
+// ─── isVisible — transitive controller chain (BUG A) ──────
+
+describe('isVisible — transitive visibility (controller chain)', () => {
+  // marital_status (unconditional)
+  //   → spouse_special_origin_rights        (visible only for a spouse-equivalent status)
+  //       → spouse_special_origin_rights_issued      (visible when parent != "Nein")
+  //           → spouse_special_origin_rights_issued_by (grandchild; parent not_empty)
+  const chain = makeQuestionnaire([
+    { key: 'marital_status', is_required: true },
+    {
+      key: 'spouse_special_origin_rights',
+      is_required: true,
+      sort_order: 1,
+      visibility_rule: { question_key: 'marital_status', in_values: ['verheiratet'] },
+    },
+    {
+      key: 'spouse_special_origin_rights_issued',
+      is_required: true,
+      sort_order: 2,
+      visibility_rule: { question_key: 'spouse_special_origin_rights', not_value: 'Nein' },
+    },
+    {
+      key: 'spouse_special_origin_rights_issued_by',
+      is_required: true,
+      sort_order: 3,
+      visibility_rule: { question_key: 'spouse_special_origin_rights_issued', not_empty: true },
+    },
+  ])
+  const rules = buildRulesByKey(chain)
+  const issuedRule = chain.categories[0].questions[2].visibility_rule
+  const issuedByRule = chain.categories[0].questions[3].visibility_rule
+
+  it('a question with no rule is always visible', () => {
+    expect(isVisible(null, {}, rules)).toBe(true)
+    expect(isVisible(null, { marital_status: 'ledig' }, rules)).toBe(true)
+  })
+
+  it('gated on a VISIBLE controller behaves as before', () => {
+    // married → controller visible; issued shows when controller != "Nein"
+    expect(
+      isVisible(issuedRule, { marital_status: 'verheiratet', spouse_special_origin_rights: 'Spätaussiedler' }, rules),
+    ).toBe(true)
+    // married + controller == "Nein" → issued hidden
+    expect(
+      isVisible(issuedRule, { marital_status: 'verheiratet', spouse_special_origin_rights: 'Nein' }, rules),
+    ).toBe(false)
+  })
+
+  it('gated on a HIDDEN controller resolves to hidden, regardless of stored value', () => {
+    // single → controller (spouse_special_origin_rights) is hidden. Even with a
+    // stale "Spätaussiedler" value stored, the child must now be hidden.
+    const answers = { marital_status: 'ledig', spouse_special_origin_rights: 'Spätaussiedler' }
+    expect(isVisible(issuedRule, answers, rules)).toBe(false)
+    // Legacy one-level check (no map) would wrongly return true — this was the bug.
+    expect(isVisible(issuedRule, answers)).toBe(true)
+  })
+
+  it('recurses multi-level (grandchild hidden when a top ancestor is hidden)', () => {
+    const answers = {
+      marital_status: 'ledig',
+      spouse_special_origin_rights: 'Spätaussiedler',
+      spouse_special_origin_rights_issued: '1990-01-01',
+    }
+    expect(isVisible(issuedByRule, answers, rules)).toBe(false)
+    // When married the whole chain is satisfied → grandchild visible.
+    expect(isVisible(issuedByRule, { ...answers, marital_status: 'verheiratet' }, rules)).toBe(true)
+  })
+
+  it('buildNav excludes transitively-hidden questions from the denominator', () => {
+    const nav = buildNav(chain, {
+      marital_status: 'ledig',
+      spouse_special_origin_rights: 'Spätaussiedler',
+      spouse_special_origin_rights_issued: '1990-01-01',
+    })
+    expect(nav.flatVisible.map((q) => q.key)).toEqual(['marital_status'])
+    expect(nav.totalRequired).toBe(1)
+  })
+})
+
+// ─── findStaleAnswerRefs (BUG B) ──────────────────────────
+
+describe('findStaleAnswerRefs', () => {
+  const chain = makeQuestionnaire([
+    { key: 'marital_status', is_required: true },
+    {
+      key: 'spouse_special_origin_rights',
+      is_required: true,
+      sort_order: 1,
+      visibility_rule: { question_key: 'marital_status', in_values: ['verheiratet'] },
+    },
+  ])
+
+  it('flags answer rows whose question is not currently visible', () => {
+    // single → spouse_special_origin_rights hidden, but it has a saved answer.
+    const nav = buildNav(chain, { marital_status: 'ledig', spouse_special_origin_rights: 'Spätaussiedler' })
+    const answersRaw = [
+      { question_id: 'q0', question_key: 'marital_status', group_instance: 'default' },
+      { question_id: 'q1', question_key: 'spouse_special_origin_rights', group_instance: 'default' },
+    ]
+    const stale = findStaleAnswerRefs(nav.flatVisible, answersRaw)
+    expect(stale.map((s) => s.question_key)).toEqual(['spouse_special_origin_rights'])
+  })
+
+  it('returns nothing when every answered question is visible', () => {
+    const nav = buildNav(chain, { marital_status: 'verheiratet', spouse_special_origin_rights: 'Spätaussiedler' })
+    const answersRaw = [
+      { question_id: 'q0', question_key: 'marital_status', group_instance: 'default' },
+      { question_id: 'q1', question_key: 'spouse_special_origin_rights', group_instance: 'default' },
+    ]
+    expect(findStaleAnswerRefs(nav.flatVisible, answersRaw)).toHaveLength(0)
   })
 })

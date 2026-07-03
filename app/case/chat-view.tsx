@@ -417,6 +417,33 @@ export function ChatView({
     setAnswerDrafts((prev) => ({ ...prev, [draftKey(activeQ.id, activeQ.instanceId)]: v }))
   }
 
+  // Remove answers the server cleared because this save hid them (BUG B), so a
+  // later re-show of the controller re-prompts instead of resurfacing stale data.
+  const applyClearedAnswers = (cleared: { questionKey: string; groupInstance: string }[]) => {
+    const globalKeys = cleared.filter((c) => c.groupInstance === 'default').map((c) => c.questionKey)
+    const groupItems = cleared.filter((c) => c.groupInstance !== 'default')
+    if (globalKeys.length > 0) {
+      setAnswersMap((prev) => {
+        const n = { ...prev }
+        for (const k of globalKeys) delete n[k]
+        return n
+      })
+    }
+    if (groupItems.length > 0) {
+      setGroupAnswers((prev) => {
+        const n = { ...prev }
+        for (const { questionKey, groupInstance } of groupItems) {
+          if (n[groupInstance]) {
+            const inst = { ...n[groupInstance] }
+            delete inst[questionKey]
+            n[groupInstance] = inst
+          }
+        }
+        return n
+      })
+    }
+  }
+
   const handleSave = () => {
     if (!activeQ || isPending) return
 
@@ -451,6 +478,8 @@ export function ChatView({
           if (wasEditing) { setEditingId(qId); setEditingInstanceId(instanceId) }
           setAnswerDrafts((prev) => ({ ...prev, [dk2]: value }))
           setDraftErrors((prev) => ({ ...prev, [dk2]: result.error }))
+        } else if (result.clearedAnswers.length > 0) {
+          applyClearedAnswers(result.clearedAnswers)
         }
       })
     } else {
@@ -472,6 +501,8 @@ export function ChatView({
           if (wasEditing) { setEditingId(qId); setEditingInstanceId(null) }
           setAnswerDrafts((prev) => ({ ...prev, [dk2]: value }))
           setDraftErrors((prev) => ({ ...prev, [dk2]: result.error }))
+        } else if (result.clearedAnswers.length > 0) {
+          applyClearedAnswers(result.clearedAnswers)
         }
       })
     }

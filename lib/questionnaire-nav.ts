@@ -18,17 +18,78 @@ export type { VisibilityRule, Question, Category, LoadedQuestionnaire }
 
 // ── Visibility filter ─────────────────────────────────────────────────────────
 
-export function isVisible(
-  rule: VisibilityRule | null | undefined,
-  answers: Record<string, unknown>,
-): boolean {
-  if (!rule) return true
-  const answer = answers[(rule as { question_key: string }).question_key]
+/** Map of question_key → that question's visibility_rule (null = unconditional). */
+export type RulesByKey = Map<string, VisibilityRule | null>
+
+/** Evaluates a single rule against answers — one level, no controller-chain check. */
+function matchesRule(rule: VisibilityRule, answers: Record<string, unknown>): boolean {
+  const answer = answers[rule.question_key]
   if ('in_values' in rule) return Array.isArray(rule.in_values) && rule.in_values.includes(answer as string)
   if ('value' in rule) return answer === rule.value
   if ('not_value' in rule) return answer !== rule.not_value
   if ('not_empty' in rule) return answer !== undefined && answer !== null && answer !== ''
   return true
+}
+
+/**
+ * Transitive visibility predicate.
+ *
+ * A question is visible only when:
+ *   (a) its own visibility_rule matches the current answers, AND
+ *   (b) the controller question named by that rule is itself visible — applied
+ *       recursively up the whole dependency chain.
+ *
+ * (b) requires `rulesByKey` (question_key → visibility_rule). When it is omitted
+ * only (a) is evaluated — the legacy one-level check, kept so existing single
+ * -condition callers keep working. buildNav always supplies the map, so the app
+ * is transitive everywhere.
+ *
+ * `seen` guards against cyclic rules (A→B→A): a revisited controller stops the
+ * recursion (treated as satisfied) rather than looping forever.
+ */
+export function isVisible(
+  rule: VisibilityRule | null | undefined,
+  answers: Record<string, unknown>,
+  rulesByKey?: RulesByKey,
+  seen?: Set<string>,
+): boolean {
+  if (!rule) return true
+  if (!matchesRule(rule, answers)) return false
+  if (!rulesByKey) return true
+
+  const controllerKey = rule.question_key
+  if (seen?.has(controllerKey)) return true
+  const nextSeen = seen ?? new Set<string>()
+  nextSeen.add(controllerKey)
+
+  const controllerRule = rulesByKey.get(controllerKey)
+  // undefined → the controller key is not a question in this questionnaire, so
+  // there is no further constraint beyond (a). null → controller exists but is
+  // unconditional (always visible) → nothing more to check.
+  if (controllerRule === undefined) return true
+  return isVisible(controllerRule, answers, rulesByKey, nextSeen)
+}
+
+/** Builds the question_key → visibility_rule map used for transitive visibility. */
+export function buildRulesByKey(questionnaire: LoadedQuestionnaire): RulesByKey {
+  const map: RulesByKey = new Map()
+  for (const cat of questionnaire.categories) {
+    for (const q of cat.questions) map.set(q.key, q.visibility_rule)
+  }
+  return map
+}
+
+/**
+ * Answer rows whose owning (question, group instance) is not currently visible.
+ * Used by the server on save to delete answers stranded by a visibility change
+ * (BUG B) so they never resurface if the controller is later re-enabled.
+ */
+export function findStaleAnswerRefs(
+  flatVisible: NavQuestion[],
+  answersRaw: { question_id: string; question_key: string; group_instance: string }[],
+): { question_id: string; question_key: string; group_instance: string }[] {
+  const visible = new Set(flatVisible.map((q) => `${q.id}:${q.instanceId ?? 'default'}`))
+  return answersRaw.filter((a) => !visible.has(`${a.question_id}:${a.group_instance}`))
 }
 
 // ── Navigation types ──────────────────────────────────────────────────────────
@@ -109,6 +170,10 @@ export function buildNav(
   const sections: SectionNav[] = []
   const flatVisible: NavQuestion[] = []
 
+  // Controller lookup for transitive visibility — a question is only visible if
+  // the question its rule points at is itself visible (recursively).
+  const rulesByKey = buildRulesByKey(questionnaire)
+
   // Track which repeatable group_keys we have already expanded in this pass
   const expandedGroupKeys = new Set<string>()
 
@@ -138,7 +203,7 @@ export function buildNav(
           const instanceAnswers = { ...answersMap, ...(groupAnswers[instanceId] ?? {}) }
 
           for (const gq of groupQs) {
-            if (!isVisible(gq.visibility_rule, instanceAnswers)) continue
+            if (!isVisible(gq.visibility_rule, instanceAnswers, rulesByKey)) continue
 
             const rawValue = (groupAnswers[instanceId] ?? {})[gq.key]
             const isAnswered =
@@ -162,7 +227,7 @@ export function buildNav(
       }
 
       // ── Regular (non-repeatable) question ───────────────────────────────────
-      if (!isVisible(q.visibility_rule, answersMap)) continue
+      if (!isVisible(q.visibility_rule, answersMap, rulesByKey)) continue
 
       const rawValue = answersMap[q.key]
       const isAnswered =

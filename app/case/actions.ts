@@ -5,7 +5,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { verifySession, getFallbackQuestionnaireId, getCaseAnswers, type SavedAnswer } from '@/lib/dal'
 import { de } from '@/lib/strings/de'
 import { loadQuestionnaire } from '@/lib/questionnaire-engine'
-import { buildNav } from '@/lib/questionnaire-nav'
+import { buildNav, findStaleAnswerRefs } from '@/lib/questionnaire-nav'
 import type { LoadedQuestionnaire } from '@/lib/questionnaire-types'
 
 const PLZ_RE = /^\d{5}$/
@@ -127,7 +127,12 @@ export type SaveAnswerInput = {
   value: unknown
 }
 
-export type SaveAnswerResult = { ok: true } | { ok: false; error: string }
+/** Answers the save cleared because a visibility change hid them (BUG B). */
+export type ClearedAnswerRef = { questionKey: string; groupInstance: string }
+
+export type SaveAnswerResult =
+  | { ok: true; clearedAnswers: ClearedAnswerRef[] }
+  | { ok: false; error: string }
 
 export async function saveAnswerAction(input: SaveAnswerInput): Promise<SaveAnswerResult> {
   const { userId } = await verifySession()
@@ -193,6 +198,39 @@ export async function saveAnswerAction(input: SaveAnswerInput): Promise<SaveAnsw
   const { groupInstances, groupAnswers } = deriveGroupDataForCompletion(questionnaire, answersRaw)
   const nav = buildNav(questionnaire, answersMap, groupInstances, groupAnswers)
 
+  // ── Stale-answer cleanup (BUG B) ───────────────────────────────────────────────
+  // With transitive visibility (BUG A), this save may have hidden one or more
+  // previously-answered questions (a controller flipped, cascading down the chain).
+  // Their saved answers are now unreachable in the UI; delete them so they don't
+  // silently resurface — and are not re-prompted from stale data — if the
+  // controller is later switched back. This only runs on an explicit save, never
+  // on page load. The just-saved answer is visible, so it's never in this set;
+  // we still exclude it defensively.
+  const clearedAnswers: ClearedAnswerRef[] = []
+  const staleRefs = findStaleAnswerRefs(nav.flatVisible, answersRaw).filter(
+    (r) => !(r.question_id === input.questionId && r.group_instance === input.groupInstance),
+  )
+  if (staleRefs.length > 0) {
+    await Promise.all(
+      staleRefs.map((r) =>
+        supabase
+          .from('answer')
+          .delete()
+          .eq('case_id', caseRow.id)
+          .eq('question_id', r.question_id)
+          .eq('group_instance', r.group_instance),
+      ),
+    )
+    for (const r of staleRefs) {
+      clearedAnswers.push({ questionKey: r.question_key, groupInstance: r.group_instance })
+    }
+  }
+  // Note: hidden questions are already excluded from nav.totalRequired /
+  // allRequiredAnswered by buildNav, so deleting their rows does not change the
+  // completion result below — the guard at line ~143 still prevents any save
+  // (and therefore any deletion) once the case is under_review.
+  // ─────────────────────────────────────────────────────────────────────────────
+
   if (nav.allRequiredAnswered) {
     // status_event has no INSERT RLS policy (service-role only by design) so we
     // need the admin client here. The cases UPDATE uses the user client so RLS
@@ -219,7 +257,7 @@ export async function saveAnswerAction(input: SaveAnswerInput): Promise<SaveAnsw
   // ─────────────────────────────────────────────────────────────────────────────
 
   revalidatePath('/case')
-  return { ok: true }
+  return { ok: true, clearedAnswers }
 }
 
 // ── Step 3b: Delete a repeatable group instance ───────────────────────────────

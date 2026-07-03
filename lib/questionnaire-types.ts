@@ -1,10 +1,14 @@
 // Shared questionnaire types — no imports, safe for both server and client code.
 
-export type VisibilityRule =
-  | { question_key: string; value: string }
-  | { question_key: string; not_value: string }
-  | { question_key: string; not_empty: true }
-  | { question_key: string; in_values: string[] }
+// Every variant carries the controller's question_key; the extra field selects
+// the match semantics. Written as an intersection so `question_key` is always
+// accessible without a cast (needed for transitive visibility resolution).
+export type VisibilityRule = { question_key: string } & (
+  | { value: string }
+  | { not_value: string }
+  | { not_empty: true }
+  | { in_values: string[] }
+)
 
 export type QuestionOption = {
   id: string
