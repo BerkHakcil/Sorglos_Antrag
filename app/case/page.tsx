@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { getCase, getCareHomes, getCaseAnswers, type SavedAnswer } from '@/lib/dal'
 import { loadQuestionnaire } from '@/lib/questionnaire-engine'
 import type { LoadedQuestionnaire } from '@/lib/questionnaire-types'
@@ -22,19 +23,19 @@ export default async function CasePage() {
       <header className="shrink-0 border-b border-border bg-card">
         <div className="mx-auto max-w-2xl px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            {/* Logo placeholder — replace with <Image> when asset is ready */}
-            <div
-              className="size-8 shrink-0 rounded-md border border-border bg-muted flex items-center justify-center select-none"
-              aria-hidden="true"
-            >
-              <span className="text-[9px] leading-none text-muted-foreground">Logo</span>
-            </div>
-            <div className="min-w-0">
-              <p className="font-bold text-sm leading-tight">{sb.name}</p>
-              <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
-                {sb.tagline}
-              </p>
-            </div>
+            {/* Logo lockup (icon + "Sorglos Antrag" wordmark) — replaces the brand
+                name text, which the image already contains. Tagline kept alongside. */}
+            <Image
+              src="/logo.jpg"
+              alt={sb.name}
+              width={1052}
+              height={262}
+              priority
+              className="h-9 w-auto shrink-0 rounded-md"
+            />
+            <p className="text-[11px] text-muted-foreground leading-tight min-w-0 truncate">
+              {sb.tagline}
+            </p>
           </div>
           <form action={logoutAction} className="shrink-0">
             <button
