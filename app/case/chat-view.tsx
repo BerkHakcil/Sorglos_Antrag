@@ -166,7 +166,6 @@ function CurrentQuestionCard({
   onCancel,
   isEditMode,
   isReask,
-  showCategoryHeader,
 }: {
   question: NavQuestion
   value: unknown
@@ -178,25 +177,11 @@ function CurrentQuestionCard({
   onCancel?: () => void
   isEditMode?: boolean
   isReask?: boolean
-  showCategoryHeader?: boolean
 }) {
-  const sectionLabel =
-    question.instanceId && question.instanceIndex > 0
-      ? s.repeatableGroup.instanceLabel
-          .replace('{group}', question.group_label_de ?? question.categoryLabel)
-          .replace('{index}', String(question.instanceIndex))
-      : question.categoryLabel
-
   return (
     <div className="border-border bg-card space-y-4 rounded-xl border p-5 shadow-sm">
-      {showCategoryHeader !== false && (
-        <div className="border-border border-b pb-2">
-          <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-            {sectionLabel}
-          </h3>
-        </div>
-      )}
-
+      {/* Category label intentionally omitted here — it stays in the answered
+          history (AnsweredBubble) so it isn't repeated on every active card. */}
       {isReask && (
         <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-700 dark:bg-amber-950/30">
           <p className="text-xs text-amber-800 dark:text-amber-300">{s.reaskNote}</p>
@@ -391,17 +376,6 @@ export function ChatView({
     if (!el) return
     el.scrollTop = el.scrollHeight
   }, [answeredCount])
-
-  // ── Category header: show only when category changes or a new group instance starts ──
-  // Comparing instanceId alone was wrong: group-UUID → null (same category) incorrectly
-  // triggered the header. We only want the header for a new GROUP instance (activeQ has
-  // a non-null instanceId and it differs from the last answered one).
-  const lastAnsweredQ = answeredQuestions[answeredQuestions.length - 1] ?? null
-  const showCatHeader: boolean = !activeQ
-    ? false
-    : !lastAnsweredQ ||
-      lastAnsweredQ.categoryId !== activeQ.categoryId ||
-      (activeQ.instanceId !== null && lastAnsweredQ.instanceId !== activeQ.instanceId)
 
   // ── Event handlers ─────────────────────────────────────────────────────────
 
@@ -661,14 +635,29 @@ export function ChatView({
           </div>
           {/* Progress bar */}
           {nav.totalRequired > 0 && <ProgressBar nav={nav} />}
+
+          {/* Patient notice (desktop) — pinned in the sticky header so it stays
+              visible while the chat scrolls beneath. On mobile it is hidden here
+              and instead shown once at the top of the scroll (below), to keep the
+              pinned header short enough to leave a usable chat area. */}
+          <div className="hidden rounded-lg border border-amber-200 bg-amber-50 p-3 sm:block dark:border-amber-800 dark:bg-amber-950/30">
+            <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+              {content.patientBannerTitle}
+            </p>
+            <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">
+              {content.patientBannerBody}
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* ── Scrollable middle: patient banner + answered history ─ */}
+      {/* ── Scrollable middle: (mobile) patient notice + answered history ─ */}
       <div ref={historyRef} className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-2xl space-y-4 px-4 py-4">
-          {/* Patient notice */}
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
+          {/* Patient notice (mobile only) — not pinned; shown once at the top of
+              the scroll so it's seen, then scrolls away as the chat grows. Desktop
+              shows it pinned in the header instead. */}
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 sm:hidden dark:border-amber-800 dark:bg-amber-950/30">
             <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
               {content.patientBannerTitle}
             </p>
@@ -720,7 +709,6 @@ export function ChatView({
               onCancel={editingId ? cancelEdit : undefined}
               isEditMode={!!editingId}
               isReask={isReaskingSkipped}
-              showCategoryHeader={showCatHeader}
             />
           ) : showAllDone ? (
             <AllAnsweredCard

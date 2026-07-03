@@ -26,7 +26,7 @@ export default async function CasePage() {
   const hasQuestionnaire = !!caseData.questionnaire_id
 
   return (
-    <div className="bg-background flex h-screen flex-col overflow-hidden">
+    <div className="bg-background flex h-dvh flex-col overflow-hidden">
       {/* ── Brand header — always pinned at top ─────────────── */}
       <header className="border-border bg-card shrink-0 border-b">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-4 py-3">
