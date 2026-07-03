@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { getCase, getCareHomes, getCaseAnswers, type SavedAnswer } from '@/lib/dal'
+import { getCase, getCareHomes, getCaseAnswers, getStaticContent, type SavedAnswer, type StaticContent } from '@/lib/dal'
 import { loadQuestionnaire } from '@/lib/questionnaire-engine'
 import type { LoadedQuestionnaire } from '@/lib/questionnaire-types'
 import { de } from '@/lib/strings/de'
@@ -15,6 +15,7 @@ const sb = de.brand
 
 export default async function CasePage() {
   const caseData = await getCase()
+  const content = await getStaticContent()
   const hasQuestionnaire = !!caseData.questionnaire_id
 
   return (
@@ -34,7 +35,7 @@ export default async function CasePage() {
               className="h-9 w-auto shrink-0 rounded-md"
             />
             <p className="text-[11px] text-muted-foreground leading-tight min-w-0 truncate">
-              {sb.tagline}
+              {content.brandTagline}
             </p>
           </div>
           <form action={logoutAction} className="shrink-0">
@@ -57,6 +58,7 @@ export default async function CasePage() {
             questionnaireId={caseData.questionnaire_id!}
             caseStatus={caseData.status}
             plzBeforeMove={caseData.plz_before_move ?? null}
+            content={content}
           />
         </div>
       ) : (
@@ -65,7 +67,7 @@ export default async function CasePage() {
           <div className="mx-auto max-w-2xl px-4 py-6 space-y-6">
             {/* Case meta */}
             <div className="border-border bg-card rounded-xl border p-6 shadow-sm">
-              <h2 className="font-semibold mb-3">{s.subheading}</h2>
+              <h2 className="font-semibold mb-3">{content.caseSubheading}</h2>
               <dl className="divide-border divide-y text-sm">
                 <div className="flex justify-between py-2">
                   <dt className="text-muted-foreground">{s.caseIdLabel}</dt>
@@ -121,11 +123,13 @@ async function ChatSection({
   questionnaireId,
   caseStatus,
   plzBeforeMove,
+  content,
 }: {
   caseId: string
   questionnaireId: string
   caseStatus: string
   plzBeforeMove: string | null
+  content: StaticContent
 }) {
   const [questionnaire, { answersMap, answersRaw }] = await Promise.all([
     loadQuestionnaire(questionnaireId),
@@ -143,6 +147,7 @@ async function ChatSection({
       caseStatus={caseStatus}
       caseId={caseId}
       plzBeforeMove={plzBeforeMove}
+      content={content}
     />
   )
 }

@@ -124,6 +124,56 @@ export async function getCaseAnswers(caseId: string): Promise<{
   return { answersMap, answersRaw }
 }
 
+// ── Static UI copy (CLAUDE.md rule #2) ─────────────────────────────────────────
+
+/** Header/footer chrome copy, sourced from public.static_content. */
+export type StaticContent = {
+  brandTagline: string
+  caseSubheading: string
+  patientBannerTitle: string
+  patientBannerBody: string
+  allAnsweredHeading: string
+  allAnsweredMessage: string
+}
+
+const STATIC_CONTENT_KEYS: Record<keyof StaticContent, string> = {
+  brandTagline: 'brand.tagline',
+  caseSubheading: 'case.subheading',
+  patientBannerTitle: 'case.patient_banner_title',
+  patientBannerBody: 'case.patient_banner_body',
+  allAnsweredHeading: 'case.all_answered_heading',
+  allAnsweredMessage: 'case.all_answered_message',
+}
+
+/**
+ * Loads header/footer copy from the DB. German prose lives only in the DB —
+ * never hardcoded here (CLAUDE.md rule #2). Missing keys / load errors degrade
+ * to an empty string rather than throwing, so a content gap never errors the page.
+ */
+export async function getStaticContent(): Promise<StaticContent> {
+  const supabase = await createClient()
+  // static_content is not in the generated DB types yet.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
+    .from('static_content')
+    .select('key, value_de')
+
+  const byKey: Record<string, string> = {}
+  if (error) {
+    console.error('[getStaticContent] load failed:', error.message)
+  } else {
+    for (const row of (data ?? []) as { key: string; value_de: string }[]) {
+      byKey[row.key] = row.value_de
+    }
+  }
+
+  const out = {} as StaticContent
+  for (const field of Object.keys(STATIC_CONTENT_KEYS) as (keyof StaticContent)[]) {
+    out[field] = byKey[STATIC_CONTENT_KEYS[field]] ?? ''
+  }
+  return out
+}
+
 /** Returns the fallback questionnaire id (social_office_id IS NULL). */
 export async function getFallbackQuestionnaireId(): Promise<string> {
   await verifySession()

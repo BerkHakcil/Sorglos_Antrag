@@ -15,7 +15,6 @@ import { de } from '@/lib/strings/de'
 
 const s = de.case.chat
 const sc = de.case
-const sq = de.case.questionnaire
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -27,6 +26,13 @@ type Props = {
   caseStatus: string
   caseId: string
   plzBeforeMove: string | null
+  content: {
+    caseSubheading: string
+    patientBannerTitle: string
+    patientBannerBody: string
+    allAnsweredHeading: string
+    allAnsweredMessage: string
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -280,11 +286,11 @@ function GroupPromptCard({
   )
 }
 
-function AllAnsweredCard() {
+function AllAnsweredCard({ heading, message }: { heading: string; message: string }) {
   return (
     <div className="space-y-2 py-2 text-center">
-      <p className="text-sm font-semibold">{s.allAnsweredHeading}</p>
-      <p className="text-muted-foreground text-sm">{s.allAnsweredMessage}</p>
+      <p className="text-sm font-semibold">{heading}</p>
+      <p className="text-muted-foreground text-sm">{message}</p>
     </div>
   )
 }
@@ -305,6 +311,7 @@ export function ChatView({
   caseStatus,
   caseId,
   plzBeforeMove,
+  content,
 }: Props) {
   const [answersMap, setAnswersMap] = useState<Record<string, unknown>>(initialAnswersMap)
 
@@ -577,7 +584,7 @@ export function ChatView({
         <div className="mx-auto max-w-2xl px-4 pt-3 pb-3 space-y-2">
           {/* Subheader: title + case meta + live status */}
           <div className="space-y-1">
-            <h2 className="font-semibold text-sm">{sc.subheading}</h2>
+            <h2 className="font-semibold text-sm">{content.caseSubheading}</h2>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
               <span className="font-mono">{`${caseId.slice(0, 8)}…`}</span>
               {plzBeforeMove && <span>PLZ {plzBeforeMove}</span>}
@@ -595,9 +602,9 @@ export function ChatView({
           {/* Patient notice */}
           <div className="border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 rounded-lg p-4">
             <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
-              {sq.patientBannerTitle}
+              {content.patientBannerTitle}
             </p>
-            <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">{sq.patientBannerBody}</p>
+            <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">{content.patientBannerBody}</p>
           </div>
 
           {/* Answered Q&A history */}
@@ -646,7 +653,10 @@ export function ChatView({
               showCategoryHeader={showCatHeader}
             />
           ) : showAllDone ? (
-            <AllAnsweredCard />
+            <AllAnsweredCard
+              heading={content.allAnsweredHeading}
+              message={content.allAnsweredMessage}
+            />
           ) : null}
         </div>
       </div>

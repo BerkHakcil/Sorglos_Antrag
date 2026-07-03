@@ -6,7 +6,7 @@
 export const de = {
   brand: {
     name: 'Sorglos Antrag',
-    tagline: 'Heimkosten einfach geregelt.',
+    // tagline moved to DB (static_content 'brand.tagline') — CLAUDE.md rule #2
   },
 
   login: {
@@ -150,7 +150,7 @@ export const de = {
   case: {
     pageTitle: 'Mein Antrag – Sorglos Antrag',
     heading: 'Mein Antrag',
-    subheading: 'Mein Hilfe zur Pflege Antrag',
+    // subheading moved to DB (static_content 'case.subheading') — CLAUDE.md rule #2
     logoutButton: 'Abmelden',
     caseIdLabel: 'Fall-ID',
     plzLabel: 'PLZ vor Heimeinzug',
@@ -182,9 +182,7 @@ export const de = {
     },
 
     questionnaire: {
-      patientBannerTitle: 'Angaben zur pflegebedürftigen Person',
-      patientBannerBody:
-        'Die folgenden Fragen beziehen sich ausschließlich auf die Person, die im Pflegeheim lebt, sie ist der Antragsteller.',
+      // patientBannerTitle/Body moved to DB (static_content 'case.patient_banner_*') — CLAUDE.md rule #2
       requiredBadge: 'Pflichtfeld',
       optionalBadge: 'Optional',
       groupEmptyHint:
@@ -210,10 +208,7 @@ export const de = {
       longTextHint: 'Shift + Enter zum Absenden',
       // {answered} and {total} are replaced at render time
       progressLabel: '{answered} von {total} Fragen beantwortet',
-      allAnsweredHeading: 'Sie haben alle Fragen beantwortet!',
-      allAnsweredMessage:
-        'Wir prüfen nun alle Ihre Angaben und übertragen diese in das Antragsformular. ' +
-        'Sofern Dinge unklar sind, melden wir uns bei Ihnen.',
+      // allAnsweredHeading/Message moved to DB (static_content 'case.all_answered_*') — CLAUDE.md rule #2
       editLockedMessage:
         'Der Antrag wurde zur Prüfung eingereicht. Änderungen sind nicht mehr möglich.',
       skippedBadge: 'Übersprungen',
