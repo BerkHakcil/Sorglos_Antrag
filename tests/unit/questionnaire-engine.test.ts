@@ -63,6 +63,56 @@ describe('isVisible — value rule', () => {
   })
 })
 
+// ─── isVisible — includes rule (multi-select controller) ──
+
+describe('isVisible — includes rule', () => {
+  const rule: VisibilityRule = {
+    question_key: 'wealth_bulk_topics',
+    includes: 'Es gibt Wertpapiere oder Aktien',
+  }
+
+  it('is visible when the multi-select answer contains the option', () => {
+    expect(
+      isVisible(rule, { wealth_bulk_topics: ['Es gibt Wertpapiere oder Aktien', 'Anderes'] })
+    ).toBe(true)
+  })
+
+  it('is hidden when the option is not selected', () => {
+    expect(isVisible(rule, { wealth_bulk_topics: ['Nein, nichts davon'] })).toBe(false)
+  })
+
+  it('is hidden when the controller is unanswered', () => {
+    expect(isVisible(rule, {})).toBe(false)
+  })
+
+  it('is hidden when the answer is not an array (bad data)', () => {
+    expect(isVisible(rule, { wealth_bulk_topics: 'Es gibt Wertpapiere oder Aktien' })).toBe(false)
+  })
+
+  it('chains transitively through a hidden multi-select controller', () => {
+    // detail ← includes ← bulk ← marital gate; single applicant hides the bulk,
+    // so the detail must stay hidden even if a stale array answer matched.
+    const rules = new Map<string, VisibilityRule | null>([
+      ['spouse_bulk', { question_key: 'marital_status', in_values: ['verheiratet'] }],
+      ['detail', { question_key: 'spouse_bulk', includes: 'X' }],
+    ])
+    expect(
+      isVisible(
+        { question_key: 'spouse_bulk', includes: 'X' },
+        { spouse_bulk: ['X'], marital_status: 'ledig' },
+        rules
+      )
+    ).toBe(false)
+    expect(
+      isVisible(
+        { question_key: 'spouse_bulk', includes: 'X' },
+        { spouse_bulk: ['X'], marital_status: 'verheiratet' },
+        rules
+      )
+    ).toBe(true)
+  })
+})
+
 // ─── isVisible — not_value rule ───────────────────────────
 
 describe('isVisible — not_value rule', () => {

@@ -21,6 +21,10 @@ function matchesRule(rule: VisibilityRule, answers: Record<string, unknown>): bo
   const answer = answers[rule.question_key]
   if ('in_values' in rule)
     return Array.isArray(rule.in_values) && rule.in_values.includes(answer as string)
+  // Multi-select controller: matches when the saved array contains the option value.
+  // Unanswered (undefined) is not an array → false, so dependents stay hidden.
+  if ('includes' in rule)
+    return Array.isArray(answer) && (answer as unknown[]).includes(rule.includes)
   if ('value' in rule) return answer === rule.value
   if ('not_value' in rule) return answer !== rule.not_value
   if ('not_empty' in rule) return answer !== undefined && answer !== null && answer !== ''
@@ -334,6 +338,12 @@ export function formatAnswerForDisplay(question: Question, value: unknown): stri
       const d = new Date(String(value))
       if (isNaN(d.getTime())) return String(value)
       return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    }
+
+    case 'month_year': {
+      // Stored as "YYYY-MM" (native <input type="month">); displayed German-style.
+      const m = /^(\d{4})-(\d{2})$/.exec(String(value))
+      return m ? `${m[2]}.${m[1]}` : String(value)
     }
 
     case 'amount':

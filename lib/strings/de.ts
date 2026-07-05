@@ -234,6 +234,8 @@ export const de = {
         invalidAddress: 'Bitte Straße, Postleitzahl und Ort angeben.',
         invalidPerson: 'Bitte Vorname und Nachname angeben.',
         invalidIban: 'Bitte eine gültige IBAN eingeben.',
+        // Generic validation.pattern failure (BIC/IBAN/PLZ etc.) — pending Roman review
+        invalidFormat: 'Bitte eine gültige Angabe eingeben.',
         generic: 'Ungültige Eingabe.',
       },
     },

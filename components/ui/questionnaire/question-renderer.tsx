@@ -137,6 +137,31 @@ function DateInput({ question, value, onChange, onSubmit }: InputProps) {
   )
 }
 
+// Month picker bounds mirror the date bounds above (server re-checks both).
+const MONTH_MIN = '1900-01'
+const MONTH_MAX = `${new Date().getFullYear() + 1}-12`
+
+function MonthYearInput({ question, value, onChange, onSubmit }: InputProps) {
+  return (
+    <input
+      type="month"
+      min={MONTH_MIN}
+      max={MONTH_MAX}
+      disabled={!onChange}
+      value={typeof value === 'string' ? value : ''}
+      onChange={(e) => onChange?.(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          onSubmit?.()
+        }
+      }}
+      aria-label={question.prompt_de}
+      className="border-border bg-muted/30 rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
+    />
+  )
+}
+
 function YesNoInput({ question, value, onChange, onSubmit }: InputProps) {
   return (
     <div
@@ -200,13 +225,23 @@ function SingleSelectInput({
 }
 
 function MultiSelectInput({
+  question,
   options,
   value,
   onChange,
 }: InputProps & { options: QuestionOption[] }) {
   const selected = Array.isArray(value) ? (value as string[]) : []
+  // Data-driven exclusive none-option (validation.exclusive_value, e.g. "Nein,
+  // nichts davon"): picking it clears the others; picking any other clears it.
+  const exclusive =
+    typeof question.validation?.['exclusive_value'] === 'string'
+      ? (question.validation['exclusive_value'] as string)
+      : null
   const toggle = (v: string) => {
-    const next = selected.includes(v) ? selected.filter((s) => s !== v) : [...selected, v]
+    let next: string[]
+    if (selected.includes(v)) next = selected.filter((s) => s !== v)
+    else if (exclusive && v === exclusive) next = [v]
+    else next = [...selected.filter((s) => s !== exclusive), v]
     onChange?.(next)
   }
 
@@ -406,6 +441,15 @@ export function QuestionRenderer({
       case 'multi_select':
         return (
           <MultiSelectInput question={question} options={opts} value={value} onChange={onChange} />
+        )
+      case 'month_year':
+        return (
+          <MonthYearInput
+            question={question}
+            value={value}
+            onChange={onChange}
+            onSubmit={onSubmit}
+          />
         )
       case 'address':
         return (

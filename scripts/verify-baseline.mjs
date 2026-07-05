@@ -287,7 +287,10 @@ diffArrays('Groups', prodGrps, localGrps, (r) => r.id, [
   'min_count',
   'max_count',
 ])
-diffArrays('Questions', prodQs, localQs, (r) => r.key, [
+// Keyed by id, NOT key: question keys repeat across questionnaires (Berlin and
+// Essen both have e.g. marital_status), and key-based maps would collapse rows.
+diffArrays('Questions', prodQs, localQs, (r) => r.id, [
+  'key',
   'category_id',
   'group_id',
   'sort_order',

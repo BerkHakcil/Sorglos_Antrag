@@ -333,6 +333,9 @@ function validateAnswerValue(
       const maxLen = validation?.max_length as number | undefined
       if (minLen && value.length < minLen) return v.minLength.replace('{min}', String(minLen))
       if (maxLen && value.length > maxLen) return v.maxLength.replace('{max}', String(maxLen))
+      // Data-driven format check (validation.pattern) — used for BIC/IBAN/PLZ fields.
+      const pattern = validation?.pattern as string | undefined
+      if (pattern && !new RegExp(pattern).test(value)) return v.invalidFormat
       return null
     }
 
@@ -363,8 +366,22 @@ function validateAnswerValue(
     case 'single_select':
       return typeof value === 'string' && value ? null : v.invalidSelect
 
-    case 'multi_select':
-      return Array.isArray(value) ? null : v.invalidSelect
+    case 'month_year': {
+      // Stored as "YYYY-MM" from <input type="month">; same year bounds as date.
+      if (typeof value !== 'string' || !/^\d{4}-(0[1-9]|1[0-2])$/.test(value)) return v.invalidDate
+      const y = parseInt(value.slice(0, 4), 10)
+      if (y < 1900 || y > new Date().getFullYear() + 1) return v.invalidDate
+      return null
+    }
+
+    case 'multi_select': {
+      if (!Array.isArray(value)) return v.invalidSelect
+      // Exclusive none-option must not be mixed with other selections (server-side
+      // guard; the checkbox component enforces the same rule in the UI).
+      const exclusive = validation?.exclusive_value as string | undefined
+      if (exclusive && value.includes(exclusive) && value.length > 1) return v.invalidSelect
+      return null
+    }
 
     case 'address': {
       const a = value as Record<string, string>

@@ -8,6 +8,8 @@ export type VisibilityRule = { question_key: string } & (
   | { not_value: string }
   | { not_empty: true }
   | { in_values: string[] }
+  /** Controller is a multi_select; matches when its answer array contains this option value. */
+  | { includes: string }
 )
 
 export type QuestionOption = {
