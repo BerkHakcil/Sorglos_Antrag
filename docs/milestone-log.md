@@ -12,6 +12,7 @@
 
 Quick orientation for anyone picking this up cold:
 
+- **Milestone status:** M1–M4 complete. M4 = the Berlin content pass (Tiers 0–7), closed 2026-07-05 — see the M4 section below and its leftovers/backlog. Next per `architecture.md` §7: M5 (stabilize & go live; the original "M4 — Documents" was descoped).
 - **Live app:** https://sorglos-antrag.vercel.app — Next.js 16 + Supabase (EU), Vercel prod region `fra1`.
 - **Deploy:** push to `main` on GitHub (`BerkHakcil/Sorglos_Antrag`) → Vercel auto-deploys prod. Vercel team `berk-solutions`, project `sorglos-antrag`.
 - **DB migrations:** dated SQL in `supabase/migrations/`, applied to prod with **`supabase db push`** (the CLI is linked; it records each version in `supabase_migrations.schema_migrations`). **Never** apply content via the Supabase dashboard/Studio (see reminders). DDL cannot be run from the Claude Code sandbox — the co-founder runs `db push` after reviewing each migration.
@@ -36,9 +37,11 @@ Quick orientation for anyone picking this up cold:
 
 ---
 
-## 2026-07 — Berlin content pass (Tiers 0–7) + engine fixes
+## M4 — Berlin content pass (Tiers 0–7) + engine fixes — ✅ complete 2026-07-05
 
-Worked in numbered "tiers." Tier 0 was read-only diagnosis; Tiers 1–6 shipped. Each structural content tier used the same two-phase safety pattern (see reminders): a read-only Phase 1 report with explicit flags, then a Phase 2 migration only after the co-founder confirmed the plan.
+The fourth milestone as executed. Numbering note: `architecture.md` §7's original plan listed "M4 — Documents", but document upload was descoped before launch, so the Berlin content pass took the M4 slot (M1 foundation/auth, M2 PLZ routing + engine, M3 chat UX — unchanged from §7).
+
+Worked in numbered "tiers." Tier 0 was read-only diagnosis; Tiers 1–7 shipped. Each structural content tier used the same two-phase safety pattern (see reminders): a read-only Phase 1 report with explicit flags, then a Phase 2 migration only after the co-founder confirmed the plan.
 
 ### TIER 0 — Diagnostics (read-only)
 
@@ -124,12 +127,16 @@ Verified live on prod (fresh case, full drive): Deutschland pre-selected untouch
 
 ---
 
-## Known open items (post-Tier 7)
+## M4 leftovers / backlog
+
+Carried out of M4 explicitly so nothing gets lost:
 
 - **Loop-prompt wording for the remaining groups** — `children`, `spouse_pension`, `spouse_other_income` still use the template (`"Möchten Sie eine weitere Kinder hinzufügen?"` is grammatically off). Needs wording from Roman, then one `custom_prompt_de` UPDATE each — the mechanism ships with Tier 7.
 - **"Keine Rente" quirk** — after selecting it, the pension group's loop prompt ("Möchten Sie weitere Renten hinzufügen?") still fires, because the group's only visible question is answered. Harmless (one "Nein, weiter" click) but slightly odd; suppressing it would need a new engine rule. Flagged, not fixed.
 - **Spouse mirrors** — `spouse_country_of_birth` (still free text) and `spouse_power_of_attorney` (still old options, required) were deliberately excluded from Tier 7; revisit if spouse-section parity is wanted.
-- **Optional-question UX** — Weiter with nothing selected saves `''` and re-asks (only the skip button truly moves on). Acceptable for now; revisit if users stumble on the optional Betreuer question.
+- **Optional-question UX** — Weiter with nothing selected saves `''` and re-asks (only the skip button "Weiß ich gerade nicht" truly moves on). Acceptable for now; revisit if users stumble on the optional Betreuer question.
+- **Dormant CI e2e job** — the Playwright job in `.github/workflows/ci.yml` is gated on the `NEXT_PUBLIC_SUPABASE_URL` repository variable, which has never been set, so it is skipped on every run (only lint/format/typecheck/unit actually gate pushes). Set the variable plus the `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` / `SUPABASE_SECRET_KEY` secrets to activate it; until then, verification is the ad-hoc prod drives described per tier.
+- **Open product question (decision needed, no action now):** when the Antragsformular is generated, does "no answer" on Betreuer/Beistand need to be distinguishable from "confirmed: kein Betreuer"? Today both end as an absent/empty answer (skip stores nothing; a blank Weiter stores `''`). If the generated form must positively assert "kein Betreuer", the question needs an explicit none-option (or similar) — flag for Roman before the PDF/Antragsformular work.
 
 ---
 
