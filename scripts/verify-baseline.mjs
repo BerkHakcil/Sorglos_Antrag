@@ -1,10 +1,19 @@
 /**
- * Diff-verify the baseline migration.
+ * Diff-verify the seeded database state against a fresh migration replay.
  *
  * Compares two data sources and asserts they are identical:
  *
  *   SOURCE A: LIVE production DB (via NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SECRET_KEY)
  *   SOURCE B: LOCAL DB after `supabase db reset` (via LOCAL_DATABASE_URL)
+ *
+ * Covers the questionnaire tables (category, question_group, question,
+ * question_option) AND every other migration-seeded table: care_home,
+ * social_office, postal_code_rule, questionnaire, static_content. The
+ * non-questionnaire tables were added after the care_home drift incident
+ * (feedback pass 2): prod still served the fake Frankfurt homes while the repo
+ * seed had the real ones, because `supabase migration repair` stamps history
+ * without verifying content. This diff is the guard that keeps such seed drift
+ * from hiding again. When a new migration seeds a NEW table, add it here.
  *
  * Usage:
  *   # 1. Run local reset first:
@@ -41,30 +50,55 @@ const prod = createClient(PROD_URL, PROD_KEY, {
 
 // ── Fetch production state ──────────────────────────────────────────────────
 
-const [{ data: prodCats }, { data: prodGrps }, { data: prodQs }, { data: prodOpts }] =
+// Paginated fetch — supabase-js caps a single request at 1000 rows, and some
+// seeded tables (postal_code_rule, question_option) can exceed that.
+async function fetchAllProd(table, select, order) {
+  const rows = []
+  const page = 1000
+  for (let from = 0; ; from += page) {
+    const { data, error } = await prod
+      .from(table)
+      .select(select)
+      .order(order)
+      .range(from, from + page - 1)
+    if (error) throw new Error(`prod ${table}: ${error.message}`)
+    rows.push(...(data ?? []))
+    if (!data || data.length < page) break
+  }
+  return rows
+}
+
+const [prodCats, prodGrps, prodQs, prodOpts, prodHomes, prodOffices, prodPlz, prodQnn, prodStatic] =
   await Promise.all([
-    prod.from('category').select('id, key, label_de, sort_order').order('sort_order'),
-    prod
-      .from('question_group')
-      .select('id, category_id, key, sort_order, label_de, is_repeatable, min_count, max_count')
-      .order('category_id, sort_order'),
-    prod
-      .from('question')
-      .select(
-        'id, category_id, group_id, key, sort_order, answer_type, is_required, prompt_de, help_de, validation, visibility_rule'
-      )
-      .order('category_id, sort_order'),
-    prod
-      .from('question_option')
-      .select('id, question_id, key, sort_order, label_de, value')
-      .order('question_id, sort_order'),
+    fetchAllProd('category', 'id, key, label_de, sort_order', 'sort_order'),
+    fetchAllProd(
+      'question_group',
+      'id, category_id, key, sort_order, label_de, custom_prompt_de, is_repeatable, min_count, max_count',
+      'key'
+    ),
+    fetchAllProd(
+      'question',
+      'id, category_id, group_id, key, sort_order, answer_type, is_required, prompt_de, help_de, validation, visibility_rule',
+      'key'
+    ),
+    fetchAllProd('question_option', 'id, question_id, key, sort_order, label_de, value', 'id'),
+    fetchAllProd('care_home', 'id, name, address, is_active', 'id'),
+    fetchAllProd('social_office', 'id, name, address, contact_email, contact_phone', 'id'),
+    fetchAllProd('postal_code_rule', 'id, social_office_id, plz_from, plz_to, priority', 'id'),
+    fetchAllProd('questionnaire', 'id, social_office_id, name, version, is_active', 'id'),
+    fetchAllProd('static_content', 'key, value_de', 'key'),
   ])
 
 console.log(`\n=== PRODUCTION STATE ===`)
-console.log(`Categories:  ${prodCats.length}`)
-console.log(`Groups:      ${prodGrps.length}`)
-console.log(`Questions:   ${prodQs.length}`)
-console.log(`Options:     ${prodOpts.length}`)
+console.log(`Categories:      ${prodCats.length}`)
+console.log(`Groups:          ${prodGrps.length}`)
+console.log(`Questions:       ${prodQs.length}`)
+console.log(`Options:         ${prodOpts.length}`)
+console.log(`Care homes:      ${prodHomes.length}`)
+console.log(`Social offices:  ${prodOffices.length}`)
+console.log(`PLZ rules:       ${prodPlz.length}`)
+console.log(`Questionnaires:  ${prodQnn.length}`)
+console.log(`Static content:  ${prodStatic.length}`)
 console.log(`\nCategory keys: ${prodCats.map((c) => `${c.key}(${c.label_de})`).join(', ')}`)
 console.log(`Question count by answer_type:`)
 const byType = {}
@@ -118,26 +152,52 @@ async function queryLocal(sql) {
   return result.rows
 }
 
-const [localCats, localGrps, localQs, localOpts] = await Promise.all([
+const [
+  localCats,
+  localGrps,
+  localQs,
+  localOpts,
+  localHomes,
+  localOffices,
+  localPlz,
+  localQnn,
+  localStatic,
+] = await Promise.all([
   queryLocal(`SELECT id, key, label_de, sort_order FROM public.category ORDER BY sort_order`),
   queryLocal(
-    `SELECT id, category_id, key, sort_order, label_de, is_repeatable, min_count, max_count FROM public.question_group ORDER BY category_id, sort_order`
+    `SELECT id, category_id, key, sort_order, label_de, custom_prompt_de, is_repeatable, min_count, max_count FROM public.question_group ORDER BY key`
   ),
   queryLocal(
-    `SELECT id, category_id, group_id, key, sort_order, answer_type, is_required, prompt_de, help_de, validation::text, visibility_rule::text FROM public.question ORDER BY category_id, sort_order`
+    `SELECT id, category_id, group_id, key, sort_order, answer_type, is_required, prompt_de, help_de, validation::text, visibility_rule::text FROM public.question ORDER BY key`
   ),
   queryLocal(
-    `SELECT id, question_id, key, sort_order, label_de, value FROM public.question_option ORDER BY question_id, sort_order`
+    `SELECT id, question_id, key, sort_order, label_de, value FROM public.question_option ORDER BY id`
   ),
+  queryLocal(`SELECT id, name, address, is_active FROM public.care_home ORDER BY id`),
+  queryLocal(
+    `SELECT id, name, address, contact_email, contact_phone FROM public.social_office ORDER BY id`
+  ),
+  queryLocal(
+    `SELECT id, social_office_id, plz_from, plz_to, priority FROM public.postal_code_rule ORDER BY id`
+  ),
+  queryLocal(
+    `SELECT id, social_office_id, name, version, is_active FROM public.questionnaire ORDER BY id`
+  ),
+  queryLocal(`SELECT key, value_de FROM public.static_content ORDER BY key`),
 ])
 
 await pool.end()
 
 console.log(`\n=== LOCAL STATE (after db reset) ===`)
-console.log(`Categories:  ${localCats.length}`)
-console.log(`Groups:      ${localGrps.length}`)
-console.log(`Questions:   ${localQs.length}`)
-console.log(`Options:     ${localOpts.length}`)
+console.log(`Categories:      ${localCats.length}`)
+console.log(`Groups:          ${localGrps.length}`)
+console.log(`Questions:       ${localQs.length}`)
+console.log(`Options:         ${localOpts.length}`)
+console.log(`Care homes:      ${localHomes.length}`)
+console.log(`Social offices:  ${localOffices.length}`)
+console.log(`PLZ rules:       ${localPlz.length}`)
+console.log(`Questionnaires:  ${localQnn.length}`)
+console.log(`Static content:  ${localStatic.length}`)
 
 // ── Diff ────────────────────────────────────────────────────────────────────
 
@@ -221,6 +281,7 @@ diffArrays('Categories', prodCats, localCats, (r) => r.id, ['key', 'label_de', '
 diffArrays('Groups', prodGrps, localGrps, (r) => r.id, [
   'key',
   'label_de',
+  'custom_prompt_de',
   'sort_order',
   'is_repeatable',
   'min_count',
@@ -242,6 +303,28 @@ diffArrays('Options', prodOpts, localOpts, (r) => `${r.question_id}/${r.key}`, [
   'label_de',
   'value',
 ])
+
+// Non-questionnaire seeded tables (added after the care_home drift incident).
+diffArrays('Care homes', prodHomes, localHomes, (r) => r.id, ['name', 'address', 'is_active'])
+diffArrays('Social offices', prodOffices, localOffices, (r) => r.id, [
+  'name',
+  'address',
+  'contact_email',
+  'contact_phone',
+])
+diffArrays('PLZ rules', prodPlz, localPlz, (r) => r.id, [
+  'social_office_id',
+  'plz_from',
+  'plz_to',
+  'priority',
+])
+diffArrays('Questionnaires', prodQnn, localQnn, (r) => r.id, [
+  'social_office_id',
+  'name',
+  'version',
+  'is_active',
+])
+diffArrays('Static content', prodStatic, localStatic, (r) => r.key, ['value_de'])
 
 console.log(`\n${'─'.repeat(50)}`)
 if (diffs === 0) {
