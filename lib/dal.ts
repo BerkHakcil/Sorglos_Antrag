@@ -131,6 +131,8 @@ export type StaticContent = {
   patientBannerBody: string
   allAnsweredHeading: string
   allAnsweredMessage: string
+  lockedHeading: string
+  lockedBody: string
 }
 
 const STATIC_CONTENT_KEYS: Record<keyof StaticContent, string> = {
@@ -140,6 +142,8 @@ const STATIC_CONTENT_KEYS: Record<keyof StaticContent, string> = {
   patientBannerBody: 'case.patient_banner_body',
   allAnsweredHeading: 'case.all_answered_heading',
   allAnsweredMessage: 'case.all_answered_message',
+  lockedHeading: 'case.locked_heading',
+  lockedBody: 'case.locked_body',
 }
 
 /**

@@ -77,10 +77,6 @@ export default async function CasePage() {
               <h2 className="mb-3 font-semibold">{content.caseSubheading}</h2>
               <dl className="divide-border divide-y text-sm">
                 <div className="flex justify-between py-2">
-                  <dt className="text-muted-foreground">{s.caseIdLabel}</dt>
-                  <dd className="font-mono text-xs">{caseData.id}</dd>
-                </div>
-                <div className="flex justify-between py-2">
                   <dt className="text-muted-foreground">{s.statusLabel}</dt>
                   <dd>{s.statusLabels[caseData.status] ?? caseData.status}</dd>
                 </div>

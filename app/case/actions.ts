@@ -347,8 +347,15 @@ function validateAnswerValue(
       return null
     }
 
-    case 'date':
-      return typeof value === 'string' && !isNaN(new Date(value).getTime()) ? null : v.invalidDate
+    case 'date': {
+      if (typeof value !== 'string') return v.invalidDate
+      const d = new Date(value)
+      if (isNaN(d.getTime())) return v.invalidDate
+      // App-wide bounds (mirrors the DateInput min/max): rejects typos like year 22000.
+      const year = d.getFullYear()
+      if (year < 1900 || year > new Date().getFullYear() + 1) return v.invalidDate
+      return null
+    }
 
     case 'yes_no':
       return value === 'Ja' || value === 'Nein' ? null : v.invalidYesNo

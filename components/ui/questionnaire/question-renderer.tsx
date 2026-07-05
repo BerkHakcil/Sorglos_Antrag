@@ -110,10 +110,18 @@ function AmountInput({ question, value, onChange, onSubmit }: InputProps) {
   )
 }
 
+// App-wide sane date bounds: the native picker blocks out-of-range years
+// (e.g. the observed "12.12.22000" typo); the server re-checks in
+// validateAnswerValue, so these are UX, not the security boundary.
+const DATE_MIN = '1900-01-01'
+const DATE_MAX = `${new Date().getFullYear() + 1}-12-31`
+
 function DateInput({ question, value, onChange, onSubmit }: InputProps) {
   return (
     <input
       type="date"
+      min={DATE_MIN}
+      max={DATE_MAX}
       disabled={!onChange}
       value={typeof value === 'string' ? value : ''}
       onChange={(e) => onChange?.(e.target.value)}

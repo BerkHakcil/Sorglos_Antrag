@@ -54,10 +54,6 @@ export const de = {
     heading: 'Konto erstellen',
     subheading: 'Erstellen Sie ein Konto, um Ihren Antrag auf Hilfe zur Pflege zu stellen.',
 
-    // Shown below the heading to clarify whose data the form collects.
-    clarificationNote:
-      'Die folgenden Angaben betreffen Sie als betreuende Person (z. B. Sohn, Tochter oder Ehepartner) – nicht den pflegebedürftigen Angehörigen.',
-
     fields: {
       firstName: 'Vorname',
       lastName: 'Nachname',
@@ -95,7 +91,7 @@ export const de = {
       // Checkbox 3 — authority to act.
       authorityToAct: {
         label:
-          'Ich bestätige, dass ich berechtigt bin, diesen Antrag für den pflegebedürftigen Angehörigen zu stellen, und ermächtige Hilfe zur Pflege, in meinem Namen gegenüber dem Sozialamt zu handeln.',
+          'Ich bestätige, dass ich berechtigt bin, diesen Antrag für den pflegebedürftigen Angehörigen zu stellen, und ermächtige Sorglos Antrag, in meinem Namen gegenüber dem Sozialamt zu handeln.',
         infoTriggerLabel: 'Mehr Informationen zur Vollmacht',
         infoText:
           'Diese Vollmacht erlaubt uns, Ihren Antrag beim zuständigen Sozialamt einzureichen und etwaige Rückfragen stellvertretend für Sie zu bearbeiten. Die Vollmacht beschränkt sich auf die Antragstellung und ist jederzeit widerrufbar.',
@@ -152,7 +148,6 @@ export const de = {
     heading: 'Mein Antrag',
     // subheading moved to DB (static_content 'case.subheading') — CLAUDE.md rule #2
     logoutButton: 'Abmelden',
-    caseIdLabel: 'Fall-ID',
     plzLabel: 'PLZ vor Heimeinzug',
     statusLabel: 'Status',
 
@@ -209,8 +204,7 @@ export const de = {
       // {answered} and {total} are replaced at render time
       progressLabel: '{answered} von {total} Fragen beantwortet',
       // allAnsweredHeading/Message moved to DB (static_content 'case.all_answered_*') — CLAUDE.md rule #2
-      editLockedMessage:
-        'Der Antrag wurde zur Prüfung eingereicht. Änderungen sind nicht mehr möglich.',
+      // locked-banner heading/body moved to DB (static_content 'case.locked_*') — CLAUDE.md rule #2
       skippedBadge: 'Übersprungen',
 
       repeatableGroup: {

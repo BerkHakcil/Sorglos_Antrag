@@ -32,6 +32,8 @@ type Props = {
     patientBannerBody: string
     allAnsweredHeading: string
     allAnsweredMessage: string
+    lockedHeading: string
+    lockedBody: string
   }
 }
 
@@ -295,8 +297,13 @@ function AllAnsweredCard({ heading, message }: { heading: string; message: strin
   )
 }
 
-function EditLockedCard() {
-  return <p className="text-muted-foreground py-2 text-center text-sm">{s.editLockedMessage}</p>
+function EditLockedCard({ heading, body }: { heading: string; body: string }) {
+  return (
+    <div className="space-y-1 py-2 text-center text-sm">
+      <p className="font-medium">{heading}</p>
+      <p className="text-muted-foreground">{body}</p>
+    </div>
+  )
 }
 
 // ── Main ChatView ─────────────────────────────────────────────────────────────
@@ -706,7 +713,7 @@ export function ChatView({
       <div className="border-border bg-background shrink-0 border-t">
         <div className="mx-auto max-w-2xl px-4 py-4">
           {isLocked ? (
-            <EditLockedCard />
+            <EditLockedCard heading={content.lockedHeading} body={content.lockedBody} />
           ) : showGroupPrompt && nav.groupPrompt ? (
             <GroupPromptCard
               prompt={nav.groupPrompt}

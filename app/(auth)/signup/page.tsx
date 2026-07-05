@@ -11,9 +11,6 @@ export default function SignupPage() {
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight">{s.heading}</h1>
         <p className="text-muted-foreground text-sm">{s.subheading}</p>
-        <p className="bg-muted/60 border-border rounded-md border px-3 py-2 text-xs leading-relaxed">
-          {s.clarificationNote}
-        </p>
       </div>
       <SignupForm />
     </div>
