@@ -82,10 +82,15 @@ GROUPS = [
     (3, "other_income", 4, "Sonstige Einkünfte", "Möchten Sie sonstiges Einkommen hinzufügen?", [78, 79]),
     (4, "bank_additional", 6, "Weitere Bankkonten", "Möchten Sie weitere Bankkonten hinzufügen?", [245, 246, 247, 100]),  # D4
     (5, "additional_wealth", 6, "Weitere Vermögenswerte", "Möchten Sie weitere Vermögenswerte hinzufügen?", [123, 124]),
-    (6, "spouse_pension", 8, "Rente / Pension des Ehepartners", None, [172, 173, 174]),
-    (7, "spouse_other_income", 8, "Sonstige Einkünfte des Ehepartners", None, [181, 182]),
-    (8, "spouse_bank_additional", 8, "Weitere Bankkonten des Ehepartners", None, [248, 249, 250, 190]),  # D4 mirror
-    (9, "spouse_additional_wealth", 8, "Weitere Vermögenswerte des Ehepartners", None, [228, 229]),  # revised flag 5
+    # Spouse prompts per Roman's review (migration 20260705000005) — keep in sync.
+    (6, "spouse_pension", 8, "Rente / Pension des Ehepartners",
+     "Möchten Sie weitere Renten Ihres Partners hinzufügen?", [172, 173, 174]),
+    (7, "spouse_other_income", 8, "Sonstige Einkünfte des Ehepartners",
+     "Möchten Sie sonstiges Einkommen Ihres Partners hinzufügen?", [181, 182]),
+    (8, "spouse_bank_additional", 8, "Weitere Bankkonten des Ehepartners",
+     "Möchten Sie weitere Bankkonten Ihres Partners hinzufügen?", [248, 249, 250, 190]),  # D4 mirror
+    (9, "spouse_additional_wealth", 8, "Weitere Vermögenswerte des Ehepartners",
+     "Möchten Sie weitere Vermögenswerte Ihres Partners hinzufügen?", [228, 229]),  # revised flag 5
 ]
 GROUP_OF = {qid: n for (n, _k, _c, _l, _p, members) in GROUPS for qid in members}
 
@@ -254,13 +259,14 @@ SYNTH = {
               vis={"question_key": "bank_additional_account_yes_no", "value": "Ja"}),
     247: dict(key="bank_additional_bic", type="BIC", prompt="Wie lautet die BIC?",
               vis={"question_key": "bank_additional_account_yes_no", "value": "Ja"}),
+    # Spouse prompts per Roman's review (migration 20260705000005) — keep in sync.
     248: dict(key="spouse_bank_additional_name", type="short text",
-              prompt="Bei welcher Bank haben Sie ein weiteres Konto?",
+              prompt="Bei welcher Bank haben Sie ein weiteres Konto Ihres Partners?",
               vis={"question_key": "spouse_bank_additional_account_yes_no", "value": "Ja"}),
     249: dict(key="spouse_bank_additional_iban", type="IBAN",
-              prompt="Was ist die IBAN Nummer dieses Kontos?",
+              prompt="Was ist die IBAN Nummer dieses Kontos Ihres Partners?",
               vis={"question_key": "spouse_bank_additional_account_yes_no", "value": "Ja"}),
-    250: dict(key="spouse_bank_additional_bic", type="BIC", prompt="Wie lautet die BIC?",
+    250: dict(key="spouse_bank_additional_bic", type="BIC", prompt="Wie lautet die BIC Ihres Partners?",
               vis={"question_key": "spouse_bank_additional_account_yes_no", "value": "Ja"}),
     251: dict(key="health_insurance_yes_no", type="selection",
               prompt="Sind Sie aktuell krankenversichert?", vis=None, opts=["Ja", "Nein"]),
