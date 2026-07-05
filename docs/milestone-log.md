@@ -55,12 +55,19 @@ Commits `6d95056` (engine) + `5a8b933` (migrations A/B, generator, master xlsx) 
 
 **Verified live on prod:** Essen married drive — 133 prompts to completion: first prompt "Wie lautet Ihr Nachname?" (Essen loads via 45127); one detail triggered from **each** bulk incl. both spouse MM.YYYY dates; exclusivity ("Nein, nichts davon" cleared a real selection); health gates both paths; "Keine Rente" → loop prompt (no gross/net) then Altersrente → gross+net asked; IBAN/BIC/PLZ patterns rejected bad input then accepted valid; pension + bank groups looped via "Ja, hinzufügen"; all five custom prompts verbatim + two spouse template prompts observed; locked banner after completion. Fresh-case denominator **49**. Berlin regression: denominator 57, opening flow byte-identical, children loop prompt unchanged. Both test users deleted. Full verify-baseline replay: **all 9 seeded tables identical** (now 17 categories / 16 groups / 406 questions / 1006 options / 3 questionnaires).
 
-**Pending Roman content review** (shipped with placeholder/composed German, to revisit):
+**Roman content review — RESOLVED 2026-07-05** (migration `20260705000005_roman_review_strings.sql` + code commit; all captured live on prod afterwards):
 
-1. Health-gate wording: "Sind Sie aktuell krankenversichert?" / "Ist Ihr Ehepartner / Lebenspartner aktuell krankenversichert?" (D6 proposal).
-2. Spouse bank-account field prompts reuse the applicant wording ("Bei welcher Bank haben Sie ein weiteres Konto?" etc.) — subject is ambiguous for the spouse.
-3. New validation string `invalidFormat`: "Bitte eine gültige Angabe eingeben." (mirrors the existing invalidIban phrasing).
-4. Spouse group loop prompts (4 groups on the template): observed live "Möchten Sie eine weitere Rente / Pension des Ehepartners hinzufügen?" and the grammatically off "Möchten Sie eine weitere **Weitere** Bankkonten des Ehepartners hinzufügen?" — set `custom_prompt_de` once Roman supplies wording (Berlin's spouse groups have the same gap).
+1. Health-gate wording **approved as-is** ("Sind Sie aktuell krankenversichert?" / "Ist Ihr Ehepartner / Lebenspartner aktuell krankenversichert?").
+2. Spouse bank-account field prompts — Roman's mechanical rule, " Ihres Partners" before the "?": "Bei welcher Bank haben Sie ein weiteres Konto Ihres Partners?", "Was ist die IBAN Nummer dieses Kontos Ihres Partners?", "Wie lautet die BIC Ihres Partners?" (Essen ids `…f8/f9/fa`).
+3. `invalidFormat` (de.ts, code — not static_content): now **"Ungültiges Format."**, matching the "Ungültiges Datum." convention.
+4. Spouse group loop prompts, Roman's pattern "Möchten Sie {X} Ihres Partners hinzufügen?" — set on all four Essen spouse groups AND Berlin's two (`spouse_pension`, `spouse_other_income`; Berlin has no spouse group outside these concepts, so nothing was left on the template): "…weitere Renten…", "…sonstiges Einkommen…", "…weitere Bankkonten…", "…weitere Vermögenswerte Ihres Partners hinzufügen?".
+5. Essen fresh-case denominator **49** sanity-confirmed.
+
+**Still open:** Berlin spouse section content review — Roman is testing next week; expect a feedback pass.
+
+**Generator contract note (important):** the committed `essen_hzp_question_master_v3.xlsx` and the original generator constants are **superseded** by migration `20260705000005` on exactly these seven strings — the three spouse bank prompts and the four Essen spouse `custom_prompt_de` values listed above (they were generator-synthetic additions, not master cells, so a future **v4 master regeneration must not resurrect the old wording**; the generator constants were synced in the same commit). And structurally: the seed migration inserts with `ON CONFLICT DO NOTHING`, so **regenerating never updates rows that already exist on prod — post-launch content edits always need explicit UPDATE migrations** like `…000005`.
+
+**Flagged engine edge (found during this verification, not fixed):** when a repeatable group's last member is also the questionnaire's **final required question**, answering it completes the case (status → `under_review`) and the "add another?" loop prompt is never offered — the user can't add a second instance. Berlin never hits this (a flat category always follows its groups); **Essen hits it on the married path when only "sonstiges Vermögen" is selected in the spouse wealth bulk** (`spouse_additional_wealth` ends the flow). Options when it's addressed: hold the completion gate while a group prompt is pending, or ensure content never ends on a repeatable group. Needs a decision — parked.
 
 Also inherited: the "Keine Rente" quirk (loop prompt right after selecting it) exists in Essen exactly as in Berlin — same engine behavior, same flagged status.
 
