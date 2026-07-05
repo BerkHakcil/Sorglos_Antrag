@@ -52,6 +52,20 @@ function emptyValueFor(answerType: string): unknown {
   }
 }
 
+/**
+ * Initial draft for a question the user hasn't touched yet: a data-driven
+ * default (validation.default, e.g. country_of_birth → "Deutschland") when the
+ * content author set one, otherwise the type's empty value. handleSave submits
+ * currentValue, so an untouched pre-selected default is what gets saved.
+ */
+function initialValueFor(question: {
+  answer_type: string
+  validation: Record<string, unknown> | null
+}): unknown {
+  const dflt = question.validation?.['default']
+  return dflt !== undefined ? dflt : emptyValueFor(question.answer_type)
+}
+
 /** Compound key used for answerDrafts, draftErrors, and skippedIds for group questions. */
 function draftKey(qId: string, instanceId: string | null): string {
   return instanceId ? `${qId}:${instanceId}` : qId
@@ -243,7 +257,10 @@ function GroupPromptCard({
   onNo: () => void
   saving: boolean
 }) {
-  const question = s.repeatableGroup.anotherPrompt.replace('{group}', prompt.groupLabelDe)
+  // DB-authored per-group prompt wins; the {group} template is only the fallback
+  // (grammar of "eine weitere {label}" breaks for some labels, e.g. "Weitere …").
+  const question =
+    prompt.customPromptDe ?? s.repeatableGroup.anotherPrompt.replace('{group}', prompt.groupLabelDe)
   return (
     <div className="border-border bg-card space-y-4 rounded-xl border p-5 shadow-sm">
       <p className="text-sm font-medium">{question}</p>
@@ -360,8 +377,8 @@ export function ChatView({
   const dk = activeQ ? draftKey(activeQ.id, activeQ.instanceId) : null
   const currentValue: unknown = activeQ
     ? dk !== null
-      ? (answerDrafts[dk] ?? emptyValueFor(activeQ.answer_type))
-      : emptyValueFor(activeQ.answer_type)
+      ? (answerDrafts[dk] ?? initialValueFor(activeQ))
+      : initialValueFor(activeQ)
     : null
   const validationError = activeQ
     ? (draftErrors[draftKey(activeQ.id, activeQ.instanceId)] ?? null)

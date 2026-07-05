@@ -112,6 +112,8 @@ export type SectionNav = {
 export type GroupPromptInfo = {
   groupKey: string
   groupLabelDe: string
+  /** DB-authored full prompt text; null → UI falls back to the {group} template. */
+  customPromptDe: string | null
   instanceCount: number
   maxCount: number | null
 }
@@ -287,6 +289,7 @@ export function buildNav(
     groupPrompt = {
       groupKey,
       groupLabelDe: groupNavQs[0]?.group_label_de ?? groupKey,
+      customPromptDe: groupNavQs[0]?.group_custom_prompt_de ?? null,
       instanceCount: instances.length,
       maxCount,
     }

@@ -65,7 +65,7 @@ export async function loadQuestionnaire(questionnaireId: string): Promise<Loaded
       id, key, sort_order, answer_type, is_required,
       prompt_de, help_de, validation, visibility_rule, group_id, category_id,
       question_group (
-        id, key, sort_order, label_de, is_repeatable, min_count, max_count
+        id, key, sort_order, label_de, custom_prompt_de, is_repeatable, min_count, max_count
       )
     `
     )
@@ -114,6 +114,7 @@ export async function loadQuestionnaire(questionnaireId: string): Promise<Loaded
       group_id: q.group_id,
       group_key: grp?.key ?? null,
       group_label_de: grp?.label_de ?? null,
+      group_custom_prompt_de: grp?.custom_prompt_de ?? null,
       group_is_repeatable: grp?.is_repeatable ?? null,
       group_sort_order: grp?.sort_order ?? null,
       group_min_count: grp?.min_count ?? null,

@@ -23,6 +23,7 @@ function makeQuestion(overrides: Partial<Question> = {}): Question {
     group_id: null,
     group_key: null,
     group_label_de: null,
+    group_custom_prompt_de: null,
     group_is_repeatable: null,
     group_sort_order: null,
     group_min_count: null,

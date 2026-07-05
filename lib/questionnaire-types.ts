@@ -31,6 +31,8 @@ export type Question = {
   group_id: string | null
   group_key: string | null
   group_label_de: string | null
+  /** Full replacement text for the "add another?" prompt; null → template built from the label. */
+  group_custom_prompt_de: string | null
   group_is_repeatable: boolean | null
   group_sort_order: number | null
   group_min_count: number | null
