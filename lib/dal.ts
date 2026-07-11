@@ -173,18 +173,6 @@ export async function getStaticContent(): Promise<StaticContent> {
   return out
 }
 
-/** Returns the fallback questionnaire id (social_office_id IS NULL). */
-export async function getFallbackQuestionnaireId(): Promise<string> {
-  await verifySession()
-  const supabase = await createClient()
-
-  const { data, error } = await supabase
-    .from('questionnaire')
-    .select('id')
-    .is('social_office_id', null)
-    .eq('is_active', true)
-    .single()
-
-  if (error || !data) throw new Error('Fallback-Fragebogen nicht gefunden')
-  return data.id
-}
+// getFallbackQuestionnaireId removed (CP3/D12): unresolved PLZs now get the
+// Berlin questionnaire (DEFAULT_QUESTIONNAIRE_ID in app/case/actions.ts); the
+// empty "Allgemeiner Fragebogen" row was deactivated by migration.

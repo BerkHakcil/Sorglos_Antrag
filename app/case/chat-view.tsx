@@ -571,17 +571,20 @@ export function ChatView({
   }
 
   const handleSkip = () => {
-    // Skipping is not supported for group questions (no stable per-instance skip state)
-    if (!activeQ || isPending || isReaskingSkipped || activeQ.instanceId !== null) return
-    setSkippedIds((prev) => new Set([...prev, draftKey(activeQ.id, null)]))
+    if (!activeQ || isPending || isReaskingSkipped) return
+    // Works for repeatable-group members too: draftKey(id, instanceId) produces
+    // the same compound key buildNav's skipKey() checks (CP3/D13 fix — group
+    // members previously had no skip button at all).
+    const sk = draftKey(activeQ.id, activeQ.instanceId)
+    setSkippedIds((prev) => new Set([...prev, sk]))
     setAnswerDrafts((prev) => {
       const n = { ...prev }
-      delete n[draftKey(activeQ.id, null)]
+      delete n[sk]
       return n
     })
     setDraftErrors((prev) => {
       const n = { ...prev }
-      delete n[draftKey(activeQ.id, null)]
+      delete n[sk]
       return n
     })
   }
@@ -729,7 +732,7 @@ export function ChatView({
               error={validationError}
               saving={isPending}
               onSave={handleSave}
-              onSkip={!editingId && activeQ.instanceId === null ? handleSkip : undefined}
+              onSkip={!editingId ? handleSkip : undefined}
               onCancel={editingId ? cancelEdit : undefined}
               isEditMode={!!editingId}
               isReask={isReaskingSkipped}

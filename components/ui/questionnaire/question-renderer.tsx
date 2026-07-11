@@ -27,10 +27,17 @@ type InputProps = {
 
 // ── Individual input components ───────────────────────────────────────────────
 
+/** Data-authored input placeholder (validation.placeholder_de) — free-input types only. */
+function placeholderFor(question: Question): string | undefined {
+  const v = question.validation?.['placeholder_de']
+  return typeof v === 'string' ? v : undefined
+}
+
 function ShortTextInput({ question, value, onChange, onSubmit }: InputProps) {
   return (
     <input
       type="text"
+      placeholder={placeholderFor(question)}
       disabled={!onChange}
       value={typeof value === 'string' ? value : ''}
       onChange={(e) => onChange?.(e.target.value)}
@@ -50,6 +57,7 @@ function LongTextInput({ question, value, onChange, onSubmit }: InputProps) {
   return (
     <div className="space-y-1">
       <textarea
+        placeholder={placeholderFor(question)}
         disabled={!onChange}
         rows={3}
         value={typeof value === 'string' ? value : ''}
@@ -72,6 +80,7 @@ function NumberInput({ question, value, onChange, onSubmit }: InputProps) {
   return (
     <input
       type="number"
+      placeholder={placeholderFor(question)}
       disabled={!onChange}
       value={value !== null && value !== undefined && value !== '' ? String(value) : ''}
       onChange={(e) => onChange?.(e.target.value === '' ? '' : parseFloat(e.target.value))}
@@ -92,6 +101,7 @@ function AmountInput({ question, value, onChange, onSubmit }: InputProps) {
     <div className="flex items-center gap-2">
       <input
         type="number"
+        placeholder={placeholderFor(question)}
         disabled={!onChange}
         step="0.01"
         value={value !== null && value !== undefined && value !== '' ? String(value) : ''}

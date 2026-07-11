@@ -86,13 +86,10 @@ export default async function CasePage() {
                     <dd>{caseData.plz_before_move}</dd>
                   </div>
                 )}
-                {caseData.plz_resolution_status === 'unsupported' && (
-                  <div className="py-2">
-                    <p className="text-xs text-amber-700 dark:text-amber-400">
-                      {s.plz.unsupportedNotice}
-                    </p>
-                  </div>
-                )}
+                {/* unsupported-PLZ notice suppressed (CP3/D12): its copy promised a
+                    team follow-up, but such users now proceed normally in the Berlin
+                    questionnaire. Status stays 'unsupported' internally; new notice
+                    copy pending Roman review. */}
               </dl>
             </div>
 

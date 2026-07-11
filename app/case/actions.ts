@@ -2,12 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
-import {
-  verifySession,
-  getFallbackQuestionnaireId,
-  getCaseAnswers,
-  type SavedAnswer,
-} from '@/lib/dal'
+import { verifySession, getCaseAnswers, type SavedAnswer } from '@/lib/dal'
 import { de } from '@/lib/strings/de'
 import { loadQuestionnaire } from '@/lib/questionnaire-engine'
 import { buildNav, findStaleAnswerRefs } from '@/lib/questionnaire-nav'
@@ -48,6 +43,11 @@ export type ResolvePlzResult =
   | { ok: true; status: 'resolved' | 'unsupported' }
   | { ok: false; error: string }
 
+// D12 (content pass 3): PLZs that resolve to no questionnaire — an office
+// without one, or no postal_code_rule at all — get the BERLIN questionnaire
+// and proceed normally. Fixed id from the seed (verify-baseline guards it).
+const DEFAULT_QUESTIONNAIRE_ID = '30000000-0000-0000-0000-000000000001'
+
 export async function resolvePlzAction(plz: string): Promise<ResolvePlzResult> {
   if (!PLZ_RE.test(plz.trim())) {
     return { ok: false, error: de.case.plz.errorInvalidFormat }
@@ -79,8 +79,9 @@ export async function resolvePlzAction(plz: string): Promise<ResolvePlzResult> {
       .eq('is_active', true)
       .single()
 
-    // If no questionnaire exists for this office, use the fallback
-    const questionnaireId = qRow?.id ?? (await getFallbackQuestionnaireId())
+    // D12: if no questionnaire exists for this office, the user proceeds with
+    // the Berlin questionnaire (the product default) instead of an empty shell.
+    const questionnaireId = qRow?.id ?? DEFAULT_QUESTIONNAIRE_ID
 
     await supabase
       .from('cases')
@@ -102,8 +103,9 @@ export async function resolvePlzAction(plz: string): Promise<ResolvePlzResult> {
     return { ok: true, status: 'resolved' }
   }
 
-  // No match — load fallback questionnaire and flag for manual handling
-  const fallbackId = await getFallbackQuestionnaireId()
+  // No match — the user still proceeds normally with the Berlin questionnaire
+  // (D12); plz_resolution_status stays 'unsupported' as the internal team signal.
+  const fallbackId = DEFAULT_QUESTIONNAIRE_ID
 
   await supabase
     .from('cases')

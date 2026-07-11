@@ -153,7 +153,9 @@ export const de = {
 
     careHome: {
       heading: 'Schritt 1: Pflegeheim auswählen',
-      label: 'Pflegeheim',
+      // Roman's copy (Essen CSV row 1) — shared pre-questionnaire UI, so Berlin
+      // users see it too.
+      label: 'In welches Pflegeheim sind Sie eingezogen?',
       placeholder: 'Bitte wählen Sie ein Pflegeheim aus',
       submitButton: 'Pflegeheim bestätigen',
       loadingButton: 'Wird gespeichert …',
@@ -171,6 +173,9 @@ export const de = {
       loadingButton: 'Wird geprüft …',
       errorInvalidFormat: 'Bitte geben Sie eine gültige 5-stellige Postleitzahl ein.',
       errorGeneric: 'Fehler beim Speichern. Bitte erneut versuchen.',
+      // Currently NOT rendered (CP3/D12: unresolved PLZs proceed normally in the
+      // Berlin questionnaire; the old copy promised a team follow-up). New copy
+      // pending Roman review before the notice returns.
       unsupportedNotice:
         'Für diese Postleitzahl konnte kein zuständiges Sozialamt ermittelt werden. ' +
         'Das Team wird sich mit Ihnen in Verbindung setzen.',
