@@ -1,0 +1,134 @@
+ID,Section,Question,Translation,Translate ENG,Copy New,Sample Answer
+15,Personal,prior_social_aid,Haben Sie bereits Hilfe zur Pflege Leistungen erhalten?,,Haben Sie schon einmal Hilfe-zur-Pflege bekommen?,
+16,Personal,prior_social_aid_until,Bis wann haben Sie Hilfe zur Pflege erhalten?,,Bis wann haben Sie Hilfe-zur-Pflege bekommen?,
+17,Personal,prior_social_aid_issuer,Welche Behörde hat die Hilfe zur Pflege genehmigt?,,Welche Behörde hat die Hilfe-zur-Pflege bewilligt?,Sozialamt Mitte
+18,Personal,prior_social_aid_reference_id,Was ist das Geschäftszeichen der Genehmigung?,,Welches Aktenzeichen steht auf dem Bescheid?,50-123456
+19,Personal,power_of_attorney,Gibt es einen Betreuer oder Beistand?,,Haben Sie eine gesetzliche Betreuung oder eine bevollmächtigte Person?,
+20,Personal,special_origin_rights,Liegt ein Sonderstatus vor?,,Haben Sie einen Vertriebenen- oder Spätaussiedlerausweis?,
+21,Personal,special_origin_rights_issued,Wann wurde der Sonderstatus ausgestellt?,,Wann wurde der Ausweis ausgestellt?,
+22,Personal,special_origin_rights_issued_by,Welche Behörde hat den Sonderstatus ausgestellt?,,Welche Behörde hat den Ausweis ausgestellt?,Bundesverwaltungsamt
+23,Personal,disability_card,Liegt ein Schwerbehindertenausweis vor?,,Haben Sie einen Schwerbehindertenausweis?,
+24,Personal,disability_card_application,Wurde ein Antrag auf Schwerbehinderung gestellt?,,Haben Sie einen Schwerbehindertenausweis beantragt?,
+25,Personal,disability card_expiry,Bis wann ist der Schwerbehindertenausweis gültig?,,Bis wann ist Ihr Schwerbehindertenausweis gültig?,
+26,Personal,disability_card_markers,Welche Merkzeichen hat der Schwerbehindertenausweis?,,Welche Merkzeichen stehen in Ihrem Schwerbehindertenausweis?,
+29,Personal,care_level,Was ist Ihre Pflegestufe?,,Welchen Pflegegrad haben Sie?,
+30,Home,in_facility_since,Wann fand/findet der Einzug in die Pflegeeinrichtung statt?,,Wann sind Sie in das Pflegeheim eingezogen?,
+32,Home,last_residence_street,Was ist die Straße und Hausnummer Ihrer letzten Wohnung?,,Wie lautete die Straße und Hausnummer Ihrer letzten Wohnung?,Musterstraße 12
+33,Home,last_residence_city,In welcher Stadt haben Sie vor Heimaufnahme gewohnt?,,In welcher Stadt lag Ihre letzte Wohnung?,Berlin
+34,Home,last_residence_plz,Was ist die Postleitzahl Ihres letzten Wohnortes?,,Wie lautete die Postleitzahl Ihrer letzten Wohnung?,
+37,Home,apartment_ownership,Was war das Mietverhältnis vor Heimeinzug?,,Wie haben Sie vor dem Einzug ins Pflegeheim gewohnt?,
+38,Home,landlord_name_and_address,Name und Anschrift Ihres Vermieters?,,Wie heißen Ihr Vermieter und seine Adresse?,"Hausverwaltung Müller, Beispielweg 4"
+39,Home,rent_total,Wie viel monatliche Miete zahlen Sie?,,Wie hoch war Ihre monatliche Miete?,
+40,Home,rent_heating,Wie hoch ist der Heizkostenvorschuss pro Monat?,,Wie hoch waren Ihre monatlichen Heizkosten?,
+41,Home,rent_warm_water,Wie hoch sind Warmwasserkosten pro Monat?,,Wie hoch waren Ihre monatlichen Warmwasserkosten?,
+42,Home,rent_paid_until,Bis wann ist die Miete bereits gezahlt?,,Bis wann wurde die Miete schon bezahlt?,
+43,Home,rent_debt,Wie hoch sind mögliche Mietrückstände?,,Gibt es Mietrückstände für Ihre letzte Wohnung?,
+44,Home,rent_contract_termination_yes_no,Werden Sie Ihren Mietvertrag kündigen?,,Haben Sie Ihre letzte Wohnung bereits gekündigt?,
+45,Home,rent_contract_terminated_by,Zu welchem Datum haben Sie Ihre Wohnung gekündigt?,,Zu welchem Datum wurde Ihre letzte Wohnung gekündigt?,
+46,Children,child_first_name,Vorname Ihres Kindes?,,Wie lautet der Vorname Ihres Kindes?,Max
+47,Children,child_last_name,Nachname Ihres Kindes?,,Wie lautet der Nachname Ihres Kindes?,Mustermann
+48,Children,child_birth_name,Geburtsname Ihres Kindes?,,Wie lautet der Geburtsname Ihres Kindes?,Müller
+49,Children,child_birth_date,Geburtsdatum Ihres Kindes?,,Wann wurde Ihr Kind geboren?,
+50,Children,child_marital_status,Familienstand Ihres Kindes?,,Welchen Familienstand hat Ihr Kind?,
+51,Children,child_family_tie,Verwandschaftsverhältnis zu Ihrem Kind?,,In welchem Verhältnis steht dieses Kind zu Ihnen?,
+52,Children,child_profession,Beruf Ihres Kindes?,,Welchen Beruf hat Ihr Kind?,Kauffrau
+53,Children,child_address,Wohnadresse Ihres Kindes?,,Wie lautet die Wohnadresse Ihres Kindes?,"Musterstraße 12, 10115 Berlin"
+54,Income,pension_type,Welche Rente/Pension beziehen Sie?,,Welche Rente oder Pension bekommen Sie?,
+55,Income,pension_amount,Wie hoch ist die monatliche Rente/Pension?,,Wie hoch ist diese Rente oder Pension pro Monat?,
+56,Income,pension_id,Was ist die Abrechnungsnummer der Rente/Pension?,,Welche Abrechnungsnummer hat diese Rente oder Pension?,R123456789
+57,Income,pension_issuer,Wer bezahlt die Rente/Pension?,,Von wem bekommen Sie diese Rente oder Pension?,Deutsche Rentenversicherung
+59,Income,wohngeld_amount,Wie viel Wohngeld beziehen Sie?,,Wie viel Wohngeld bekommen Sie pro Monat?,
+60,Income,wohngeld_id,Was ist die Abrechnungsnummer des Wohngeld?,,Welches Aktenzeichen steht auf Ihrem Wohngeldbescheid?,WG-123456
+61,Income,other_income,Beziehen Sie anderes Einkommen?,,Haben Sie weiteres Einkommen?,
+62,Income,other_income_type,Welche Art von Einkommen beziehen Sie?,,Welche Art von weiterem Einkommen haben Sie?,Mieteinnahmen
+63,Income,other_income_amount,Wie hoch ist das weitere Einkommen monatlich?,,Wie hoch ist dieses weitere Einkommen pro Monat?,
+65,Expenditure,health_insurance_amount,Wie hoch sind die monatlichen Ausgaben für Ihre Krankenversicherung?,,Wie hoch ist Ihr monatlicher Beitrag zur Krankenversicherung?,
+66,Expenditure,care_insurance_amount,Wo hoch sind die monatlichen Ausgaben für Ihre Pflegeversicherung?,,Wie hoch ist Ihr monatlicher Beitrag zur Pflegeversicherung?,
+68,Expenditure,general_liablity_insurance_provider,Wer ist Träger Ihrer Haftpflichtversicherung?,,Bei welcher Versicherung haben Sie Ihre Haftpflichtversicherung?,HUK-Coburg
+69,Expenditure,general_liability_amount,Wo hoch ist der monatliche Betrag Ihrer Haftpflichtversicherung?,,Wie hoch ist Ihr monatlicher Beitrag zur Haftpflichtversicherung?,
+71,Expenditure,life_insurance_monthly_amount,Wie hoch ist der monatliche Beitrag Ihrer Lebens- oder Sterbeversicherung?,,Wie hoch ist Ihr monatlicher Beitrag für diese Versicherung?,
+72,Wealth,life_insurance_total_amount,Wie hoch ist der Auszahlungsbetrag der Versicherung?,,Wie viel würde diese Versicherung auszahlen?,
+73,Wealth,life_insurance_name,Bei welcher Versicherungsgesellschaft?,,Bei welcher Versicherung haben Sie diese Versicherung?,Allianz
+74,Wealth,life_insurance_number,Was ist die Versicherungsnummer?,,Wie lautet die Versicherungsnummer?,LV-123456
+76,Wealth,funeral_insurance_amount,Was ist der Auszahlungsbetrag?,,Wie viel würde der Bestattungsvorsorgevertrag auszahlen?,
+77,Wealth,funeral_insurance_detail,Was trifft auf den Bestattungsvertrag zu?,,Was trifft auf Ihren Bestattungsvorsorgevertrag zu?,
+79,Wealth,bank_giro_blz,Was ist die Bankleitzahl Ihrer Bank?,,Wie lautet die Bankleitzahl Ihrer Bank?,
+80,Wealth,bank_giro_iban,Was ist Ihre IBAN Nummer?,,Wie lautet die IBAN Ihres Girokontos?,DE89 3704 0044 0532 0130 00
+82,Wealth,bank_savings_account_yes_no,Besitzen Sie ein Sparkonto?,,Haben Sie ein Sparkonto?,
+83,Wealth,bank_savings_account_amount,Wie hoch ist der Betrag auf Ihrem Sparkonto?,,Wie viel Geld ist auf Ihrem Sparkonto?,
+84,Wealth,bank_savings_iban,Was ist Ihre IBAN Nummer?,,Wie lautet die IBAN Ihres Sparkontos?,DE89 3704 0044 0532 0130 00
+85,Wealth,bank_additional_account_yes_no,Besitzen Sie ein weiteres Konto?,,Haben Sie noch ein weiteres Konto?,
+86,Wealth,bank_additional_name,Bei welcher Bank haben Sie ein weiteres Konto?,,Bei welcher Bank ist dieses weitere Konto?,Sparkasse Berlin
+87,Wealth,bank_additional_iban,Was ist die IBAN Nummer dieses Kontos?,,Wie lautet die IBAN dieses Kontos?,DE89 3704 0044 0532 0130 00
+88,Wealth,bank_additional_amount,Wie hoch ist der Betrag auf diesem Konto?,,Wie viel Geld ist auf diesem Konto?,
+89,Wealth,cash_savings,Wie viel Bargeld besitzen Sie?,,Wie viel Bargeld haben Sie?,
+90,Wealth,automobile_yes_no,Besitzen Sie ein Auto?,,Haben Sie ein Auto?,
+91,Wealth,automobile_numbers_plate,Was ist der Kennzeichen Ihres Autos?,,Welches Kennzeichen hat Ihr Auto?,B-AB 1234
+92,Wealth,automobile_type,Was ist das Modell Ihres Autos?,,Welches Modell ist Ihr Auto?,VW Golf
+93,Wealth,automobile_year,Was ist das Baujahr Ihres Autos?,,Aus welchem Baujahr ist Ihr Auto?,
+94,Wealth,automobile_owner,Wer ist der Fahrzeughalter?,,Wer ist als Fahrzeughalter eingetragen?,Max Mustermann
+95,Wealth,property_yes_no,"Besitzen Sie ein Haus, Wohnung oder Land?",,"Haben Sie ein Haus, eine Wohnung oder ein Grundstück?",
+96,Wealth,property_address,Adresse der Immobilie?,,Wie lautet die Adresse der Immobilie?,"Musterstraße 12, 10115 Berlin"
+97,Wealth,property_usage,Wie wird die Immobilie genutzt?,,Wie nutzen Sie die Immobilie?,selbst genutzt
+98,Wealth,property_size,Größe der Immobilie in Quadratmeter?,,Wie groß ist die Immobilie in Quadratmetern?,
+99,Wealth,additional_wealth_yes_no,Besitzen Sie weitere Vermögenswerte?,,Haben Sie weitere Vermögenswerte?,
+100,Wealth,additional_wealth_type,Welche Vermögenswerte besitzen Sie?,,Welche weiteren Vermögenswerte haben Sie?,Wertpapiere
+101,Wealth,additional_wealth_amount,Was ist der Wert Ihres Vermögenswertes?,,Wie viel ist dieser Vermögenswert ungefähr wert?,
+102,Additional,costly_diet,Ist eine kostenaufwendige Ernährung aus medizinischen Gründen erforderlich?,,"Brauchen Sie aus medizinischen Gründen eine besondere Ernährung, die mehr kostet?",
+103,Spouse,spouse_last_name,Wie lautet der Nachname Ihres Ehepartners?,,Wie lautet der Nachname Ihres Ehepartners oder Partners?,Mustermann
+104,Spouse,spouse_birth_name,Wie lautet der Geburtsname Ihres Ehepartners?,,Wie lautet der Geburtsname Ihres Ehepartners oder Partners?,Müller
+105,Spouse,spouse_first_name,Wie lautet der Vorname Ihres Ehepartners?,,Wie lautet der Vorname Ihres Partners?,Max
+106,Spouse,spouse_birthdate,Wann wurden Ihr Ehepartner geboren?,,Wann wurde Ihr Partner geboren?,
+107,Spouse,spouse_city_of_birth,In welcher Stadt wurden Ihr Ehepartner geboren?,,In welcher Stadt wurde Ihr Partner geboren?,Berlin
+108,Spouse,spouse_district_of_birth,In welchem Kreis/Bezirk wurde Ihr Ehepartner geboren?,,In welchem Kreis oder Bezirk wurde Ihr Partner geboren?,Mitte
+109,Spouse,spouse_country_of_birth,In welchem Land wurden Ihr Ehepartner geboren?,,In welchem Land wurde Ihr Partner geboren?,Deutschland
+110,Spouse,spouse_gender,Was ist das Geschlecht Ihres Ehepartners?,,Welches Geschlecht hat Ihr Partner?,
+111,Spouse,spouse_citizenship,Was ist die Staatsangehörigkeit Ihres Ehepartners?,,Welche Staatsangehörigkeit hat Ihr Partner?,deutsch
+112,Spouse,spouse_issuer_of_id,Welche Behörde hat das Personaldokument ausgestellt?,,Welche Behörde hat das Personaldokument Ihres Partners ausgestellt?,Bezirksamt Mitte
+113,Spouse,spouse_id_expiry_date,Bis wann ist das Personaldokument Ihres Partners gültig?,,Bis wann ist das Personaldokument Ihres Partners gültig?,
+114,Spouse,spouse_prior_social_aid,Hat Ihr Partner bereits Hilfe zur Pflege Leistungen erhalten?,,Hat Ihr Partner schon einmal Hilfe-zur-Pflege bekommen?,
+115,Spouse,spouse_prior_social_aid_until,Bis wann hat Ihr Partner Hilfe zur Pflege erhalten?,,Bis wann hat Ihr Partner Hilfe-zur-Pflege bekommen?,
+116,Spouse,spouse_prior_social_aid_issuer,Welche Behörde hat die Hilfe zur Pflege genehmigt?,,Welche Behörde hat die Hilfe-zur-Pflege bewilligt?,Sozialamt Mitte
+117,Spouse,spouse_prior_social_aid_reference_id,Was ist das Geschäftszeichen der Genehmigung?,,Welches Aktenzeichen steht auf dem Bescheid?,50-123456
+118,Spouse,spouse_power_of_attorney,Gibt es einen Betreuer oder Beistand?,,Hat Ihr Partner eine gesetzliche Betreuung oder eine bevollmächtigte Person?,
+119,Spouse,spouse_special_origin_rights,Liegt ein Sonderstatus vor?,,Hat Ihr Partner einen Vertriebenen- oder Spätaussiedlerausweis?,
+120,Spouse,spouse_special_origin_rights_issued,Wann wurde der Sonderstatus ausgestellt?,,Wann wurde der Ausweis ausgestellt?,
+121,Spouse,spouse_special_origin_rights_issued_by,Welche Behörde hat den Sonderstatus ausgestellt?,,Welche Behörde hat den Ausweis ausgestellt?,Bundesverwaltungsamt
+122,Spouse,spouse_disability_card,Liegt ein Schwerbehindertenausweis vor?,,Hat Ihr Partner einen Schwerbehindertenausweis?,
+123,Spouse,spouse_disability_card_application,Wurde ein Antrag auf Schwerbehinderung gestellt?,,Hat Ihr Partner einen Schwerbehindertenausweis beantragt?,
+124,Spouse,spouse_disability card_expiry,Bis wann ist der Schwerbehindertenausweis gültig?,,Bis wann ist der Schwerbehindertenausweis Ihres Partners gültig?,
+125,Spouse,spouse_disability_card_markers,Welche Merkzeichen hat der Schwerbehindertenausweis?,,Welche Merkzeichen stehen im Schwerbehindertenausweis Ihres Partners?,
+126,Spouse,spouse_health_insurance,Bei welcher Krankenkasse ist Ihr Partner versichert?,,Bei welcher Krankenkasse ist Ihr Partner versichert?,AOK Nordost
+127,Spouse,spouse_health_insurance_type,Wie ist Ihr Partner krankenversichert?,,Wie ist Ihr Partner krankenversichert?,
+128,Spouse,spouse_care_level,Was ist ihre/seine Pflegestufe?,,Welchen Pflegegrad hat Ihr Partner?,
+129,Spouse,spouse_in_facility_yes_no,Wohnt Ihr Partner in stationären Pflegeeinrichtung?,,Wohnt Ihr Partner in einem Pflegeheim?,
+130,Spouse,spouse_in_facility_since,Wann fand/findet der Einzug in die Pflegeeinrichtung statt?,,Wann ist Ihr Partner in das Pflegeheim eingezogen?,
+131,Spouse,spouse_prior_social_service_applications,Hat Ihr Partner weitere Sozialleistungen beantragt?,,Hat Ihr Partner weitere Sozialleistungen beantragt?,
+132,Spouse,spouse_pension_type,Welche Rente/Pension bezieht Ihr Partner?,,Welche Rente oder Pension bekommt Ihr Partner?,
+133,Spouse,spouse_pension_amount,Wie hoch ist die monatliche Rente/Pension?,,Wie hoch ist diese Rente oder Pension pro Monat?,
+134,Spouse,spouse_pension_id,Was ist die Abrechnungsnummer der Rente/Pension?,,Welche Abrechnungsnummer hat diese Rente oder Pension?,R123456789
+135,Spouse,spouse_pension_issuer,Wer bezahlt die Rente/Pension?,,Von wem bekommt Ihr Partner diese Rente oder Pension?,Deutsche Rentenversicherung
+136,Spouse,spouse_wohngeld_yes_no,Bezieht Ihr Partner Wohngeld?,,Bekommt Ihr Partner Wohngeld?,
+137,Spouse,spouse_wohngeld_amount,Wie viel Wohngeld bezieht er/sie?,,Wie viel Wohngeld bekommt Ihr Partner pro Monat?,
+138,Spouse,spouse_wohngeld_id,Was ist die Abrechnungsnummer des Wohngeld?,,Welches Aktenzeichen steht auf dem Wohngeldbescheid?,WG-123456
+139,Spouse,spouse_other_income,Beziehen Ihr Partner anderes Einkommen?,,Hat Ihr Partner weiteres Einkommen?,
+140,Spouse,spouse_other_income_type,Welche Art von Einkommen bezieht er/sie?,,Welche Art von weiterem Einkommen hat Ihr Partner?,Mieteinnahmen
+141,Spouse,spouse_other_income_amount,Wie hoch ist das weitere Einkommen monatlich?,,Wie hoch ist dieses weitere Einkommen pro Monat?,
+142,Spouse,spouse_health_insurance_amount,Wie hoch sind die monatlichen Ausgaben für Ihre Krankenversicherung?,,Wie hoch ist der monatliche Beitrag zur Krankenversicherung Ihres Partners?,
+143,Spouse,spouse_care_insurance_amount,Wo hoch sind die monatlichen Ausgaben für Ihre Pflegeversicherung?,,Wie hoch ist der monatliche Beitrag zur Pflegeversicherung Ihres Partners?,
+144,Spouse,spouse_general_liablity_insurance_yes_no,Hat Ihr Partner eine Haftpflichtversicherung?,,Hat Ihr Partner eine Haftpflichtversicherung?,
+145,Spouse,spouse_general_liablity_insurance_provider,Wer ist Träger Ihrer Haftpflichtversicherung?,,Bei welcher Versicherung hat Ihr Partner die Haftpflichtversicherung?,HUK-Coburg
+146,Spouse,spouse_general_liability_amount,Wo hoch ist der monatliche Betrag Ihrer Haftpflichtversicherung?,,Wie hoch ist der monatliche Beitrag zur Haftpflichtversicherung?,
+147,Spouse,spouse_life_insurance,Hat Ihr Partner eine Lebens- oder Sterbeversicherung?,,Hat Ihr Partner eine Lebens- oder Sterbeversicherung?,
+148,Spouse,spouse_life_insurance_amount,Wie hoch ist der monatliche Beitrag ihrer/seiner Lebens- oder Sterbeversicherung?,,Wie hoch ist der monatliche Beitrag für diese Versicherung?,
+149,Spouse,spouse_bank_savings_account_amount,Wie hoch ist der Betrag auf seinem/ihrem Sparkonto?,,Wie viel Geld ist auf dem Sparkonto Ihres Partners?,
+150,Spouse,spouse_bank_account_amount,Wie hoch ist der Betrag auf ihrem/seinen Girokonto?,,Wie viel Geld ist auf dem Girokonto Ihres Partners?,
+151,Spouse,spouse_automobile_yes_no,Besitzen Ihr Partner ein Auto?,,Hat Ihr Partner ein Auto?,
+152,Spouse,spouse_automobile_numbers_plate,Was ist der Kennzeichen des Autos?,,Welches Kennzeichen hat das Auto?,B-AB 1234
+153,Spouse,spouse_automobile_type,Was ist das Modell des Autos?,,Welches Modell ist das Auto?,VW Golf
+154,Spouse,spouse_automobile_year,Was ist das Baujahr des Autos?,,Aus welchem Baujahr ist das Auto?,
+155,Spouse,spouse_automobile_owner,Wer ist der Fahrzeughalter?,,Wer ist als Fahrzeughalter eingetragen?,Max Mustermann
+156,Spouse,spouse_property_yes_no,"Besitzen Ihr Partner ein Haus, Wohnung oder Land?",,"Hat Ihr Partner ein Haus, eine Wohnung oder ein Grundstück?",
+157,Spouse,spouse_additional_wealth_yes_no,Besitzen Ihr Partner weitere Vermögenswerte?,,Hat Ihr Partner weitere Vermögenswerte?,
+158,Spouse,spouse_additional_wealth_type,Welche Vermögenswerte besitzt Ihr Partner?,,Welche weiteren Vermögenswerte hat Ihr Partner?,Wertpapiere
+159,Spouse,spouse_additional_wealth_amount,Was ist der Wert Ihres Vermögensgegenstandes?,,Wie viel ist dieser Vermögenswert ungefähr wert?,
