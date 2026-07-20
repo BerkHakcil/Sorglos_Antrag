@@ -98,9 +98,12 @@ export function DocumentArea({ slots, uploads, content }: Props) {
         return
       }
       const supabase = createClient()
+      // A typeless File (HEIC on desktop) must be re-wrapped so the PUT carries
+      // the derived MIME — the bucket rejects application/octet-stream.
+      const body = file.type ? file : new File([file], file.name, { type: mime })
       const { error: putErr } = await supabase.storage
         .from('case-documents')
-        .uploadToSignedUrl(minted.path, minted.token, file, { contentType: mime })
+        .uploadToSignedUrl(minted.path, minted.token, body, { contentType: mime })
       if (putErr) {
         setErrors((e) => ({ ...e, [key]: content.docsErrorGeneric }))
         return
