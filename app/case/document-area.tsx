@@ -23,6 +23,26 @@ import {
 const MAX_BYTES = 15 * 1024 * 1024
 const ALLOWED_MIME = ['application/pdf', 'image/jpeg', 'image/png', 'image/heic', 'image/heif']
 
+/**
+ * Browsers (notably desktop Chromium) report an EMPTY file.type for HEIC/HEIF —
+ * fall back to the extension so those uploads aren't wrongly rejected. The
+ * server re-validates mime + extension, and the bucket enforces allowed types.
+ */
+function effectiveMime(file: File): string {
+  if (file.type) return file.type
+  const ext = file.name.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1]
+  return (
+    {
+      pdf: 'application/pdf',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      heic: 'image/heic',
+      heif: 'image/heif',
+    }[ext ?? ''] ?? ''
+  )
+}
+
 type Props = {
   slots: DocumentSlot[]
   uploads: UploadRow[]
@@ -56,8 +76,9 @@ export function DocumentArea({ slots, uploads, content }: Props) {
 
   async function handleFile(slot: DocumentSlot, file: File) {
     const key = slotKey(slot)
+    const mime = effectiveMime(file)
     setErrors((e) => ({ ...e, [key]: '' }))
-    if (!ALLOWED_MIME.includes(file.type)) {
+    if (!ALLOWED_MIME.includes(mime)) {
       setErrors((e) => ({ ...e, [key]: content.docsErrorType }))
       return
     }
@@ -69,7 +90,7 @@ export function DocumentArea({ slots, uploads, content }: Props) {
     try {
       const minted = await createUploadUrlAction({
         filename: file.name,
-        mimeType: file.type,
+        mimeType: mime,
         sizeBytes: file.size,
       })
       if (!minted.ok) {
@@ -79,7 +100,7 @@ export function DocumentArea({ slots, uploads, content }: Props) {
       const supabase = createClient()
       const { error: putErr } = await supabase.storage
         .from('case-documents')
-        .uploadToSignedUrl(minted.path, minted.token, file, { contentType: file.type })
+        .uploadToSignedUrl(minted.path, minted.token, file, { contentType: mime })
       if (putErr) {
         setErrors((e) => ({ ...e, [key]: content.docsErrorGeneric }))
         return
