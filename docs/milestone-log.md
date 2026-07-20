@@ -45,6 +45,24 @@ Quick orientation for anyone picking this up cold:
 
 ---
 
+## M5 kickoff — secure document upload + Pankow document rules (in progress)
+
+**Source of truth committed:** `docs/content/pankow_document_rules_cto_master.xlsx` (`6da6170`) — canonical tabs: README (policies incl. 4-month bank-statement period), Document Catalog (30 `DOC-####` docs, office-independent), Pankow Rules (50 `PAN-###` rules with machine-readable `condition_json`: `always`/`any`/`all`/`equals`/`not_equals`/`repeat_for_each`), Question Changes (6, all resolved into decisions). Mandatory/Conditional tabs are filtered views; Legacy Mapping is historical rationale only.
+
+**Decisions D1–D10 (confirmed):** D1 Berlin person-2 triggers shrink to the 3-value marital set (separated users lose the spouse section); D2 Berlin spouse bank structure mirrors the applicant side (integrating the two existing spouse amounts; Roman's approved loop prompt); D3 citizenship yes/no gates (both persons, Berlin; PAN-026/027 re-target them with exact matches); D4 spouse funeral contract **deferred**; D5 document area only for cases whose resolved office has rules (today: Pankow); D6 area on the case page post-completion, all copy via static_content; D7 HEIC accepted stored as-is (**known limitation: download-to-view for reviewers until a conversion step exists**); D8 seed-time key mapping (never rename live keys); D9 POA "Nein" shipped in FP2 (only rule PAN-010 is new), **vehicles-repeatable deferred**; D10 standalone pure rule evaluator (not bolted onto VisibilityRule).
+
+**Pending Roman (M5):** D2/D3 constructed German (spouse bank prompts via the "… Ihres Partners" pattern, citizenship gate wordings), D6 document-area UI copy (title, slot statuses, upload button, error messages, empty state), Confirm-Signup email template + both email subject lines (see Email delivery below). **Deferred:** D4 spouse funeral rule/question, vehicles-repeatable, Essen document rules (await Roman's data drop — pure data once M5 ships), HEIC preview.
+
+---
+
+## Email delivery (dashboard-managed by design)
+
+Custom SMTP is live via **Brevo** (EU provider) with an **authenticated sending domain** (SPF/DKIM records at the registrar), sender name "Sorglos Antrag". Supabase's auth-email rate limit is now **30/hr** (adjustable in the dashboard). German templates: **Reset Password customized with Roman's copy**; **Confirm Signup is a PLACEHOLDER pending Roman**, as are **both subject lines**.
+
+⚠ This configuration is **intentionally outside the migration/drift-guard system** — Supabase Auth email settings and templates are dashboard state (Supabase Dashboard → Authentication → Emails / SMTP settings), and the DNS records live at the registrar / Brevo. This is the documented exception to the migrations-only rule: auth-email config cannot be expressed as SQL migrations. When it changes, update this section.
+
+---
+
 ## Content pass 3 + routing fix — ✅ complete 2026-07-11
 
 Commits `11b029c` (engine) + `5f5f719` (migrations) + docs; Roman's 08.07 Essen review + the two consolidated copy CSVs (committed as canonical at `docs/content/*.csv`, `3266133`). ~315 copy updates, 109 placeholders, structural changes D1–D12, and the routing fallback.

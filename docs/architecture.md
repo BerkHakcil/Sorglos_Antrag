@@ -6,18 +6,18 @@
 
 ## 1. The decision (TL;DR)
 
-| Layer              | Choice                                                                                                | Why                                                                                    |
-| ------------------ | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| App framework      | **Next.js 16 (App Router) + TypeScript** (strict)                                                     | One language front-to-back; huge ecosystem; excellent Claude Code support.             |
-| UI                 | **React + Tailwind v4 + shadcn/ui**                                                                   | Fast, clean, mobile-first. The chat is a schema-driven form renderer.                  |
-| Chat questionnaire | Answers validated and saved **server-side** (Server Actions / Route Handlers), one question at a time | Immediate save per answer is a _requirement_.                                          |
-| Auth               | **Supabase Auth** via `@supabase/ssr` (browser + server clients, `proxy.ts`)                          | Verified with `supabase.auth.getClaims()` in server code; satisfies the security spec. |
-| Database           | **Supabase Postgres** (EU region)                                                                     | JSONB gives a generic answer engine while staying queryable.                           |
-| File storage       | **Supabase Storage, private buckets** (EU), signed URLs only                                          | No public file URLs ever (hard requirement).                                           |
-| Admin (later)      | **Supabase Studio** interim → a built read-only admin post-go-live                                    | Founders can view raw data immediately; proper admin comes later.                      |
-| PDF fill (later)   | `pdf-lib` (JS), or a small Python serverless function                                                 | Fills official AcroForm PDFs by field name.                                            |
-| Email (auth only)  | **Supabase Auth emails** (or Resend)                                                                  | Only signup confirmation + password reset.                                             |
-| Hosting            | **Vercel**, serverless functions pinned to an **EU region (fra1)**                                    | Data lives in Supabase EU; compute kept in the EU for residency-consistency.           |
+| Layer              | Choice                                                                                                | Why                                                                                                                        |
+| ------------------ | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| App framework      | **Next.js 16 (App Router) + TypeScript** (strict)                                                     | One language front-to-back; huge ecosystem; excellent Claude Code support.                                                 |
+| UI                 | **React + Tailwind v4 + shadcn/ui**                                                                   | Fast, clean, mobile-first. The chat is a schema-driven form renderer.                                                      |
+| Chat questionnaire | Answers validated and saved **server-side** (Server Actions / Route Handlers), one question at a time | Immediate save per answer is a _requirement_.                                                                              |
+| Auth               | **Supabase Auth** via `@supabase/ssr` (browser + server clients, `proxy.ts`)                          | Verified with `supabase.auth.getClaims()` in server code; satisfies the security spec.                                     |
+| Database           | **Supabase Postgres** (EU region)                                                                     | JSONB gives a generic answer engine while staying queryable.                                                               |
+| File storage       | **Supabase Storage, private buckets** (EU), signed URLs only                                          | No public file URLs ever (hard requirement).                                                                               |
+| Admin (later)      | **Supabase Studio** interim → a built read-only admin post-go-live                                    | Founders can view raw data immediately; proper admin comes later.                                                          |
+| PDF fill (later)   | `pdf-lib` (JS), or a small Python serverless function                                                 | Fills official AcroForm PDFs by field name.                                                                                |
+| Email (auth only)  | **Supabase Auth via Brevo custom SMTP** (EU provider, authenticated domain)                           | Only signup confirmation + password reset. Dashboard-managed by design — see the milestone log's "Email delivery" section. |
+| Hosting            | **Vercel**, serverless functions pinned to an **EU region (fra1)**                                    | Data lives in Supabase EU; compute kept in the EU for residency-consistency.                                               |
 
 **EU note:** Supabase in an EU region gives data _residency_; Supabase is a US-incorporated company on AWS, so this is residency, not full _sovereignty_. You've accepted that bar for the pilot, with Supabase's DPA in place. Your co-founder owns the privacy policy + processor agreements (AVV).
 
@@ -130,7 +130,7 @@ Mapped to your non-negotiables:
 
 - **Database + Auth + Storage:** Supabase, **EU region** (Frankfurt or Ireland). Set the region at project creation — it can't be changed later.
 - **Hosting:** Vercel, with functions pinned to an EU region (fra1).
-- **Email:** Supabase Auth's built-in emails, or Resend for nicer templates. Auth mails only.
+- **Email:** custom SMTP via **Brevo** (EU provider), authenticated sending domain (SPF/DKIM). Auth mails only. Config is dashboard-managed by design (Supabase Auth settings + Brevo/registrar DNS) — details in the milestone log.
 
 ---
 
