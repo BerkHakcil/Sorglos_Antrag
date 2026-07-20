@@ -13,7 +13,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "smoke:signup": "node scripts/smoke-signup.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

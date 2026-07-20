@@ -1,6 +1,7 @@
 'use server'
 
 import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { mapSupabaseError } from '@/lib/auth-errors'
 import { de } from '@/lib/strings/de'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
@@ -34,35 +35,6 @@ export type SignupResultField =
   | 'root'
 
 export type SignupResult = { ok: true } | { ok: false; field: SignupResultField; error: string }
-
-// ── Supabase Auth error → German message ──────────────────────────────────────
-
-function mapSupabaseError(message: string): { field: SignupResultField; error: string } {
-  const m = message.toLowerCase()
-  const e = de.signup.errors
-
-  if (m.includes('already registered') || m.includes('already been registered')) {
-    return { field: 'email', error: e.emailTaken }
-  }
-  if (
-    m.includes('unable to validate email') ||
-    m.includes('valid email') ||
-    (m.includes('invalid') && m.includes('email'))
-  ) {
-    return { field: 'email', error: e.emailInvalid }
-  }
-  if (
-    m.includes('password') &&
-    (m.includes('short') || m.includes('weak') || m.includes('least'))
-  ) {
-    return { field: 'password', error: e.passwordLength }
-  }
-  if (m.includes('rate limit') || m.includes('too many') || m.includes('to many requests')) {
-    return { field: 'root', error: e.rateLimitError }
-  }
-
-  return { field: 'root', error: e.generic }
-}
 
 // ── Server-side validation ─────────────────────────────────────────────────────
 
@@ -111,7 +83,11 @@ export async function signupAction(input: SignupInput): Promise<SignupResult> {
     })
 
     if (signUpError) {
-      const mapped = mapSupabaseError(signUpError.message)
+      // Always log the raw error — the mapped German message deliberately hides
+      // the cause from the user, so Vercel function logs must carry it (the
+      // 2026-07-20 SMTP outage was invisible because this line was missing).
+      console.error('[signupAction] supabase signUp failed:', signUpError.code, signUpError.message)
+      const mapped = mapSupabaseError(signUpError)
       return { ok: false, ...mapped }
     }
 

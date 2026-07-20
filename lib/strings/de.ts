@@ -125,6 +125,11 @@ export const de = {
       emailTaken: 'Diese E-Mail-Adresse ist bereits registriert.',
       // co-founder to confirm
       rateLimitError: 'Zu viele Anfragen. Bitte versuchen Sie es in einigen Minuten erneut.',
+      // SMTP send failure (2026-07-20 Brevo incident). The account is rolled back
+      // when the email fails, so "noch nicht erstellt / später erneut" is accurate.
+      // PLACEHOLDER pending Roman.
+      emailSendFailure:
+        'Die Bestätigungs-E-Mail konnte derzeit nicht versendet werden. Ihr Konto wurde noch nicht erstellt — bitte versuchen Sie es später erneut.',
       generic: 'Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.',
     },
   },
