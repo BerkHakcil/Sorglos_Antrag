@@ -4,10 +4,13 @@ import {
   getCareHomes,
   getCaseAnswers,
   getStaticContent,
+  getDocumentData,
   type SavedAnswer,
   type StaticContent,
 } from '@/lib/dal'
 import { loadQuestionnaire } from '@/lib/questionnaire-engine'
+import { evaluateDocumentRules } from '@/lib/document-rules'
+import { DocumentArea } from './document-area'
 import type { LoadedQuestionnaire } from '@/lib/questionnaire-types'
 import { de } from '@/lib/strings/de'
 import { CareHomeSelector } from './care-home-selector'
@@ -58,15 +61,27 @@ export default async function CasePage() {
 
       {/* ── Content ──────────────────────────────────────────── */}
       {hasQuestionnaire ? (
-        /* Questionnaire active: full-height chat layout handled inside ChatView */
-        <div className="flex-1 overflow-hidden">
-          <ChatSection
-            caseId={caseData.id}
-            questionnaireId={caseData.questionnaire_id!}
-            caseStatus={caseData.status}
-            plzBeforeMove={caseData.plz_before_move ?? null}
-            content={content}
-          />
+        /* Questionnaire active: full-height chat layout handled inside ChatView.
+           After completion, the document area (M5) renders above the chat when
+           the resolved social office has document rules (D5 — today: Pankow). */
+        <div className="flex flex-1 flex-col overflow-hidden">
+          {caseData.status === 'under_review' && (
+            <DocumentSection
+              caseId={caseData.id}
+              questionnaireId={caseData.questionnaire_id!}
+              socialOfficeId={caseData.social_office_id ?? null}
+              content={content}
+            />
+          )}
+          <div className="flex-1 overflow-hidden">
+            <ChatSection
+              caseId={caseData.id}
+              questionnaireId={caseData.questionnaire_id!}
+              caseStatus={caseData.status}
+              plzBeforeMove={caseData.plz_before_move ?? null}
+              content={content}
+            />
+          </div>
         </div>
       ) : (
         /* Pre-questionnaire: traditional scrollable card layout */
@@ -116,6 +131,42 @@ export default async function CasePage() {
 async function CareHomeSelectorSection() {
   const careHomes = await getCareHomes()
   return <CareHomeSelector careHomes={careHomes} />
+}
+
+/** M5 document area — renders nothing unless the resolved office has rules. */
+async function DocumentSection({
+  caseId,
+  questionnaireId,
+  socialOfficeId,
+  content,
+}: {
+  caseId: string
+  questionnaireId: string
+  socialOfficeId: string | null
+  content: StaticContent
+}) {
+  const { rules, catalog, uploads } = await getDocumentData(caseId, socialOfficeId)
+  if (rules.length === 0) return null
+
+  const [questionnaire, { answersMap, answersRaw }] = await Promise.all([
+    loadQuestionnaire(questionnaireId),
+    getCaseAnswers(caseId),
+  ])
+  const { groupInstances, groupAnswers } = deriveGroupData(questionnaire, answersRaw)
+  const slots = evaluateDocumentRules(rules, catalog, {
+    answers: answersMap,
+    groupInstances,
+    groupAnswers,
+  })
+  if (slots.length === 0) return null
+
+  return (
+    <div className="border-border bg-muted/40 max-h-[45dvh] shrink-0 overflow-y-auto border-b">
+      <div className="mx-auto max-w-2xl px-4 py-4">
+        <DocumentArea slots={slots} uploads={uploads} content={content} />
+      </div>
+    </div>
+  )
 }
 
 async function ChatSection({

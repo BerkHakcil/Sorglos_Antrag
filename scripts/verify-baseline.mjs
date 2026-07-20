@@ -68,26 +68,47 @@ async function fetchAllProd(table, select, order) {
   return rows
 }
 
-const [prodCats, prodGrps, prodQs, prodOpts, prodHomes, prodOffices, prodPlz, prodQnn, prodStatic] =
-  await Promise.all([
-    fetchAllProd('category', 'id, key, label_de, sort_order', 'sort_order'),
-    fetchAllProd(
-      'question_group',
-      'id, category_id, key, sort_order, label_de, custom_prompt_de, is_repeatable, min_count, max_count',
-      'key'
-    ),
-    fetchAllProd(
-      'question',
-      'id, category_id, group_id, key, sort_order, answer_type, is_required, prompt_de, help_de, validation, visibility_rule',
-      'key'
-    ),
-    fetchAllProd('question_option', 'id, question_id, key, sort_order, label_de, value', 'id'),
-    fetchAllProd('care_home', 'id, name, address, is_active', 'id'),
-    fetchAllProd('social_office', 'id, name, address, contact_email, contact_phone', 'id'),
-    fetchAllProd('postal_code_rule', 'id, social_office_id, plz_from, plz_to, priority', 'id'),
-    fetchAllProd('questionnaire', 'id, social_office_id, name, version, is_active', 'id'),
-    fetchAllProd('static_content', 'key, value_de', 'key'),
-  ])
+const [
+  prodCats,
+  prodGrps,
+  prodQs,
+  prodOpts,
+  prodHomes,
+  prodOffices,
+  prodPlz,
+  prodQnn,
+  prodStatic,
+  prodDocCat,
+  prodDocRules,
+] = await Promise.all([
+  fetchAllProd('category', 'id, key, label_de, sort_order', 'sort_order'),
+  fetchAllProd(
+    'question_group',
+    'id, category_id, key, sort_order, label_de, custom_prompt_de, is_repeatable, min_count, max_count',
+    'key'
+  ),
+  fetchAllProd(
+    'question',
+    'id, category_id, group_id, key, sort_order, answer_type, is_required, prompt_de, help_de, validation, visibility_rule',
+    'key'
+  ),
+  fetchAllProd('question_option', 'id, question_id, key, sort_order, label_de, value', 'id'),
+  fetchAllProd('care_home', 'id, name, address, is_active', 'id'),
+  fetchAllProd('social_office', 'id, name, address, contact_email, contact_phone', 'id'),
+  fetchAllProd('postal_code_rule', 'id, social_office_id, plz_from, plz_to, priority', 'id'),
+  fetchAllProd('questionnaire', 'id, social_office_id, name, version, is_active', 'id'),
+  fetchAllProd('static_content', 'key, value_de', 'key'),
+  fetchAllProd(
+    'document_catalog',
+    'id, technical_key, name_de, category, instance_basis, active',
+    'id'
+  ),
+  fetchAllProd(
+    'office_document_rule',
+    'id, social_office_id, document_id, requirement_type, subject, instance_note, period_months, condition',
+    'id'
+  ),
+])
 
 console.log(`\n=== PRODUCTION STATE ===`)
 console.log(`Categories:      ${prodCats.length}`)
@@ -99,6 +120,8 @@ console.log(`Social offices:  ${prodOffices.length}`)
 console.log(`PLZ rules:       ${prodPlz.length}`)
 console.log(`Questionnaires:  ${prodQnn.length}`)
 console.log(`Static content:  ${prodStatic.length}`)
+console.log(`Doc catalog:     ${prodDocCat.length}`)
+console.log(`Doc rules:       ${prodDocRules.length}`)
 console.log(`\nCategory keys: ${prodCats.map((c) => `${c.key}(${c.label_de})`).join(', ')}`)
 console.log(`Question count by answer_type:`)
 const byType = {}
@@ -162,6 +185,8 @@ const [
   localPlz,
   localQnn,
   localStatic,
+  localDocCat,
+  localDocRules,
 ] = await Promise.all([
   queryLocal(`SELECT id, key, label_de, sort_order FROM public.category ORDER BY sort_order`),
   queryLocal(
@@ -184,6 +209,12 @@ const [
     `SELECT id, social_office_id, name, version, is_active FROM public.questionnaire ORDER BY id`
   ),
   queryLocal(`SELECT key, value_de FROM public.static_content ORDER BY key`),
+  queryLocal(
+    `SELECT id, technical_key, name_de, category, instance_basis, active FROM public.document_catalog ORDER BY id`
+  ),
+  queryLocal(
+    `SELECT id, social_office_id, document_id, requirement_type, subject, instance_note, period_months, condition::text FROM public.office_document_rule ORDER BY id`
+  ),
 ])
 
 await pool.end()
@@ -328,6 +359,23 @@ diffArrays('Questionnaires', prodQnn, localQnn, (r) => r.id, [
   'is_active',
 ])
 diffArrays('Static content', prodStatic, localStatic, (r) => r.key, ['value_de'])
+// M5 document rules (seeded; uploads are runtime data and excluded like `answer`)
+diffArrays('Doc catalog', prodDocCat, localDocCat, (r) => r.id, [
+  'technical_key',
+  'name_de',
+  'category',
+  'instance_basis',
+  'active',
+])
+diffArrays('Doc rules', prodDocRules, localDocRules, (r) => r.id, [
+  'social_office_id',
+  'document_id',
+  'requirement_type',
+  'subject',
+  'instance_note',
+  'period_months',
+  'condition',
+])
 
 console.log(`\n${'─'.repeat(50)}`)
 if (diffs === 0) {

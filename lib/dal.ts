@@ -133,6 +133,18 @@ export type StaticContent = {
   allAnsweredMessage: string
   lockedHeading: string
   lockedBody: string
+  docsAreaTitle: string
+  docsAreaIntro: string
+  docsStatusMissing: string
+  docsStatusUploaded: string
+  docsUploadButton: string
+  docsDeleteButton: string
+  docsErrorType: string
+  docsErrorSize: string
+  docsErrorGeneric: string
+  docsHeadingPerson1: string
+  docsHeadingPerson2: string
+  docsHeadingPreviousHome: string
 }
 
 const STATIC_CONTENT_KEYS: Record<keyof StaticContent, string> = {
@@ -144,6 +156,18 @@ const STATIC_CONTENT_KEYS: Record<keyof StaticContent, string> = {
   allAnsweredMessage: 'case.all_answered_message',
   lockedHeading: 'case.locked_heading',
   lockedBody: 'case.locked_body',
+  docsAreaTitle: 'docs.area_title',
+  docsAreaIntro: 'docs.area_intro',
+  docsStatusMissing: 'docs.status_missing',
+  docsStatusUploaded: 'docs.status_uploaded',
+  docsUploadButton: 'docs.upload_button',
+  docsDeleteButton: 'docs.delete_button',
+  docsErrorType: 'docs.error_type',
+  docsErrorSize: 'docs.error_size',
+  docsErrorGeneric: 'docs.error_generic',
+  docsHeadingPerson1: 'docs.heading_person_1',
+  docsHeadingPerson2: 'docs.heading_person_2',
+  docsHeadingPreviousHome: 'docs.heading_previous_home',
 }
 
 /**
@@ -176,3 +200,43 @@ export async function getStaticContent(): Promise<StaticContent> {
 // getFallbackQuestionnaireId removed (CP3/D12): unresolved PLZs now get the
 // Berlin questionnaire (DEFAULT_QUESTIONNAIRE_ID in app/case/actions.ts); the
 // empty "Allgemeiner Fragebogen" row was deactivated by migration.
+
+// ── M5: document rules + uploads ──────────────────────────────────────────────
+
+export type UploadRow = {
+  id: string
+  rule_id: string
+  document_id: string
+  subject: string
+  instance_key: string
+  storage_path: string
+  original_filename: string
+  mime_type: string
+  size_bytes: number
+}
+
+/**
+ * Rules + catalog for the case's resolved office, and the case's uploads.
+ * Returns null rules when the office has no document rules (D5: the document
+ * area simply doesn't render — today only Pankow has rules).
+ */
+export async function getDocumentData(caseId: string, socialOfficeId: string | null) {
+  await verifySession()
+  const supabase = await createClient()
+  if (!socialOfficeId) return { rules: [], catalog: {}, uploads: [] as UploadRow[] }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sb = supabase as any
+  const [{ data: rules }, { data: catalog }, { data: uploads }] = await Promise.all([
+    sb.from('office_document_rule').select('*').eq('social_office_id', socialOfficeId),
+    sb.from('document_catalog').select('*').eq('active', true),
+    sb.from('document_upload').select('*').eq('case_id', caseId).order('created_at'),
+  ])
+  const catalogById: Record<string, { id: string; name_de: string; category: string }> = {}
+  for (const c of catalog ?? []) catalogById[c.id] = c
+  return {
+    rules: rules ?? [],
+    catalog: catalogById,
+    uploads: (uploads ?? []) as UploadRow[],
+  }
+}
