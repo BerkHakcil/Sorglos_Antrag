@@ -60,7 +60,7 @@ Quick orientation for anyone picking this up cold:
 
 **Verified on prod after the fix:** `/auth/v1/recover` → 200; full browser signup drive → success screen, unconfirmed user + profile (names/phone/consent timestamps) + auto-created case all correct, throwaway deleted with cascade confirmed; smoke script green end-to-end.
 
-**Observed in passing (not fixed):** 8 leftover `@hzp-test.invalid` test users (06-28/07-01) plus one unconfirmed real signup (`anomis55@gmail.com`, 07-06) still in Authentication → Users — cleanup candidates. `npm run format:check` fails on 14 pre-existing files on clean main (the CI job evidently isn't gating this) — needs a repo-wide `format` pass as its own commit.
+**Observed in passing (not fixed):** 8 leftover `@hzp-test.invalid` test users (06-28/07-01) plus one unconfirmed real signup (`anomis55@gmail.com`, 07-06) still in Authentication → Users — cleanup candidates. ~~`npm run format:check` fails on 14 pre-existing files on clean main~~ **Correction (2026-07-21):** that finding was a Windows artifact, not real drift — `core.autocrlf=true` puts CRLF in the local working tree and Prettier (`endOfLine: "lf"`) flags it, while all repo content is stored LF and CI's blocking format:check (Linux, LF checkout) has been green on every push. Fixed by `.gitattributes` (`* text=auto eol=lf`) so Windows checkouts get LF too; `git add --renormalize` confirmed zero content changes.
 
 ---
 

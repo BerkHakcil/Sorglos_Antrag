@@ -1,0 +1,6 @@
+# Check out every text file with LF, even on Windows (overrides core.autocrlf).
+# Prettier enforces endOfLine "lf", so CRLF working-tree files fail
+# `npm run format:check` locally while CI (Linux, LF checkout) passes —
+# the 2026-07-21 "14 unformatted files" false alarm. All repo content is
+# stored LF; this only pins what checkout writes.
+* text=auto eol=lf
