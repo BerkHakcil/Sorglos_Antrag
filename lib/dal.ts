@@ -145,6 +145,9 @@ export type StaticContent = {
   docsHeadingPerson1: string
   docsHeadingPerson2: string
   docsHeadingPreviousHome: string
+  docsMissingCount: string
+  docsMissingCountOne: string
+  docsAllUploaded: string
 }
 
 const STATIC_CONTENT_KEYS: Record<keyof StaticContent, string> = {
@@ -168,6 +171,9 @@ const STATIC_CONTENT_KEYS: Record<keyof StaticContent, string> = {
   docsHeadingPerson1: 'docs.heading_person_1',
   docsHeadingPerson2: 'docs.heading_person_2',
   docsHeadingPreviousHome: 'docs.heading_previous_home',
+  docsMissingCount: 'docs.missing_count',
+  docsMissingCountOne: 'docs.missing_count_one',
+  docsAllUploaded: 'docs.all_uploaded',
 }
 
 /**

@@ -157,6 +157,20 @@ export function instancesForBinding(binding: string, input: EvalInput): Instance
   }
 }
 
+// ── Missing-documents counter (M6) ────────────────────────────────────────────
+
+/** The (rule_id, instance_key) pair is the same join key the checklist UI uses
+ *  to attach uploads to slots — kept structural so callers can pass DB rows. */
+export type UploadRef = { rule_id: string; instance_key: string }
+
+/** Count of required slots with zero uploads. Every evaluated slot is required
+ *  by construction (conditional rules only emit slots when triggered). */
+export function countMissingSlots(slots: DocumentSlot[], uploads: UploadRef[]): number {
+  return slots.filter(
+    (s) => !uploads.some((u) => u.rule_id === s.ruleId && u.instance_key === s.instanceKey)
+  ).length
+}
+
 // ── Main entry ────────────────────────────────────────────────────────────────
 
 export function evaluateDocumentRules(

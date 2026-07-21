@@ -11,7 +11,7 @@
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import type { DocumentSlot } from '@/lib/document-rules'
+import { countMissingSlots, type DocumentSlot } from '@/lib/document-rules'
 import type { UploadRow, StaticContent } from '@/lib/dal'
 import {
   createUploadUrlAction,
@@ -60,6 +60,9 @@ type Props = {
     | 'docsHeadingPerson1'
     | 'docsHeadingPerson2'
     | 'docsHeadingPreviousHome'
+    | 'docsMissingCount'
+    | 'docsMissingCountOne'
+    | 'docsAllUploaded'
   >
 }
 
@@ -132,10 +135,27 @@ export function DocumentArea({ slots, uploads, content }: Props) {
     { heading: content.docsHeadingPreviousHome, subject: 'previous_home' },
   ]
 
+  // M6 counter — derives from the server-provided slots + uploads; upload and
+  // delete both router.refresh(), so it updates without a full page reload.
+  const missing = countMissingSlots(slots, uploads)
+  const counterText =
+    missing === 0
+      ? content.docsAllUploaded
+      : missing === 1
+        ? content.docsMissingCountOne
+        : content.docsMissingCount.replace('{n}', String(missing))
+
   return (
     <section data-testid="document-area" className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold">{content.docsAreaTitle}</h2>
+        <p
+          data-testid="missing-docs-counter"
+          data-missing={missing}
+          className={missing === 0 ? 'text-sm font-medium text-green-700' : 'text-sm font-medium'}
+        >
+          {counterText}
+        </p>
         <p className="text-muted-foreground text-sm">{content.docsAreaIntro}</p>
       </div>
       {groups.map(({ heading, subject }) => {

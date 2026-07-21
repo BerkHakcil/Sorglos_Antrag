@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import {
   conditionHolds,
+  countMissingSlots,
   evaluateDocumentRules,
+  type DocumentSlot,
   type OfficeDocumentRule,
   type CatalogDoc,
   type EvalInput,
@@ -151,5 +153,53 @@ describe('evaluateDocumentRules — slots', () => {
       },
     ]
     expect(evaluateDocumentRules(rules, catalog, base)).toHaveLength(0)
+  })
+})
+
+describe('countMissingSlots — M6 counter', () => {
+  const slot = (ruleId: string, instanceKey: string): DocumentSlot => ({
+    ruleId,
+    documentId: 'DOC-0001',
+    nameDe: 'Personaldokument',
+    subject: 'person_1',
+    instanceKey,
+    instanceLabel: null,
+    periodMonths: null,
+  })
+
+  it('all slots missing when there are no uploads', () => {
+    expect(countMissingSlots([slot('PAN-001', 'default'), slot('PAN-004', 'i1')], [])).toBe(2)
+  })
+
+  it('a slot with at least one upload is not missing; extra files do not double-count', () => {
+    const uploads = [
+      { rule_id: 'PAN-001', instance_key: 'default' },
+      { rule_id: 'PAN-001', instance_key: 'default' },
+    ]
+    expect(countMissingSlots([slot('PAN-001', 'default'), slot('PAN-004', 'i1')], uploads)).toBe(1)
+  })
+
+  it('uploads match per instance, not per rule (repeated slots count separately)', () => {
+    const slots = [slot('PAN-004', 'i1'), slot('PAN-004', 'i2')]
+    expect(countMissingSlots(slots, [{ rule_id: 'PAN-004', instance_key: 'i1' }])).toBe(1)
+  })
+
+  it('zero missing when every slot has a file; empty slot list is zero', () => {
+    expect(
+      countMissingSlots(
+        [slot('PAN-001', 'default')],
+        [{ rule_id: 'PAN-001', instance_key: 'default' }]
+      )
+    ).toBe(0)
+    expect(countMissingSlots([], [])).toBe(0)
+  })
+
+  it('an orphaned upload (slot no longer evaluated) does not reduce the count', () => {
+    expect(
+      countMissingSlots(
+        [slot('PAN-001', 'default')],
+        [{ rule_id: 'PAN-999', instance_key: 'default' }]
+      )
+    ).toBe(1)
   })
 })
