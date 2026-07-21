@@ -58,6 +58,19 @@ async function getFooterText(page: Page): Promise<string> {
 
 test.setTimeout(360_000)
 
+// Cleanup must survive a mid-test failure (assertion or timeout in the adaptive
+// loop) — an inline delete at the end of the body leaks the user on any failure,
+// which is how the pw-vis leftovers of 2026-07-01 happened. afterEach runs
+// regardless of test outcome.
+let cleanupUserId: string | null = null
+test.afterEach(async () => {
+  if (cleanupUserId) {
+    await adminDb.auth.admin.deleteUser(cleanupUserId).catch(() => {})
+    console.log(`[cleanup] deleted test user ${cleanupUserId}`)
+    cleanupUserId = null
+  }
+})
+
 test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields appear after yes_no=Ja', async ({
   page,
 }) => {
@@ -73,6 +86,7 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
   })
   if (userErr) throw new Error(`Failed to create test user: ${userErr.message}`)
   const userId = userData!.user.id
+  cleanupUserId = userId
 
   const now = new Date().toISOString()
   await adminDb
@@ -353,7 +367,5 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
     'spouse_wohngeld_id answer must exist in DB (proves it was visible after yes_no=Ja)'
   ).toBe(true)
 
-  // ── Cleanup ─────────────────────────────────────────────────────────────────
-  await adminDb.auth.admin.deleteUser(userId)
-  console.log(`[cleanup] deleted test user ${userId}`)
+  // Cleanup happens in afterEach (survives failures).
 })

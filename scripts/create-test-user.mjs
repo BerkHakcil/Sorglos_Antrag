@@ -7,7 +7,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
-import { writeFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
 import { config } from 'dotenv'
 
 config({ path: '.env.local' })
@@ -23,6 +23,24 @@ if (!SUPABASE_URL || !SERVICE_KEY) {
 const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
 })
+
+// Nothing deletes the completion-test user after the run (the json handoff
+// deliberately leaves it for debugging/reruns), so each script run garbage-
+// collects the previous one — otherwise they accumulate in auth.users
+// (five pw-completion leftovers had piled up by 2026-07-21).
+try {
+  const prev = JSON.parse(readFileSync('.playwright-test-user.json', 'utf-8'))
+  if (prev.userId && prev.email?.endsWith('@hzp-test.invalid')) {
+    const { error } = await admin.auth.admin.deleteUser(prev.userId)
+    console.log(
+      error
+        ? `Previous test user ${prev.email} not deleted (${error.message}) — continuing`
+        : `Deleted previous test user: ${prev.email}`
+    )
+  }
+} catch {
+  // No previous credentials file — first run.
+}
 
 const email = `pw-completion+${Date.now()}@hzp-test.invalid`
 const password = 'TestPassw0rd!'
