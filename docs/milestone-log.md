@@ -50,7 +50,7 @@ Quick orientation for anyone picking this up cold:
 
 ---
 
-## M6 — dynamic document requirements — ✅ complete 2026-07-21 (strings pending `db push`)
+## M6 — dynamic document requirements — ✅ complete 2026-07-21
 
 Light milestone by design: most of the spec was already satisfied by M5's rules engine; M6 added the missing-documents counter, proved the remaining acceptance criteria explicitly on prod, and recorded the interpretation decision. Commit `e1b4c06`.
 
@@ -62,7 +62,7 @@ Light milestone by design: most of the spec was already satisfied by M5's rules 
 
 **Verified live on prod (suite green, 2.4 min):** Berlin married drive via Pankow PLZ 13187 (112 steps, 2 applicant pensions à `Altersrente`, `disability_card`=Nein) → **19 slots** (14 person_1, 5 person_2). **A1** exactly 2 applicant pension slots (`Rente 1/2: Altersrente`) — M5 re-asserted under the M6 suite. **A2** zero `Schwerbehindertenausweis` slots on Nein. **A3** spouse `Personaldokument` = 1 (PAN-002), spouse pension slot = 1 per driven spouse pension instance (PAN-004), spouse `Kontoauszuege – Girokonto` = 1 per spouse account (PAN-006 — exercising the M5-R1 spouse bank block end to end). **A4 (numeric)** initial `data-missing` = 19 = DOM missing count; upload → 18; delete → 19; all 19 uploaded → 0 (complete state); delete one → 1 (singular state). **A5 LIVENESS** on the completed case: service-role write flips `disability_card` Nein→Ja → reload → slot **appears**, count 20; flip back → slot gone, count 19. ⚠ **TEST-ONLY technique** — the flip is a service-role DB write, not a product path; answers stay locked in the product. **A6** case status `under_review` and the full answer set byte-identical after ~20 uploads/deletes (upload flow is fully independent of application state). Fixture note: the citizenship gates defaulted to Nein, so `Aufenthaltsstatus` slots (PAN-026/027) appeared for both persons — consistent with D3. Cleanup: 18 storage objects removed, bucket prefix verified empty, test user deleted.
 
-**Open until migration `20260721000001` is applied:** the three counter strings render `''` on prod. After `db push`: re-run the suite (the string asserts arm automatically once the strings are non-empty) and run the verify-baseline full replay (static_content now 3 rows larger).
+**Post-`db push` close-out (same day):** migration `20260721000001` applied; the suite re-ran fully green **including the exact German strings** (plural with n, singular after one delete, complete state with all uploaded); verify-baseline full replay: **all 11 seeded tables identical** (static_content now 23 rows). Both runs cleaned up completely (bucket prefix empty, test users deleted).
 
 **Pending Roman (M6):** the three counter strings — `Es fehlen noch {n} Dokumente.` / `Es fehlt noch 1 Dokument.` / `Alle erforderlichen Dokumente sind hochgeladen.` (all constructed) — plus the post-completion-editing product question above.
 
