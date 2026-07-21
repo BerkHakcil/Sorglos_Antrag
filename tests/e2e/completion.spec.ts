@@ -20,7 +20,7 @@ import { config } from 'dotenv'
 
 config({ path: '.env.local' })
 
-const BASE = 'https://sorglos-antrag.vercel.app'
+const BASE = process.env.E2E_BASE_URL ?? 'https://sorglos-antrag.vercel.app'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SERVICE_KEY = process.env.SUPABASE_SECRET_KEY

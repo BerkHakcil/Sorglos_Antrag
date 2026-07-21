@@ -45,6 +45,9 @@ yarn-error.log*
 supabase/.branches/
 supabase/.temp/
 
+# case exports (operations bridge output — contains personal data, never commit)
+/exports/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

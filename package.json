@@ -14,7 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "smoke:signup": "node scripts/smoke-signup.mjs"
+    "smoke:signup": "node scripts/smoke-signup.mjs",
+    "case:export": "node scripts/case-export.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

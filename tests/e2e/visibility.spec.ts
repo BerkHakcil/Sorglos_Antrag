@@ -20,7 +20,7 @@ import { config } from 'dotenv'
 
 config({ path: '.env.local' })
 
-const BASE = 'https://sorglos-antrag.vercel.app'
+const BASE = process.env.E2E_BASE_URL ?? 'https://sorglos-antrag.vercel.app'
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SERVICE_KEY = process.env.SUPABASE_SECRET_KEY
 
@@ -65,7 +65,9 @@ test.setTimeout(360_000)
 let cleanupUserId: string | null = null
 test.afterEach(async () => {
   if (cleanupUserId) {
-    await adminDb.auth.admin.deleteUser(cleanupUserId).catch(() => {})
+    await adminDb.auth.admin
+      .deleteUser(cleanupUserId)
+      .catch((e) => console.error('[cleanup] deleteUser FAILED - user may be leaked:', e?.message))
     console.log(`[cleanup] deleted test user ${cleanupUserId}`)
     cleanupUserId = null
   }
