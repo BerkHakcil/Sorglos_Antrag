@@ -201,6 +201,13 @@ export const de = {
       completed: 'Fragebogen vollständig',
     } as Record<string, string>,
 
+    // Tab switcher (feedback pass item 2). Trivial UI words — pending-Roman
+    // pro forma.
+    tabs: {
+      questions: 'Fragen',
+      documents: 'Dokumente',
+    },
+
     chat: {
       stepLabel: 'Schritt 3: Fragebogen ausfüllen',
       nextButton: 'Weiter',

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, useRef, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   buildNav,
   formatAnswerForDisplay,
@@ -338,6 +339,10 @@ export function ChatView({
   // For group questions, also track the instance being edited
   const [editingInstanceId, setEditingInstanceId] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  // Server components re-render on refresh so the document tab's slots/badge
+  // recompute live as answers change (feedback pass item 2); ChatView state is
+  // initialized once from props, so the refresh never disturbs the chat.
+  const router = useRouter()
 
   // Ref for the scrollable history container — scrolled to bottom when new answers arrive
   const historyRef = useRef<HTMLDivElement>(null)
@@ -522,8 +527,9 @@ export function ChatView({
           }
           setAnswerDrafts((prev) => ({ ...prev, [dk2]: value }))
           setDraftErrors((prev) => ({ ...prev, [dk2]: result.error }))
-        } else if (result.clearedAnswers.length > 0) {
-          applyClearedAnswers(result.clearedAnswers)
+        } else {
+          if (result.clearedAnswers.length > 0) applyClearedAnswers(result.clearedAnswers)
+          router.refresh()
         }
       })
     } else {
@@ -563,8 +569,9 @@ export function ChatView({
           }
           setAnswerDrafts((prev) => ({ ...prev, [dk2]: value }))
           setDraftErrors((prev) => ({ ...prev, [dk2]: result.error }))
-        } else if (result.clearedAnswers.length > 0) {
-          applyClearedAnswers(result.clearedAnswers)
+        } else {
+          if (result.clearedAnswers.length > 0) applyClearedAnswers(result.clearedAnswers)
+          router.refresh()
         }
       })
     }

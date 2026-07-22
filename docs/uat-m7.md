@@ -16,11 +16,11 @@ audience's device).
 | --- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | Open /signup, register with a fresh email, all 4 consents                                                                       | Success screen: "Bitte bestätigen Sie Ihre E-Mail-Adresse…"                                                                                                                                                                     |
 | 2   | Open the confirmation email                                                                                                     | Sender "Sorglos Antrag" <…@sorglosantrag.de>; the link lands you logged in on the case page. ⚠ The template text is a placeholder until Roman's copy is in — judge delivery + link, not wording                                 |
-| 3   | Pick any care home, enter PLZ **13187**                                                                                         | Berlin questionnaire starts; progress shows **"0 von 57 Fragen beantwortet"**                                                                                                                                                   |
-| 4   | Answer through; at Familienstand pick **verheiratet**                                                                           | Progress denominator grows to **94** (spouse section appears)                                                                                                                                                                   |
+| 3   | Pick any care home, enter PLZ **13187**                                                                                         | Berlin questionnaire starts; progress shows **"0 von 53 Fragen beantwortet"**; the **"Fragen \| Dokumente" tabs** are visible immediately, Dokumente carrying a count badge (feedback pass: checklist from first login)         |
+| 4   | Answer through; at Familienstand pick **verheiratet**                                                                           | Progress denominator grows to **92** (spouse section appears); switching to Dokumente now also shows "Unterlagen Ihres Partners" slots — they appear live, before completion                                                    |
 | 5   | At "Erhält die pflegebedürftige Person Rente?" answer **Ja**; add **2 pensions** (answer the group, then "Ja, hinzufügen" once) | Loop prompt reads "Möchten Sie weitere Renten hinzufügen?"                                                                                                                                                                      |
 | 6   | At "Haben Sie einen Schwerbehindertenausweis?" answer **Nein**                                                                  | The later checklist must NOT contain a Schwerbehindertenausweis slot                                                                                                                                                            |
-| 7   | Complete all questions                                                                                                          | Locked banner ("Angaben werden geprüft…"); chat locks; document area appears above                                                                                                                                              |
+| 7   | Complete all questions                                                                                                          | Locked banner; chat locks; the Dokumente tab keeps working (uploads are independent of questionnaire state)                                                                                                                     |
 | 8   | Document area header                                                                                                            | Counter: "Es fehlen noch {n} Dokumente." with n = number of slots; **two** "Renten/Pensionsbescheid" slots (Rente 1 / Rente 2); spouse section ("Unterlagen Ihres Partners") with Personaldokument, pension and Girokonto slots |
 | 9   | Upload a photo **taken with the phone camera** (iPhone = HEIC) to one slot                                                      | Accepted; slot shows "1 Datei(en) hochgeladen"; counter decrements by 1                                                                                                                                                         |
 | 10  | Upload a PDF to another slot; then delete it                                                                                    | Counter −1 then +1; file row appears/disappears without full page reload                                                                                                                                                        |
@@ -29,22 +29,22 @@ audience's device).
 
 Result: ☐ PASS ☐ FAIL — notes: \***\*\_\_\_\_\*\*** · device/browser: \***\*\_\_\_\_\*\***
 
-## Case 2 — Essen questionnaire, no document area
+## Case 2 — Essen questionnaire, default (Pankow) checklist
 
-| #   | Step                                                               | What you should see                                                                                  |
-| --- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| 1   | Fresh signup, care home, PLZ **45127**                             | Essen questionnaire: first question "Wie lautet Ihr Nachname?", progress **"0 von 50 Fragen"**       |
-| 2   | Drive to completion (single path is fine; use bulk options freely) | Bulk topic selections reveal matching detail questions; "Nein, nichts davon" clears other selections |
-| 3   | Complete                                                           | Locked banner appears — **no document area at all** (Essen has no rules yet, by design)              |
+| #   | Step                                                               | What you should see                                                                                                                                     |
+| --- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Fresh signup, care home, PLZ **45127**                             | Essen questionnaire: first question "Wie lautet Ihr Nachname?", progress **"0 von 50 Fragen"**; **Dokumente tab present from login** (default rule set) |
+| 2   | Drive to completion (single path is fine; use bulk options freely) | Bulk topic selections reveal matching detail questions; "Nein, nichts davon" clears other selections                                                    |
+| 3   | Complete, open Dokumente, upload one file                          | The checklist shows the **default (Pankow) document set** (feedback-pass founder decision — over-collection accepted) and the upload succeeds           |
 
 Result: ☐ PASS ☐ FAIL — notes: \***\*\_\_\_\_\*\***
 
 ## Case 3 — unmapped PLZ falls back to Berlin
 
-| #   | Step                                                                          | What you should see                                                                                                       |
-| --- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Fresh signup, care home, PLZ **66606** (St. Wendel — no questionnaire mapped) | Berlin questionnaire loads and is answerable, **"0 von 57 Fragen"**, **no warning banner** (silent fallback is by design) |
-| 2   | Answer 3–4 questions, reload                                                  | Answers persisted, flow resumes at the next open question                                                                 |
+| #   | Step                                                                          | What you should see                                                                                                                                                 |
+| --- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Fresh signup, care home, PLZ **66606** (St. Wendel — no questionnaire mapped) | Berlin questionnaire loads and is answerable, **"0 von 53 Fragen"**, **no warning banner** (silent fallback is by design); Dokumente tab present (default rule set) |
+| 2   | Answer 3–4 questions, reload                                                  | Answers persisted, flow resumes at the next open question                                                                                                           |
 
 Full completion not required. Result: ☐ PASS ☐ FAIL — notes: \***\*\_\_\_\_\*\***
 

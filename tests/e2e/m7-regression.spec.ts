@@ -1,16 +1,19 @@
 /**
- * M7 condensed regression — the two legs the M6 documents suite doesn't cover:
+ * M7 condensed regression — the two legs the M6 documents suite doesn't cover.
+ * FLIPPED by the feedback pass (item 3): every case now gets the document
+ * checklist via the configured default office (Pankow until the Essen seed),
+ * so the old "area ABSENT for Essen/fallback" asserts became present-and-works.
  *
  *  R1  Essen: PLZ 45127 loads the Essen questionnaire (denominator 50), a full
- *      single-path drive completes it, and NO document area appears (D5 — the
- *      office has no rules).
+ *      single-path drive completes it, and the Dokumente tab carries the
+ *      Pankow-DEFAULT checklist — an upload succeeds there.
  *  R2  Fallback: an unmapped PLZ (66606) silently serves the Berlin
- *      questionnaire (denominator 57, no warning banner), answers persist
- *      across reload.
+ *      questionnaire (denominator 53 since the feedback pass), answers persist
+ *      across reload, and the Dokumente tab is present.
  *
  * The Pankow leg (signup→questionnaire→completion→uploads→counter) is
  * tests/e2e/documents-m6.spec.ts — run both for the full M7 regression.
- * Auth-email leg: npm run smoke:signup.
+ * Auth-email leg: npm run smoke:signup. Leak/tab coverage: feedback-pass.spec.ts.
  */
 
 import { test, expect, type Page } from '@playwright/test'
@@ -32,7 +35,18 @@ const adminDb = createClient(SUPABASE_URL, SERVICE_KEY, {
 const ESSEN_QUESTIONNAIRE = '30000000-0000-0000-0000-000000000003'
 
 let cleanupUserId: string | null = null
+let cleanupCaseId: string | null = null
 test.afterEach(async () => {
+  if (cleanupCaseId) {
+    const { data: objects } = await adminDb.storage.from('case-documents').list(cleanupCaseId)
+    if (objects && objects.length > 0) {
+      await adminDb.storage
+        .from('case-documents')
+        .remove(objects.map((o) => `${cleanupCaseId}/${o.name}`))
+        .catch((e) => console.error('[cleanup] storage remove FAILED:', e?.message))
+    }
+    cleanupCaseId = null
+  }
   if (cleanupUserId) {
     await adminDb.auth.admin
       .deleteUser(cleanupUserId)
@@ -186,11 +200,11 @@ async function answerStep(page: Page): Promise<'continue' | 'done' | 'stuck'> {
   return 'stuck'
 }
 
-// ── R1: Essen full drive, no document area ────────────────────────────────────
+// ── R1: Essen full drive → Pankow-DEFAULT checklist + upload ──────────────────
 
 test.setTimeout(600_000)
 
-test('R1: Essen — 45127 loads Essen (50 questions), completes, NO document area', async ({
+test('R1: Essen — 45127 loads Essen (50 questions), completes, default checklist works', async ({
   page,
 }) => {
   const userId = await makeUserAndLogin(page, 'essen')
@@ -202,10 +216,18 @@ test('R1: Essen — 45127 loads Essen (50 questions), completes, NO document are
     .select('id, questionnaire_id')
     .eq('user_id', userId)
     .single()
+  cleanupCaseId = caseRow!.id
   expect(caseRow!.questionnaire_id, '45127 must route to the Essen questionnaire').toBe(
     ESSEN_QUESTIONNAIRE
   )
   await expect(page.getByText('von 50 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
+
+  // Feedback pass item 3: the Dokumente tab is present from FIRST LOGIN
+  // (Essen's office has no rules — the Pankow DEFAULT set applies).
+  await expect(
+    page.locator('[data-testid=tab-documents]'),
+    'Dokumente tab present pre-completion (default rules)'
+  ).toBeVisible({ timeout: 10_000 })
 
   let stuck = 0
   for (let step = 1; step <= 300 && stuck < 5; step++) {
@@ -228,12 +250,37 @@ test('R1: Essen — 45127 loads Essen (50 questions), completes, NO document are
     .single()
   expect(after!.status, 'Essen case completed').toBe('under_review')
 
-  // The M7 assert: no document area for Essen (office has no rules — D5)
-  await expect(
-    page.locator('[data-testid=document-area]'),
-    'Essen must have NO document area'
-  ).toHaveCount(0)
-  console.log('[R1] Essen completed under_review; document area absent — PASS')
+  // Open the Dokumente tab: the Pankow-default checklist renders and accepts
+  // an upload (the flipped D5 assert).
+  await page.locator('[data-testid=tab-documents]').click()
+  await expect(page.locator('[data-testid=document-area]')).toBeVisible({ timeout: 10_000 })
+  const slotCount = await page.locator('[data-testid=doc-slot]').count()
+  expect(slotCount, 'default checklist has slots for the Essen case').toBeGreaterThan(0)
+
+  const firstMissing = page
+    .locator('[data-testid=doc-slot]')
+    .filter({ has: page.getByText('Fehlt', { exact: true }) })
+    .first()
+  await firstMissing.locator('input[type=file]').setInputFiles({
+    name: 'essen-default-upload.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-1.4\n%%EOF\n'),
+  })
+  await expect
+    .poll(
+      async () =>
+        (
+          await adminDb
+            .from('document_upload')
+            .select('id', { count: 'exact', head: true })
+            .eq('case_id', caseRow!.id)
+        ).count ?? 0,
+      { timeout: 30_000 }
+    )
+    .toBe(1)
+  console.log(
+    `[R1] Essen completed under_review; default checklist (${slotCount} slots) + upload — PASS`
+  )
 })
 
 // ── R2: unmapped PLZ falls back to Berlin silently ────────────────────────────
@@ -242,7 +289,9 @@ test('R2: fallback — 66606 serves the Berlin questionnaire, answers persist', 
   const userId = await makeUserAndLogin(page, 'fallback')
   await setupCase(page, '66606')
 
-  await expect(page.getByText('von 57 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
+  // 53 required questions since the feedback pass (spouse leak gated −2,
+  // Heiz-/Warmwasserkosten deleted −2).
+  await expect(page.getByText('von 53 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
   const { data: caseRow } = await adminDb
     .from('cases')
     .select('id, plz_resolution_status, questionnaire_id')
@@ -259,6 +308,12 @@ test('R2: fallback — 66606 serves the Berlin questionnaire, answers persist', 
   // No warning banner (the amber notice is suppressed by design)
   await expect(page.getByText('nicht unterstützt', { exact: false })).toHaveCount(0)
 
+  // Feedback pass item 3: fallback-routed cases also get the default checklist.
+  await expect(
+    page.locator('[data-testid=tab-documents]'),
+    'Dokumente tab present for the fallback case'
+  ).toBeVisible({ timeout: 10_000 })
+
   // Answer a few questions, reload, confirm persistence
   for (let step = 1; step <= 4; step++) await answerStep(page)
   const { count } = await adminDb
@@ -268,6 +323,6 @@ test('R2: fallback — 66606 serves the Berlin questionnaire, answers persist', 
   expect(count ?? 0, 'answers saved').toBeGreaterThanOrEqual(3)
   await page.reload()
   await page.waitForLoadState('networkidle')
-  await expect(page.getByText('von 57 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
+  await expect(page.getByText('von 53 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
   console.log(`[R2] fallback PLZ → Berlin, ${count} answers persisted — PASS`)
 })

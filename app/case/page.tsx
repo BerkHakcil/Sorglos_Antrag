@@ -9,8 +9,9 @@ import {
   type StaticContent,
 } from '@/lib/dal'
 import { loadQuestionnaire } from '@/lib/questionnaire-engine'
-import { evaluateDocumentRules } from '@/lib/document-rules'
+import { countMissingSlots, evaluateDocumentRules } from '@/lib/document-rules'
 import { DocumentArea } from './document-area'
+import { CaseTabs } from './case-tabs'
 import type { LoadedQuestionnaire } from '@/lib/questionnaire-types'
 import { de } from '@/lib/strings/de'
 import { CareHomeSelector } from './care-home-selector'
@@ -61,28 +62,18 @@ export default async function CasePage() {
 
       {/* ── Content ──────────────────────────────────────────── */}
       {hasQuestionnaire ? (
-        /* Questionnaire active: full-height chat layout handled inside ChatView.
-           After completion, the document area (M5) renders above the chat when
-           the resolved social office has document rules (D5 — today: Pankow). */
-        <div className="flex flex-1 flex-col overflow-hidden">
-          {caseData.status === 'under_review' && (
-            <DocumentSection
-              caseId={caseData.id}
-              questionnaireId={caseData.questionnaire_id!}
-              socialOfficeId={caseData.social_office_id ?? null}
-              content={content}
-            />
-          )}
-          <div className="flex-1 overflow-hidden">
-            <ChatSection
-              caseId={caseData.id}
-              questionnaireId={caseData.questionnaire_id!}
-              caseStatus={caseData.status}
-              plzBeforeMove={caseData.plz_before_move ?? null}
-              content={content}
-            />
-          </div>
-        </div>
+        /* Questionnaire active: "Fragen | Dokumente" tabs from first login
+           (feedback pass item 2). The document checklist is live from the
+           start — slots recompute from current answers on every server render
+           (D5's completion gate superseded by founder decision). */
+        <CaseTabsSection
+          caseId={caseData.id}
+          questionnaireId={caseData.questionnaire_id!}
+          caseStatus={caseData.status}
+          plzBeforeMove={caseData.plz_before_move ?? null}
+          socialOfficeId={caseData.social_office_id ?? null}
+          content={content}
+        />
       ) : (
         /* Pre-questionnaire: traditional scrollable card layout */
         <div className="bg-muted/40 flex-1 overflow-y-auto">
@@ -133,63 +124,46 @@ async function CareHomeSelectorSection() {
   return <CareHomeSelector careHomes={careHomes} />
 }
 
-/** M5 document area — renders nothing unless the resolved office has rules. */
-async function DocumentSection({
-  caseId,
-  questionnaireId,
-  socialOfficeId,
-  content,
-}: {
-  caseId: string
-  questionnaireId: string
-  socialOfficeId: string | null
-  content: StaticContent
-}) {
-  const { rules, catalog, uploads } = await getDocumentData(caseId, socialOfficeId)
-  if (rules.length === 0) return null
-
-  const [questionnaire, { answersMap, answersRaw }] = await Promise.all([
-    loadQuestionnaire(questionnaireId),
-    getCaseAnswers(caseId),
-  ])
-  const { groupInstances, groupAnswers } = deriveGroupData(questionnaire, answersRaw)
-  const slots = evaluateDocumentRules(rules, catalog, {
-    answers: answersMap,
-    groupInstances,
-    groupAnswers,
-  })
-  if (slots.length === 0) return null
-
-  return (
-    <div className="border-border bg-muted/40 max-h-[45dvh] shrink-0 overflow-y-auto border-b">
-      <div className="mx-auto max-w-2xl px-4 py-4">
-        <DocumentArea slots={slots} uploads={uploads} content={content} />
-      </div>
-    </div>
-  )
-}
-
-async function ChatSection({
+/**
+ * Questionnaire stage with the "Fragen | Dokumente" tab switcher (item 2).
+ * One data fetch feeds both panes: the chat and the LIVE document checklist
+ * (own office's rules, else the configured default office's — item 3). No
+ * rules from either source → no documents pane, chat renders alone (safety
+ * branch, unreachable while a default office is configured).
+ */
+async function CaseTabsSection({
   caseId,
   questionnaireId,
   caseStatus,
   plzBeforeMove,
+  socialOfficeId,
   content,
 }: {
   caseId: string
   questionnaireId: string
   caseStatus: string
   plzBeforeMove: string | null
+  socialOfficeId: string | null
   content: StaticContent
 }) {
-  const [questionnaire, { answersMap, answersRaw }] = await Promise.all([
-    loadQuestionnaire(questionnaireId),
-    getCaseAnswers(caseId),
-  ])
-
+  const [{ rules, catalog, uploads }, questionnaire, { answersMap, answersRaw }] =
+    await Promise.all([
+      getDocumentData(caseId, socialOfficeId),
+      loadQuestionnaire(questionnaireId),
+      getCaseAnswers(caseId),
+    ])
   const { groupInstances, groupAnswers } = deriveGroupData(questionnaire, answersRaw)
 
-  return (
+  const slots =
+    rules.length > 0
+      ? evaluateDocumentRules(rules, catalog, {
+          answers: answersMap,
+          groupInstances,
+          groupAnswers,
+        })
+      : []
+
+  const chat = (
     <ChatView
       questionnaire={questionnaire}
       initialAnswersMap={answersMap}
@@ -201,6 +175,10 @@ async function ChatSection({
       content={content}
     />
   )
+  const documents =
+    slots.length > 0 ? <DocumentArea slots={slots} uploads={uploads} content={content} /> : null
+
+  return <CaseTabs chat={chat} documents={documents} missing={countMissingSlots(slots, uploads)} />
 }
 
 /**

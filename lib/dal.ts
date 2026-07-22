@@ -229,19 +229,48 @@ export type UploadRow = {
 export async function getDocumentData(caseId: string, socialOfficeId: string | null) {
   await verifySession()
   const supabase = await createClient()
-  if (!socialOfficeId) return { rules: [], catalog: {}, uploads: [] as UploadRow[] }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sb = supabase as any
-  const [{ data: rules }, { data: catalog }, { data: uploads }] = await Promise.all([
-    sb.from('office_document_rule').select('*').eq('social_office_id', socialOfficeId),
+
+  // An office WITH rules always uses its own (feedback pass item 3).
+  let rules: unknown[] = []
+  if (socialOfficeId) {
+    const { data } = await sb
+      .from('office_document_rule')
+      .select('*')
+      .eq('social_office_id', socialOfficeId)
+    rules = data ?? []
+  }
+
+  // Default-office fallback: rule-less offices AND office-less (unsupported-PLZ)
+  // cases use the configured default rule set (Pankow until the Essen seed
+  // lands — app_config.default_document_office_id, changed by migration only).
+  // Degrades silently when app_config is absent/empty → no rules → no tab.
+  if (rules.length === 0) {
+    const { data: cfg } = await sb
+      .from('app_config')
+      .select('value')
+      .eq('key', 'default_document_office_id')
+      .maybeSingle()
+    const defaultOffice = typeof cfg?.value === 'string' ? cfg.value : null
+    if (defaultOffice && defaultOffice !== socialOfficeId) {
+      const { data } = await sb
+        .from('office_document_rule')
+        .select('*')
+        .eq('social_office_id', defaultOffice)
+      rules = data ?? []
+    }
+  }
+
+  const [{ data: catalog }, { data: uploads }] = await Promise.all([
     sb.from('document_catalog').select('*').eq('active', true),
     sb.from('document_upload').select('*').eq('case_id', caseId).order('created_at'),
   ])
   const catalogById: Record<string, { id: string; name_de: string; category: string }> = {}
   for (const c of catalog ?? []) catalogById[c.id] = c
   return {
-    rules: rules ?? [],
+    rules: (rules ?? []) as never[],
     catalog: catalogById,
     uploads: (uploads ?? []) as UploadRow[],
   }

@@ -41,6 +41,62 @@ describe('conditionHolds', () => {
     expect(conditionHolds(cond, { marital_status: 'ledig', spouse_x: 'Ja' })).toBe(false)
     expect(conditionHolds(cond, { marital_status: 'verheiratet', spouse_x: 'Nein' })).toBe(false)
   })
+
+  // Absent-key semantics (feedback pass item 3 — safety-critical with an
+  // active cross-questionnaire default): a never-asked key must make every
+  // operator silently no-match, never wrongly-true.
+  describe('absent keys never match (cross-questionnaire default safety)', () => {
+    it('equals on an absent key → false', () => {
+      expect(conditionHolds({ field: 'missing', operator: 'equals', value: 'Ja' }, {})).toBe(false)
+    })
+    it('not_equals on an absent key → false (not wrongly-true)', () => {
+      expect(conditionHolds({ field: 'missing', operator: 'not_equals', value: 'Ja' }, {})).toBe(
+        false
+      )
+      expect(
+        conditionHolds(
+          { field: 'missing', operator: 'not_equals', value: 'Ja' },
+          {
+            missing: null,
+          }
+        )
+      ).toBe(false)
+    })
+    it('any where every branch references absent keys → false', () => {
+      const cond = {
+        any: [
+          { field: 'a', operator: 'equals', value: 'x' },
+          { field: 'b', operator: 'not_equals', value: 'y' },
+        ],
+      }
+      expect(conditionHolds(cond, {})).toBe(false)
+      expect(conditionHolds(cond, { a: 'x' })).toBe(true)
+    })
+    it('all with one absent-key leaf → false even when the others match', () => {
+      const cond = {
+        all: [
+          { field: 'a', operator: 'equals', value: 'x' },
+          { field: 'missing', operator: 'not_equals', value: 'y' },
+        ],
+      }
+      expect(conditionHolds(cond, { a: 'x' })).toBe(false)
+    })
+    it('repeat_for_each inside an all-gate with the gate key absent → zero slots', () => {
+      const rules: OfficeDocumentRule[] = [
+        {
+          id: 'PAN-006',
+          document_id: 'DOC-0003',
+          requirement_type: 'mandatory',
+          subject: 'person_2',
+          period_months: 4,
+          condition: {
+            all: [MARITAL_ANY, { repeat_for_each: 'spouse_bank_account', period_months: 4 }],
+          },
+        },
+      ]
+      expect(evaluateDocumentRules(rules, catalog, base)).toHaveLength(0)
+    })
+  })
 })
 
 describe('evaluateDocumentRules — slots', () => {

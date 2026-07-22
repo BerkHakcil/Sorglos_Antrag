@@ -32,8 +32,17 @@
 - **Unmapped postal codes silently get the Berlin questionnaire** (CP3/D12,
   by design). The internal `plz_resolution_status='unsupported'` signal is
   written; no user-facing notice (its replacement copy is pending Roman).
-- **Essen has no document rules yet** — Essen-routed cases show no document
-  area (D5, by design). Rules arrive as a pure data drop.
+- **Every case gets the DEFAULT (Pankow) document checklist** until an
+  office-specific rule set exists (feedback-pass founder decision, supersedes
+  D5's Pankow-only scoping; default configured in `app_config`, flipped to
+  Essen by one migration when Roman's seed lands). Consequences, accepted:
+  **over-collection** — Pankow-specific mandatory documents (Mobilitätsnachweis,
+  Nachweis Bedarfsanzeige, polizeiliche Anmeldung im Heim) are requested from
+  all users; **under-collection for Essen-questionnaire cases** — conditional
+  rules keyed on Berlin-only questions (Haftpflicht, Wohngeld, KFZ, Miete,
+  Spätaussiedler, Sozialhilfe, citizenship, spouse-in-facility) silently never
+  fire there, and PAN-022 (Sterbeversicherung) stays Berlin-triggered only
+  (its Essen mapping was excluded — the candidate key exists in Berlin too).
 - **Optional questions**: pressing "Weiter" with no input re-asks; only the
   skip button moves on. Affects `birth_name` only today.
 
