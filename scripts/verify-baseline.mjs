@@ -80,6 +80,7 @@ const [
   prodStatic,
   prodDocCat,
   prodDocRules,
+  prodAppConfig,
 ] = await Promise.all([
   fetchAllProd('category', 'id, key, label_de, sort_order', 'sort_order'),
   fetchAllProd(
@@ -108,6 +109,7 @@ const [
     'id, social_office_id, document_id, requirement_type, subject, instance_note, period_months, condition',
     'id'
   ),
+  fetchAllProd('app_config', 'key, value', 'key'),
 ])
 
 console.log(`\n=== PRODUCTION STATE ===`)
@@ -187,6 +189,7 @@ const [
   localStatic,
   localDocCat,
   localDocRules,
+  localAppConfig,
 ] = await Promise.all([
   queryLocal(`SELECT id, key, label_de, sort_order FROM public.category ORDER BY sort_order`),
   queryLocal(
@@ -215,6 +218,7 @@ const [
   queryLocal(
     `SELECT id, social_office_id, document_id, requirement_type, subject, instance_note, period_months, condition::text FROM public.office_document_rule ORDER BY id`
   ),
+  queryLocal(`SELECT key, value FROM public.app_config ORDER BY key`),
 ])
 
 await pool.end()
@@ -376,6 +380,8 @@ diffArrays('Doc rules', prodDocRules, localDocRules, (r) => r.id, [
   'period_months',
   'condition',
 ])
+// Feedback pass 3: app configuration (default document office etc.)
+diffArrays('App config', prodAppConfig, localAppConfig, (r) => r.key, ['value'])
 
 console.log(`\n${'─'.repeat(50)}`)
 if (diffs === 0) {

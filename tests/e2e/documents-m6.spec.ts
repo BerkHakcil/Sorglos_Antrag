@@ -129,6 +129,14 @@ async function readSlots(page: Page) {
   })
 }
 
+/** Open the Dokumente tab (feedback pass item 2 — the area lives in a tab). */
+async function openDocumentsTab(page: Page) {
+  const tab = page.locator('[data-testid=tab-documents]')
+  await tab.waitFor({ state: 'visible', timeout: 10_000 })
+  await tab.click()
+  await page.waitForTimeout(300)
+}
+
 async function counterState(page: Page) {
   const el = page.locator('[data-testid=missing-docs-counter]')
   if ((await el.count()) === 0) return null
@@ -244,21 +252,15 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
   let stuckCount = 0
 
   for (let step = 1; step <= 300 && stuckCount < 5; step++) {
-    if (
-      await page
-        .locator('[data-testid=document-area]')
-        .isVisible({ timeout: 200 })
-        .catch(() => false)
-    ) {
-      console.log(`[step ${step}] document area visible — questionnaire complete`)
-      break
-    }
+    // Completion signal: the "In Prüfung" status chip (the area now lives in
+    // the hidden Dokumente tab pane since the feedback pass, and the locked
+    // banner copy is DB-authored — neither is a stable anchor).
     const done = await page
-      .getByText('Angaben werden geprüft', { exact: false })
+      .getByText('In Prüfung', { exact: false })
       .isVisible({ timeout: 200 })
       .catch(() => false)
     if (done) {
-      console.log(`[step ${step}] locked banner — complete`)
+      console.log(`[step ${step}] In Prüfung — questionnaire complete`)
       break
     }
 
@@ -367,6 +369,8 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
 
   await page.reload()
   await page.waitForLoadState('networkidle')
+  // Since the feedback pass the area lives in the Dokumente tab — open it.
+  await openDocumentsTab(page)
   const area = page.locator('[data-testid=document-area]')
   await expect(area, 'document area must render after completion').toBeVisible({ timeout: 15_000 })
 
@@ -481,6 +485,7 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
   await (adminDb as any).from('answer').update({ value: 'Ja' }).eq('id', dAnswer.id)
   await page.reload()
   await page.waitForLoadState('networkidle')
+  await openDocumentsTab(page)
   const slotsFlipped = await readSlots(page)
   const disabilityAfterFlip = slotsFlipped.filter((s) => s.name.includes(docName['DOC-0018']))
   expect(disabilityAfterFlip, 'A5: disability slot APPEARS after Nein→Ja flip').toHaveLength(1)
@@ -496,6 +501,7 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
   await (adminDb as any).from('answer').update({ value: 'Nein' }).eq('id', dAnswer.id)
   await page.reload()
   await page.waitForLoadState('networkidle')
+  await openDocumentsTab(page)
   const slotsRestored = await readSlots(page)
   expect(
     slotsRestored.filter((s) => s.name.includes(docName['DOC-0018'])),
