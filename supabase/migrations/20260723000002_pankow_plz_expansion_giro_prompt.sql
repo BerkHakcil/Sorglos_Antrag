@@ -14,10 +14,13 @@
 
 BEGIN;
 
+-- Id note: the 18 seeded Pankow rules use DECIMAL-style suffixes 01–18 (no
+-- hex letters), so the continuation is 19/20/21 — the first push attempt with
+-- hex-continuation 13/14/15 collided and applied nothing (BEGIN/COMMIT).
 INSERT INTO public.postal_code_rule (id, social_office_id, plz_from, plz_to, priority) VALUES
-  ('b0000000-0000-0000-0000-000000000013', '11000000-0000-0000-0000-000000000001', '10247', '10247', 20),
-  ('b0000000-0000-0000-0000-000000000014', '11000000-0000-0000-0000-000000000001', '10249', '10249', 20),
-  ('b0000000-0000-0000-0000-000000000015', '11000000-0000-0000-0000-000000000001', '13051', '13051', 20);
+  ('b0000000-0000-0000-0000-000000000019', '11000000-0000-0000-0000-000000000001', '10247', '10247', 20),
+  ('b0000000-0000-0000-0000-000000000020', '11000000-0000-0000-0000-000000000001', '10249', '10249', 20),
+  ('b0000000-0000-0000-0000-000000000021', '11000000-0000-0000-0000-000000000001', '13051', '13051', 20);
 
 UPDATE public.question
 SET prompt_de = 'Bei welcher Bank hat Ihr Partner ein Girokonto?'
