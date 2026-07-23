@@ -121,3 +121,17 @@ Decision of record (M7): target shape is **apex `sorglosantrag.de` primary,
 Rollback at any step: revert Site URL + env var — the vercel.app URL never
 stops serving. Both URLs work during the whole transition (the allowlist has
 both), so signup never breaks.
+
+## 7. PLZ routing policy (founder-stated, Roman, 2026-07-23)
+
+> When in doubt, include the PLZ. When a new social office is implemented and
+> creates a duplicate routing, resolve it at that point. A missed PLZ degrades
+> to the default questionnaire + default document list; if the resulting
+> application reaches the wrong office, the office notifies us — accepted as a
+> super edge case.
+
+Practical consequences: office PLZ lists may deliberately include
+administratively adjacent codes (e.g. Pankow's list contains 10247/10249
+[Friedrichshain] and 13051 [Lichtenberg] per Roman); overlaps are resolved
+when the overlapping office actually gets implemented, not before. PLZ changes
+remain dated migrations like all config (§3).

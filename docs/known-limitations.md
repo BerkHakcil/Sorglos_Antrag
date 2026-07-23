@@ -65,7 +65,16 @@
   (`docs/operations.md` §6) before scale.
 - **CI e2e job is dormant** (repo variables never set); e2e verification runs
   ad hoc against prod per milestone.
-- **German copy pending Roman review:** confirm-signup email template + both
-  subject lines (placeholder — blocking for pilot, with Roman), the
-  document-area copy incl. the M6 counter strings (constructed, live), the
-  Pankow PLZ list confirmation, spouse-section review.
+- **Pending-German ledger FINALIZED by founder decision (2026-07-23):** all
+  constructed strings that had been live for weeks through three Roman review
+  passes with zero flags are final (docs-area/counter/tab copy, the auth email
+  template + subjects, spouse member_since/Ausland prompts). **Remaining open
+  Roman items — exactly three:** the Essen document rules file (governs the
+  live default checklist), and the spouse-section review carrying only the
+  bulk-intro alignment + the insurance-depth question (both cosmetic,
+  non-gating).
+- **PLZ routing follows the include-when-in-doubt policy**
+  (`docs/operations.md` §7): office lists may deliberately contain
+  administratively adjacent PLZs; overlaps get resolved when the overlapping
+  office is implemented; a missed PLZ degrades to the default questionnaire +
+  default document list.

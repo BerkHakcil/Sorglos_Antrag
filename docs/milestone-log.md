@@ -50,6 +50,18 @@ Quick orientation for anyone picking this up cold:
 
 ---
 
+## Content pass — Roman's answers (A+B) + pending-German ledger finalization — 2026-07-23, **verification pending `db push`**
+
+**A) Pankow PLZ expansion (`20260723000002`):** Roman approved all 18 seeded PLZs and added three — **10247, 10249, 13051** (his reply listed 10247 twice; deduped, final set = 21 unique). Same pattern as the original 18: single-PLZ ranges, priority 20, overriding the generic priority-1 rules. ⚠ Deliberate per Roman's policy, not an error: 10247/10249 are administratively Friedrichshain, 13051 Lichtenberg. **Routing policy recorded verbatim in `docs/operations.md` §7** (include-when-in-doubt; duplicate routings resolved when the overlapping office is implemented; missed PLZ degrades to default questionnaire + default checklist; wrong-office arrivals notified back = accepted super edge case) and referenced in known-limitations.
+
+**B) Grammar fix (Roman):** Berlin `spouse_bank_giro` → "Bei welcher Bank hat Ihr Partner **ein** Girokonto?" (was "sein"; same migration; the only question carrying the old wording).
+
+**Pending-German ledger — FINALIZED BY FOUNDER DECISION (2026-07-23).** Rationale: the strings have been live for weeks through three Roman review passes with zero flags = implicit review. **Finalized:** all docs-area UI strings + M6 counter strings + tab labels (C); confirm-signup email template + both subject lines + `emailSendFailure` (D — the former "blocking for pilot" label is removed everywhere: this entry, the M7 HUMAN-OPEN table, known-limitations); spouse `member_since` + spouse Ausland prompts (E1/E2); section-B items 1, 2, 4–7 (Roman-blessed verbatim this week). **Closed by founder decision:** E4 unsupported-PLZ notice (permanently none — reinforced by the routing policy), F1 spouse funeral (not doing unless Roman's Essen rules file raises it), F2 vehicles-repeatable (backlog). **Remaining open Roman items — exactly three:** the **Essen document rules file** (the one real deliverable; governs the live default checklist), and the **spouse-section review** carrying only E3 (bulk-intro alignment) + the insurance-depth question — both cosmetic, non-gating.
+
+**M7 closure check:** with D finalized and the PLZ list confirmed, both Roman rows in the M7 HUMAN-OPEN table are marked satisfied. Genuinely open there now: **only the founder rows** — UAT Cases 1–3 and the founder pilot. The founder makes the M7-complete call.
+
+---
+
 ## Mini content pass — Berlin CP3 parity (children gate + Bargeld) — ✅ complete 2026-07-23
 
 Founder decision: the Essen-only CP3 scoping is superseded now that Berlin serves as the universal fallback questionnaire.
@@ -87,18 +99,18 @@ Two-phase milestone (audit+plan → confirmed execution). Domain cutover to `sor
 
 **M7 verification evidence (all on prod):** smoke:signup HTTP 200 green; Pankow leg fully green (all six M6 acceptance criteria re-passed incl. counter strings); Essen + fallback regression green after three SPEC-side fixes (zero product bugs): (1) the generic driver lacked a `long_text` branch — Essen stalled at 56/57 (the denominator legitimately grows from 50 as gates open); (2) the 66606 assert expected `unsupported` where CP3 semantics correctly write `resolved` — 66606 matches the St.-Wendel rule and the Berlin fallback comes from the office-without-questionnaire path; `unsupported` is only for no-rule PLZs; (3) the completion signal is the "In Prüfung" status chip — the locked-banner text is DB-authored static_content since FP2 and not a stable test anchor (the M6 spec never noticed because Pankow's document area doubles as its terminal signal). One environment flake (`ERR_NETWORK_IO_SUSPENDED` mid-run) surfaced a cleanup gap: a network outage also kills the afterEach delete and the old `.catch(() => {})` swallowed it silently, leaking the user — all three adaptive-loop specs now log cleanup failures loudly; the one leaked user was found and deleted.
 
-**Triage decisions of record (founders):** confirm-signup template+subjects = **blocking for pilot, with Roman** (dashboard-side); Pankow PLZ list = required before pilot (migration only if Roman's answer changes it); document-area/counter copy review non-blocking; quirks documented not fixed; stale-user cleanup via dashboard by founder; `anomis55@gmail.com` held pending Roman's confirmation it was his failed attempt.
+**Triage decisions of record (founders):** confirm-signup template+subjects = blocking for pilot, with Roman (dashboard-side) — **superseded 2026-07-23: finalized by founder decision, live copy = final**; Pankow PLZ list = required before pilot (migration only if Roman's answer changes it); document-area/counter copy review non-blocking; quirks documented not fixed; stale-user cleanup via dashboard by founder; `anomis55@gmail.com` held pending Roman's confirmation it was his failed attempt.
 
 ### HUMAN-OPEN before M7 / go-live can be called complete
 
-| Item                                                                                                                    | Owner      | Status                          |
-| ----------------------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------- |
-| UAT Case 1 — Pankow married, 2 pensions, phone incl. HEIC (`docs/uat-m7.md`)                                            | founders   | ☐ open                          |
-| UAT Case 2 — Essen full drive, no document area                                                                         | founders   | ☐ open                          |
-| UAT Case 3 — unmapped PLZ 66606 → Berlin                                                                                | founders   | ☐ open                          |
-| Founder pilot — real case to under_review + `case:export` handed to Roman ("PDF fillable from export" = the acceptance) | founders   | ☐ open                          |
-| Confirm-signup email template + both subject lines (Roman copy → dashboard)                                             | Berk+Roman | ☐ open — **blocking for pilot** |
-| Pankow PLZ list confirmation (migration only if it changes)                                                             | Roman      | ☐ open — before pilot           |
+| Item                                                                                                                    | Owner      | Status                                                                                    |
+| ----------------------------------------------------------------------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------- |
+| UAT Case 1 — Pankow married, 2 pensions, phone incl. HEIC (`docs/uat-m7.md`)                                            | founders   | ☐ open                                                                                    |
+| UAT Case 2 — Essen full drive, no document area                                                                         | founders   | ☐ open                                                                                    |
+| UAT Case 3 — unmapped PLZ 66606 → Berlin                                                                                | founders   | ☐ open                                                                                    |
+| Founder pilot — real case to under_review + `case:export` handed to Roman ("PDF fillable from export" = the acceptance) | founders   | ☐ open                                                                                    |
+| Confirm-signup email template + both subject lines                                                                      | Berk+Roman | ✅ satisfied 2026-07-23 — finalized by founder decision (ledger sweep: live copy = final) |
+| Pankow PLZ list confirmation (migration only if it changes)                                                             | Roman      | ✅ satisfied 2026-07-23 — 18 approved + 3 added (`20260723000002`)                        |
 
 ---
 
