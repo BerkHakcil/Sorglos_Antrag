@@ -50,7 +50,9 @@ Quick orientation for anyone picking this up cold:
 
 ---
 
-## Content pass — Roman's answers (A+B) + pending-German ledger finalization — 2026-07-23, **verification pending `db push`**
+## Content pass — Roman's answers (A+B) + pending-German ledger finalization — ✅ complete 2026-07-23
+
+**Verified live on prod after the push:** 21 Pankow rules (ids `…01–18` + `…19/20/21` — the seed uses DECIMAL-style suffixes; the first push collided on hex-continuation `13` and applied nothing, file corrected in place before re-push); 10247/10249/13051 each resolve to Pankow at priority 20 over their generic priority-1 rules; **live drive on 10247** → Pankow office + Berlin questionnaire (53) + `resolved` + default checklist rendering; 13187 unchanged; giro prompt live with "ein". verify-baseline full replay: **all 12 tables identical (PLZ rules 8177 → 8180)**. Ops note recorded: local replays can be blocked by Windows WinNAT port reservations (see `docs/operations.md` §5).
 
 **A) Pankow PLZ expansion (`20260723000002`):** Roman approved all 18 seeded PLZs and added three — **10247, 10249, 13051** (his reply listed 10247 twice; deduped, final set = 21 unique). Same pattern as the original 18: single-PLZ ranges, priority 20, overriding the generic priority-1 rules. ⚠ Deliberate per Roman's policy, not an error: 10247/10249 are administratively Friedrichshain, 13051 Lichtenberg. **Routing policy recorded verbatim in `docs/operations.md` §7** (include-when-in-doubt; duplicate routings resolved when the overlapping office is implemented; missed PLZ degrades to default questionnaire + default checklist; wrong-office arrivals notified back = accepted super edge case) and referenced in known-limitations.
 

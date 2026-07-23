@@ -98,6 +98,11 @@ else stores the user.
   click-by-click Brevo/SMTP diagnosis path.
 - **Structure drift:** `scripts/verify-baseline.mjs` against a fresh local
   replay (see the milestone log's verification-tooling notes).
+  ⚠ If `supabase db start` fails with "ports are not available … access
+  permissions" on 54322: Windows WinNAT has reserved the port range (check
+  `netsh interface ipv4 show excludedportrange protocol=tcp`). Fix in an
+  **elevated** PowerShell: `net stop winnat; net start winnat` (or reboot),
+  then rerun. Seen 2026-07-23.
 - No error-monitoring service is wired (known limitation) — checking Vercel
   logs after a user-reported error IS the process.
 
