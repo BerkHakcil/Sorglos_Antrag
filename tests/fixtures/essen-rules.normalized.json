@@ -718,7 +718,7 @@
       "social_office_id": "10000000-0000-0000-0000-000000000162",
       "document_id": "DOC-0038",
       "requirement_type": "conditional",
-      "subject": "property_owner",
+      "subject": "person_1",
       "instance_note": "one slot per relevant owned home/property owner",
       "period_months": null,
       "condition": {
@@ -1130,7 +1130,7 @@
       "social_office_id": "10000000-0000-0000-0000-000000000162",
       "document_id": "DOC-0043",
       "requirement_type": "conditional",
-      "subject": "maintenance_case",
+      "subject": "person_1",
       "instance_note": "one slot for maintenance case",
       "period_months": null,
       "condition": {

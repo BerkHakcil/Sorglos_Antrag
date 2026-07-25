@@ -74,6 +74,12 @@ KNOWN_BINDINGS = {
     "pension_type", "spouse_pension_type", "other_income", "spouse_other_income",
 }
 
+# The file introduces two subject values outside the M5 CHECK constraint
+# (subject IN person_1/person_2/previous_home) — and outside the UI's three
+# grouping headings. Mapped to person_1 (applicant-side household documents);
+# first push attempt failed on the constraint (2026-07-25, full rollback).
+SUBJECT_MAP = {"property_owner": "person_1", "maintenance_case": "person_1"}
+
 changed = {}  # rule_id -> list of reasons
 
 def note(rid, reason):
@@ -141,9 +147,14 @@ for r in data["essen_rules"]:
     if not cond:
         cond = {"always": True}
     walk_assert(cond, r["rule_id"])
+    subject = r["subject"]
+    if subject in SUBJECT_MAP:
+        note(r["rule_id"], f"subject '{subject}' -> '{SUBJECT_MAP[subject]}' (M5 CHECK + UI grouping)")
+        subject = SUBJECT_MAP[subject]
+    assert subject in ("person_1", "person_2", "previous_home"), f"{r['rule_id']}: bad subject {subject}"
     rules_out.append({
         "id": r["rule_id"], "social_office_id": ESSEN_OFFICE, "document_id": r["document_id"],
-        "requirement_type": r["requirement_type"], "subject": r["subject"],
+        "requirement_type": r["requirement_type"], "subject": subject,
         "instance_note": r.get("instance_rule"), "period_months": r.get("period_months"),
         "condition": cond,
     })
