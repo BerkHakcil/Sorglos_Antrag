@@ -6,63 +6,63 @@ Essen questionnaire id used: `30000000-0000-0000-0000-000000000003` ("Fragebogen
 
 ## Summary table
 
-| rule_id | doc | fields referenced | status |
-|---|---|---|---|
-| ESS-001 | DOC-0001 | — (always) | OK |
-| ESS-002 | DOC-0001 | marital_status | OK |
-| ESS-003 | DOC-0002 | pension_type | OK |
-| ESS-004 | DOC-0002 | marital_status, spouse_pension_type | OK |
-| ESS-005 | DOC-0005 | — (always) | OK |
-| ESS-006 | DOC-0007 | — (always) | OK |
-| ESS-007 | DOC-0008 | — (always) | OK |
-| ESS-008 | DOC-0037 | — (always) | OK |
-| ESS-009 | DOC-0037 | marital_status | OK |
-| ESS-010 | DOC-0003 | applicant_bank_account | NEEDS_DECISION |
-| ESS-011 | DOC-0003 | marital_status, spouse_bank_account | NEEDS_DECISION |
-| ESS-012 | DOC-0006 | — (always) | OK |
-| ESS-013 | DOC-0031 | pension_application_yes_no | OK |
-| ESS-014 | DOC-0031 | marital_status, spouse_pension_application_yes_no | OK |
-| ESS-015 | DOC-0032 | applicant_bulk_topics, other_income_type | NEEDS_DECISION |
-| ESS-016 | DOC-0032 | marital_status, spouse_bulk_topics, spouse_other_income_type | FIELD_MISSING |
-| ESS-017 | DOC-0033 | income_bulk_topics | OK |
-| ESS-018 | DOC-0033 | marital_status, spouse_bulk_topics | FIELD_MISSING |
-| ESS-019 | DOC-0034 | other_income_type | NEEDS_DECISION |
-| ESS-020 | DOC-0034 | marital_status, spouse_other_income_type | NEEDS_DECISION |
-| ESS-021 | DOC-0035 | other_income_type | NEEDS_DECISION |
-| ESS-022 | DOC-0035 | marital_status, spouse_other_income_type | NEEDS_DECISION |
-| ESS-023 | DOC-0018 | disability_card | OK |
-| ESS-024 | DOC-0018 | marital_status, spouse_disability_card | OK |
-| ESS-025 | DOC-0036 | health_insurance_type | OK |
-| ESS-026 | DOC-0036 | marital_status, spouse_health_insurance_type | OK |
-| ESS-027 | DOC-0020 | other_income_type | NEEDS_DECISION |
-| ESS-028 | DOC-0020 | marital_status, spouse_other_income_type | NEEDS_DECISION |
-| ESS-029 | DOC-0024 | former_rental_apartment_yes_no | OK |
-| ESS-030 | DOC-0025 | former_rental_apartment_yes_no | OK |
-| ESS-031 | DOC-0038 | property_yes_no, spouse_property_yes_no | OK |
-| ESS-032 | DOC-0039 | foreign_health_insurance_yes_no | OK |
-| ESS-033 | DOC-0039 | marital_status, spouse_foreign_health_insurance_yes_no | OK |
-| ESS-034 | DOC-0040 | income_bulk_topics | OK |
-| ESS-035 | DOC-0040 | marital_status, spouse_bulk_topics | FIELD_MISSING |
-| ESS-036 | DOC-0041 | wealth_bulk_topics | OK |
-| ESS-037 | DOC-0041 | marital_status, spouse_bulk_topics | FIELD_MISSING |
-| ESS-038 | DOC-0019 | expense_bulk_topics | OK |
-| ESS-039 | DOC-0019 | marital_status, spouse_bulk_topics | FIELD_MISSING |
-| ESS-040 | DOC-0013 | life_insurance | OK |
-| ESS-041 | DOC-0013 | marital_status, spouse_life_insurance | OK |
-| ESS-042 | DOC-0014 | expense_bulk_topics | OK |
-| ESS-043 | DOC-0014 | marital_status, spouse_bulk_topics | FIELD_MISSING |
-| ESS-044 | DOC-0015 | funeral_insurance_yes_no | OK |
-| ESS-045 | DOC-0015 | marital_status, spouse_funeral_insurance_yes_no | OK |
-| ESS-046 | DOC-0022 | marital_status | OK |
-| ESS-047 | DOC-0043 | maintenance_bulk_topics | FIELD_MISSING |
-| ESS-048 | DOC-0028 | automobile_yes_no | OK |
-| ESS-049 | DOC-0028 | marital_status, spouse_automobile_yes_no | OK |
-| ESS-050 | DOC-0029 | automobile_yes_no | OK |
-| ESS-051 | DOC-0029 | marital_status, spouse_automobile_yes_no | OK |
-| ESS-052 | DOC-0027 | automobile_yes_no, expense_bulk_topics | OK |
-| ESS-053 | DOC-0027 | marital_status, spouse_automobile_yes_no, spouse_bulk_topics | FIELD_MISSING |
-| ESS-054 | DOC-0042 | asset_transfer_yes_no, wealth_bulk_topics | VALUE_MISMATCH |
-| ESS-055 | DOC-0042 | marital_status, spouse_asset_transfer_yes_no, spouse_bulk_topics | FIELD_MISSING |
+| rule_id | doc      | fields referenced                                                | status         |
+| ------- | -------- | ---------------------------------------------------------------- | -------------- |
+| ESS-001 | DOC-0001 | — (always)                                                       | OK             |
+| ESS-002 | DOC-0001 | marital_status                                                   | OK             |
+| ESS-003 | DOC-0002 | pension_type                                                     | OK             |
+| ESS-004 | DOC-0002 | marital_status, spouse_pension_type                              | OK             |
+| ESS-005 | DOC-0005 | — (always)                                                       | OK             |
+| ESS-006 | DOC-0007 | — (always)                                                       | OK             |
+| ESS-007 | DOC-0008 | — (always)                                                       | OK             |
+| ESS-008 | DOC-0037 | — (always)                                                       | OK             |
+| ESS-009 | DOC-0037 | marital_status                                                   | OK             |
+| ESS-010 | DOC-0003 | applicant_bank_account                                           | NEEDS_DECISION |
+| ESS-011 | DOC-0003 | marital_status, spouse_bank_account                              | NEEDS_DECISION |
+| ESS-012 | DOC-0006 | — (always)                                                       | OK             |
+| ESS-013 | DOC-0031 | pension_application_yes_no                                       | OK             |
+| ESS-014 | DOC-0031 | marital_status, spouse_pension_application_yes_no                | OK             |
+| ESS-015 | DOC-0032 | applicant_bulk_topics, other_income_type                         | NEEDS_DECISION |
+| ESS-016 | DOC-0032 | marital_status, spouse_bulk_topics, spouse_other_income_type     | FIELD_MISSING  |
+| ESS-017 | DOC-0033 | income_bulk_topics                                               | OK             |
+| ESS-018 | DOC-0033 | marital_status, spouse_bulk_topics                               | FIELD_MISSING  |
+| ESS-019 | DOC-0034 | other_income_type                                                | NEEDS_DECISION |
+| ESS-020 | DOC-0034 | marital_status, spouse_other_income_type                         | NEEDS_DECISION |
+| ESS-021 | DOC-0035 | other_income_type                                                | NEEDS_DECISION |
+| ESS-022 | DOC-0035 | marital_status, spouse_other_income_type                         | NEEDS_DECISION |
+| ESS-023 | DOC-0018 | disability_card                                                  | OK             |
+| ESS-024 | DOC-0018 | marital_status, spouse_disability_card                           | OK             |
+| ESS-025 | DOC-0036 | health_insurance_type                                            | OK             |
+| ESS-026 | DOC-0036 | marital_status, spouse_health_insurance_type                     | OK             |
+| ESS-027 | DOC-0020 | other_income_type                                                | NEEDS_DECISION |
+| ESS-028 | DOC-0020 | marital_status, spouse_other_income_type                         | NEEDS_DECISION |
+| ESS-029 | DOC-0024 | former_rental_apartment_yes_no                                   | OK             |
+| ESS-030 | DOC-0025 | former_rental_apartment_yes_no                                   | OK             |
+| ESS-031 | DOC-0038 | property_yes_no, spouse_property_yes_no                          | OK             |
+| ESS-032 | DOC-0039 | foreign_health_insurance_yes_no                                  | OK             |
+| ESS-033 | DOC-0039 | marital_status, spouse_foreign_health_insurance_yes_no           | OK             |
+| ESS-034 | DOC-0040 | income_bulk_topics                                               | OK             |
+| ESS-035 | DOC-0040 | marital_status, spouse_bulk_topics                               | FIELD_MISSING  |
+| ESS-036 | DOC-0041 | wealth_bulk_topics                                               | OK             |
+| ESS-037 | DOC-0041 | marital_status, spouse_bulk_topics                               | FIELD_MISSING  |
+| ESS-038 | DOC-0019 | expense_bulk_topics                                              | OK             |
+| ESS-039 | DOC-0019 | marital_status, spouse_bulk_topics                               | FIELD_MISSING  |
+| ESS-040 | DOC-0013 | life_insurance                                                   | OK             |
+| ESS-041 | DOC-0013 | marital_status, spouse_life_insurance                            | OK             |
+| ESS-042 | DOC-0014 | expense_bulk_topics                                              | OK             |
+| ESS-043 | DOC-0014 | marital_status, spouse_bulk_topics                               | FIELD_MISSING  |
+| ESS-044 | DOC-0015 | funeral_insurance_yes_no                                         | OK             |
+| ESS-045 | DOC-0015 | marital_status, spouse_funeral_insurance_yes_no                  | OK             |
+| ESS-046 | DOC-0022 | marital_status                                                   | OK             |
+| ESS-047 | DOC-0043 | maintenance_bulk_topics                                          | FIELD_MISSING  |
+| ESS-048 | DOC-0028 | automobile_yes_no                                                | OK             |
+| ESS-049 | DOC-0028 | marital_status, spouse_automobile_yes_no                         | OK             |
+| ESS-050 | DOC-0029 | automobile_yes_no                                                | OK             |
+| ESS-051 | DOC-0029 | marital_status, spouse_automobile_yes_no                         | OK             |
+| ESS-052 | DOC-0027 | automobile_yes_no, expense_bulk_topics                           | OK             |
+| ESS-053 | DOC-0027 | marital_status, spouse_automobile_yes_no, spouse_bulk_topics     | FIELD_MISSING  |
+| ESS-054 | DOC-0042 | asset_transfer_yes_no, wealth_bulk_topics                        | VALUE_MISMATCH |
+| ESS-055 | DOC-0042 | marital_status, spouse_asset_transfer_yes_no, spouse_bulk_topics | FIELD_MISSING  |
 
 **Totals:** OK 36 · NEEDS_DECISION 9 · FIELD_MISSING 9 · VALUE_MISMATCH 1 (ESS-010/011 reclassified by manual review — see Addendum A5)
 
@@ -72,51 +72,52 @@ Distinct condition fields: 28; repeat bindings: ['applicant_bank_account', 'pens
 
 ## 2. Per-field existence & shape (Essen questionnaire)
 
-| field | exists | type | required | group (repeatable) | options (exact values) |
-|---|---|---|---|---|---|
-| `applicant_bulk_topics` | yes | multi_select | True | — | Es besteht eine Verpflichtungserklaerung nach § 68 Aufenthaltsgesetz \| Es wurden frueher bereits Leistungen nach SGB II oder SGB XI bezogen \| Es ist eine medizinisch notwendige kostenaufwaendige Ernaehrung erforderlich \| Nein, nichts davon |
-| `asset_transfer_yes_no` | yes | single_select | True | — | Nein \| Ja - ohne besonderen Vertrag \| Ja - siehe beigefuegte Urkunde |
-| `automobile_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `bank_additional_account_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `bank_giro_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `bank_savings_account_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `disability_card` | yes | single_select | True | — | Ja \| Nein \| Beantragt |
-| `expense_bulk_topics` | yes | multi_select | True | — | Es werden Einkommensteuern gezahlt \| Es werden Sozialversicherungsbeitraege gezahlt \| Es besteht eine Haftpflichtversicherung \| Es besteht eine Kfz-Haftpflichtversicherung \| Es werden Altersvorsorgebeitraege gezahlt \| Es werden Beitraege zu einer Sterbegeldversicherung gezahlt \| Nein, nichts davon |
-| `foreign_health_insurance_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `former_rental_apartment_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `funeral_insurance_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `health_insurance_type` | yes | single_select | True | — | Pflichtversicherung \| Familienversicherung \| freiwillige Versicherung \| private Versicherung |
-| `income_bulk_topics` | yes | multi_select | True | — | Es wurde ein Antrag nach dem Opferentschaedigungsgesetz gestellt \| Es wurden freiwillige Beitraege in Rentenversicherung oder betriebliche Altersvorsorge eingezahlt \| Es wurde im Ausland gearbeitet und dort in eine Rentenkasse eingezahlt \| Es wurde im Ausland gearbeitet, ohne dort Rentenbeitraege zu zahlen \| Es wird ein Grundrentenzuschlag bezogen \| Es wurden 33 oder mehr Jahre Grundrentenzeiten erfuellt \| Nein, nichts davon |
-| `life_insurance` | yes | single_select | True | — | Nein \| Kapitallebensversicherung \| Risikolebensversicherung |
-| `maintenance_bulk_topics` | **NO** | — | — | — | — |
-| `marital_status` | yes | single_select | True | — | ledig \| verheiratet \| Lebenspartnerschaft \| eheähnliche Gemeinschaft \| verwitwet \| getrennt lebend \| geschieden |
-| `other_income_type` | yes | single_select | True | other_income (rep) | Nichtselbstständige Tätigkeit \| Mini-/Midijob \| Ausbildungsvergütung \| ehrenamtliche Tätigkeit \| Entgelt der WfbM \| Leistung der Krankenkasse \| Gewerbebetrieb \| Land- und Forstwirtschaft \| sonstige selbstständige Tätigkeit \| Untervermietung \| Vermietung und Verpachtung \| Wohngeld/Lastenzuschuss \| AsylbLG \| Bundesversorgungsgesetz \| Lastenausgleichsamt \| Bürgergeld/SGB II \| Arbeitsförderung/SGB III \| Leistungen für Kinder \| Ausbildungsförderung \| Elterngeld \| Mutterschaftsgeld \| Unterhalt \| privatrechtliche geldwerte Ansprüche \| Kapitalerträge \| Leistungen nach anderen Sozialgesetzbüchern \| sonstige Einkünfte |
-| `pension_application_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `property_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `spouse_asset_transfer_yes_no` | yes | single_select | True | — | Nein \| Ja - ohne besonderen Vertrag \| Ja - siehe beigefuegte Urkunde |
-| `spouse_automobile_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `spouse_bank_additional_account_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `spouse_bank_giro_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `spouse_bank_savings_account_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `spouse_bulk_topics` | **NO** | — | — | — | — |
-| `spouse_disability_card` | yes | single_select | True | — | Ja \| Nein \| Beantragt |
-| `spouse_foreign_health_insurance_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `spouse_funeral_insurance_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `spouse_health_insurance_type` | yes | single_select | True | — | Pflichtversicherung \| Familienversicherung \| freiwillige Versicherung \| private Versicherung |
-| `spouse_life_insurance` | yes | single_select | True | — | Nein \| Kapitallebensversicherung \| Risikolebensversicherung |
-| `spouse_other_income_type` | yes | single_select | True | spouse_other_income (rep) | Nichtselbstständige Tätigkeit \| Mini-/Midijob \| Ausbildungsvergütung \| ehrenamtliche Tätigkeit \| Entgelt der WfbM \| Leistung der Krankenkasse \| Gewerbebetrieb \| Land- und Forstwirtschaft \| sonstige selbstständige Tätigkeit \| Untervermietung \| Vermietung und Verpachtung \| Wohngeld/Lastenzuschuss \| AsylbLG \| Bundesversorgungsgesetz \| Lastenausgleichsamt \| Bürgergeld/SGB II \| Arbeitsförderung/SGB III \| Leistungen für Kinder \| Ausbildungsförderung \| Elterngeld \| Mutterschaftsgeld \| Unterhalt \| privatrechtliche geldwerte Ansprüche \| Kapitalerträge \| Leistungen nach anderen Sozialgesetzbüchern \| sonstige Einkünfte |
-| `spouse_pension_application_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `spouse_property_yes_no` | yes | single_select | True | — | Ja \| Nein |
-| `wealth_bulk_topics` | yes | multi_select | True | — | Es gibt Wertpapiere oder Aktien \| Es gibt Schmuck oder Edelmetalle von relevantem Wert \| Es gibt sonstiges Vermoegen im In- oder Ausland \| Es gibt eine staatlich gefoerderte private Altersvorsorge \| Es gibt eine sonstige private Altersvorsorge \| Es gibt Forderungen oder Ansprueche gegen Dritte \| Es gibt Ansprueche aus Uebertragsvertraegen, Wohnrecht, Niessbrauch oder Altenteil \| Es gibt Ansprueche aus einer Erbschaft oder erwartete Erbschaft \| Nein, nichts davon |
+| field                                    | exists | type          | required | group (repeatable)        | options (exact values)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ---------------------------------------- | ------ | ------------- | -------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `applicant_bulk_topics`                  | yes    | multi_select  | True     | —                         | Es besteht eine Verpflichtungserklaerung nach § 68 Aufenthaltsgesetz \| Es wurden frueher bereits Leistungen nach SGB II oder SGB XI bezogen \| Es ist eine medizinisch notwendige kostenaufwaendige Ernaehrung erforderlich \| Nein, nichts davon                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `asset_transfer_yes_no`                  | yes    | single_select | True     | —                         | Nein \| Ja - ohne besonderen Vertrag \| Ja - siehe beigefuegte Urkunde                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `automobile_yes_no`                      | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `bank_additional_account_yes_no`         | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `bank_giro_yes_no`                       | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `bank_savings_account_yes_no`            | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `disability_card`                        | yes    | single_select | True     | —                         | Ja \| Nein \| Beantragt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `expense_bulk_topics`                    | yes    | multi_select  | True     | —                         | Es werden Einkommensteuern gezahlt \| Es werden Sozialversicherungsbeitraege gezahlt \| Es besteht eine Haftpflichtversicherung \| Es besteht eine Kfz-Haftpflichtversicherung \| Es werden Altersvorsorgebeitraege gezahlt \| Es werden Beitraege zu einer Sterbegeldversicherung gezahlt \| Nein, nichts davon                                                                                                                                                                                                                                                                                                                                                 |
+| `foreign_health_insurance_yes_no`        | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `former_rental_apartment_yes_no`         | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `funeral_insurance_yes_no`               | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `health_insurance_type`                  | yes    | single_select | True     | —                         | Pflichtversicherung \| Familienversicherung \| freiwillige Versicherung \| private Versicherung                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `income_bulk_topics`                     | yes    | multi_select  | True     | —                         | Es wurde ein Antrag nach dem Opferentschaedigungsgesetz gestellt \| Es wurden freiwillige Beitraege in Rentenversicherung oder betriebliche Altersvorsorge eingezahlt \| Es wurde im Ausland gearbeitet und dort in eine Rentenkasse eingezahlt \| Es wurde im Ausland gearbeitet, ohne dort Rentenbeitraege zu zahlen \| Es wird ein Grundrentenzuschlag bezogen \| Es wurden 33 oder mehr Jahre Grundrentenzeiten erfuellt \| Nein, nichts davon                                                                                                                                                                                                               |
+| `life_insurance`                         | yes    | single_select | True     | —                         | Nein \| Kapitallebensversicherung \| Risikolebensversicherung                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `maintenance_bulk_topics`                | **NO** | —             | —        | —                         | —                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `marital_status`                         | yes    | single_select | True     | —                         | ledig \| verheiratet \| Lebenspartnerschaft \| eheähnliche Gemeinschaft \| verwitwet \| getrennt lebend \| geschieden                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `other_income_type`                      | yes    | single_select | True     | other_income (rep)        | Nichtselbstständige Tätigkeit \| Mini-/Midijob \| Ausbildungsvergütung \| ehrenamtliche Tätigkeit \| Entgelt der WfbM \| Leistung der Krankenkasse \| Gewerbebetrieb \| Land- und Forstwirtschaft \| sonstige selbstständige Tätigkeit \| Untervermietung \| Vermietung und Verpachtung \| Wohngeld/Lastenzuschuss \| AsylbLG \| Bundesversorgungsgesetz \| Lastenausgleichsamt \| Bürgergeld/SGB II \| Arbeitsförderung/SGB III \| Leistungen für Kinder \| Ausbildungsförderung \| Elterngeld \| Mutterschaftsgeld \| Unterhalt \| privatrechtliche geldwerte Ansprüche \| Kapitalerträge \| Leistungen nach anderen Sozialgesetzbüchern \| sonstige Einkünfte |
+| `pension_application_yes_no`             | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `property_yes_no`                        | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `spouse_asset_transfer_yes_no`           | yes    | single_select | True     | —                         | Nein \| Ja - ohne besonderen Vertrag \| Ja - siehe beigefuegte Urkunde                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `spouse_automobile_yes_no`               | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `spouse_bank_additional_account_yes_no`  | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `spouse_bank_giro_yes_no`                | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `spouse_bank_savings_account_yes_no`     | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `spouse_bulk_topics`                     | **NO** | —             | —        | —                         | —                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `spouse_disability_card`                 | yes    | single_select | True     | —                         | Ja \| Nein \| Beantragt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `spouse_foreign_health_insurance_yes_no` | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `spouse_funeral_insurance_yes_no`        | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `spouse_health_insurance_type`           | yes    | single_select | True     | —                         | Pflichtversicherung \| Familienversicherung \| freiwillige Versicherung \| private Versicherung                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `spouse_life_insurance`                  | yes    | single_select | True     | —                         | Nein \| Kapitallebensversicherung \| Risikolebensversicherung                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `spouse_other_income_type`               | yes    | single_select | True     | spouse_other_income (rep) | Nichtselbstständige Tätigkeit \| Mini-/Midijob \| Ausbildungsvergütung \| ehrenamtliche Tätigkeit \| Entgelt der WfbM \| Leistung der Krankenkasse \| Gewerbebetrieb \| Land- und Forstwirtschaft \| sonstige selbstständige Tätigkeit \| Untervermietung \| Vermietung und Verpachtung \| Wohngeld/Lastenzuschuss \| AsylbLG \| Bundesversorgungsgesetz \| Lastenausgleichsamt \| Bürgergeld/SGB II \| Arbeitsförderung/SGB III \| Leistungen für Kinder \| Ausbildungsförderung \| Elterngeld \| Mutterschaftsgeld \| Unterhalt \| privatrechtliche geldwerte Ansprüche \| Kapitalerträge \| Leistungen nach anderen Sozialgesetzbüchern \| sonstige Einkünfte |
+| `spouse_pension_application_yes_no`      | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `spouse_property_yes_no`                 | yes    | single_select | True     | —                         | Ja \| Nein                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `wealth_bulk_topics`                     | yes    | multi_select  | True     | —                         | Es gibt Wertpapiere oder Aktien \| Es gibt Schmuck oder Edelmetalle von relevantem Wert \| Es gibt sonstiges Vermoegen im In- oder Ausland \| Es gibt eine staatlich gefoerderte private Altersvorsorge \| Es gibt eine sonstige private Altersvorsorge \| Es gibt Forderungen oder Ansprueche gegen Dritte \| Es gibt Ansprueche aus Uebertragsvertraegen, Wohnrecht, Niessbrauch oder Altenteil \| Es gibt Ansprueche aus einer Erbschaft oder erwartete Erbschaft \| Nein, nichts davon                                                                                                                                                                       |
 
 ## 3. Value-level diff
 
-| rule_id | field | rules-file value | closest DB value | kind |
-|---|---|---|---|---|
-| ESS-054 | `asset_transfer_yes_no` | `Ja` | `Ja - ohne besonderen Vertrag` | PARTIAL |
-| ESS-055 | `spouse_asset_transfer_yes_no` | `Ja` | `Ja - ohne besonderen Vertrag` | PARTIAL |
+| rule_id | field                          | rules-file value | closest DB value               | kind    |
+| ------- | ------------------------------ | ---------------- | ------------------------------ | ------- |
+| ESS-054 | `asset_transfer_yes_no`        | `Ja`             | `Ja - ohne besonderen Vertrag` | PARTIAL |
+| ESS-055 | `spouse_asset_transfer_yes_no` | `Ja`             | `Ja - ohne besonderen Vertrag` | PARTIAL |
 
 ### Special fields
+
 - **marital_status** (single_select): options = ['ledig', 'verheiratet', 'Lebenspartnerschaft', 'eheähnliche Gemeinschaft', 'verwitwet', 'getrennt lebend', 'geschieden']
 - **life_insurance** (single_select): options = ['Nein', 'Kapitallebensversicherung', 'Risikolebensversicherung']
 - **asset_transfer_yes_no** (single_select): options = ['Nein', 'Ja - ohne besonderen Vertrag', 'Ja - siehe beigefuegte Urkunde']
@@ -172,7 +173,6 @@ application_date fields: ['pension_application_date', 'spouse_disability_card_ap
 - ESS-053: ['spouse_bulk_topics']
 - ESS-055: ['spouse_bulk_topics']
 
-
 ---
 
 # Addendum — manual review findings (read after the generated sections)
@@ -193,16 +193,16 @@ Essen's stored option **values are themselves transliterated** (`frueher`, `Verm
 
 **`spouse_bulk_topics` (8 rules) does not exist** — Essen split the spouse bulk into four per-domain questions (D2), and their option **values** are the applicant-style "Es …" strings while the "Der Partner …" text the rules file uses is only the display **label**. Both a key remap and a label→value remap are needed:
 
-| rule | remap key → | remap value → |
-|---|---|---|
-| ESS-016 | `spouse_applicant_bulk_topics` | `Es wurden frueher bereits Leistungen nach SGB II oder SGB XI bezogen` |
-| ESS-018 | `spouse_income_bulk_topics` | `Es wird ein Grundrentenzuschlag bezogen` / `Es wurden 33 oder mehr Jahre Grundrentenzeiten erfuellt` |
-| ESS-035 | `spouse_income_bulk_topics` | `Es wurde im Ausland gearbeitet und dort in eine Rentenkasse eingezahlt` / `Es wurde im Ausland gearbeitet, ohne dort Rentenbeitraege zu zahlen` |
-| ESS-037 | `spouse_wealth_bulk_topics` | `Es gibt sonstiges Vermoegen im In- oder Ausland` |
-| ESS-039 | `spouse_expense_bulk_topics` | `Es besteht eine Haftpflichtversicherung` |
-| ESS-043 | `spouse_expense_bulk_topics` | `Es werden Beitraege zu einer Sterbegeldversicherung gezahlt` |
-| ESS-053 | `spouse_expense_bulk_topics` | `Es besteht eine Kfz-Haftpflichtversicherung` |
-| ESS-055 | `spouse_wealth_bulk_topics` | `Es gibt Ansprueche aus Uebertragsvertraegen, Wohnrecht, Niessbrauch oder Altenteil` |
+| rule    | remap key →                    | remap value →                                                                                                                                    |
+| ------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ESS-016 | `spouse_applicant_bulk_topics` | `Es wurden frueher bereits Leistungen nach SGB II oder SGB XI bezogen`                                                                           |
+| ESS-018 | `spouse_income_bulk_topics`    | `Es wird ein Grundrentenzuschlag bezogen` / `Es wurden 33 oder mehr Jahre Grundrentenzeiten erfuellt`                                            |
+| ESS-035 | `spouse_income_bulk_topics`    | `Es wurde im Ausland gearbeitet und dort in eine Rentenkasse eingezahlt` / `Es wurde im Ausland gearbeitet, ohne dort Rentenbeitraege zu zahlen` |
+| ESS-037 | `spouse_wealth_bulk_topics`    | `Es gibt sonstiges Vermoegen im In- oder Ausland`                                                                                                |
+| ESS-039 | `spouse_expense_bulk_topics`   | `Es besteht eine Haftpflichtversicherung`                                                                                                        |
+| ESS-043 | `spouse_expense_bulk_topics`   | `Es werden Beitraege zu einer Sterbegeldversicherung gezahlt`                                                                                    |
+| ESS-053 | `spouse_expense_bulk_topics`   | `Es besteht eine Kfz-Haftpflichtversicherung`                                                                                                    |
+| ESS-055 | `spouse_wealth_bulk_topics`    | `Es gibt Ansprueche aus Uebertragsvertraegen, Wohnrecht, Niessbrauch oder Altenteil`                                                             |
 
 **ESS-047: `maintenance_bulk_topics` was deleted by CP3** (the Unterhalt bulk became the 5-option select `maintenance_claims_status`; the file's includes-value no longer exists anywhere). Proposed remap, matching the CP3 `ex_partner_*` gating precedent: `maintenance_claims_status` `in` [`Auf Unterhalt wurde verzichtet`, `Unterhalt wird bereits bezahlt`, `Unterhalt wurde noch nicht geltend gemacht`, `Unterhalt ist bereits tituliert`] (the four non-Nein options).
 

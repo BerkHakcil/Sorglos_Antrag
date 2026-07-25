@@ -1045,11 +1045,7 @@
       "condition": {
         "field": "other_income_type",
         "operator": "in",
-        "value": [
-          "Nichtselbstständige Tätigkeit",
-          "Mini-/Midijob",
-          "Ausbildungsvergütung"
-        ]
+        "value": ["Nichtselbstständige Tätigkeit", "Mini-/Midijob", "Ausbildungsvergütung"]
       }
     },
     {
@@ -1088,11 +1084,7 @@
           {
             "field": "spouse_other_income_type",
             "operator": "in",
-            "value": [
-              "Nichtselbstständige Tätigkeit",
-              "Mini-/Midijob",
-              "Ausbildungsvergütung"
-            ]
+            "value": ["Nichtselbstständige Tätigkeit", "Mini-/Midijob", "Ausbildungsvergütung"]
           }
         ]
       }
@@ -1171,10 +1163,7 @@
       "condition": {
         "field": "health_insurance_type",
         "operator": "in",
-        "value": [
-          "freiwillige Versicherung",
-          "private Versicherung"
-        ]
+        "value": ["freiwillige Versicherung", "private Versicherung"]
       }
     },
     {
@@ -1213,10 +1202,7 @@
           {
             "field": "spouse_health_insurance_type",
             "operator": "in",
-            "value": [
-              "freiwillige Versicherung",
-              "private Versicherung"
-            ]
+            "value": ["freiwillige Versicherung", "private Versicherung"]
           }
         ]
       }

@@ -61,6 +61,9 @@ function leafHolds(cond: RuleCondition, answers: Record<string, unknown>): boole
   if (cond.operator === 'equals') return answer === value
   if (cond.operator === 'not_equals')
     return answer !== undefined && answer !== null && answer !== value
+  // E1 (Essen rules): multi-select bulk answers are arrays of option values.
+  // Absent/non-array answers never match (fail closed, like every operator).
+  if (cond.operator === 'includes') return Array.isArray(answer) && answer.includes(value)
   return false
 }
 
@@ -78,26 +81,68 @@ export function conditionHolds(cond: RuleCondition, answers: Record<string, unkn
 
 /** Finds the repeat_for_each binding anywhere in the condition tree (or null). */
 export function repeatBinding(cond: RuleCondition): string | null {
+  return findRepeatNode(cond)?.binding ?? null
+}
+
+export type RepeatNode = {
+  binding: string
+  /** E2: only instances whose labeled member value is in this list emit a slot. */
+  matchValues?: string[]
+  /** E3: true when the binding node sits inside an `any` — the flat branches
+   *  are then ALTERNATIVES that can contribute a single default slot. */
+  viaAny: boolean
+}
+
+/** Locates the repeat_for_each node + its E2/E3 context. */
+export function findRepeatNode(cond: RuleCondition, viaAny = false): RepeatNode | null {
   if (!cond) return null
-  if (typeof cond.repeat_for_each === 'string') return cond.repeat_for_each
+  if (typeof cond.repeat_for_each === 'string') {
+    return {
+      binding: cond.repeat_for_each,
+      matchValues: Array.isArray(cond.match_values) ? (cond.match_values as string[]) : undefined,
+      viaAny,
+    }
+  }
   for (const k of ['any', 'all'] as const) {
     if (Array.isArray(cond[k])) {
       for (const c of cond[k] as RuleCondition[]) {
-        const b = repeatBinding(c)
-        if (b) return b
+        const n = findRepeatNode(c, viaAny || k === 'any')
+        if (n) return n
       }
     }
   }
   return null
 }
 
+/**
+ * E3: evaluates the condition tree with every repeat_for_each branch treated
+ * as FALSE — i.e. "does a flat (non-instance) branch hold on its own?".
+ * Used only for bindings inside `any`: when zero instances match, a holding
+ * flat branch contributes exactly one default slot.
+ */
+export function flatBranchHolds(cond: RuleCondition, answers: Record<string, unknown>): boolean {
+  if (!cond || cond.always === true) return true
+  if ('repeat_for_each' in cond) return false
+  if (Array.isArray(cond.any))
+    return (cond.any as RuleCondition[]).some((c) => flatBranchHolds(c, answers))
+  if (Array.isArray(cond.all))
+    return (cond.all as RuleCondition[]).every((c) => flatBranchHolds(c, answers))
+  if ('field' in cond) return leafHolds(cond, answers)
+  return false
+}
+
 // ── repeat_for_each bindings ──────────────────────────────────────────────────
 
 type Instance = { key: string; label: string | null }
 
-/** Bank slots = giro (always) + savings (if yes) + one per additional-account instance. */
+/** Bank slots = giro + savings (if yes) + one per additional-account instance.
+ *  E4: the giro slot is suppressed when `${prefix}bank_giro_yes_no` is answered
+ *  "Nein" — that gate question exists only in Essen, so Berlin/Pankow cases
+ *  (where the key is never answered) keep the unconditional giro slot. */
 function bankInstances(prefix: '' | 'spouse_', input: EvalInput): Instance[] {
-  const out: Instance[] = [{ key: `${prefix}giro`, label: 'Girokonto' }]
+  const out: Instance[] = []
+  if (input.answers[`${prefix}bank_giro_yes_no`] !== 'Nein')
+    out.push({ key: `${prefix}giro`, label: 'Girokonto' })
   if (input.answers[`${prefix}bank_savings_account_yes_no`] === 'Ja')
     out.push({ key: `${prefix}savings`, label: 'Sparkonto' })
   const groupKey = `${prefix}bank_additional`
@@ -112,13 +157,16 @@ function bankInstances(prefix: '' | 'spouse_', input: EvalInput): Instance[] {
   return out
 }
 
-/** Group-based slots; skipEmpty drops unfilled placeholder instances, skipValues drops e.g. "Keine Rente". */
+/** Group-based slots; skipEmpty drops unfilled placeholder instances, skipValues
+ *  drops e.g. "Keine Rente", keepValues (E2: match_values) keeps ONLY instances
+ *  whose labeled member value is listed. */
 function groupBased(
   groupKey: string,
   labelField: string,
   labelPrefix: string,
   input: EvalInput,
-  skipValues: string[] = []
+  skipValues: string[] = [],
+  keepValues?: string[]
 ): Instance[] {
   const out: Instance[] = []
   let n = 0
@@ -128,6 +176,7 @@ function groupBased(
     if (!filled) continue
     const lv = a[labelField]
     if (typeof lv === 'string' && skipValues.includes(lv)) continue
+    if (keepValues && !(typeof lv === 'string' && keepValues.includes(lv))) continue
     n++
     out.push({
       key: inst,
@@ -137,21 +186,41 @@ function groupBased(
   return out
 }
 
-export function instancesForBinding(binding: string, input: EvalInput): Instance[] {
-  // Binding names come verbatim from the Pankow master's repeat_for_each values.
+export function instancesForBinding(
+  binding: string,
+  input: EvalInput,
+  matchValues?: string[]
+): Instance[] {
+  // Binding names come verbatim from the office masters' repeat_for_each values.
+  // matchValues (E2) applies to the group-based bindings; the composite bank
+  // bindings ignore it (no labeled member to filter on).
   switch (binding) {
     case 'applicant_bank_account':
       return bankInstances('', input)
     case 'spouse_bank_account':
       return bankInstances('spouse_', input)
     case 'pension_type':
-      return groupBased('pension', 'pension_type', 'Rente', input, ['Keine Rente'])
+      return groupBased('pension', 'pension_type', 'Rente', input, ['Keine Rente'], matchValues)
     case 'spouse_pension_type':
-      return groupBased('spouse_pension', 'spouse_pension_type', 'Rente', input, ['Keine Rente'])
+      return groupBased(
+        'spouse_pension',
+        'spouse_pension_type',
+        'Rente',
+        input,
+        ['Keine Rente'],
+        matchValues
+      )
     case 'other_income':
-      return groupBased('other_income', 'other_income_type', 'Einkommen', input)
+      return groupBased('other_income', 'other_income_type', 'Einkommen', input, [], matchValues)
     case 'spouse_other_income':
-      return groupBased('spouse_other_income', 'spouse_other_income_type', 'Einkommen', input)
+      return groupBased(
+        'spouse_other_income',
+        'spouse_other_income_type',
+        'Einkommen',
+        input,
+        [],
+        matchValues
+      )
     default:
       return [] // unknown binding → no slots (fail closed; seed-time validation guards this)
   }
@@ -183,8 +252,8 @@ export function evaluateDocumentRules(
     if (!conditionHolds(rule.condition, input.answers)) continue
     const doc = catalog[rule.document_id]
     const nameDe = doc?.name_de ?? rule.document_id
-    const binding = repeatBinding(rule.condition)
-    if (!binding) {
+    const node = findRepeatNode(rule.condition)
+    if (!node) {
       slots.push({
         ruleId: rule.id,
         documentId: rule.document_id,
@@ -196,7 +265,8 @@ export function evaluateDocumentRules(
       })
       continue
     }
-    for (const inst of instancesForBinding(binding, input)) {
+    const instances = instancesForBinding(node.binding, input, node.matchValues)
+    for (const inst of instances) {
       slots.push({
         ruleId: rule.id,
         documentId: rule.document_id,
@@ -204,6 +274,22 @@ export function evaluateDocumentRules(
         subject: rule.subject,
         instanceKey: inst.key,
         instanceLabel: inst.label,
+        periodMonths: rule.period_months,
+      })
+    }
+    // E3 (chosen semantic, ESS-015/016): a binding inside `any` makes the flat
+    // branches ALTERNATIVES — when zero instances match, a holding flat branch
+    // contributes exactly ONE default slot; when instances match, only the
+    // per-entry slots are emitted. Bindings inside `all` (the Pankow shape)
+    // never reach this: viaAny is false there.
+    if (instances.length === 0 && node.viaAny && flatBranchHolds(rule.condition, input.answers)) {
+      slots.push({
+        ruleId: rule.id,
+        documentId: rule.document_id,
+        nameDe,
+        subject: rule.subject,
+        instanceKey: 'default',
+        instanceLabel: null,
         periodMonths: rule.period_months,
       })
     }

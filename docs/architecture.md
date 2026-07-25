@@ -103,6 +103,8 @@ Conventions: PK = `id` (UUID). Timestamps are `created_at` / `updated_at` (timez
 
 **Dynamic documents.** Whenever a relevant answer changes, recompute `case_document_requirement` from `document_rule` (base + `condition` + `repeat_per_group_key`). **Reconcile — never hard-delete:** add new requirements, and mark now-irrelevant ones `is_active = false` rather than deleting them, so an existing upload is never orphaned. At go-live, document _statuses_ are changed manually (admin is read-only until post-go-live).
 
+> **As built (M5–M7 + Essen rules, 2026-07):** the materialized `case_document_requirement` design above was replaced before launch by a fully **derived** checklist — `document_catalog` + `office_document_rule` (JSONB conditions per office master file) evaluated live by the pure `lib/document-rules.ts` on every load; uploads bind `(case_id, rule_id, instance_key)`. Condition operators: `always` / `equals` / `not_equals` / `includes` (multi-select) / `any` / `all` / `repeat_for_each` (optionally value-filtered via `match_values`; a binding inside `any` falls back to one default slot when zero instances match and a flat branch holds). All operators no-match on absent keys. Rule sets are seeded per office from canonical masters in `docs/document-rules/` (currently Pankow + Essen); a case uses its own office's rules, else the `app_config` default (Pankow). See the milestone log for the decisions of record.
+
 ---
 
 ## 5. Security, EU residency & GDPR

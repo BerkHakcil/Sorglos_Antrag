@@ -1,0 +1,1301 @@
+{
+  "note": "Snapshot of the LIVE Pankow rules + catalog (2026-07-23), the regression-gate input for evaluator changes.",
+  "rules": [
+    {
+      "id": "PAN-001",
+      "document_id": "DOC-0001",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "id": "PAN-002",
+      "document_id": "DOC-0001",
+      "requirement_type": "mandatory",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "any": [
+          {
+            "field": "marital_status",
+            "value": "verheiratet",
+            "operator": "equals"
+          },
+          {
+            "field": "marital_status",
+            "value": "eingetragene Lebenspartnerschaft",
+            "operator": "equals"
+          },
+          {
+            "field": "marital_status",
+            "value": "eheähnliche Gemeinschaft",
+            "operator": "equals"
+          },
+          {
+            "field": "marital_status",
+            "value": "Lebenspartnerschaft",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-003",
+      "document_id": "DOC-0002",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "repeat_for_each": "pension_type"
+      }
+    },
+    {
+      "id": "PAN-004",
+      "document_id": "DOC-0002",
+      "requirement_type": "mandatory",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "repeat_for_each": "spouse_pension_type"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-005",
+      "document_id": "DOC-0003",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "period_months": 4,
+      "condition": {
+        "period_months": 4,
+        "repeat_for_each": "applicant_bank_account"
+      }
+    },
+    {
+      "id": "PAN-006",
+      "document_id": "DOC-0003",
+      "requirement_type": "mandatory",
+      "subject": "person_2",
+      "period_months": 4,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "period_months": 4,
+            "repeat_for_each": "spouse_bank_account"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-007",
+      "document_id": "DOC-0004",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "id": "PAN-008",
+      "document_id": "DOC-0005",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "id": "PAN-009",
+      "document_id": "DOC-0005",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "any": [
+          {
+            "field": "spouse_in_facility_yes_no",
+            "value": "Ja",
+            "operator": "equals"
+          },
+          {
+            "field": "spouse_care_level",
+            "value": "Nicht vorhanden",
+            "operator": "not_equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-010",
+      "document_id": "DOC-0006",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "id": "PAN-011",
+      "document_id": "DOC-0006",
+      "requirement_type": "mandatory",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "any": [
+          {
+            "field": "marital_status",
+            "value": "verheiratet",
+            "operator": "equals"
+          },
+          {
+            "field": "marital_status",
+            "value": "eingetragene Lebenspartnerschaft",
+            "operator": "equals"
+          },
+          {
+            "field": "marital_status",
+            "value": "eheähnliche Gemeinschaft",
+            "operator": "equals"
+          },
+          {
+            "field": "marital_status",
+            "value": "Lebenspartnerschaft",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-012",
+      "document_id": "DOC-0007",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "id": "PAN-013",
+      "document_id": "DOC-0007",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "field": "spouse_in_facility_yes_no",
+            "value": "Ja",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-014",
+      "document_id": "DOC-0008",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "id": "PAN-015",
+      "document_id": "DOC-0008",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "field": "spouse_in_facility_yes_no",
+            "value": "Ja",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-016",
+      "document_id": "DOC-0009",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "id": "PAN-017",
+      "document_id": "DOC-0010",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "id": "PAN-018",
+      "document_id": "DOC-0011",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "id": "PAN-019",
+      "document_id": "DOC-0012",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "id": "PAN-020",
+      "document_id": "DOC-0013",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "any": [
+          {
+            "field": "life_insurance",
+            "value": "Lebensversicherung",
+            "operator": "equals"
+          },
+          {
+            "field": "life_insurance",
+            "value": "Kapitallebensversicherung",
+            "operator": "equals"
+          },
+          {
+            "field": "life_insurance",
+            "value": "Risikolebensversicherung",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-021",
+      "document_id": "DOC-0013",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "field": "spouse_life_insurance",
+            "value": "Lebensversicherung",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-022",
+      "document_id": "DOC-0014",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "field": "life_insurance",
+        "value": "Sterbeversicherung",
+        "operator": "equals"
+      }
+    },
+    {
+      "id": "PAN-023",
+      "document_id": "DOC-0014",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "field": "spouse_life_insurance",
+            "value": "Sterbeversicherung",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-024",
+      "document_id": "DOC-0015",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "field": "funeral_insurance_yes_no",
+        "value": "Ja",
+        "operator": "equals"
+      }
+    },
+    {
+      "id": "PAN-025",
+      "document_id": "DOC-0016",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "field": "marital_status",
+        "value": "verwitwet",
+        "operator": "equals"
+      }
+    },
+    {
+      "id": "PAN-026",
+      "document_id": "DOC-0017",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "field": "german_citizenship_yes_no",
+        "value": "Nein",
+        "operator": "equals"
+      }
+    },
+    {
+      "id": "PAN-027",
+      "document_id": "DOC-0017",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "field": "spouse_german_citizenship_yes_no",
+            "value": "Nein",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-028",
+      "document_id": "DOC-0018",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "field": "disability_card",
+        "value": "Ja",
+        "operator": "equals"
+      }
+    },
+    {
+      "id": "PAN-029",
+      "document_id": "DOC-0018",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "field": "spouse_disability_card",
+            "value": "Ja",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-030",
+      "document_id": "DOC-0019",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "field": "general_liablity_insurance_yes_no",
+        "value": "Ja",
+        "operator": "equals"
+      }
+    },
+    {
+      "id": "PAN-031",
+      "document_id": "DOC-0019",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "field": "spouse_general_liablity_insurance_yes_no",
+            "value": "Ja",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-032",
+      "document_id": "DOC-0020",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "field": "wohngeld_yes_no",
+        "value": "Ja",
+        "operator": "equals"
+      }
+    },
+    {
+      "id": "PAN-033",
+      "document_id": "DOC-0020",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "field": "spouse_wohngeld_yes_no",
+            "value": "Ja",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-034",
+      "document_id": "DOC-0021",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "field": "special_origin_rights",
+        "value": "Nein",
+        "operator": "not_equals"
+      }
+    },
+    {
+      "id": "PAN-035",
+      "document_id": "DOC-0021",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "field": "spouse_special_origin_rights",
+            "value": "Nein",
+            "operator": "not_equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-036",
+      "document_id": "DOC-0022",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "field": "marital_status",
+        "value": "geschieden",
+        "operator": "equals"
+      }
+    },
+    {
+      "id": "PAN-037",
+      "document_id": "DOC-0023",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "any": [
+          {
+            "field": "prior_social_aid",
+            "value": "Ja",
+            "operator": "equals"
+          },
+          {
+            "field": "prior_social_service_applications",
+            "value": "Ja",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-038",
+      "document_id": "DOC-0023",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "field": "spouse_prior_social_aid",
+                "value": "Ja",
+                "operator": "equals"
+              },
+              {
+                "field": "spouse_prior_social_service_applications",
+                "value": "Ja",
+                "operator": "equals"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-039",
+      "document_id": "DOC-0024",
+      "requirement_type": "conditional",
+      "subject": "previous_home",
+      "period_months": null,
+      "condition": {
+        "field": "apartment_ownership",
+        "value": "Mietwohnung",
+        "operator": "equals"
+      }
+    },
+    {
+      "id": "PAN-040",
+      "document_id": "DOC-0025",
+      "requirement_type": "conditional",
+      "subject": "previous_home",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "field": "apartment_ownership",
+            "value": "Mietwohnung",
+            "operator": "equals"
+          },
+          {
+            "field": "rent_contract_termination_yes_no",
+            "value": "Ja",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-041",
+      "document_id": "DOC-0026",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "when": {
+          "field": "other_income",
+          "value": "Ja",
+          "operator": "equals"
+        },
+        "repeat_for_each": "other_income"
+      }
+    },
+    {
+      "id": "PAN-042",
+      "document_id": "DOC-0026",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "when": {
+              "field": "spouse_other_income",
+              "value": "Ja",
+              "operator": "equals"
+            },
+            "repeat_for_each": "spouse_other_income"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-043",
+      "document_id": "DOC-0027",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "field": "automobile_owner",
+        "value": "Ja",
+        "operator": "equals"
+      }
+    },
+    {
+      "id": "PAN-044",
+      "document_id": "DOC-0027",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "field": "spouse_automobile_owner",
+            "value": "Ja",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-045",
+      "document_id": "DOC-0028",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "field": "automobile_owner",
+        "value": "Ja",
+        "operator": "equals"
+      }
+    },
+    {
+      "id": "PAN-046",
+      "document_id": "DOC-0028",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "field": "spouse_automobile_owner",
+            "value": "Ja",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-047",
+      "document_id": "DOC-0029",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "field": "automobile_owner",
+        "value": "Ja",
+        "operator": "equals"
+      }
+    },
+    {
+      "id": "PAN-048",
+      "document_id": "DOC-0029",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "field": "spouse_automobile_owner",
+            "value": "Ja",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PAN-049",
+      "document_id": "DOC-0030",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "period_months": null,
+      "condition": {
+        "field": "property_yes_no",
+        "value": "Nein",
+        "operator": "not_equals"
+      }
+    },
+    {
+      "id": "PAN-050",
+      "document_id": "DOC-0030",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "value": "verheiratet",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eingetragene Lebenspartnerschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "eheähnliche Gemeinschaft",
+                "operator": "equals"
+              },
+              {
+                "field": "marital_status",
+                "value": "Lebenspartnerschaft",
+                "operator": "equals"
+              }
+            ]
+          },
+          {
+            "field": "spouse_property_yes_no",
+            "value": "Nein",
+            "operator": "not_equals"
+          }
+        ]
+      }
+    }
+  ],
+  "catalog": [
+    {
+      "id": "DOC-0001",
+      "name_de": "Personaldokument",
+      "category": "person"
+    },
+    {
+      "id": "DOC-0002",
+      "name_de": "Renten/Pensionsbescheid",
+      "category": "income"
+    },
+    {
+      "id": "DOC-0003",
+      "name_de": "Kontoauszuege",
+      "category": "assets"
+    },
+    {
+      "id": "DOC-0004",
+      "name_de": "Pflegegutachten MDK",
+      "category": "person"
+    },
+    {
+      "id": "DOC-0005",
+      "name_de": "Leistungsbescheid Pflegekasse",
+      "category": "person"
+    },
+    {
+      "id": "DOC-0006",
+      "name_de": "Vertretungsvollmacht / Betreuungsnachweis",
+      "category": "person"
+    },
+    {
+      "id": "DOC-0007",
+      "name_de": "Heimvertrag",
+      "category": "expenses"
+    },
+    {
+      "id": "DOC-0008",
+      "name_de": "Bisherige Heimrechnungen",
+      "category": "expenses"
+    },
+    {
+      "id": "DOC-0009",
+      "name_de": "Nachweis Bedarfsanzeige",
+      "category": "person"
+    },
+    {
+      "id": "DOC-0010",
+      "name_de": "Polizeiliche Anmeldung im Heim",
+      "category": "person"
+    },
+    {
+      "id": "DOC-0011",
+      "name_de": "Mobilitaetsnachweis",
+      "category": "person"
+    },
+    {
+      "id": "DOC-0012",
+      "name_de": "Krankenversicherungskarte",
+      "category": "person"
+    },
+    {
+      "id": "DOC-0013",
+      "name_de": "Lebensversicherung",
+      "category": "expenses"
+    },
+    {
+      "id": "DOC-0014",
+      "name_de": "Sterbeversicherung",
+      "category": "expenses"
+    },
+    {
+      "id": "DOC-0015",
+      "name_de": "Bestattungsvorsorgevertrag",
+      "category": "assets"
+    },
+    {
+      "id": "DOC-0016",
+      "name_de": "Sterbeurkunde Partner",
+      "category": "person"
+    },
+    {
+      "id": "DOC-0017",
+      "name_de": "Aufenthaltsstatus",
+      "category": "person"
+    },
+    {
+      "id": "DOC-0018",
+      "name_de": "Schwerbehindertenausweis",
+      "category": "person"
+    },
+    {
+      "id": "DOC-0019",
+      "name_de": "Haftpflichtversicherung",
+      "category": "expenses"
+    },
+    {
+      "id": "DOC-0020",
+      "name_de": "Wohngeldbescheid",
+      "category": "income"
+    },
+    {
+      "id": "DOC-0021",
+      "name_de": "Heimatvertriebener/Spaetaussiedler Nachweis",
+      "category": "person"
+    },
+    {
+      "id": "DOC-0022",
+      "name_de": "Scheidungsurkunde",
+      "category": "person"
+    },
+    {
+      "id": "DOC-0023",
+      "name_de": "Leistungsnachweis Sozialhilfe",
+      "category": "person"
+    },
+    {
+      "id": "DOC-0024",
+      "name_de": "Mietvertrag",
+      "category": "expenses"
+    },
+    {
+      "id": "DOC-0025",
+      "name_de": "Mietkuendigungsnachweis",
+      "category": "expenses"
+    },
+    {
+      "id": "DOC-0026",
+      "name_de": "Nachweis anderes Einkommen",
+      "category": "income"
+    },
+    {
+      "id": "DOC-0027",
+      "name_de": "KFZ Versicherung",
+      "category": "expenses"
+    },
+    {
+      "id": "DOC-0028",
+      "name_de": "KFZ Fahrzeugbrief",
+      "category": "assets"
+    },
+    {
+      "id": "DOC-0029",
+      "name_de": "KFZ Wertnachweis",
+      "category": "assets"
+    },
+    {
+      "id": "DOC-0030",
+      "name_de": "Nachweis Immobilienwert",
+      "category": "assets"
+    }
+  ]
+}

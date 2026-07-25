@@ -50,6 +50,24 @@ Quick orientation for anyone picking this up cold:
 
 ---
 
+## Essen document rules — seed + evaluator extension — built 2026-07-24, **verification pending `db push`**
+
+Roman's rules file landed (the last real open Roman deliverable). Two-phase per house rules; Phase 1 report at `docs/document-rules/phase1_essen_docs_verification.md` (Addendum A3 = the authoritative remap table); the canonical master is committed at `docs/document-rules/essen_document_rules.json` (Pankow-master precedent).
+
+**Routing (no config change):** seeding rules for Sozialamt Essen (`10000000-…-0162`) makes Essen-routed cases switch automatically — own-office rules always win in `getDocumentData`. **`default_document_office_id` deliberately stays Pankow**: the default serves Berlin-questionnaire fallback cases, for which Pankow's Berlin-keyed rules evaluate correctly and Essen's would never fire. Zero uploads existed on Essen cases (verified per row), so the switch strands nothing.
+
+**Evaluator extension (all additive, `lib/document-rules.ts`):** E1 `includes` leaf operator (multi-select bulks; absent/non-array → no match); E2 `match_values` on `repeat_for_each` (one slot per instance whose labeled value is listed); E3 hybrid-`any` semantics; E4 giro slot suppressed when `bank_giro_yes_no` is answered "Nein" (key exists only in Essen — Berlin unaffected). **E3 chosen semantic (founders 2026-07-23): ESS-015/016 — when matching income entries exist, only per-entry slots are emitted; the prior-SGB-II/XI flat branch contributes a slot only when zero entries match. Changing this is a rules change, not an engine change.** Pankow cannot reach any new path: live-rule census = `equals`/`not_equals` only, no `match_values`, no `any`-wrapped bindings, no giro gate key — and the regression gate proves it.
+
+**Seed (GENERATED `20260724000001` by the committed `scripts/generate_essen_rules_seed.py`):** 13 new catalog docs (DOC-0031…0043, names verbatim) + 55 rules (ESS-001…055), INSERTs only. 19 rules seed differently from the file (full table in the migration header): 9 A3 remaps (per-domain spouse bulks with label→stored-"Es…"-value fixes; ESS-047 → `maintenance_claims_status` non-Nein set), 8 D1 translations (equals/in on income types → filtered repeats), ESS-025/026 `in`→any-equals, ESS-054/055 D3 `starts_with`→any-equals. Transliterated values seed as-is — they ARE the stored option values (D4). Inert extra keys from the file (`period_anchor`) ride along in the JSONB, ignored by the evaluator.
+
+**Tests (29 new, all green pre-push):** the **Pankow regression gate** — 3 fixtures (incl. the pilot-shaped married case) against a committed snapshot of the live Pankow rules, output **byte-identical** to goldens captured with the pre-extension evaluator; partner chain via all three qualifying marital values on a remapped spouse bulk; per-entry pension slots (+partner-only); per-account gated bank slots incl. the E4 lifecycle (unanswered→present, Nein→absent, Ja→present) and Berlin-unchanged; D1 2-matching+1-non → 2 slots; E3 both-true (per-entry only) and flat-only (exactly one default); ESS-047 on each non-Nein value; D3 on both Ja-variants; minimal single applicant → exactly the mandatory set ESS-001/003/005/006/007/008/010/012.
+
+**Roman sign-off doc:** `docs/document-rules/german_copy_for_roman.md` — the PLACEHOLDER_DE 4-month bank-statement instruction (not wired, D5) + the 13 caregiver-facing document names.
+
+**Open after push:** live verification (Essen case shows ESS checklist; Pankow case unchanged), verify-baseline replay (catalog 43, rules 105).
+
+---
+
 ## Content pass — Roman's answers (A+B) + pending-German ledger finalization — ✅ complete 2026-07-23
 
 **Verified live on prod after the push:** 21 Pankow rules (ids `…01–18` + `…19/20/21` — the seed uses DECIMAL-style suffixes; the first push collided on hex-continuation `13` and applied nothing, file corrected in place before re-push); 10247/10249/13051 each resolve to Pankow at priority 20 over their generic priority-1 rules; **live drive on 10247** → Pankow office + Berlin questionnaire (53) + `resolved` + default checklist rendering; 13187 unchanged; giro prompt live with "ein". verify-baseline full replay: **all 12 tables identical (PLZ rules 8177 → 8180)**. Ops note recorded: local replays can be blocked by Windows WinNAT port reservations (see `docs/operations.md` §5).

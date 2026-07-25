@@ -1,0 +1,1637 @@
+{
+  "note": "GENERATED normalized Essen rules (unit-test input) — regenerate via scripts/generate_essen_rules_seed.py",
+  "rules": [
+    {
+      "id": "ESS-001",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0001",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "id": "ESS-002",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0001",
+      "requirement_type": "mandatory",
+      "subject": "person_2",
+      "instance_note": "one slot for partner",
+      "period_months": null,
+      "condition": {
+        "any": [
+          {
+            "field": "marital_status",
+            "operator": "equals",
+            "value": "verheiratet"
+          },
+          {
+            "field": "marital_status",
+            "operator": "equals",
+            "value": "Lebenspartnerschaft"
+          },
+          {
+            "field": "marital_status",
+            "operator": "equals",
+            "value": "eheähnliche Gemeinschaft"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-003",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0002",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "instance_note": "one slot per applicant pension entry",
+      "period_months": null,
+      "condition": {
+        "repeat_for_each": "pension_type"
+      }
+    },
+    {
+      "id": "ESS-004",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0002",
+      "requirement_type": "mandatory",
+      "subject": "person_2",
+      "instance_note": "one slot per partner pension entry",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "repeat_for_each": "spouse_pension_type"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-005",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0005",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "id": "ESS-006",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0007",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "id": "ESS-007",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0008",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "instance_note": "one slot for current care home invoice",
+      "period_months": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "id": "ESS-008",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0037",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "id": "ESS-009",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0037",
+      "requirement_type": "mandatory",
+      "subject": "person_2",
+      "instance_note": "one slot for partner",
+      "period_months": null,
+      "condition": {
+        "any": [
+          {
+            "field": "marital_status",
+            "operator": "equals",
+            "value": "verheiratet"
+          },
+          {
+            "field": "marital_status",
+            "operator": "equals",
+            "value": "Lebenspartnerschaft"
+          },
+          {
+            "field": "marital_status",
+            "operator": "equals",
+            "value": "eheähnliche Gemeinschaft"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-010",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0003",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "instance_note": "one slot per applicant account",
+      "period_months": 4,
+      "condition": {
+        "repeat_for_each": "applicant_bank_account",
+        "period_months": 4,
+        "period_anchor": "application_date"
+      }
+    },
+    {
+      "id": "ESS-011",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0003",
+      "requirement_type": "mandatory",
+      "subject": "person_2",
+      "instance_note": "one slot per partner account",
+      "period_months": 4,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "repeat_for_each": "spouse_bank_account",
+            "period_months": 4,
+            "period_anchor": "application_date"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-012",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0006",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "id": "ESS-013",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0031",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot per pending pension application",
+      "period_months": null,
+      "condition": {
+        "field": "pension_application_yes_no",
+        "operator": "equals",
+        "value": "Ja"
+      }
+    },
+    {
+      "id": "ESS-014",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0031",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot per pending partner pension application",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_pension_application_yes_no",
+            "operator": "equals",
+            "value": "Ja"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-015",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0032",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot per relevant income/social benefit entry",
+      "period_months": null,
+      "condition": {
+        "any": [
+          {
+            "repeat_for_each": "other_income",
+            "match_values": ["Bürgergeld/SGB II"]
+          },
+          {
+            "field": "applicant_bulk_topics",
+            "operator": "includes",
+            "value": "Es wurden frueher bereits Leistungen nach SGB II oder SGB XI bezogen"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-016",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0032",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot per relevant partner income/social benefit entry",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "repeat_for_each": "spouse_other_income",
+                "match_values": ["Bürgergeld/SGB II"]
+              },
+              {
+                "field": "spouse_applicant_bulk_topics",
+                "operator": "includes",
+                "value": "Es wurden frueher bereits Leistungen nach SGB II oder SGB XI bezogen"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-017",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0033",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "any": [
+          {
+            "field": "income_bulk_topics",
+            "operator": "includes",
+            "value": "Es wird ein Grundrentenzuschlag bezogen"
+          },
+          {
+            "field": "income_bulk_topics",
+            "operator": "includes",
+            "value": "Es wurden 33 oder mehr Jahre Grundrentenzeiten erfuellt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-018",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0033",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot for partner",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "field": "spouse_income_bulk_topics",
+                "operator": "includes",
+                "value": "Es wird ein Grundrentenzuschlag bezogen"
+              },
+              {
+                "field": "spouse_income_bulk_topics",
+                "operator": "includes",
+                "value": "Es wurden 33 oder mehr Jahre Grundrentenzeiten erfuellt"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-019",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0034",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot per sickness benefit income entry",
+      "period_months": null,
+      "condition": {
+        "repeat_for_each": "other_income",
+        "match_values": ["Leistung der Krankenkasse"]
+      }
+    },
+    {
+      "id": "ESS-020",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0034",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot per partner sickness benefit income entry",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "repeat_for_each": "spouse_other_income",
+            "match_values": ["Leistung der Krankenkasse"]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-021",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0035",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot per employment income entry",
+      "period_months": null,
+      "condition": {
+        "repeat_for_each": "other_income",
+        "match_values": ["Nichtselbstständige Tätigkeit", "Mini-/Midijob", "Ausbildungsvergütung"]
+      }
+    },
+    {
+      "id": "ESS-022",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0035",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot per partner employment income entry",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "repeat_for_each": "spouse_other_income",
+            "match_values": [
+              "Nichtselbstständige Tätigkeit",
+              "Mini-/Midijob",
+              "Ausbildungsvergütung"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-023",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0018",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "field": "disability_card",
+        "operator": "equals",
+        "value": "Ja"
+      }
+    },
+    {
+      "id": "ESS-024",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0018",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot for partner",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_disability_card",
+            "operator": "equals",
+            "value": "Ja"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-025",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0036",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "any": [
+          {
+            "field": "health_insurance_type",
+            "operator": "equals",
+            "value": "freiwillige Versicherung"
+          },
+          {
+            "field": "health_insurance_type",
+            "operator": "equals",
+            "value": "private Versicherung"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-026",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0036",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot for partner",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "field": "spouse_health_insurance_type",
+                "operator": "equals",
+                "value": "freiwillige Versicherung"
+              },
+              {
+                "field": "spouse_health_insurance_type",
+                "operator": "equals",
+                "value": "private Versicherung"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-027",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0020",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "repeat_for_each": "other_income",
+        "match_values": ["Wohngeld/Lastenzuschuss"]
+      }
+    },
+    {
+      "id": "ESS-028",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0020",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot for partner",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "repeat_for_each": "spouse_other_income",
+            "match_values": ["Wohngeld/Lastenzuschuss"]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-029",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0024",
+      "requirement_type": "conditional",
+      "subject": "previous_home",
+      "instance_note": "one slot for previous rental apartment",
+      "period_months": null,
+      "condition": {
+        "field": "former_rental_apartment_yes_no",
+        "operator": "equals",
+        "value": "Ja"
+      }
+    },
+    {
+      "id": "ESS-030",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0025",
+      "requirement_type": "conditional",
+      "subject": "previous_home",
+      "instance_note": "one slot for previous rental apartment",
+      "period_months": null,
+      "condition": {
+        "field": "former_rental_apartment_yes_no",
+        "operator": "equals",
+        "value": "Ja"
+      }
+    },
+    {
+      "id": "ESS-031",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0038",
+      "requirement_type": "conditional",
+      "subject": "property_owner",
+      "instance_note": "one slot per relevant owned home/property owner",
+      "period_months": null,
+      "condition": {
+        "any": [
+          {
+            "field": "property_yes_no",
+            "operator": "equals",
+            "value": "Ja"
+          },
+          {
+            "field": "spouse_property_yes_no",
+            "operator": "equals",
+            "value": "Ja"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-032",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0039",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "field": "foreign_health_insurance_yes_no",
+        "operator": "equals",
+        "value": "Ja"
+      }
+    },
+    {
+      "id": "ESS-033",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0039",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot for partner",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_foreign_health_insurance_yes_no",
+            "operator": "equals",
+            "value": "Ja"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-034",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0040",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "any": [
+          {
+            "field": "income_bulk_topics",
+            "operator": "includes",
+            "value": "Es wurde im Ausland gearbeitet und dort in eine Rentenkasse eingezahlt"
+          },
+          {
+            "field": "income_bulk_topics",
+            "operator": "includes",
+            "value": "Es wurde im Ausland gearbeitet, ohne dort Rentenbeitraege zu zahlen"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-035",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0040",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot for partner",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "field": "spouse_income_bulk_topics",
+                "operator": "includes",
+                "value": "Es wurde im Ausland gearbeitet und dort in eine Rentenkasse eingezahlt"
+              },
+              {
+                "field": "spouse_income_bulk_topics",
+                "operator": "includes",
+                "value": "Es wurde im Ausland gearbeitet, ohne dort Rentenbeitraege zu zahlen"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-036",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0041",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot if other assets bulk topic is selected",
+      "period_months": null,
+      "condition": {
+        "field": "wealth_bulk_topics",
+        "operator": "includes",
+        "value": "Es gibt sonstiges Vermoegen im In- oder Ausland"
+      }
+    },
+    {
+      "id": "ESS-037",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0041",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot if partner other assets bulk topic is selected",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_wealth_bulk_topics",
+            "operator": "includes",
+            "value": "Es gibt sonstiges Vermoegen im In- oder Ausland"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-038",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0019",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "field": "expense_bulk_topics",
+        "operator": "includes",
+        "value": "Es besteht eine Haftpflichtversicherung"
+      }
+    },
+    {
+      "id": "ESS-039",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0019",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot for partner",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_expense_bulk_topics",
+            "operator": "includes",
+            "value": "Es besteht eine Haftpflichtversicherung"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-040",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0013",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "field": "life_insurance",
+        "operator": "not_equals",
+        "value": "Nein"
+      }
+    },
+    {
+      "id": "ESS-041",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0013",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot for partner",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_life_insurance",
+            "operator": "not_equals",
+            "value": "Nein"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-042",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0014",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "field": "expense_bulk_topics",
+        "operator": "includes",
+        "value": "Es werden Beitraege zu einer Sterbegeldversicherung gezahlt"
+      }
+    },
+    {
+      "id": "ESS-043",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0014",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot for partner",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_expense_bulk_topics",
+            "operator": "includes",
+            "value": "Es werden Beitraege zu einer Sterbegeldversicherung gezahlt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-044",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0015",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "field": "funeral_insurance_yes_no",
+        "operator": "equals",
+        "value": "Ja"
+      }
+    },
+    {
+      "id": "ESS-045",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0015",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot for partner",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_funeral_insurance_yes_no",
+            "operator": "equals",
+            "value": "Ja"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-046",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0022",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "field": "marital_status",
+        "operator": "equals",
+        "value": "geschieden"
+      }
+    },
+    {
+      "id": "ESS-047",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0043",
+      "requirement_type": "conditional",
+      "subject": "maintenance_case",
+      "instance_note": "one slot for maintenance case",
+      "period_months": null,
+      "condition": {
+        "any": [
+          {
+            "field": "maintenance_claims_status",
+            "operator": "equals",
+            "value": "Auf Unterhalt wurde verzichtet"
+          },
+          {
+            "field": "maintenance_claims_status",
+            "operator": "equals",
+            "value": "Unterhalt wird bereits bezahlt"
+          },
+          {
+            "field": "maintenance_claims_status",
+            "operator": "equals",
+            "value": "Unterhalt wurde noch nicht geltend gemacht"
+          },
+          {
+            "field": "maintenance_claims_status",
+            "operator": "equals",
+            "value": "Unterhalt ist bereits tituliert"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-048",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0028",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant vehicle",
+      "period_months": null,
+      "condition": {
+        "field": "automobile_yes_no",
+        "operator": "equals",
+        "value": "Ja"
+      }
+    },
+    {
+      "id": "ESS-049",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0028",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot for partner vehicle",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_automobile_yes_no",
+            "operator": "equals",
+            "value": "Ja"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-050",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0029",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant vehicle",
+      "period_months": null,
+      "condition": {
+        "field": "automobile_yes_no",
+        "operator": "equals",
+        "value": "Ja"
+      }
+    },
+    {
+      "id": "ESS-051",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0029",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot for partner vehicle",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_automobile_yes_no",
+            "operator": "equals",
+            "value": "Ja"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-052",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0027",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant vehicle",
+      "period_months": null,
+      "condition": {
+        "any": [
+          {
+            "field": "automobile_yes_no",
+            "operator": "equals",
+            "value": "Ja"
+          },
+          {
+            "field": "expense_bulk_topics",
+            "operator": "includes",
+            "value": "Es besteht eine Kfz-Haftpflichtversicherung"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-053",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0027",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot for partner vehicle",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "field": "spouse_automobile_yes_no",
+                "operator": "equals",
+                "value": "Ja"
+              },
+              {
+                "field": "spouse_expense_bulk_topics",
+                "operator": "includes",
+                "value": "Es besteht eine Kfz-Haftpflichtversicherung"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-054",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0042",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant transfer/property contract",
+      "period_months": null,
+      "condition": {
+        "any": [
+          {
+            "any": [
+              {
+                "field": "asset_transfer_yes_no",
+                "operator": "equals",
+                "value": "Ja - ohne besonderen Vertrag"
+              },
+              {
+                "field": "asset_transfer_yes_no",
+                "operator": "equals",
+                "value": "Ja - siehe beigefuegte Urkunde"
+              }
+            ]
+          },
+          {
+            "field": "wealth_bulk_topics",
+            "operator": "includes",
+            "value": "Es gibt Ansprueche aus Uebertragsvertraegen, Wohnrecht, Niessbrauch oder Altenteil"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ESS-055",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0042",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_note": "one slot for partner transfer/property contract",
+      "period_months": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "any": [
+                  {
+                    "field": "spouse_asset_transfer_yes_no",
+                    "operator": "equals",
+                    "value": "Ja - ohne besonderen Vertrag"
+                  },
+                  {
+                    "field": "spouse_asset_transfer_yes_no",
+                    "operator": "equals",
+                    "value": "Ja - siehe beigefuegte Urkunde"
+                  }
+                ]
+              },
+              {
+                "field": "spouse_wealth_bulk_topics",
+                "operator": "includes",
+                "value": "Es gibt Ansprueche aus Uebertragsvertraegen, Wohnrecht, Niessbrauch oder Altenteil"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "catalog": {
+    "DOC-0001": {
+      "id": "DOC-0001",
+      "name_de": "Personaldokument",
+      "category": "person"
+    },
+    "DOC-0002": {
+      "id": "DOC-0002",
+      "name_de": "Rentenbescheid",
+      "category": "income"
+    },
+    "DOC-0003": {
+      "id": "DOC-0003",
+      "name_de": "Kontoauszüge",
+      "category": "assets"
+    },
+    "DOC-0004": {
+      "id": "DOC-0004",
+      "name_de": "Pflegegutachten MDK",
+      "category": "person"
+    },
+    "DOC-0005": {
+      "id": "DOC-0005",
+      "name_de": "Leistungsbescheid Pflegekasse",
+      "category": "care"
+    },
+    "DOC-0006": {
+      "id": "DOC-0006",
+      "name_de": "Vorsorge-/Vollmacht oder Betreuungsurkunde",
+      "category": "person"
+    },
+    "DOC-0007": {
+      "id": "DOC-0007",
+      "name_de": "Heimvertrag",
+      "category": "expenses"
+    },
+    "DOC-0008": {
+      "id": "DOC-0008",
+      "name_de": "Heimrechnung",
+      "category": "expenses"
+    },
+    "DOC-0009": {
+      "id": "DOC-0009",
+      "name_de": "Nachweis Bedarfsanzeige",
+      "category": "person"
+    },
+    "DOC-0010": {
+      "id": "DOC-0010",
+      "name_de": "Polizeiliche Anmeldung im Heim",
+      "category": "person"
+    },
+    "DOC-0011": {
+      "id": "DOC-0011",
+      "name_de": "Mobilitätsnachweis",
+      "category": "person"
+    },
+    "DOC-0012": {
+      "id": "DOC-0012",
+      "name_de": "Krankenversicherungskarte",
+      "category": "health"
+    },
+    "DOC-0013": {
+      "id": "DOC-0013",
+      "name_de": "Lebensversicherung",
+      "category": "assets"
+    },
+    "DOC-0014": {
+      "id": "DOC-0014",
+      "name_de": "Sterbegeldversicherung",
+      "category": "assets"
+    },
+    "DOC-0015": {
+      "id": "DOC-0015",
+      "name_de": "Bestattungsvorsorgevertrag",
+      "category": "assets"
+    },
+    "DOC-0016": {
+      "id": "DOC-0016",
+      "name_de": "Sterbeurkunde Partner",
+      "category": "person"
+    },
+    "DOC-0017": {
+      "id": "DOC-0017",
+      "name_de": "Aufenthaltsstatus",
+      "category": "person"
+    },
+    "DOC-0018": {
+      "id": "DOC-0018",
+      "name_de": "Schwerbehindertenausweis/Feststellungsbescheid",
+      "category": "person"
+    },
+    "DOC-0019": {
+      "id": "DOC-0019",
+      "name_de": "Haftpflichtversicherung",
+      "category": "expenses"
+    },
+    "DOC-0020": {
+      "id": "DOC-0020",
+      "name_de": "Wohngeldbescheid oder Nachweis Antragstellung",
+      "category": "income"
+    },
+    "DOC-0021": {
+      "id": "DOC-0021",
+      "name_de": "Heimatvertriebener/Spätaussiedler Nachweis",
+      "category": "person"
+    },
+    "DOC-0022": {
+      "id": "DOC-0022",
+      "name_de": "Scheidungsurteil",
+      "category": "person"
+    },
+    "DOC-0023": {
+      "id": "DOC-0023",
+      "name_de": "Leistungsnachweis Sozialhilfe",
+      "category": "person"
+    },
+    "DOC-0024": {
+      "id": "DOC-0024",
+      "name_de": "Mietvertrag",
+      "category": "housing"
+    },
+    "DOC-0025": {
+      "id": "DOC-0025",
+      "name_de": "Kündigungsbestätigung Vermieter",
+      "category": "housing"
+    },
+    "DOC-0026": {
+      "id": "DOC-0026",
+      "name_de": "Nachweis anderes Einkommen",
+      "category": "income"
+    },
+    "DOC-0027": {
+      "id": "DOC-0027",
+      "name_de": "Aktuelle KFZ-Haftpflichtversicherungsrechnung",
+      "category": "expenses"
+    },
+    "DOC-0028": {
+      "id": "DOC-0028",
+      "name_de": "Fahrzeugschein",
+      "category": "assets"
+    },
+    "DOC-0029": {
+      "id": "DOC-0029",
+      "name_de": "Fahrzeugwertnachweis",
+      "category": "assets"
+    },
+    "DOC-0030": {
+      "id": "DOC-0030",
+      "name_de": "Nachweis Immobilienwert",
+      "category": "assets"
+    },
+    "DOC-0031": {
+      "id": "DOC-0031",
+      "name_de": "Nachweis Rentenantragstellung",
+      "category": "income"
+    },
+    "DOC-0032": {
+      "id": "DOC-0032",
+      "name_de": "Bescheid Arbeitslosengeld/JobCenter/Bürgergeld",
+      "category": "income"
+    },
+    "DOC-0033": {
+      "id": "DOC-0033",
+      "name_de": "Bescheid Grundrentenzuschlag oder Grundrentenzeiten",
+      "category": "income"
+    },
+    "DOC-0034": {
+      "id": "DOC-0034",
+      "name_de": "Krankengeldbescheid",
+      "category": "income"
+    },
+    "DOC-0035": {
+      "id": "DOC-0035",
+      "name_de": "Lohnbescheinigung",
+      "category": "income"
+    },
+    "DOC-0036": {
+      "id": "DOC-0036",
+      "name_de": "Beitragsbescheid freiwillige/private Kranken-/Pflegeversicherung",
+      "category": "health"
+    },
+    "DOC-0037": {
+      "id": "DOC-0037",
+      "name_de": "Finanzstatus/Saldenübersicht",
+      "category": "assets"
+    },
+    "DOC-0038": {
+      "id": "DOC-0038",
+      "name_de": "Eigentumsnachweis",
+      "category": "housing"
+    },
+    "DOC-0039": {
+      "id": "DOC-0039",
+      "name_de": "Nachweis ausländische Krankenversicherung",
+      "category": "health"
+    },
+    "DOC-0040": {
+      "id": "DOC-0040",
+      "name_de": "Nachweise Auslandstätigkeit/Rentenbeiträge",
+      "category": "income"
+    },
+    "DOC-0041": {
+      "id": "DOC-0041",
+      "name_de": "Nachweise sonstiges Vermögen",
+      "category": "assets"
+    },
+    "DOC-0042": {
+      "id": "DOC-0042",
+      "name_de": "Übertragungsvertrag mit Grundbuchauszug",
+      "category": "assets"
+    },
+    "DOC-0043": {
+      "id": "DOC-0043",
+      "name_de": "Unterhaltsurteil/Titel/Urkunde",
+      "category": "person"
+    }
+  }
+}
