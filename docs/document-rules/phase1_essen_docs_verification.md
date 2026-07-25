@@ -1,0 +1,227 @@
+# Phase 1 — Essen document rules vs. production questionnaire (read-only verification)
+
+_Generated 2026-07-23. Rules file analyzed from `C:\Users\Berk\Downloads\essen_document_rules.json` — **the file is NOT in the repo yet** (the task states `docs/document-rules/essen_document_rules.json`, which does not exist). Phase 2 must commit it to that path as the canonical master, like the Pankow xlsx._
+
+Essen questionnaire id used: `30000000-0000-0000-0000-000000000003` ("Fragebogen – Sozialamt Essen", office `10000000-0000-0000-0000-000000000162`, active=True). Questions: 245, groups: 9, categories: 8.
+
+## Summary table
+
+| rule_id | doc | fields referenced | status |
+|---|---|---|---|
+| ESS-001 | DOC-0001 | — (always) | OK |
+| ESS-002 | DOC-0001 | marital_status | OK |
+| ESS-003 | DOC-0002 | pension_type | OK |
+| ESS-004 | DOC-0002 | marital_status, spouse_pension_type | OK |
+| ESS-005 | DOC-0005 | — (always) | OK |
+| ESS-006 | DOC-0007 | — (always) | OK |
+| ESS-007 | DOC-0008 | — (always) | OK |
+| ESS-008 | DOC-0037 | — (always) | OK |
+| ESS-009 | DOC-0037 | marital_status | OK |
+| ESS-010 | DOC-0003 | applicant_bank_account | NEEDS_DECISION |
+| ESS-011 | DOC-0003 | marital_status, spouse_bank_account | NEEDS_DECISION |
+| ESS-012 | DOC-0006 | — (always) | OK |
+| ESS-013 | DOC-0031 | pension_application_yes_no | OK |
+| ESS-014 | DOC-0031 | marital_status, spouse_pension_application_yes_no | OK |
+| ESS-015 | DOC-0032 | applicant_bulk_topics, other_income_type | NEEDS_DECISION |
+| ESS-016 | DOC-0032 | marital_status, spouse_bulk_topics, spouse_other_income_type | FIELD_MISSING |
+| ESS-017 | DOC-0033 | income_bulk_topics | OK |
+| ESS-018 | DOC-0033 | marital_status, spouse_bulk_topics | FIELD_MISSING |
+| ESS-019 | DOC-0034 | other_income_type | NEEDS_DECISION |
+| ESS-020 | DOC-0034 | marital_status, spouse_other_income_type | NEEDS_DECISION |
+| ESS-021 | DOC-0035 | other_income_type | NEEDS_DECISION |
+| ESS-022 | DOC-0035 | marital_status, spouse_other_income_type | NEEDS_DECISION |
+| ESS-023 | DOC-0018 | disability_card | OK |
+| ESS-024 | DOC-0018 | marital_status, spouse_disability_card | OK |
+| ESS-025 | DOC-0036 | health_insurance_type | OK |
+| ESS-026 | DOC-0036 | marital_status, spouse_health_insurance_type | OK |
+| ESS-027 | DOC-0020 | other_income_type | NEEDS_DECISION |
+| ESS-028 | DOC-0020 | marital_status, spouse_other_income_type | NEEDS_DECISION |
+| ESS-029 | DOC-0024 | former_rental_apartment_yes_no | OK |
+| ESS-030 | DOC-0025 | former_rental_apartment_yes_no | OK |
+| ESS-031 | DOC-0038 | property_yes_no, spouse_property_yes_no | OK |
+| ESS-032 | DOC-0039 | foreign_health_insurance_yes_no | OK |
+| ESS-033 | DOC-0039 | marital_status, spouse_foreign_health_insurance_yes_no | OK |
+| ESS-034 | DOC-0040 | income_bulk_topics | OK |
+| ESS-035 | DOC-0040 | marital_status, spouse_bulk_topics | FIELD_MISSING |
+| ESS-036 | DOC-0041 | wealth_bulk_topics | OK |
+| ESS-037 | DOC-0041 | marital_status, spouse_bulk_topics | FIELD_MISSING |
+| ESS-038 | DOC-0019 | expense_bulk_topics | OK |
+| ESS-039 | DOC-0019 | marital_status, spouse_bulk_topics | FIELD_MISSING |
+| ESS-040 | DOC-0013 | life_insurance | OK |
+| ESS-041 | DOC-0013 | marital_status, spouse_life_insurance | OK |
+| ESS-042 | DOC-0014 | expense_bulk_topics | OK |
+| ESS-043 | DOC-0014 | marital_status, spouse_bulk_topics | FIELD_MISSING |
+| ESS-044 | DOC-0015 | funeral_insurance_yes_no | OK |
+| ESS-045 | DOC-0015 | marital_status, spouse_funeral_insurance_yes_no | OK |
+| ESS-046 | DOC-0022 | marital_status | OK |
+| ESS-047 | DOC-0043 | maintenance_bulk_topics | FIELD_MISSING |
+| ESS-048 | DOC-0028 | automobile_yes_no | OK |
+| ESS-049 | DOC-0028 | marital_status, spouse_automobile_yes_no | OK |
+| ESS-050 | DOC-0029 | automobile_yes_no | OK |
+| ESS-051 | DOC-0029 | marital_status, spouse_automobile_yes_no | OK |
+| ESS-052 | DOC-0027 | automobile_yes_no, expense_bulk_topics | OK |
+| ESS-053 | DOC-0027 | marital_status, spouse_automobile_yes_no, spouse_bulk_topics | FIELD_MISSING |
+| ESS-054 | DOC-0042 | asset_transfer_yes_no, wealth_bulk_topics | VALUE_MISMATCH |
+| ESS-055 | DOC-0042 | marital_status, spouse_asset_transfer_yes_no, spouse_bulk_topics | FIELD_MISSING |
+
+**Totals:** OK 36 · NEEDS_DECISION 9 · FIELD_MISSING 9 · VALUE_MISMATCH 1 (ESS-010/011 reclassified by manual review — see Addendum A5)
+
+## 1. Field-key inventory (from conditions + repeat_for_each)
+
+Distinct condition fields: 28; repeat bindings: ['applicant_bank_account', 'pension_type', 'spouse_bank_account', 'spouse_pension_type']; bank source keys (ESS-008..011): ['bank_additional_account_yes_no', 'bank_giro_yes_no', 'bank_savings_account_yes_no', 'marital_status', 'spouse_bank_additional_account_yes_no', 'spouse_bank_giro_yes_no', 'spouse_bank_savings_account_yes_no']
+
+## 2. Per-field existence & shape (Essen questionnaire)
+
+| field | exists | type | required | group (repeatable) | options (exact values) |
+|---|---|---|---|---|---|
+| `applicant_bulk_topics` | yes | multi_select | True | — | Es besteht eine Verpflichtungserklaerung nach § 68 Aufenthaltsgesetz \| Es wurden frueher bereits Leistungen nach SGB II oder SGB XI bezogen \| Es ist eine medizinisch notwendige kostenaufwaendige Ernaehrung erforderlich \| Nein, nichts davon |
+| `asset_transfer_yes_no` | yes | single_select | True | — | Nein \| Ja - ohne besonderen Vertrag \| Ja - siehe beigefuegte Urkunde |
+| `automobile_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `bank_additional_account_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `bank_giro_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `bank_savings_account_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `disability_card` | yes | single_select | True | — | Ja \| Nein \| Beantragt |
+| `expense_bulk_topics` | yes | multi_select | True | — | Es werden Einkommensteuern gezahlt \| Es werden Sozialversicherungsbeitraege gezahlt \| Es besteht eine Haftpflichtversicherung \| Es besteht eine Kfz-Haftpflichtversicherung \| Es werden Altersvorsorgebeitraege gezahlt \| Es werden Beitraege zu einer Sterbegeldversicherung gezahlt \| Nein, nichts davon |
+| `foreign_health_insurance_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `former_rental_apartment_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `funeral_insurance_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `health_insurance_type` | yes | single_select | True | — | Pflichtversicherung \| Familienversicherung \| freiwillige Versicherung \| private Versicherung |
+| `income_bulk_topics` | yes | multi_select | True | — | Es wurde ein Antrag nach dem Opferentschaedigungsgesetz gestellt \| Es wurden freiwillige Beitraege in Rentenversicherung oder betriebliche Altersvorsorge eingezahlt \| Es wurde im Ausland gearbeitet und dort in eine Rentenkasse eingezahlt \| Es wurde im Ausland gearbeitet, ohne dort Rentenbeitraege zu zahlen \| Es wird ein Grundrentenzuschlag bezogen \| Es wurden 33 oder mehr Jahre Grundrentenzeiten erfuellt \| Nein, nichts davon |
+| `life_insurance` | yes | single_select | True | — | Nein \| Kapitallebensversicherung \| Risikolebensversicherung |
+| `maintenance_bulk_topics` | **NO** | — | — | — | — |
+| `marital_status` | yes | single_select | True | — | ledig \| verheiratet \| Lebenspartnerschaft \| eheähnliche Gemeinschaft \| verwitwet \| getrennt lebend \| geschieden |
+| `other_income_type` | yes | single_select | True | other_income (rep) | Nichtselbstständige Tätigkeit \| Mini-/Midijob \| Ausbildungsvergütung \| ehrenamtliche Tätigkeit \| Entgelt der WfbM \| Leistung der Krankenkasse \| Gewerbebetrieb \| Land- und Forstwirtschaft \| sonstige selbstständige Tätigkeit \| Untervermietung \| Vermietung und Verpachtung \| Wohngeld/Lastenzuschuss \| AsylbLG \| Bundesversorgungsgesetz \| Lastenausgleichsamt \| Bürgergeld/SGB II \| Arbeitsförderung/SGB III \| Leistungen für Kinder \| Ausbildungsförderung \| Elterngeld \| Mutterschaftsgeld \| Unterhalt \| privatrechtliche geldwerte Ansprüche \| Kapitalerträge \| Leistungen nach anderen Sozialgesetzbüchern \| sonstige Einkünfte |
+| `pension_application_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `property_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `spouse_asset_transfer_yes_no` | yes | single_select | True | — | Nein \| Ja - ohne besonderen Vertrag \| Ja - siehe beigefuegte Urkunde |
+| `spouse_automobile_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `spouse_bank_additional_account_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `spouse_bank_giro_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `spouse_bank_savings_account_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `spouse_bulk_topics` | **NO** | — | — | — | — |
+| `spouse_disability_card` | yes | single_select | True | — | Ja \| Nein \| Beantragt |
+| `spouse_foreign_health_insurance_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `spouse_funeral_insurance_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `spouse_health_insurance_type` | yes | single_select | True | — | Pflichtversicherung \| Familienversicherung \| freiwillige Versicherung \| private Versicherung |
+| `spouse_life_insurance` | yes | single_select | True | — | Nein \| Kapitallebensversicherung \| Risikolebensversicherung |
+| `spouse_other_income_type` | yes | single_select | True | spouse_other_income (rep) | Nichtselbstständige Tätigkeit \| Mini-/Midijob \| Ausbildungsvergütung \| ehrenamtliche Tätigkeit \| Entgelt der WfbM \| Leistung der Krankenkasse \| Gewerbebetrieb \| Land- und Forstwirtschaft \| sonstige selbstständige Tätigkeit \| Untervermietung \| Vermietung und Verpachtung \| Wohngeld/Lastenzuschuss \| AsylbLG \| Bundesversorgungsgesetz \| Lastenausgleichsamt \| Bürgergeld/SGB II \| Arbeitsförderung/SGB III \| Leistungen für Kinder \| Ausbildungsförderung \| Elterngeld \| Mutterschaftsgeld \| Unterhalt \| privatrechtliche geldwerte Ansprüche \| Kapitalerträge \| Leistungen nach anderen Sozialgesetzbüchern \| sonstige Einkünfte |
+| `spouse_pension_application_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `spouse_property_yes_no` | yes | single_select | True | — | Ja \| Nein |
+| `wealth_bulk_topics` | yes | multi_select | True | — | Es gibt Wertpapiere oder Aktien \| Es gibt Schmuck oder Edelmetalle von relevantem Wert \| Es gibt sonstiges Vermoegen im In- oder Ausland \| Es gibt eine staatlich gefoerderte private Altersvorsorge \| Es gibt eine sonstige private Altersvorsorge \| Es gibt Forderungen oder Ansprueche gegen Dritte \| Es gibt Ansprueche aus Uebertragsvertraegen, Wohnrecht, Niessbrauch oder Altenteil \| Es gibt Ansprueche aus einer Erbschaft oder erwartete Erbschaft \| Nein, nichts davon |
+
+## 3. Value-level diff
+
+| rule_id | field | rules-file value | closest DB value | kind |
+|---|---|---|---|---|
+| ESS-054 | `asset_transfer_yes_no` | `Ja` | `Ja - ohne besonderen Vertrag` | PARTIAL |
+| ESS-055 | `spouse_asset_transfer_yes_no` | `Ja` | `Ja - ohne besonderen Vertrag` | PARTIAL |
+
+### Special fields
+- **marital_status** (single_select): options = ['ledig', 'verheiratet', 'Lebenspartnerschaft', 'eheähnliche Gemeinschaft', 'verwitwet', 'getrennt lebend', 'geschieden']
+- **life_insurance** (single_select): options = ['Nein', 'Kapitallebensversicherung', 'Risikolebensversicherung']
+- **asset_transfer_yes_no** (single_select): options = ['Nein', 'Ja - ohne besonderen Vertrag', 'Ja - siehe beigefuegte Urkunde']
+
+## 4. Repeatable semantics
+
+- `pension_type`: group `pension`, repeatable=True, type=single_select, options=['Erwerbsminderungsrente', 'Altersrente', 'Unfallrente', 'landwirtschaftliches Altersgeld', 'Witwenrente', 'Waisenrente', 'Kinderzuschuss/-zulage', 'Pflegegeld zur Rente', 'Pension', 'Betriebsrente/Werksrente', 'auslaendische Rente/Pension', 'sonstige Rente/Pension', 'Keine Rente']
+- `spouse_pension_type`: group `spouse_pension`, repeatable=True, type=single_select, options=['Erwerbsminderungsrente', 'Altersrente', 'Unfallrente', 'landwirtschaftliches Altersgeld', 'Witwenrente', 'Waisenrente', 'Kinderzuschuss/-zulage', 'Pflegegeld zur Rente', 'Pension', 'Betriebsrente/Werksrente', 'auslaendische Rente/Pension', 'sonstige Rente/Pension', 'Keine Rente']
+- `other_income_type`: group `other_income`, repeatable=True, type=single_select, options=['Nichtselbstständige Tätigkeit', 'Mini-/Midijob', 'Ausbildungsvergütung', 'ehrenamtliche Tätigkeit', 'Entgelt der WfbM', 'Leistung der Krankenkasse', 'Gewerbebetrieb', 'Land- und Forstwirtschaft', 'sonstige selbstständige Tätigkeit', 'Untervermietung', 'Vermietung und Verpachtung', 'Wohngeld/Lastenzuschuss', 'AsylbLG', 'Bundesversorgungsgesetz']
+- `spouse_other_income_type`: group `spouse_other_income`, repeatable=True, type=single_select, options=['Nichtselbstständige Tätigkeit', 'Mini-/Midijob', 'Ausbildungsvergütung', 'ehrenamtliche Tätigkeit', 'Entgelt der WfbM', 'Leistung der Krankenkasse', 'Gewerbebetrieb', 'Land- und Forstwirtschaft', 'sonstige selbstständige Tätigkeit', 'Untervermietung', 'Vermietung und Verpachtung', 'Wohngeld/Lastenzuschuss', 'AsylbLG', 'Bundesversorgungsgesetz']
+
+## 5. Bank-account structure
+
+All Essen keys containing 'bank': ['bank_additional_account_amount', 'bank_additional_account_yes_no', 'bank_additional_bic', 'bank_additional_iban', 'bank_additional_name', 'bank_giro_amount', 'bank_giro_bic', 'bank_giro_iban', 'bank_giro_name', 'bank_giro_yes_no', 'bank_savings_account_amount', 'bank_savings_account_yes_no', 'spouse_bank_additional_account_amount', 'spouse_bank_additional_account_yes_no', 'spouse_bank_additional_bic', 'spouse_bank_additional_iban', 'spouse_bank_additional_name', 'spouse_bank_giro_amount', 'spouse_bank_giro_yes_no', 'spouse_bank_savings_account_amount', 'spouse_bank_savings_account_yes_no']
+Bank groups: [('bank_additional', 'repeatable'), ('spouse_bank_additional', 'repeatable')]
+application_date fields: ['pension_application_date', 'spouse_disability_card_application_date', 'disability_card_application_date', 'oeg_application_date', 'spouse_pension_application_date', 'spouse_oeg_application_date']
+
+## 6. Existing document schema (live DB truth)
+
+- `document_catalog`: 30 rows
+- `office_document_rule`: 50 rows
+- `document_upload`: 6 rows
+- `app_config`: 1 rows
+
+## 7. Rules-file sanity
+
+- rule count: 55; duplicates: none; missing ids: none; unexpected: none
+- bad document refs: none
+- Essen-flagged catalog docs with NO Essen rule: none
+
+## Needs-decision detail
+
+- ESS-015: 'other_income_type' is a repeatable-group member — equals semantics (any-instance vs per-instance) undefined
+- ESS-016: 'spouse_other_income_type' is a repeatable-group member — equals semantics (any-instance vs per-instance) undefined
+- ESS-019: 'other_income_type' is a repeatable-group member — equals semantics (any-instance vs per-instance) undefined
+- ESS-020: 'spouse_other_income_type' is a repeatable-group member — equals semantics (any-instance vs per-instance) undefined
+- ESS-021: 'other_income_type' is a repeatable-group member — equals semantics (any-instance vs per-instance) undefined
+- ESS-022: 'spouse_other_income_type' is a repeatable-group member — equals semantics (any-instance vs per-instance) undefined
+- ESS-027: 'other_income_type' is a repeatable-group member — equals semantics (any-instance vs per-instance) undefined
+- ESS-028: 'spouse_other_income_type' is a repeatable-group member — equals semantics (any-instance vs per-instance) undefined
+- ESS-054: starts_with on 'asset_transfer_yes_no' — evaluator has no starts_with operator
+- ESS-055: starts_with on 'spouse_asset_transfer_yes_no' — evaluator has no starts_with operator
+
+## Missing-field detail
+
+- ESS-016: ['spouse_bulk_topics']
+- ESS-018: ['spouse_bulk_topics']
+- ESS-035: ['spouse_bulk_topics']
+- ESS-037: ['spouse_bulk_topics']
+- ESS-039: ['spouse_bulk_topics']
+- ESS-043: ['spouse_bulk_topics']
+- ESS-047: ['maintenance_bulk_topics']
+- ESS-053: ['spouse_bulk_topics']
+- ESS-055: ['spouse_bulk_topics']
+
+
+---
+
+# Addendum — manual review findings (read after the generated sections)
+
+## A1. Task-premise corrections (important)
+
+Three premises in the task brief are **outdated** — the verification reports the live truth:
+
+1. **"M5 has not been started; expected: none" — FALSE.** The document layer is LIVE and in pilot use: `document_catalog` (30 rows), `office_document_rule` (50 Pankow rules), `document_upload` (**6 rows — real pilot uploads exist**), plus `app_config.default_document_office_id` = Pankow, the evaluator `lib/document-rules.ts`, the "Fragen | Dokumente" tab UI — and every Essen case ALREADY shows the Pankow-default checklist today (feedback-pass founder decision). Phase 2 is therefore **not** greenfield: it inserts the Essen catalog/rules into the existing tables and flips the app_config default to the Essen office — after which Essen-questionnaire cases switch from the Pankow-default list to their own rules.
+2. **"Bank accounts: only yes/no questions, no account instances" — FALSE.** Essen has full detail fields (`bank_giro_name/iban/bic/amount`, savings amount) and TWO repeatable groups (`bank_additional`, `spouse_bank_additional` with name/iban/bic/amount members). The yes/no questions exist as gates (see A5).
+3. **"no application_date field anywhere" — FALSE.** Six exist: `pension_application_date`, `disability_card_application_date`, `oeg_application_date` + spouse variants.
+
+## A2. Transliteration — the expected problem mostly does NOT exist
+
+Essen's stored option **values are themselves transliterated** (`frueher`, `Vermoegen`, `Beitraege`, `Ansprueche`, `Uebertragsvertraegen`, `erfuellt`, `Niessbrauch`) — CP3's umlaut sweep touched labels/prompts only, never option values (decision of record). The rules file's transliterated literals therefore match the DB **exactly** on every applicant-side bulk/select. The only 2 value-level items (section 3) are the `starts_with "Ja"` pattern, covered in A4.
+
+## A3. The 9 FIELD_MISSING rules — exact remaps identified
+
+**`spouse_bulk_topics` (8 rules) does not exist** — Essen split the spouse bulk into four per-domain questions (D2), and their option **values** are the applicant-style "Es …" strings while the "Der Partner …" text the rules file uses is only the display **label**. Both a key remap and a label→value remap are needed:
+
+| rule | remap key → | remap value → |
+|---|---|---|
+| ESS-016 | `spouse_applicant_bulk_topics` | `Es wurden frueher bereits Leistungen nach SGB II oder SGB XI bezogen` |
+| ESS-018 | `spouse_income_bulk_topics` | `Es wird ein Grundrentenzuschlag bezogen` / `Es wurden 33 oder mehr Jahre Grundrentenzeiten erfuellt` |
+| ESS-035 | `spouse_income_bulk_topics` | `Es wurde im Ausland gearbeitet und dort in eine Rentenkasse eingezahlt` / `Es wurde im Ausland gearbeitet, ohne dort Rentenbeitraege zu zahlen` |
+| ESS-037 | `spouse_wealth_bulk_topics` | `Es gibt sonstiges Vermoegen im In- oder Ausland` |
+| ESS-039 | `spouse_expense_bulk_topics` | `Es besteht eine Haftpflichtversicherung` |
+| ESS-043 | `spouse_expense_bulk_topics` | `Es werden Beitraege zu einer Sterbegeldversicherung gezahlt` |
+| ESS-053 | `spouse_expense_bulk_topics` | `Es besteht eine Kfz-Haftpflichtversicherung` |
+| ESS-055 | `spouse_wealth_bulk_topics` | `Es gibt Ansprueche aus Uebertragsvertraegen, Wohnrecht, Niessbrauch oder Altenteil` |
+
+**ESS-047: `maintenance_bulk_topics` was deleted by CP3** (the Unterhalt bulk became the 5-option select `maintenance_claims_status`; the file's includes-value no longer exists anywhere). Proposed remap, matching the CP3 `ex_partner_*` gating precedent: `maintenance_claims_status` `in` [`Auf Unterhalt wurde verzichtet`, `Unterhalt wird bereits bezahlt`, `Unterhalt wurde noch nicht geltend gemacht`, `Unterhalt ist bereits tituliert`] (the four non-Nein options).
+
+## A4. starts_with (ESS-054/055) — why, and the simpler fix
+
+`asset_transfer_yes_no` has THREE options: `Nein` / `Ja - ohne besonderen Vertrag` / `Ja - siehe beigefuegte Urkunde` — `starts_with "Ja"` was presumably chosen to catch both Ja-variants. The evaluator has no `starts_with` operator (operators: always/equals/not_equals/any/all/repeat_for_each — all absent-key-safe). Proposal: express as `any` of two `equals` with the exact option values — no evaluator change, identical semantics, keeps the operator set closed.
+
+## A5. ESS-010/011 reclassified NEEDS_DECISION — giro gating mismatch (found in review)
+
+The evaluator's `applicant_bank_account`/`spouse_bank_account` bindings encode the **Berlin** structure: a giro slot is emitted **unconditionally**, savings when `bank_savings_account_yes_no = "Ja"`, one per filled `bank_additional` instance. Essen **gates giro** behind `bank_giro_yes_no` (a question Berlin doesn't have) and gates the additional group behind `bank_additional_account_yes_no`. Consequence if used as-is for Essen cases: a user answering `bank_giro_yes_no = Nein` still gets a giro statement slot (wrong-collection); additional-account slots behave correctly (instance detection keys off filled instances). **Phase-2 decision needed:** extend `bankInstances` to respect the `bank_giro_yes_no` gate when the key exists (Berlin-inert — the key is absent there, keeping today's behavior), or accept the giro over-collection.
+
+## A6. Repeatable `other_income_type` equals-rules (8 rules) — the file already states the intent
+
+The flagged rules' own `instance_rule` fields say "one slot per … entry" (e.g. ESS-015 "one slot per relevant income/social benefit entry", ESS-021 "one slot per employment income entry"). The intended semantics is **per-matching-instance slots** — a value-FILTERED variant of `repeat_for_each`, which the evaluator does not have (its group bindings emit one slot per filled instance, filterable only by a skip-list, cf. "Keine Rente"). **Phase-2 decision needed:** add a filtered-repeat mechanism (e.g. `repeat_for_each` + `match_values` on the labeled member — the rules file's intent) vs. simplifying these 8 rules to one-slot-if-any-instance-matches.
+
+## A7. Catalog delta
+
+The file's catalog has **43 docs; the live DB has 30** — the 13 new ids are exactly `DOC-0031`…`DOC-0043` (Phase-2 inserts). The 30 existing ids all match. Note: `used_for_offices` is file-only metadata — the DB catalog has no such column (office applicability lives in the rules), which is consistent.
+
+## A8. File location
+
+The master file is NOT in the repo (found at `C:\Users\Berk\Downloads\essen_document_rules.json`; `docs/document-rules/` did not exist before this report). Phase 2 must commit it to `docs/document-rules/essen_document_rules.json` as the canonical source, per the Pankow-master precedent.

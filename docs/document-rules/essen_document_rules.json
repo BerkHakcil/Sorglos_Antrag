@@ -1,0 +1,2217 @@
+{
+  "meta": {
+    "source_file": "essen_document_rules_cto_master.xlsx",
+    "social_office": "Essen",
+    "document_catalog_count": 43,
+    "essen_rule_count": 55,
+    "bank_statement_period_months": 4,
+    "bank_statement_period_anchor": "application_date",
+    "removed_key_item": "Hausratversicherung"
+  },
+  "document_catalog": [
+    {
+      "document_id": "DOC-0001",
+      "technical_key": "identity_document",
+      "user_facing_name_de": "Personaldokument",
+      "english_name": "Identity document",
+      "category": "person",
+      "default_instance_basis": "person",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": "ID card, passport, or equivalent identity document."
+    },
+    {
+      "document_id": "DOC-0002",
+      "technical_key": "pension_statement",
+      "user_facing_name_de": "Rentenbescheid",
+      "english_name": "Pension statement",
+      "category": "income",
+      "default_instance_basis": "pension",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": "One slot per pension or pension-like income."
+    },
+    {
+      "document_id": "DOC-0003",
+      "technical_key": "bank_statements",
+      "user_facing_name_de": "Kontoauszüge",
+      "english_name": "Bank statements",
+      "category": "assets",
+      "default_instance_basis": "bank_account",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": "Essen: 4 months back from application date."
+    },
+    {
+      "document_id": "DOC-0004",
+      "technical_key": "mdk_care_assessment",
+      "user_facing_name_de": "Pflegegutachten MDK",
+      "english_name": "MDK care assessment",
+      "category": "person",
+      "default_instance_basis": "person",
+      "used_for_offices": "Pankow",
+      "active": true,
+      "notes": "Currently Pankow only."
+    },
+    {
+      "document_id": "DOC-0005",
+      "technical_key": "care_insurance_benefit_notice",
+      "user_facing_name_de": "Leistungsbescheid Pflegekasse",
+      "english_name": "Care insurance benefit notice",
+      "category": "care",
+      "default_instance_basis": "person",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": "For Essen: notice for stationary care facility costs."
+    },
+    {
+      "document_id": "DOC-0006",
+      "technical_key": "power_of_attorney_or_guardianship_proof",
+      "user_facing_name_de": "Vorsorge-/Vollmacht oder Betreuungsurkunde",
+      "english_name": "Power of attorney or guardianship proof",
+      "category": "person",
+      "default_instance_basis": "applicant",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": "Always mandatory due to product/application submission logic."
+    },
+    {
+      "document_id": "DOC-0007",
+      "technical_key": "care_home_contract",
+      "user_facing_name_de": "Heimvertrag",
+      "english_name": "Care home contract",
+      "category": "expenses",
+      "default_instance_basis": "facility_resident",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0008",
+      "technical_key": "care_home_invoice",
+      "user_facing_name_de": "Heimrechnung",
+      "english_name": "Care home invoice",
+      "category": "expenses",
+      "default_instance_basis": "facility_resident",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": "Essen: current care home invoice only."
+    },
+    {
+      "document_id": "DOC-0009",
+      "technical_key": "needs_notification",
+      "user_facing_name_de": "Nachweis Bedarfsanzeige",
+      "english_name": "Proof of needs notification",
+      "category": "person",
+      "default_instance_basis": "applicant",
+      "used_for_offices": "Pankow",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0010",
+      "technical_key": "facility_registration_certificate",
+      "user_facing_name_de": "Polizeiliche Anmeldung im Heim",
+      "english_name": "Official registration at care home",
+      "category": "person",
+      "default_instance_basis": "applicant",
+      "used_for_offices": "Pankow",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0011",
+      "technical_key": "mobility_certificate",
+      "user_facing_name_de": "Mobilitätsnachweis",
+      "english_name": "Mobility certificate",
+      "category": "person",
+      "default_instance_basis": "applicant",
+      "used_for_offices": "Pankow",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0012",
+      "technical_key": "health_insurance_card",
+      "user_facing_name_de": "Krankenversicherungskarte",
+      "english_name": "Health insurance card",
+      "category": "health",
+      "default_instance_basis": "person",
+      "used_for_offices": "Pankow",
+      "active": true,
+      "notes": "Not used as upload slot for Essen at current decision stage."
+    },
+    {
+      "document_id": "DOC-0013",
+      "technical_key": "life_insurance_policy",
+      "user_facing_name_de": "Lebensversicherung",
+      "english_name": "Life insurance policy",
+      "category": "assets",
+      "default_instance_basis": "person",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": "For Essen: current surrender value and death benefit."
+    },
+    {
+      "document_id": "DOC-0014",
+      "technical_key": "death_insurance_policy",
+      "user_facing_name_de": "Sterbegeldversicherung",
+      "english_name": "Death insurance policy",
+      "category": "assets",
+      "default_instance_basis": "person",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": "For Essen: current values."
+    },
+    {
+      "document_id": "DOC-0015",
+      "technical_key": "prepaid_funeral_contract",
+      "user_facing_name_de": "Bestattungsvorsorgevertrag",
+      "english_name": "Prepaid funeral contract",
+      "category": "assets",
+      "default_instance_basis": "person",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": "All pages."
+    },
+    {
+      "document_id": "DOC-0016",
+      "technical_key": "spouse_death_certificate",
+      "user_facing_name_de": "Sterbeurkunde Partner",
+      "english_name": "Spouse death certificate",
+      "category": "person",
+      "default_instance_basis": "applicant",
+      "used_for_offices": "Pankow",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0017",
+      "technical_key": "residence_status_proof",
+      "user_facing_name_de": "Aufenthaltsstatus",
+      "english_name": "Residence status proof",
+      "category": "person",
+      "default_instance_basis": "person",
+      "used_for_offices": "Pankow",
+      "active": true,
+      "notes": "Not used as upload slot for Essen at current decision stage."
+    },
+    {
+      "document_id": "DOC-0018",
+      "technical_key": "disability_card",
+      "user_facing_name_de": "Schwerbehindertenausweis/Feststellungsbescheid",
+      "english_name": "Disability card or assessment notice",
+      "category": "person",
+      "default_instance_basis": "person",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0019",
+      "technical_key": "liability_insurance_policy",
+      "user_facing_name_de": "Haftpflichtversicherung",
+      "english_name": "Liability insurance policy",
+      "category": "expenses",
+      "default_instance_basis": "person",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": "Policy plus current contribution invoice for Essen."
+    },
+    {
+      "document_id": "DOC-0020",
+      "technical_key": "housing_benefit_notice",
+      "user_facing_name_de": "Wohngeldbescheid oder Nachweis Antragstellung",
+      "english_name": "Housing benefit notice or application proof",
+      "category": "income",
+      "default_instance_basis": "person",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0021",
+      "technical_key": "expellee_or_late_repatriate_proof",
+      "user_facing_name_de": "Heimatvertriebener/Spätaussiedler Nachweis",
+      "english_name": "Expellee or late repatriate proof",
+      "category": "person",
+      "default_instance_basis": "person",
+      "used_for_offices": "Pankow",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0022",
+      "technical_key": "divorce_judgment",
+      "user_facing_name_de": "Scheidungsurteil",
+      "english_name": "Divorce judgment",
+      "category": "person",
+      "default_instance_basis": "applicant",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": "Pankow previously used divorce certificate wording."
+    },
+    {
+      "document_id": "DOC-0023",
+      "technical_key": "social_assistance_benefit_proof",
+      "user_facing_name_de": "Leistungsnachweis Sozialhilfe",
+      "english_name": "Social assistance benefit proof",
+      "category": "person",
+      "default_instance_basis": "person",
+      "used_for_offices": "Pankow",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0024",
+      "technical_key": "rental_contract",
+      "user_facing_name_de": "Mietvertrag",
+      "english_name": "Rental contract",
+      "category": "housing",
+      "default_instance_basis": "previous_home",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": "Essen: required if there was a rental apartment before care home admission."
+    },
+    {
+      "document_id": "DOC-0025",
+      "technical_key": "rental_termination_confirmation",
+      "user_facing_name_de": "Kündigungsbestätigung Vermieter",
+      "english_name": "Rental termination confirmation",
+      "category": "housing",
+      "default_instance_basis": "previous_home",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": "Essen: required if there was a rental apartment before care home admission."
+    },
+    {
+      "document_id": "DOC-0026",
+      "technical_key": "other_income_proof",
+      "user_facing_name_de": "Nachweis anderes Einkommen",
+      "english_name": "Other income proof",
+      "category": "income",
+      "default_instance_basis": "income_item",
+      "used_for_offices": "Pankow",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0027",
+      "technical_key": "car_insurance_invoice",
+      "user_facing_name_de": "Aktuelle KFZ-Haftpflichtversicherungsrechnung",
+      "english_name": "Current car liability insurance invoice",
+      "category": "expenses",
+      "default_instance_basis": "vehicle",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0028",
+      "technical_key": "vehicle_registration_certificate",
+      "user_facing_name_de": "Fahrzeugschein",
+      "english_name": "Vehicle registration certificate",
+      "category": "assets",
+      "default_instance_basis": "vehicle",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0029",
+      "technical_key": "vehicle_value_proof",
+      "user_facing_name_de": "Fahrzeugwertnachweis",
+      "english_name": "Vehicle value proof",
+      "category": "assets",
+      "default_instance_basis": "vehicle",
+      "used_for_offices": "Pankow, Essen",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0030",
+      "technical_key": "property_value_proof",
+      "user_facing_name_de": "Nachweis Immobilienwert",
+      "english_name": "Property value proof",
+      "category": "assets",
+      "default_instance_basis": "property_owner",
+      "used_for_offices": "Pankow",
+      "active": true,
+      "notes": "Pankow phase-1 property value proof."
+    },
+    {
+      "document_id": "DOC-0031",
+      "technical_key": "pension_application_proof",
+      "user_facing_name_de": "Nachweis Rentenantragstellung",
+      "english_name": "Pension application proof",
+      "category": "income",
+      "default_instance_basis": "pension_application",
+      "used_for_offices": "Essen",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0032",
+      "technical_key": "unemployment_or_jobcenter_notice",
+      "user_facing_name_de": "Bescheid Arbeitslosengeld/JobCenter/Bürgergeld",
+      "english_name": "Unemployment or JobCenter benefit notice",
+      "category": "income",
+      "default_instance_basis": "income_item",
+      "used_for_offices": "Essen",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0033",
+      "technical_key": "basic_pension_supplement_notice",
+      "user_facing_name_de": "Bescheid Grundrentenzuschlag oder Grundrentenzeiten",
+      "english_name": "Basic pension supplement or qualifying periods notice",
+      "category": "income",
+      "default_instance_basis": "person",
+      "used_for_offices": "Essen",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0034",
+      "technical_key": "sickness_benefit_notice",
+      "user_facing_name_de": "Krankengeldbescheid",
+      "english_name": "Sickness benefit notice",
+      "category": "income",
+      "default_instance_basis": "income_item",
+      "used_for_offices": "Essen",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0035",
+      "technical_key": "salary_statement",
+      "user_facing_name_de": "Lohnbescheinigung",
+      "english_name": "Salary statement",
+      "category": "income",
+      "default_instance_basis": "income_item",
+      "used_for_offices": "Essen",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0036",
+      "technical_key": "health_care_contribution_notice",
+      "user_facing_name_de": "Beitragsbescheid freiwillige/private Kranken-/Pflegeversicherung",
+      "english_name": "Voluntary/private health and care insurance contribution notice",
+      "category": "health",
+      "default_instance_basis": "person",
+      "used_for_offices": "Essen",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0037",
+      "technical_key": "financial_status_overview",
+      "user_facing_name_de": "Finanzstatus/Saldenübersicht",
+      "english_name": "Financial status or balance overview",
+      "category": "assets",
+      "default_instance_basis": "person",
+      "used_for_offices": "Essen",
+      "active": true,
+      "notes": "At application/admission reference point; required for applicant and partner case."
+    },
+    {
+      "document_id": "DOC-0038",
+      "technical_key": "property_ownership_proof",
+      "user_facing_name_de": "Eigentumsnachweis",
+      "english_name": "Property ownership proof",
+      "category": "housing",
+      "default_instance_basis": "property_owner",
+      "used_for_offices": "Essen",
+      "active": true,
+      "notes": "Kept from reduced partner-housing block."
+    },
+    {
+      "document_id": "DOC-0039",
+      "technical_key": "foreign_health_insurance_proof",
+      "user_facing_name_de": "Nachweis ausländische Krankenversicherung",
+      "english_name": "Foreign health insurance proof",
+      "category": "health",
+      "default_instance_basis": "person",
+      "used_for_offices": "Essen",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0040",
+      "technical_key": "foreign_employment_or_pension_contributions_proof",
+      "user_facing_name_de": "Nachweise Auslandstätigkeit/Rentenbeiträge",
+      "english_name": "Foreign employment or pension contribution proof",
+      "category": "income",
+      "default_instance_basis": "person",
+      "used_for_offices": "Essen",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0041",
+      "technical_key": "other_assets_proof",
+      "user_facing_name_de": "Nachweise sonstiges Vermögen",
+      "english_name": "Other assets proof",
+      "category": "assets",
+      "default_instance_basis": "asset_item",
+      "used_for_offices": "Essen",
+      "active": true,
+      "notes": "Shown only if other assets bulk topic is selected."
+    },
+    {
+      "document_id": "DOC-0042",
+      "technical_key": "transfer_contract_with_land_register",
+      "user_facing_name_de": "Übertragungsvertrag mit Grundbuchauszug",
+      "english_name": "Transfer contract with land register extract",
+      "category": "assets",
+      "default_instance_basis": "property_transfer",
+      "used_for_offices": "Essen",
+      "active": true,
+      "notes": null
+    },
+    {
+      "document_id": "DOC-0043",
+      "technical_key": "maintenance_judgment_or_title",
+      "user_facing_name_de": "Unterhaltsurteil/Titel/Urkunde",
+      "english_name": "Maintenance judgment, title, or deed",
+      "category": "person",
+      "default_instance_basis": "maintenance_case",
+      "used_for_offices": "Essen",
+      "active": true,
+      "notes": null
+    }
+  ],
+  "essen_rules": [
+    {
+      "rule_id": "ESS-001",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0001",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Always required for applicant.",
+      "source_question_keys": "last_name, first_name, birthdate",
+      "cto_notes": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "rule_id": "ESS-002",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0001",
+      "requirement_type": "mandatory",
+      "subject": "person_2",
+      "instance_rule": "one slot for partner",
+      "period_months": null,
+      "human_condition": "Partner exists when marital_status is married, registered civil partnership, or marriage-like partnership; not when separated.",
+      "source_question_keys": "marital_status, spouse_last_name, spouse_first_name, spouse_birthdate",
+      "cto_notes": null,
+      "condition": {
+        "any": [
+          {
+            "field": "marital_status",
+            "operator": "equals",
+            "value": "verheiratet"
+          },
+          {
+            "field": "marital_status",
+            "operator": "equals",
+            "value": "Lebenspartnerschaft"
+          },
+          {
+            "field": "marital_status",
+            "operator": "equals",
+            "value": "eheähnliche Gemeinschaft"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-003",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0002",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "instance_rule": "one slot per applicant pension entry",
+      "period_months": null,
+      "human_condition": "Always required; create one slot per pension/pension-like income.",
+      "source_question_keys": "pension_type, pension_amount_gross, pension_amount",
+      "cto_notes": null,
+      "condition": {
+        "repeat_for_each": "pension_type"
+      }
+    },
+    {
+      "rule_id": "ESS-004",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0002",
+      "requirement_type": "mandatory",
+      "subject": "person_2",
+      "instance_rule": "one slot per partner pension entry",
+      "period_months": null,
+      "human_condition": "Required for partner case; create one slot per partner pension/pension-like income.",
+      "source_question_keys": "marital_status, spouse_pension_type, spouse_pension_amount_gross, spouse_pension_amount",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "repeat_for_each": "spouse_pension_type"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-005",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0005",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Always required for stationary care facility cost coverage.",
+      "source_question_keys": "care_facility_id",
+      "cto_notes": "Care insurance notice regarding coverage of stationary facility costs.",
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "rule_id": "ESS-006",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0007",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Always required because the product flow is for stationary care.",
+      "source_question_keys": "care_facility_id",
+      "cto_notes": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "rule_id": "ESS-007",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0008",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "instance_rule": "one slot for current care home invoice",
+      "period_months": null,
+      "human_condition": "Always required; only the current care home invoice is requested.",
+      "source_question_keys": "care_facility_id",
+      "cto_notes": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "rule_id": "ESS-008",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0037",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Always required for applicant.",
+      "source_question_keys": "bank_giro_yes_no, bank_savings_account_yes_no, bank_additional_account_yes_no",
+      "cto_notes": "Financial status/balance overview at relevant reference point.",
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "rule_id": "ESS-009",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0037",
+      "requirement_type": "mandatory",
+      "subject": "person_2",
+      "instance_rule": "one slot for partner",
+      "period_months": null,
+      "human_condition": "Required if partner case applies.",
+      "source_question_keys": "marital_status, spouse_bank_giro_yes_no, spouse_bank_savings_account_yes_no, spouse_bank_additional_account_yes_no",
+      "cto_notes": null,
+      "condition": {
+        "any": [
+          {
+            "field": "marital_status",
+            "operator": "equals",
+            "value": "verheiratet"
+          },
+          {
+            "field": "marital_status",
+            "operator": "equals",
+            "value": "Lebenspartnerschaft"
+          },
+          {
+            "field": "marital_status",
+            "operator": "equals",
+            "value": "eheähnliche Gemeinschaft"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-010",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0003",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "instance_rule": "one slot per applicant account",
+      "period_months": 4,
+      "human_condition": "Always required for every applicant account, 4 months back from application date.",
+      "source_question_keys": "bank_giro_yes_no, bank_savings_account_yes_no, bank_additional_account_yes_no",
+      "cto_notes": "Includes all accounts, including accounts closed during the relevant period where captured.",
+      "condition": {
+        "repeat_for_each": "applicant_bank_account",
+        "period_months": 4,
+        "period_anchor": "application_date"
+      }
+    },
+    {
+      "rule_id": "ESS-011",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0003",
+      "requirement_type": "mandatory",
+      "subject": "person_2",
+      "instance_rule": "one slot per partner account",
+      "period_months": 4,
+      "human_condition": "Required for every partner account if partner case applies, 4 months back from application date.",
+      "source_question_keys": "marital_status, spouse_bank_giro_yes_no, spouse_bank_savings_account_yes_no, spouse_bank_additional_account_yes_no",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "repeat_for_each": "spouse_bank_account",
+            "period_months": 4,
+            "period_anchor": "application_date"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-012",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0006",
+      "requirement_type": "mandatory",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Always required due to product/application submission logic.",
+      "source_question_keys": "legal_guardian_yes_no",
+      "cto_notes": null,
+      "condition": {
+        "always": true
+      }
+    },
+    {
+      "rule_id": "ESS-013",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0031",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot per pending pension application",
+      "period_months": null,
+      "human_condition": "Required if applicant has applied for a pension that has not been decided yet.",
+      "source_question_keys": "pension_application_yes_no, pension_application_type",
+      "cto_notes": null,
+      "condition": {
+        "field": "pension_application_yes_no",
+        "operator": "equals",
+        "value": "Ja"
+      }
+    },
+    {
+      "rule_id": "ESS-014",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0031",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot per pending partner pension application",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner has a pending pension application.",
+      "source_question_keys": "marital_status, spouse_pension_application_yes_no, spouse_pension_application_type",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_pension_application_yes_no",
+            "operator": "equals",
+            "value": "Ja"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-015",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0032",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot per relevant income/social benefit entry",
+      "period_months": null,
+      "human_condition": "Required if applicant receives Bürgergeld/SGB II or prior SGB II/SGB XI benefits are indicated.",
+      "source_question_keys": "other_income_type, applicant_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "any": [
+          {
+            "field": "other_income_type",
+            "operator": "equals",
+            "value": "Bürgergeld/SGB II"
+          },
+          {
+            "field": "applicant_bulk_topics",
+            "operator": "includes",
+            "value": "Es wurden frueher bereits Leistungen nach SGB II oder SGB XI bezogen"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-016",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0032",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot per relevant partner income/social benefit entry",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner receives Bürgergeld/SGB II or prior SGB II/SGB XI benefits are indicated.",
+      "source_question_keys": "marital_status, spouse_other_income_type, spouse_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "field": "spouse_other_income_type",
+                "operator": "equals",
+                "value": "Bürgergeld/SGB II"
+              },
+              {
+                "field": "spouse_bulk_topics",
+                "operator": "includes",
+                "value": "Der Partner hat frueher bereits Leistungen nach SGB II oder SGB XI bezogen"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-017",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0033",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Required if applicant receives basic pension supplement or has 33+ qualifying basic-pension years.",
+      "source_question_keys": "income_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "any": [
+          {
+            "field": "income_bulk_topics",
+            "operator": "includes",
+            "value": "Es wird ein Grundrentenzuschlag bezogen"
+          },
+          {
+            "field": "income_bulk_topics",
+            "operator": "includes",
+            "value": "Es wurden 33 oder mehr Jahre Grundrentenzeiten erfuellt"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-018",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0033",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot for partner",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner receives basic pension supplement or has 33+ qualifying basic-pension years.",
+      "source_question_keys": "marital_status, spouse_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "field": "spouse_bulk_topics",
+                "operator": "includes",
+                "value": "Der Partner bezieht einen Grundrentenzuschlag"
+              },
+              {
+                "field": "spouse_bulk_topics",
+                "operator": "includes",
+                "value": "Der Partner hat 33 oder mehr Jahre Grundrentenzeiten erfuellt"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-019",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0034",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot per sickness benefit income entry",
+      "period_months": null,
+      "human_condition": "Required if applicant has income from health insurance benefit.",
+      "source_question_keys": "other_income_type",
+      "cto_notes": null,
+      "condition": {
+        "field": "other_income_type",
+        "operator": "equals",
+        "value": "Leistung der Krankenkasse"
+      }
+    },
+    {
+      "rule_id": "ESS-020",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0034",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot per partner sickness benefit income entry",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner has income from health insurance benefit.",
+      "source_question_keys": "marital_status, spouse_other_income_type",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_other_income_type",
+            "operator": "equals",
+            "value": "Leistung der Krankenkasse"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-021",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0035",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot per employment income entry",
+      "period_months": null,
+      "human_condition": "Required if applicant has employment, mini/midi-job, or training income.",
+      "source_question_keys": "other_income_type",
+      "cto_notes": null,
+      "condition": {
+        "field": "other_income_type",
+        "operator": "in",
+        "value": [
+          "Nichtselbstständige Tätigkeit",
+          "Mini-/Midijob",
+          "Ausbildungsvergütung"
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-022",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0035",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot per partner employment income entry",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner has employment, mini/midi-job, or training income.",
+      "source_question_keys": "marital_status, spouse_other_income_type",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_other_income_type",
+            "operator": "in",
+            "value": [
+              "Nichtselbstständige Tätigkeit",
+              "Mini-/Midijob",
+              "Ausbildungsvergütung"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-023",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0018",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Required if applicant has a disability card or assessment notice.",
+      "source_question_keys": "disability_card",
+      "cto_notes": null,
+      "condition": {
+        "field": "disability_card",
+        "operator": "equals",
+        "value": "Ja"
+      }
+    },
+    {
+      "rule_id": "ESS-024",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0018",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot for partner",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner has a disability card or assessment notice.",
+      "source_question_keys": "marital_status, spouse_disability_card",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_disability_card",
+            "operator": "equals",
+            "value": "Ja"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-025",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0036",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Required if applicant has voluntary or private health/care insurance.",
+      "source_question_keys": "health_insurance_type",
+      "cto_notes": null,
+      "condition": {
+        "field": "health_insurance_type",
+        "operator": "in",
+        "value": [
+          "freiwillige Versicherung",
+          "private Versicherung"
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-026",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0036",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot for partner",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner has voluntary or private health/care insurance.",
+      "source_question_keys": "marital_status, spouse_health_insurance_type",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_health_insurance_type",
+            "operator": "in",
+            "value": [
+              "freiwillige Versicherung",
+              "private Versicherung"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-027",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0020",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Required if applicant receives housing benefit or has applied for it.",
+      "source_question_keys": "other_income_type",
+      "cto_notes": "Also kept from reduced partner-housing block.",
+      "condition": {
+        "field": "other_income_type",
+        "operator": "equals",
+        "value": "Wohngeld/Lastenzuschuss"
+      }
+    },
+    {
+      "rule_id": "ESS-028",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0020",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot for partner",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner receives housing benefit or has applied for it.",
+      "source_question_keys": "marital_status, spouse_other_income_type",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_other_income_type",
+            "operator": "equals",
+            "value": "Wohngeld/Lastenzuschuss"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-029",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0024",
+      "requirement_type": "conditional",
+      "subject": "previous_home",
+      "instance_rule": "one slot for previous rental apartment",
+      "period_months": null,
+      "human_condition": "Required if applicant had a rental apartment before care home admission.",
+      "source_question_keys": "former_rental_apartment_yes_no",
+      "cto_notes": "Independent of whether a partner exists.",
+      "condition": {
+        "field": "former_rental_apartment_yes_no",
+        "operator": "equals",
+        "value": "Ja"
+      }
+    },
+    {
+      "rule_id": "ESS-030",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0025",
+      "requirement_type": "conditional",
+      "subject": "previous_home",
+      "instance_rule": "one slot for previous rental apartment",
+      "period_months": null,
+      "human_condition": "Required if applicant had a rental apartment before care home admission.",
+      "source_question_keys": "former_rental_apartment_yes_no",
+      "cto_notes": "User decision: ask whenever a prior rental apartment existed.",
+      "condition": {
+        "field": "former_rental_apartment_yes_no",
+        "operator": "equals",
+        "value": "Ja"
+      }
+    },
+    {
+      "rule_id": "ESS-031",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0038",
+      "requirement_type": "conditional",
+      "subject": "property_owner",
+      "instance_rule": "one slot per relevant owned home/property owner",
+      "period_months": null,
+      "human_condition": "Required if applicant or partner has home/property ownership relevant to the case.",
+      "source_question_keys": "property_yes_no, spouse_property_yes_no",
+      "cto_notes": "Kept from reduced housing block.",
+      "condition": {
+        "any": [
+          {
+            "field": "property_yes_no",
+            "operator": "equals",
+            "value": "Ja"
+          },
+          {
+            "field": "spouse_property_yes_no",
+            "operator": "equals",
+            "value": "Ja"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-032",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0039",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Required if applicant has foreign health insurance.",
+      "source_question_keys": "foreign_health_insurance_yes_no",
+      "cto_notes": null,
+      "condition": {
+        "field": "foreign_health_insurance_yes_no",
+        "operator": "equals",
+        "value": "Ja"
+      }
+    },
+    {
+      "rule_id": "ESS-033",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0039",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot for partner",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner has foreign health insurance.",
+      "source_question_keys": "marital_status, spouse_foreign_health_insurance_yes_no",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_foreign_health_insurance_yes_no",
+            "operator": "equals",
+            "value": "Ja"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-034",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0040",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Required if applicant has relevant foreign work or pension-contribution history.",
+      "source_question_keys": "income_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "any": [
+          {
+            "field": "income_bulk_topics",
+            "operator": "includes",
+            "value": "Es wurde im Ausland gearbeitet und dort in eine Rentenkasse eingezahlt"
+          },
+          {
+            "field": "income_bulk_topics",
+            "operator": "includes",
+            "value": "Es wurde im Ausland gearbeitet, ohne dort Rentenbeitraege zu zahlen"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-035",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0040",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot for partner",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner has relevant foreign work or pension-contribution history.",
+      "source_question_keys": "marital_status, spouse_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "field": "spouse_bulk_topics",
+                "operator": "includes",
+                "value": "Der Partner hat im Ausland gearbeitet und dort in eine Rentenkasse eingezahlt"
+              },
+              {
+                "field": "spouse_bulk_topics",
+                "operator": "includes",
+                "value": "Der Partner hat im Ausland gearbeitet, ohne dort Rentenbeitraege zu zahlen"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-036",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0041",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot if other assets bulk topic is selected",
+      "period_months": null,
+      "human_condition": "Required only if applicant selects other assets.",
+      "source_question_keys": "wealth_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "field": "wealth_bulk_topics",
+        "operator": "includes",
+        "value": "Es gibt sonstiges Vermoegen im In- oder Ausland"
+      }
+    },
+    {
+      "rule_id": "ESS-037",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0041",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot if partner other assets bulk topic is selected",
+      "period_months": null,
+      "human_condition": "Required only if partner case applies and partner selects other assets.",
+      "source_question_keys": "marital_status, spouse_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_bulk_topics",
+            "operator": "includes",
+            "value": "Der Partner besitzt sonstiges Vermoegen im In- oder Ausland"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-038",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0019",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Required if applicant has liability insurance.",
+      "source_question_keys": "expense_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "field": "expense_bulk_topics",
+        "operator": "includes",
+        "value": "Es besteht eine Haftpflichtversicherung"
+      }
+    },
+    {
+      "rule_id": "ESS-039",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0019",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot for partner",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner has liability insurance.",
+      "source_question_keys": "marital_status, spouse_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_bulk_topics",
+            "operator": "includes",
+            "value": "Beim Partner besteht eine Haftpflichtversicherung"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-040",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0013",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Required if applicant has a capital or risk life insurance.",
+      "source_question_keys": "life_insurance",
+      "cto_notes": null,
+      "condition": {
+        "field": "life_insurance",
+        "operator": "not_equals",
+        "value": "Nein"
+      }
+    },
+    {
+      "rule_id": "ESS-041",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0013",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot for partner",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner has a capital or risk life insurance.",
+      "source_question_keys": "marital_status, spouse_life_insurance",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_life_insurance",
+            "operator": "not_equals",
+            "value": "Nein"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-042",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0014",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Required if applicant pays contributions to a death insurance.",
+      "source_question_keys": "expense_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "field": "expense_bulk_topics",
+        "operator": "includes",
+        "value": "Es werden Beitraege zu einer Sterbegeldversicherung gezahlt"
+      }
+    },
+    {
+      "rule_id": "ESS-043",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0014",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot for partner",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner pays contributions to a death insurance.",
+      "source_question_keys": "marital_status, spouse_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_bulk_topics",
+            "operator": "includes",
+            "value": "Der Partner zahlt Beitraege zu einer Sterbegeldversicherung"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-044",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0015",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Required if applicant has a prepaid funeral contract.",
+      "source_question_keys": "funeral_insurance_yes_no",
+      "cto_notes": null,
+      "condition": {
+        "field": "funeral_insurance_yes_no",
+        "operator": "equals",
+        "value": "Ja"
+      }
+    },
+    {
+      "rule_id": "ESS-045",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0015",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot for partner",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner has a prepaid funeral contract.",
+      "source_question_keys": "marital_status, spouse_funeral_insurance_yes_no",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_funeral_insurance_yes_no",
+            "operator": "equals",
+            "value": "Ja"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-046",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0022",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Required if marital status is divorced.",
+      "source_question_keys": "marital_status",
+      "cto_notes": null,
+      "condition": {
+        "field": "marital_status",
+        "operator": "equals",
+        "value": "geschieden"
+      }
+    },
+    {
+      "rule_id": "ESS-047",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0043",
+      "requirement_type": "conditional",
+      "subject": "maintenance_case",
+      "instance_rule": "one slot for maintenance case",
+      "period_months": null,
+      "human_condition": "Required if maintenance questions regarding separated/divorced spouse/partner are active.",
+      "source_question_keys": "maintenance_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "field": "maintenance_bulk_topics",
+        "operator": "includes",
+        "value": "Es bestehen Unterhaltsfragen zu einem getrennt lebenden oder geschiedenen Ehegatten/Partner"
+      }
+    },
+    {
+      "rule_id": "ESS-048",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0028",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant vehicle",
+      "period_months": null,
+      "human_condition": "Required if applicant owns a vehicle.",
+      "source_question_keys": "automobile_yes_no",
+      "cto_notes": null,
+      "condition": {
+        "field": "automobile_yes_no",
+        "operator": "equals",
+        "value": "Ja"
+      }
+    },
+    {
+      "rule_id": "ESS-049",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0028",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot for partner vehicle",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner owns a vehicle.",
+      "source_question_keys": "marital_status, spouse_automobile_yes_no",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_automobile_yes_no",
+            "operator": "equals",
+            "value": "Ja"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-050",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0029",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant vehicle",
+      "period_months": null,
+      "human_condition": "Required if applicant owns a vehicle.",
+      "source_question_keys": "automobile_yes_no",
+      "cto_notes": null,
+      "condition": {
+        "field": "automobile_yes_no",
+        "operator": "equals",
+        "value": "Ja"
+      }
+    },
+    {
+      "rule_id": "ESS-051",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0029",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot for partner vehicle",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner owns a vehicle.",
+      "source_question_keys": "marital_status, spouse_automobile_yes_no",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "field": "spouse_automobile_yes_no",
+            "operator": "equals",
+            "value": "Ja"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-052",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0027",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant vehicle",
+      "period_months": null,
+      "human_condition": "Required if applicant owns a vehicle or explicitly has Kfz liability insurance expense.",
+      "source_question_keys": "automobile_yes_no, expense_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "any": [
+          {
+            "field": "automobile_yes_no",
+            "operator": "equals",
+            "value": "Ja"
+          },
+          {
+            "field": "expense_bulk_topics",
+            "operator": "includes",
+            "value": "Es besteht eine Kfz-Haftpflichtversicherung"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-053",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0027",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot for partner vehicle",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner owns a vehicle or explicitly has Kfz liability insurance expense.",
+      "source_question_keys": "marital_status, spouse_automobile_yes_no, spouse_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "field": "spouse_automobile_yes_no",
+                "operator": "equals",
+                "value": "Ja"
+              },
+              {
+                "field": "spouse_bulk_topics",
+                "operator": "includes",
+                "value": "Beim Partner besteht eine Kfz-Haftpflichtversicherung"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-054",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0042",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant transfer/property contract",
+      "period_months": null,
+      "human_condition": "Required if applicant reports transferred assets or transfer-contract rights.",
+      "source_question_keys": "asset_transfer_yes_no, wealth_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "any": [
+          {
+            "field": "asset_transfer_yes_no",
+            "operator": "starts_with",
+            "value": "Ja"
+          },
+          {
+            "field": "wealth_bulk_topics",
+            "operator": "includes",
+            "value": "Es gibt Ansprueche aus Uebertragsvertraegen, Wohnrecht, Niessbrauch oder Altenteil"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "ESS-055",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0042",
+      "requirement_type": "conditional",
+      "subject": "person_2",
+      "instance_rule": "one slot for partner transfer/property contract",
+      "period_months": null,
+      "human_condition": "Required if partner case applies and partner reports transferred assets or transfer-contract rights.",
+      "source_question_keys": "marital_status, spouse_asset_transfer_yes_no, spouse_bulk_topics",
+      "cto_notes": null,
+      "condition": {
+        "all": [
+          {
+            "any": [
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "verheiratet"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "Lebenspartnerschaft"
+              },
+              {
+                "field": "marital_status",
+                "operator": "equals",
+                "value": "eheähnliche Gemeinschaft"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "field": "spouse_asset_transfer_yes_no",
+                "operator": "starts_with",
+                "value": "Ja"
+              },
+              {
+                "field": "spouse_bulk_topics",
+                "operator": "includes",
+                "value": "Der Partner hat Ansprueche aus Uebertragsvertraegen, Wohnrecht, Niessbrauch oder Altenteil"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "excluded_mapping": [
+    {
+      "legacy_or_candidate_document": "Hausratversicherungspolice mit aktueller Beitragsrechnung",
+      "action": "removed",
+      "reason": "User decision: remove completely for Essen.",
+      "mapped_to_document_id": null,
+      "mapped_to_name": null
+    },
+    {
+      "legacy_or_candidate_document": "Krankenversicherungsnummer/Gesundheitskarte",
+      "action": "not_used_for_essen_upload",
+      "reason": "Essen asks for the number; current decision is not to require an upload slot.",
+      "mapped_to_document_id": null,
+      "mapped_to_name": null
+    },
+    {
+      "legacy_or_candidate_document": "Nachweis Entlastungsbetrag Kurzzeitpflege",
+      "action": "removed_for_phase_1",
+      "reason": "No clear short-term-care application type in current flow; not selected from unclear list.",
+      "mapped_to_document_id": null,
+      "mapped_to_name": null
+    },
+    {
+      "legacy_or_candidate_document": "Letztes Mietänderungsschreiben",
+      "action": "removed",
+      "reason": "Reduced partner-housing block; not required initially.",
+      "mapped_to_document_id": null,
+      "mapped_to_name": null
+    },
+    {
+      "legacy_or_candidate_document": "Nachweis über Mietzahlung",
+      "action": "removed",
+      "reason": "Reduced partner-housing block; not required initially.",
+      "mapped_to_document_id": null,
+      "mapped_to_name": null
+    },
+    {
+      "legacy_or_candidate_document": "Letzte Betriebskostenabrechnung / Grundbesitzabgaben",
+      "action": "removed",
+      "reason": "Reduced partner-housing block; not required initially.",
+      "mapped_to_document_id": null,
+      "mapped_to_name": null
+    },
+    {
+      "legacy_or_candidate_document": "Heizkostenvertrag / letzte Jahresrechnung Heizung",
+      "action": "removed",
+      "reason": "Reduced partner-housing block; not required initially.",
+      "mapped_to_document_id": null,
+      "mapped_to_name": null
+    },
+    {
+      "legacy_or_candidate_document": "Nachweise sonstige Konten, z. B. PayPal",
+      "action": "merged",
+      "reason": "All accounts are covered by bank statements and financial status.",
+      "mapped_to_document_id": "DOC-0003 / DOC-0037",
+      "mapped_to_name": "Kontoauszüge / Finanzstatus"
+    },
+    {
+      "legacy_or_candidate_document": "Nachweise Wertpapiere/Aktien",
+      "action": "not_used",
+      "reason": "Not part of final Essen decision.",
+      "mapped_to_document_id": null,
+      "mapped_to_name": null
+    },
+    {
+      "legacy_or_candidate_document": "Wertnachweise Schmuck/Edelmetalle",
+      "action": "not_used",
+      "reason": "Not part of final Essen decision.",
+      "mapped_to_document_id": null,
+      "mapped_to_name": null
+    },
+    {
+      "legacy_or_candidate_document": "Nachweis staatlich geförderte/private Altersvorsorge",
+      "action": "not_used",
+      "reason": "Not part of final Essen decision.",
+      "mapped_to_document_id": null,
+      "mapped_to_name": null
+    },
+    {
+      "legacy_or_candidate_document": "Nachweise Forderungen/Ansprüche gegen Dritte",
+      "action": "not_used",
+      "reason": "Not part of final Essen decision.",
+      "mapped_to_document_id": null,
+      "mapped_to_name": null
+    },
+    {
+      "legacy_or_candidate_document": "Nachweise Erbschaft",
+      "action": "not_used",
+      "reason": "Not part of final Essen decision.",
+      "mapped_to_document_id": null,
+      "mapped_to_name": null
+    }
+  ],
+  "question_changes": [
+    {
+      "area": "Partner logic",
+      "required_change": "Ensure marital_status options/dependencies consistently support partner cases, including marriage-like partnership if intended.",
+      "reason": "Partner rules rely on one shared eligibility condition.",
+      "priority": "high"
+    },
+    {
+      "area": "Bank accounts",
+      "required_change": "If possible, store actual bank-account instances, not only yes/no plus amount.",
+      "reason": "Rules create one upload slot per account.",
+      "priority": "high"
+    },
+    {
+      "area": "Application date",
+      "required_change": "Expose application_date as period anchor for Essen bank statements.",
+      "reason": "Essen rule uses 4 months back from application date.",
+      "priority": "high"
+    },
+    {
+      "area": "Former rental apartment",
+      "required_change": "Keep former_rental_apartment_yes_no as trigger for both rental contract and landlord termination confirmation.",
+      "reason": "User decided both documents are required whenever a prior rental apartment existed.",
+      "priority": "medium"
+    },
+    {
+      "area": "Property ownership proof",
+      "required_change": "If ownership proof should only apply to partner staying in owned home, add a precise field for this scenario.",
+      "reason": "Current rule uses property ownership fields because the detailed housing block is removed.",
+      "priority": "medium"
+    },
+    {
+      "area": "Vollmacht",
+      "required_change": "Keep upload mandatory regardless of legal_guardian_yes_no.",
+      "reason": "Product/application submission logic overrides official conditional wording.",
+      "priority": "medium"
+    }
+  ]
+}
