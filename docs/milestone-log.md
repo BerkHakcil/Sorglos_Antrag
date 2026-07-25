@@ -50,7 +50,11 @@ Quick orientation for anyone picking this up cold:
 
 ---
 
-## Essen document rules — seed + evaluator extension — built 2026-07-24, **verification pending `db push`**
+## Essen document rules — seed + evaluator extension — ✅ complete 2026-07-25
+
+**Verified live after the push:** catalog **43** docs and **105** rules (50 PAN + 55 ESS) on prod; ESS-031/047 subjects `person_1` as seeded. A fresh Essen case evaluated through the live rules shows the ESS mandatory set — Personaldokument, Leistungsbescheid Pflegekasse, Heimvertrag, Bisherige Heimrechnungen, **Finanzstatus/Saldenübersicht (new DOC-0037)**, Kontoauszüge (giro via unanswered gate), Vertretungsvollmacht — with Pankow-only mandatories (Mobilitätsnachweis etc.) **gone**. E2e: the Essen full drive (m7-regression R1) completed with the now-ESS checklist and a successful upload; the fallback leg (R2) unchanged; the **documents-m6 Pankow married regression passed fully** — Pankow behavior untouched in the real UI, matching the unit-level byte-identical gate. verify-baseline full replay: **all 12 tables identical** (Doc catalog 43, Doc rules 105). R1/R2 needed one retry due to a transient Supabase Auth admin-API error at setup (`invalid JWT / unrecognized kid`, momentary signing-key hiccup — not product). The first push attempt failed on the `subject` CHECK constraint (ESS-031/047) — full rollback, generator fixed forward, see the diff-table note.
+
+**Roman items after this pass:** the Essen rules file is DELIVERED and live — remaining with Roman: only the spouse-section review (E3 bulk-intro + insurance-depth, cosmetic) and the sign-offs in `docs/document-rules/german_copy_for_roman.md` (13 document names now user-facing + the PLACEHOLDER_DE 4-month instruction, unwired).
 
 Roman's rules file landed (the last real open Roman deliverable). Two-phase per house rules; Phase 1 report at `docs/document-rules/phase1_essen_docs_verification.md` (Addendum A3 = the authoritative remap table); the canonical master is committed at `docs/document-rules/essen_document_rules.json` (Pankow-master precedent).
 
