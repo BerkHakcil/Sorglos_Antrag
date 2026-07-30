@@ -266,7 +266,7 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
       break
     }
 
-    const footer = page.locator('.shrink-0.border-t').last()
+    const footer = page.locator('[data-testid=answer-footer]').last()
     const footerText = (await footer.textContent({ timeout: 500 }).catch(() => '')) ?? ''
 
     // Group prompt: add a 2nd applicant pension once, otherwise continue.

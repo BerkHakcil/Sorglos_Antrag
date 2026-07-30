@@ -122,7 +122,7 @@ async function answerStep(page: Page): Promise<'continue' | 'done' | 'stuck'> {
     .catch(() => false)
   if (locked) return 'done'
 
-  const footer = page.locator('.shrink-0.border-t').last()
+  const footer = page.locator('[data-testid=answer-footer]').last()
   const footerText = (await footer.textContent({ timeout: 500 }).catch(() => '')) ?? ''
 
   const neinWeiter = page.getByRole('button', { name: 'Nein, weiter' })

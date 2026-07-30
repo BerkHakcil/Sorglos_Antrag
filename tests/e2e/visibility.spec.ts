@@ -50,7 +50,7 @@ async function clickWeiter(page: Page) {
 
 /** Returns all visible text in the current footer question area. */
 async function getFooterText(page: Page): Promise<string> {
-  const footer = page.locator('.shrink-0.border-t').last()
+  const footer = page.locator('[data-testid=answer-footer]').last()
   return (await footer.textContent({ timeout: 500 }).catch(() => '')) ?? ''
 }
 
@@ -147,7 +147,7 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
       break
     }
 
-    const footer = page.locator('.shrink-0.border-t').last()
+    const footer = page.locator('[data-testid=answer-footer]').last()
 
     // Group prompt
     const neinWeiter = page.getByRole('button', { name: 'Nein, weiter' })

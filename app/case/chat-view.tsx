@@ -196,7 +196,10 @@ function CurrentQuestionCard({
   isReask?: boolean
 }) {
   return (
-    <div className="border-border bg-card space-y-4 rounded-xl border p-5 shadow-sm">
+    <div
+      data-testid="question-card"
+      className="border-border bg-card space-y-4 rounded-xl border p-5 shadow-sm"
+    >
       {/* Category label intentionally omitted here — it stays in the answered
           history (AnsweredBubble) so it isn't repeated on every active card. */}
       {isReask && (
@@ -265,7 +268,10 @@ function GroupPromptCard({
   const question =
     prompt.customPromptDe ?? s.repeatableGroup.anotherPrompt.replace('{group}', prompt.groupLabelDe)
   return (
-    <div className="border-border bg-card space-y-4 rounded-xl border p-5 shadow-sm">
+    <div
+      data-testid="group-prompt"
+      className="border-border bg-card space-y-4 rounded-xl border p-5 shadow-sm"
+    >
       <p className="text-sm font-medium">{question}</p>
       <div className="flex flex-wrap gap-3">
         <button
@@ -291,7 +297,7 @@ function GroupPromptCard({
 
 function AllAnsweredCard({ heading, message }: { heading: string; message: string }) {
   return (
-    <div className="space-y-2 py-2 text-center">
+    <div data-testid="all-answered" className="space-y-2 py-2 text-center">
       <p className="text-sm font-semibold">{heading}</p>
       <p className="text-muted-foreground text-sm">{message}</p>
     </div>
@@ -300,7 +306,7 @@ function AllAnsweredCard({ heading, message }: { heading: string; message: strin
 
 function EditLockedCard({ heading, body }: { heading: string; body: string }) {
   return (
-    <div className="space-y-1 py-2 text-center text-sm">
+    <div data-testid="locked-banner" className="space-y-1 py-2 text-center text-sm">
       <p className="font-medium">{heading}</p>
       <p className="text-muted-foreground">{body}</p>
     </div>
@@ -656,7 +662,7 @@ export function ChatView({
   return (
     <div className="flex h-full flex-col">
       {/* ── Fixed top: subheader + progress bar ─────────────── */}
-      <div className="border-border bg-card shrink-0 border-b">
+      <div data-testid="case-header" className="border-border bg-card shrink-0 border-b">
         <div className="mx-auto max-w-2xl space-y-2 px-4 pt-3 pb-3">
           {/* Subheader: title + case meta + live status */}
           <div className="space-y-1">
@@ -686,7 +692,7 @@ export function ChatView({
       </div>
 
       {/* ── Scrollable middle: (mobile) patient notice + answered history ─ */}
-      <div ref={historyRef} className="flex-1 overflow-y-auto">
+      <div ref={historyRef} data-testid="chat-history" className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-2xl space-y-4 px-4 py-4">
           {/* Patient notice (mobile only) — not pinned; shown once at the top of
               the scroll so it's seen, then scrolls away as the chat grows. Desktop
@@ -720,7 +726,10 @@ export function ChatView({
       </div>
 
       {/* ── Pinned bottom: action area ───────────────────────── */}
-      <div className="border-border bg-background shrink-0 border-t">
+      {/* data-testid is the e2e anchor for this region. The suites previously
+          targeted the CSS classes (`.shrink-0.border-t`), which couples them to
+          styling — see docs/feedback/pass3_phase_e_plan.md §6. */}
+      <div data-testid="answer-footer" className="border-border bg-background shrink-0 border-t">
         <div className="mx-auto max-w-2xl px-4 py-4">
           {isLocked ? (
             <EditLockedCard heading={content.lockedHeading} body={content.lockedBody} />
