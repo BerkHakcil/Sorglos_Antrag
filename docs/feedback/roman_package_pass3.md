@@ -8,8 +8,9 @@ Upload-Link, §3 Dokumenten-Tabs), das festgehaltene neue Verhalten bei
 optionalen Fragen (§4), drei Punkte, bei denen wir **deine Entscheidung**
 brauchen (§5 Formulierungsregel, §6 Fragen-Reihenfolge, §7
 Renten-Doppelabfrage), eine Info zur Umlaut-Korrektur mit einer kurzen
-Bestätigungsbitte (§8), drei Bitten zum neuen Design (§9) und die
-Erinnerungsliste der noch offenen Freigaben (§10).
+Bestätigungsbitte (§8), drei Bitten zum neuen Design (§9), die
+Ordner-Zuordnung der Dokumente zur Kenntnis (§10) und die
+Erinnerungsliste der noch offenen Freigaben (§11).
 
 ---
 
@@ -265,7 +266,55 @@ Umstellung der Optik vor. Dafür brauchen wir drei Dinge von dir:
 
    Bitte freigeben, umformulieren oder streichen.
 
-## 10. Erinnerung: noch offene Freigaben aus früheren Runden
+## 10. Zur Kenntnis: Ordner-Zuordnung der 43 Dokumente (keine Aktion nötig)
+
+Damit die hochgeladenen Dateien für euch sofort lesbar sind, bekommt jeder
+Fall künftig fünf Ordner — **Personal, Housing, Financial, Insurance,
+Spouse** — und die Dateien heißen nach dem Dokument statt nach einer
+Zufallsnummer, z. B. `Heimvertrag1.pdf`, `Kontoauszuege_Girokonto1.pdf`.
+Alles, was ein Partner-Dokument ist, landet automatisch in **Spouse**.
+
+Die Zuordnung ist bereits entschieden und läuft so:
+
+| Ordner        | Anzahl | Beispiele                                                    |
+| ------------- | ------ | ------------------------------------------------------------ |
+| **Personal**  | 11     | Personaldokument, Pflegegutachten MDK, Vollmacht, Ausweise   |
+| **Housing**   | 7      | Heimvertrag, Mietvertrag, Mietkündigung, Eigentumsnachweis   |
+| **Financial** | 16     | Rentenbescheide, Kontoauszüge, **Heimrechnungen**, Wohngeld  |
+| **Insurance** | 9      | Kranken-/Pflege-/Haftpflicht-/Lebensversicherung, Bestattung |
+| **Spouse**    | –      | kein eigener Dokumenttyp: alles, was den Partner betrifft    |
+
+**Eine bewusste Trennung, die dir auffallen wird:** Der **Heimvertrag**
+liegt in _Housing_, die **Heimrechnungen** in _Financial_ — Vertrag zum
+Wohnen, Rechnungen zum Geld, so wie du die Kategorien beschrieben hast.
+
+Ein paar Dokumente kann man mit gutem Grund auch anders einsortieren; wir
+haben pragmatisch entschieden. **Falls dir eine Zuordnung nicht passt, sag
+einfach Bescheid — das ist eine Ein-Zeilen-Änderung.** Die Kandidaten:
+
+- **Leistungsbescheid Pflegekasse** → Insurance (kommt von der Kasse) oder
+  Financial (ist eine Geldleistung)?
+- **Polizeiliche Anmeldung im Heim** → Housing (belegt den Wohnort) oder
+  Personal (amtliches Dokument)?
+- **Bestattungsvorsorgevertrag** → Insurance (neben der Sterbe­versicherung)
+  oder Financial (ist rechtlich Vermögen)?
+- **Wohngeldbescheid** → Financial (ist Einkommen), trotz „Wohn-".
+- **KFZ-Fahrzeugbrief / Wertnachweis** → Financial (Vermögen) oder
+  Insurance (beim KFZ-Versicherungsschein)?
+- **Nachweis Immobilienwert** → Housing (beim Eigentumsnachweis) oder
+  Financial (Vermögen)?
+- **Krankengeldbescheid** → Financial (Einkommen), obwohl es von der
+  Krankenkasse kommt.
+- **Übertragungsvertrag mit Grundbuchauszug** → Housing (Grundbuch) oder
+  Financial (Vermögensübertragung)?
+- **Unterhaltsurteil** → Personal (Urkunde) oder Financial (Unterhalt)?
+
+⚠ Wichtig für später: Eine geänderte Zuordnung wirkt **nur für neue
+Uploads**. Bereits hochgeladene Dateien bleiben da liegen, wo sie sind —
+sie sind weiterhin vollständig auffindbar und werden im Export
+mitgeliefert, wandern aber nicht automatisch in den neuen Ordner.
+
+## 11. Erinnerung: noch offene Freigaben aus früheren Runden
 
 1. **Die 13 neuen Dokumentnamen** aus deiner Essen-Regeldatei (DOC-0031…0043,
    live in der Checkliste, wortgleich aus deiner Datei übernommen) — bitte

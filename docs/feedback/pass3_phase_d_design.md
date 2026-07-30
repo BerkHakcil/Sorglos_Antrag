@@ -8,6 +8,37 @@
 > Basis: pass-brief D5 — restructure applies to **NEW uploads only**; the
 > existing files stay where they are, no move/rename script.
 
+## ✅ APPROVED 2026-07-30 — amendments folded in
+
+1. **`document_filename_seq` gets `case_id UUID REFERENCES cases(id) ON
+DELETE CASCADE`** — counter rows are case-scoped, GDPR-relevant metadata
+   and must die with the case. `operations.md` §4 notes the cascade.
+2. **Mapping flips:** DOC-0008 Bisherige Heimrechnungen **Housing →
+   Financial** (Roman's definition lists invoices there). Deliberate
+   **contract/invoice split**: DOC-0007 Heimvertrag **stays Housing**.
+   ⚠ The catalog holds exactly **one** Heimrechnungen row (DOC-0008) —
+   there is no separate "Heimrechnung" type to flip. DOC-0005 → Insurance,
+   DOC-0030 → Housing, DOC-0015 stays Insurance, DOC-0016 stays Personal
+   (all as originally proposed).
+   **Category assignment is FORWARD-ONLY**: re-categorising later moves
+   only future uploads; stored files keep their path and their counter
+   continues in the old folder's scope.
+3. **Filename format confirmed as proposed.** Commit B additionally
+   defines the **no-extension fallback** and documents two accepted quirks
+   (§6.3, §6.4).
+4. **Commit A = migration only** → `20260730000004_document_storage_category_and_filename_seq.sql`.
+   Commit B stays local and unpushed until the migration is verified on
+   prod (CLAUDE.md #8).
+5. Commit B carries four **additional** test groups (§10, items 14–17).
+
+> ⚠ **Correction to §3 below.** The totals I first published
+> (Personal 13 · Housing 7 · Financial 16 · Insurance 7 = 43) were
+> **miscounted** — they do not sum to 43 and misstated two buckets. The
+> mapping rows themselves were right. Verified counts, after the approved
+> DOC-0008 flip: **Personal 11 · Housing 7 · Financial 16 · Insurance 9**.
+> The migration asserts exactly this distribution and aborts otherwise, and
+> a partition check confirmed all 43 ids appear exactly once.
+
 ## 0. What this phase changes / does not change
 
 |                     |                                                                                                                                                                                                          |
@@ -91,53 +122,54 @@ Roman's five folders: **Personal, Housing, Financial, Insurance, Spouse**
 (Spouse via override only). Proposed `storage_category` per catalog row;
 the last column is the filename base produced by the §6 sanitizer.
 
-| DOC  | name_de                                                          | today's `category` | **proposed folder** | filename base                                                 |
-| ---- | ---------------------------------------------------------------- | ------------------ | ------------------- | ------------------------------------------------------------- |
-| 0001 | Personaldokument                                                 | person             | **Personal**        | `Personaldokument`                                            |
-| 0002 | Renten/Pensionsbescheid                                          | income             | **Financial**       | `RentenPensionsbescheid`                                      |
-| 0003 | Kontoauszüge                                                     | assets             | **Financial**       | `Kontoauszuege`                                               |
-| 0004 | Pflegegutachten MDK                                              | person             | **Personal**        | `PflegegutachtenMDK`                                          |
-| 0005 | Leistungsbescheid Pflegekasse                                    | person             | **Insurance** ⚠     | `LeistungsbescheidPflegekasse`                                |
-| 0006 | Vertretungsvollmacht / Betreuungsnachweis                        | person             | **Personal**        | `VertretungsvollmachtBetreuungsnachweis`                      |
-| 0007 | Heimvertrag                                                      | expenses           | **Housing**         | `Heimvertrag`                                                 |
-| 0008 | Bisherige Heimrechnungen                                         | expenses           | **Housing** ⚠       | `BisherigeHeimrechnungen`                                     |
-| 0009 | Nachweis Bedarfsanzeige                                          | person             | **Personal**        | `NachweisBedarfsanzeige`                                      |
-| 0010 | Polizeiliche Anmeldung im Heim                                   | person             | **Housing** ⚠       | `PolizeilicheAnmeldungImHeim`                                 |
-| 0011 | Mobilitätsnachweis                                               | person             | **Personal**        | `Mobilitaetsnachweis`                                         |
-| 0012 | Krankenversicherungskarte                                        | person             | **Insurance**       | `Krankenversicherungskarte`                                   |
-| 0013 | Lebensversicherung                                               | expenses           | **Insurance**       | `Lebensversicherung`                                          |
-| 0014 | Sterbeversicherung                                               | expenses           | **Insurance**       | `Sterbeversicherung`                                          |
-| 0015 | Bestattungsvorsorgevertrag                                       | assets             | **Insurance** ⚠     | `Bestattungsvorsorgevertrag`                                  |
-| 0016 | Sterbeurkunde Partner                                            | person             | **Personal** ⚠      | `SterbeurkundePartner`                                        |
-| 0017 | Aufenthaltsstatus                                                | person             | **Personal**        | `Aufenthaltsstatus`                                           |
-| 0018 | Schwerbehindertenausweis                                         | person             | **Personal**        | `Schwerbehindertenausweis`                                    |
-| 0019 | Haftpflichtversicherung                                          | expenses           | **Insurance**       | `Haftpflichtversicherung`                                     |
-| 0020 | Wohngeldbescheid                                                 | income             | **Financial** ⚠     | `Wohngeldbescheid`                                            |
-| 0021 | Heimatvertriebener/Spätaussiedler Nachweis                       | person             | **Personal**        | `HeimatvertriebenerSpaetaussiedlerNachweis`                   |
-| 0022 | Scheidungsurkunde                                                | person             | **Personal**        | `Scheidungsurkunde`                                           |
-| 0023 | Leistungsnachweis Sozialhilfe                                    | person             | **Financial**       | `LeistungsnachweisSozialhilfe`                                |
-| 0024 | Mietvertrag                                                      | expenses           | **Housing**         | `Mietvertrag`                                                 |
-| 0025 | Mietkündigungsnachweis                                           | expenses           | **Housing**         | `Mietkuendigungsnachweis`                                     |
-| 0026 | Nachweis anderes Einkommen                                       | income             | **Financial**       | `NachweisAnderesEinkommen`                                    |
-| 0027 | KFZ Versicherung                                                 | expenses           | **Insurance**       | `KFZVersicherung`                                             |
-| 0028 | KFZ Fahrzeugbrief                                                | assets             | **Financial** ⚠     | `KFZFahrzeugbrief`                                            |
-| 0029 | KFZ Wertnachweis                                                 | assets             | **Financial**       | `KFZWertnachweis`                                             |
-| 0030 | Nachweis Immobilienwert                                          | assets             | **Housing** ⚠       | `NachweisImmobilienwert`                                      |
-| 0031 | Nachweis Rentenantragstellung                                    | income             | **Financial**       | `NachweisRentenantragstellung`                                |
-| 0032 | Bescheid Arbeitslosengeld/JobCenter/Bürgergeld                   | income             | **Financial**       | `BescheidArbeitslosengeldJobCenterBuergergeld`                |
-| 0033 | Bescheid Grundrentenzuschlag oder Grundrentenzeiten              | income             | **Financial**       | `BescheidGrundrentenzuschlagOderGrundrentenzeiten`            |
-| 0034 | Krankengeldbescheid                                              | income             | **Financial** ⚠     | `Krankengeldbescheid`                                         |
-| 0035 | Lohnbescheinigung                                                | income             | **Financial**       | `Lohnbescheinigung`                                           |
-| 0036 | Beitragsbescheid freiwillige/private Kranken-/Pflegeversicherung | health             | **Insurance**       | `BeitragsbescheidFreiwilligePrivateKrankenPflegeversicherung` |
-| 0037 | Finanzstatus/Saldenübersicht                                     | assets             | **Financial**       | `FinanzstatusSaldenuebersicht`                                |
-| 0038 | Eigentumsnachweis                                                | housing            | **Housing**         | `Eigentumsnachweis`                                           |
-| 0039 | Nachweis ausländische Krankenversicherung                        | health             | **Insurance**       | `NachweisAuslaendischeKrankenversicherung`                    |
-| 0040 | Nachweise Auslandstätigkeit/Rentenbeiträge                       | income             | **Financial**       | `NachweiseAuslandstaetigkeitRentenbeitraege`                  |
-| 0041 | Nachweise sonstiges Vermögen                                     | assets             | **Financial**       | `NachweiseSonstigesVermoegen`                                 |
-| 0042 | Übertragungsvertrag mit Grundbuchauszug                          | assets             | **Housing** ⚠       | `UebertragungsvertragMitGrundbuchauszug`                      |
-| 0043 | Unterhaltsurteil/Titel/Urkunde                                   | person             | **Personal** ⚠      | `UnterhaltsurteilTitelUrkunde`                                |
+| DOC  | name_de                                                          | today's `category` | **proposed folder**      | filename base                                                 |
+| ---- | ---------------------------------------------------------------- | ------------------ | ------------------------ | ------------------------------------------------------------- |
+| 0001 | Personaldokument                                                 | person             | **Personal**             | `Personaldokument`                                            |
+| 0002 | Renten/Pensionsbescheid                                          | income             | **Financial**            | `RentenPensionsbescheid`                                      |
+| 0003 | Kontoauszüge                                                     | assets             | **Financial**            | `Kontoauszuege`                                               |
+| 0004 | Pflegegutachten MDK                                              | person             | **Personal**             | `PflegegutachtenMDK`                                          |
+| 0005 | Leistungsbescheid Pflegekasse                                    | person             | **Insurance** ⚠          | `LeistungsbescheidPflegekasse`                                |
+| 0006 | Vertretungsvollmacht / Betreuungsnachweis                        | person             | **Personal**             | `VertretungsvollmachtBetreuungsnachweis`                      |
+| 0007 | Heimvertrag                                                      | expenses           | **Housing**              | `Heimvertrag`                                                 |
+| 0008 | Bisherige Heimrechnungen                                         | expenses           | **Financial** ✅ flipped | `BisherigeHeimrechnungen`                                     |
+| 0009 | Nachweis Bedarfsanzeige                                          | person             | **Personal**             | `NachweisBedarfsanzeige`                                      |
+| 0010 | Polizeiliche Anmeldung im Heim                                   | person             | **Housing** ⚠            | `PolizeilicheAnmeldungImHeim`                                 |
+| 0011 | Mobilitätsnachweis                                               | person             | **Personal**             | `Mobilitaetsnachweis`                                         |
+| 0012 | Krankenversicherungskarte                                        | person             | **Insurance**            | `Krankenversicherungskarte`                                   |
+| 0013 | Lebensversicherung                                               | expenses           | **Insurance**            | `Lebensversicherung`                                          |
+| 0014 | Sterbeversicherung                                               | expenses           | **Insurance**            | `Sterbeversicherung`                                          |
+| 0015 | Bestattungsvorsorgevertrag                                       | assets             | **Insurance** ⚠          | `Bestattungsvorsorgevertrag`                                  |
+| 0016 | Sterbeurkunde Partner                                            | person             | **Personal** ⚠           | `SterbeurkundePartner`                                        |
+| 0017 | Aufenthaltsstatus                                                | person             | **Personal**             | `Aufenthaltsstatus`                                           |
+| 0018 | Schwerbehindertenausweis                                         | person             | **Personal**             | `Schwerbehindertenausweis`                                    |
+| 0019 | Haftpflichtversicherung                                          | expenses           | **Insurance**            | `Haftpflichtversicherung`                                     |
+| 0020 | Wohngeldbescheid                                                 | income             | **Financial** ⚠          | `Wohngeldbescheid`                                            |
+| 0021 | Heimatvertriebener/Spätaussiedler Nachweis                       | person             | **Personal**             | `HeimatvertriebenerSpaetaussiedlerNachweis`                   |
+| 0022 | Scheidungsurkunde                                                | person             | **Personal**             | `Scheidungsurkunde`                                           |
+| 0023 | Leistungsnachweis Sozialhilfe                                    | person             | **Financial**            | `LeistungsnachweisSozialhilfe`                                |
+| 0024 | Mietvertrag                                                      | expenses           | **Housing**              | `Mietvertrag`                                                 |
+| 0025 | Mietkündigungsnachweis                                           | expenses           | **Housing**              | `Mietkuendigungsnachweis`                                     |
+| 0026 | Nachweis anderes Einkommen                                       | income             | **Financial**            | `NachweisAnderesEinkommen`                                    |
+| 0027 | KFZ Versicherung                                                 | expenses           | **Insurance**            | `KFZVersicherung`                                             |
+| 0028 | KFZ Fahrzeugbrief                                                | assets             | **Financial** ⚠          | `KFZFahrzeugbrief`                                            |
+| 0029 | KFZ Wertnachweis                                                 | assets             | **Financial**            | `KFZWertnachweis`                                             |
+| 0030 | Nachweis Immobilienwert                                          | assets             | **Housing** ⚠            | `NachweisImmobilienwert`                                      |
+| 0031 | Nachweis Rentenantragstellung                                    | income             | **Financial**            | `NachweisRentenantragstellung`                                |
+| 0032 | Bescheid Arbeitslosengeld/JobCenter/Bürgergeld                   | income             | **Financial**            | `BescheidArbeitslosengeldJobCenterBuergergeld`                |
+| 0033 | Bescheid Grundrentenzuschlag oder Grundrentenzeiten              | income             | **Financial**            | `BescheidGrundrentenzuschlagOderGrundrentenzeiten`            |
+| 0034 | Krankengeldbescheid                                              | income             | **Financial** ⚠          | `Krankengeldbescheid`                                         |
+| 0035 | Lohnbescheinigung                                                | income             | **Financial**            | `Lohnbescheinigung`                                           |
+| 0036 | Beitragsbescheid freiwillige/private Kranken-/Pflegeversicherung | health             | **Insurance**            | `BeitragsbescheidFreiwilligePrivateKrankenPflegeversicherung` |
+| 0037 | Finanzstatus/Saldenübersicht                                     | assets             | **Financial**            | `FinanzstatusSaldenuebersicht`                                |
+| 0038 | Eigentumsnachweis                                                | housing            | **Housing**              | `Eigentumsnachweis`                                           |
+| 0039 | Nachweis ausländische Krankenversicherung                        | health             | **Insurance**            | `NachweisAuslaendischeKrankenversicherung`                    |
+| 0040 | Nachweise Auslandstätigkeit/Rentenbeiträge                       | income             | **Financial**            | `NachweiseAuslandstaetigkeitRentenbeitraege`                  |
+| 0041 | Nachweise sonstiges Vermögen                                     | assets             | **Financial**            | `NachweiseSonstigesVermoegen`                                 |
+| 0042 | Übertragungsvertrag mit Grundbuchauszug                          | assets             | **Housing** ⚠            | `UebertragungsvertragMitGrundbuchauszug`                      |
+| 0043 | Unterhaltsurteil/Titel/Urkunde                                   | person             | **Personal** ⚠           | `UnterhaltsurteilTitelUrkunde`                                |
 
-Totals: **Personal 13 · Housing 7 · Financial 16 · Insurance 7.**
+Totals (corrected + post-flip, asserted by the migration):
+**Personal 11 · Housing 7 · Financial 16 · Insurance 9 = 43.**
 
 ### ⚠ The ten genuinely ambiguous calls (your decision)
 
@@ -290,7 +322,7 @@ Applied to the type name and, separately, to the instance label:
    punctuation), fall back to `document_catalog.technical_key` (ASCII by
    construction), then to the `DOC-####` id.
 
-### 6.3 Extension
+### 6.3 Extension (+ approved no-extension fallback)
 
 Taken from the **original filename**, lowercased, validated against the
 existing allow-list `pdf|jpe?g|png|heic|heif` — the same `EXT_RE` the
@@ -298,6 +330,35 @@ upload action already enforces. `.jpeg` is **not** normalised to `.jpg`
 (Roman's example `Heimvertrag2.jpeg` keeps the user's extension). The
 allow-list is re-checked server-side before the key is built, so an
 extension can never inject a path segment.
+
+**No-extension fallback (commit B).** Today `createUploadUrlAction` rejects
+a filename that fails `EXT_RE`, so an extensionless file never reaches the
+key builder. Commit B keeps that guard and adds a defensive fallback for
+the key itself, in this order:
+
+1. extension from the original filename (allow-listed) — the normal path;
+2. else derive from the **validated MIME type** (`application/pdf → pdf`,
+   `image/jpeg → jpg`, `image/png → png`, `image/heic → heic`,
+   `image/heif → heif`) — this is the M5 desktop-HEIC situation, where the
+   browser reports an empty `file.type` or the name carries no suffix;
+3. else **omit the extension entirely** (`Heimvertrag1`), never invent one.
+
+The object's real content type is set on the PUT regardless, so an
+extensionless key still downloads correctly.
+
+### 6.4 Accepted quirks (documented, not fixed)
+
+1. **Burned numbers on abandoned uploads.** The counter is allocated when
+   the signed URL is minted, so a user who closes the tab before the PUT
+   completes consumes a number: the sequence can read `…1, …3`. Gaps are
+   harmless and strictly preferable to reuse — this is the same accepted
+   class as the M5 "orphaned storage object".
+2. **Double-number instance labels.** A per-instance slot whose label
+   already contains an ordinal produces two digits:
+   `RentenPensionsbescheid_Rente1Altersrente1.pdf` — "pension entry 1,
+   file 1". Deliberate: the first number identifies _which pension_, the
+   trailing one _which file for that pension_. Stripping either would make
+   two pensions of the same type indistinguishable in the folder.
 
 ---
 
@@ -431,6 +492,34 @@ Integration/regression:
 13. existing suites unchanged: `documents-m6`, unit 143/143,
     `verify-baseline` (which gains `storage_category` in its compared
     columns)
+
+**Founder-required additions (approved 2026-07-30):**
+
+14. **Concurrent allocation** — two (and more) parallel allocations for the
+    same `(case, folder, base)` return distinct, contiguous numbers and
+    never collide on a key. _Already proven at the SQL level during this
+    design pass:_ 8 parallel upserts returned exactly 1–8, distinct;
+    folder-scoped `Spouse/Personaldokument` returned 1 while
+    `Personal/Personaldokument` was already at 2; `_Girokonto` and
+    `_Sparkonto` each started at 1. Commit B re-asserts this through the
+    action layer.
+15. **Hostile bank-name sanitization** — slashes (`../`, `a/b`), dots
+    (`..`, `file.tar.gz`), emoji, RTL/zero-width characters, a 200-char
+    name, and **pure-symbol input** (`***`, `///`) → a safe capped key,
+    with pure-symbol input hitting the §6.2 fallback chain
+    (`technical_key`, then `DOC-####`) rather than producing an empty
+    segment.
+16. **Deleted-file numbering** — upload three files, delete
+    `Heimvertrag2`, upload again → the new file is **`Heimvertrag3`**, and
+    `Heimvertrag2` is never re-issued. _Proven at SQL level:_ deleting rows
+    left the counter untouched and the next allocation returned 9.
+17. **Nested-path fixes, each with a test that fails on a one-level
+    listing** — (a) `recordUploadAction`'s verify step finds an object at
+    `{case}/{Folder}/{file}` (a test asserting the old
+    `list(case_id, {search})` shape returns nothing proves the fix is
+    load-bearing); (b) the GDPR orphan sweep enumerates nested objects;
+    (c) the e2e cleanup helper empties the prefix recursively and asserts
+    zero remaining at any depth.
 
 Live (after commit B deploys): real upload on prod with a throwaway
 account → object lands at the new nested key, appears in the checklist,

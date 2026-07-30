@@ -73,7 +73,16 @@ curl -s -X DELETE "https://srtgqgueigyucanfzodb.supabase.co/storage/v1/object/ca
 # also list the prefix directly to catch orphans (tab-closed mid-upload):
 #   Storage → case-documents → <case_id>/ in the dashboard, delete leftovers
 
+# NOTE (pass 3 / Phase D): new uploads are stored NESTED as
+#   {case_id}/{Personal|Housing|Financial|Insurance|Spouse}/{Name}{n}.{ext}
+# The loop above is unaffected (it uses stored storage_path values), but the
+# manual orphan check MUST descend into those category subfolders — a
+# one-level listing of <case_id>/ shows folders, not files. Older uploads
+# remain flat at {case_id}/{uuid}.{ext} and are found at the top level.
+
 # 3) delete the auth user — cascades profile → case → answers → upload
+#    (also cascades document_filename_seq, the per-case filename counters —
+#     FK ON DELETE CASCADE on cases, so no counter metadata survives a case)
 #    metadata → status events (all verified in the audit)
 curl -s -X DELETE "https://srtgqgueigyucanfzodb.supabase.co/auth/v1/admin/users/<USER_ID>" \
   -H "apikey: $SUPABASE_SECRET_KEY" -H "Authorization: Bearer $SUPABASE_SECRET_KEY"
