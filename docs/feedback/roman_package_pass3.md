@@ -8,8 +8,8 @@ Upload-Link, §3 Dokumenten-Tabs), das festgehaltene neue Verhalten bei
 optionalen Fragen (§4), drei Punkte, bei denen wir **deine Entscheidung**
 brauchen (§5 Formulierungsregel, §6 Fragen-Reihenfolge, §7
 Renten-Doppelabfrage), eine Info zur Umlaut-Korrektur mit einer kurzen
-Bestätigungsbitte (§8) und die Erinnerungsliste der noch offenen
-Freigaben (§9).
+Bestätigungsbitte (§8), drei Bitten zum neuen Design (§9) und die
+Erinnerungsliste der noch offenen Freigaben (§10).
 
 ---
 
@@ -226,7 +226,46 @@ bestätigen, dass das für dich passt:
 (Nur falls du hier doch etwas ändern willst, sag Bescheid — sonst passiert
 nichts.)
 
-## 9. Erinnerung: noch offene Freigaben aus früheren Runden
+## 9. Drei Bitten zum neuen Design (aus deinem Lovable-Entwurf)
+
+Wir haben deinen Design-Entwurf jetzt im Code vorliegen und bereiten die
+Umstellung der Optik vor. Dafür brauchen wir drei Dinge von dir:
+
+1. **Logo als SVG (Vektordatei).** Im Entwurfs-Projekt liegen die Bilder
+   nur als Verweise auf den Lovable-Server, nicht als echte Dateien — wir
+   können das Logo dort also nicht herausziehen. Bitte schick uns die
+   Original-Datei (`.svg`, alternativ `.pdf` oder `.ai`). Damit wird das
+   Logo in jeder Größe scharf, auch auf großen Bildschirmen.
+
+2. **Ansprechpartner-Bereich: willst du ihn?** Dein Entwurf enthält eine
+   Karte mit Foto, Name, Telefonnummer und E-Mail-Adresse sowie einen
+   „Hilfe"-Bereich, der dieselben Kontaktdaten zeigt. Das ist keine reine
+   Optik-Frage, sondern **deine persönlichen Daten** — deshalb entscheidest
+   du:
+   - Soll der Bereich in die App? (Ja/Nein)
+   - Falls ja: bitte das **Foto** in guter Auflösung, die **Telefonnummer**
+     und die **E-Mail-Adresse**, die dort stehen sollen. (Im Entwurf
+     stehen 0159 0469 5761 und kundendienst@sorglosantrag.de — bitte
+     bestätigen oder korrigieren.)
+   - Im Entwurf liegt außerdem ein zweites, unbenutztes Foto
+     („simona-pfeiffer.png"). Soll es eine zweite Ansprechpartnerin geben?
+
+3. **Abschluss-Seite „Nächste Schritte" — Textvorschlag zur Freigabe.**
+   Wenn alle Angaben und Unterlagen vollständig sind, zeigt dein Entwurf
+   eine Abschluss-Seite mit drei Schritten. Die bestehende Bestätigungs-
+   Formulierung in der App **bleibt unverändert**; neu wäre nur diese
+   Liste. Vorschlag (PLACEHOLDER_DE — von uns aus dem Entwurf übernommen,
+   noch nicht freigegeben):
+
+   > **Nächste Schritte**
+   >
+   > 1. Wir prüfen Ihre Angaben und Unterlagen.
+   > 2. Sie erhalten den vorbereiteten Antrag zur Unterschrift.
+   > 3. Danach kann der Antrag eingereicht werden.
+
+   Bitte freigeben, umformulieren oder streichen.
+
+## 10. Erinnerung: noch offene Freigaben aus früheren Runden
 
 1. **Die 13 neuen Dokumentnamen** aus deiner Essen-Regeldatei (DOC-0031…0043,
    live in der Checkliste, wortgleich aus deiner Datei übernommen) — bitte

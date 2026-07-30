@@ -6,14 +6,14 @@
 
 ## Phase status
 
-| Phase                           | Status                    | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ------------------------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A — read-only triage            | ✅ DONE 2026-07-30        | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                                                                                                                                                                                      |
-| B — quick fixes (items 3/7/8/1) | ✅ DONE 2026-07-30        | migrations `20260730000001` + `20260730000002` pushed by founder and verified: live drive 11/11 (umlauted checklist names + no leftovers; B1 empty-Weiter completes birth_name, survives reload, `''` row in DB; rentenbetrag renders with NO Brutto text at step 27); verify-baseline full replay all 12 tables identical; documents-m6 e2e regression PASS; unit 138/138. B4 no-op                                                                                                         |
-| C — spouse Vollmacht (PAN-011)  | ✅ DONE 2026-07-30        | migration `20260730000003` pushed and verified. Data level: 105 rows, exactly PAN-011 inactive, Pankow active 49 / Essen 55, no upload references it. Live: married Pankow checklist 13 slots with partner section but NO Vollmacht (exactly 1 overall, person_1); Essen 7 slots with its own rules — both non-empty, proving the active-filter queries work against the new column in prod. unit 143/143, documents-m6 PASS, verify-baseline all 12 tables identical (incl. the new column) |
-| D — storage restructure         | not started               | folders need zero RLS changes (first-segment policies); numbering source of truth = DB count (design in D-1)                                                                                                                                                                                                                                                                                                                                                                                 |
-| E — UI restyle                  | not started, ✅ UNBLOCKED | mockup repo access granted + verified 2026-07-30 (shallow clone OK at `8ea545f`). Full code-level inventory = **A12 addendum** in the triage doc. E-1 planning happens after Phase D closes                                                                                                                                                                                                                                                                                                  |
-| F — close-out                   | not started               |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Phase                           | Status                         | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A — read-only triage            | ✅ DONE 2026-07-30             | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                                                                                                                                                                                      |
+| B — quick fixes (items 3/7/8/1) | ✅ DONE 2026-07-30             | migrations `20260730000001` + `20260730000002` pushed by founder and verified: live drive 11/11 (umlauted checklist names + no leftovers; B1 empty-Weiter completes birth_name, survives reload, `''` row in DB; rentenbetrag renders with NO Brutto text at step 27); verify-baseline full replay all 12 tables identical; documents-m6 e2e regression PASS; unit 138/138. B4 no-op                                                                                                         |
+| C — spouse Vollmacht (PAN-011)  | ✅ DONE 2026-07-30             | migration `20260730000003` pushed and verified. Data level: 105 rows, exactly PAN-011 inactive, Pankow active 49 / Essen 55, no upload references it. Live: married Pankow checklist 13 slots with partner section but NO Vollmacht (exactly 1 overall, person_1); Essen 7 slots with its own rules — both non-empty, proving the active-filter queries work against the new column in prod. unit 143/143, documents-m6 PASS, verify-baseline all 12 tables identical (incl. the new column) |
+| D — storage restructure         | D-1 design ⏸ AWAITING APPROVAL | design doc `pass3_phase_d_design.md`: 43-doc mapping (10 ⚠ ambiguous rows flagged), `{case}/{Folder}/{Base}{n}.{ext}`, Spouse override, atomic counter table (no reuse), sanitization spec, grandfathering proof, adjacent paths. **Two bugs/gaps found in design: `recordUploadAction`'s `list(dir, search)` breaks on nested keys; GDPR orphan-sweep + e2e cleanup must recurse.** No code, no migration written                                                                           |
+| E — UI restyle                  | not started, ✅ UNBLOCKED      | mockup repo access granted + verified 2026-07-30 (shallow clone OK at `8ea545f`). Full code-level inventory = **A12 addendum** in the triage doc. E-1 planning happens after Phase D closes                                                                                                                                                                                                                                                                                                  |
+| F — close-out                   | not started                    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ## Key Phase-A facts (so later phases need not re-derive)
 
@@ -92,6 +92,26 @@
 - Roman package: item-1 explanation must state tabs appear once care home +
   PLZ are chosen and ASK whether he wants document visibility before the
   pre-steps (done, §3); item-3 post-fix semantics on record (done, §4).
+- 2026-07-30 **E-1 decisions (fixed now, applied when Phase E starts):**
+  - **Layout: keep our centered column** and adopt the `AppHeader`-style
+    top bar, with the `· n offen` badge wired to our existing
+    missing-documents counter. **No desktop sidebar** (`AppShell` is not
+    adopted).
+  - **Ansprechpartner/Hilfe panel: OUT of Phase E scope** — it carries
+    Roman's personal data (photo, phone, email), so it is a content
+    decision for him, not a restyle. Package item.
+  - **`/fertig`: adopt the visual pattern only.** The existing
+    locked-state German copy stays **verbatim** (R3). Lovable's "Nächste
+    Schritte" text goes to Roman as a PLACEHOLDER_DE proposal.
+  - **The E-1 plan must classify every chat-UI pattern as pure-restyle vs
+    behavior-adjacent.** Behavior-adjacent ones — the "Antwort geändert"
+    flash, the "Später beantworten" skipped marker, the "Ändern"
+    affordance — are **optional and scheduled last**.
+- 2026-07-30 GO PHASE D with five extra design requirements (rollout order
+  per CLAUDE.md #8, numbering durability + no-reuse + folder-relative
+  scope, instance-label filenames + full sanitization spec, adjacent paths
+  incl. case-export/GDPR/RLS, mapping to founder + R2 report, Roman FYI).
+  → `pass3_phase_d_design.md`, awaiting approval.
 
 ## Phase B implementation record (pre-push)
 
@@ -255,7 +275,9 @@ precedent) — adding a **column** does not.
 
 ## Next step
 
-Wait for founder "GO PHASE D" (storage restructure; design gate D-1 first:
-`storage_category` mapping proposal for all 43 catalog docs + path scheme,
-then STOP for approval before implementing). Phase E is unblocked and
-inventoried (A12 addendum) but deliberately not started — it runs last.
+**Phase D-1 design delivered → STOP, awaiting founder approval** of the
+43-doc category mapping (10 ⚠ rows) + the path/numbering scheme + the three
+smaller questions in `pass3_phase_d_design.md` §11. On approval: commit A
+(migration ONLY, per CLAUDE.md #8) → founder push → I verify on prod →
+only then commit B (code + tests). Phase E is unblocked and inventoried
+(A12 addendum), decisions fixed above, and runs last.
