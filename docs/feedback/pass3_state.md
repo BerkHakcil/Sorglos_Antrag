@@ -6,14 +6,14 @@
 
 ## Phase status
 
-| Phase                           | Status                       | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A — read-only triage            | ✅ DONE 2026-07-30           | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                                                                                                                                                                                      |
-| B — quick fixes (items 3/7/8/1) | ✅ DONE 2026-07-30           | migrations `20260730000001` + `20260730000002` pushed by founder and verified: live drive 11/11 (umlauted checklist names + no leftovers; B1 empty-Weiter completes birth_name, survives reload, `''` row in DB; rentenbetrag renders with NO Brutto text at step 27); verify-baseline full replay all 12 tables identical; documents-m6 e2e regression PASS; unit 138/138. B4 no-op                                                                                                         |
-| C — spouse Vollmacht (PAN-011)  | ✅ DONE 2026-07-30           | migration `20260730000003` pushed and verified. Data level: 105 rows, exactly PAN-011 inactive, Pankow active 49 / Essen 55, no upload references it. Live: married Pankow checklist 13 slots with partner section but NO Vollmacht (exactly 1 overall, person_1); Essen 7 slots with its own rules — both non-empty, proving the active-filter queries work against the new column in prod. unit 143/143, documents-m6 PASS, verify-baseline all 12 tables identical (incl. the new column) |
-| D — storage restructure         | ✅ DONE 2026-07-30           | migration `20260730000004` (commit A `96ab5d8`) pushed + verified, then code (commit B `d1c9f92`) — rule #8 order honoured. New uploads land at `{case}/{Folder}/{Base}{n}.{ext}`; the 14 existing files are grandfathered and still download. Live verified 15/15 incl. Spouse override, hostile bank name, legacy-file download, export naming and counter cascade. unit 193/193, documents-m6 PASS, verify-baseline identical with `storage_category` in the guard                        |
-| E — UI restyle                  | E-1 plan ⏸ AWAITING APPROVAL | plan doc `pass3_phase_e_plan.md`: branch `feedback-pass3-ui` + preview-per-sub-phase gates, E-0…E-8 breakdown, token port specifics, chat-UI pure-restyle vs behaviour-adjacent table, **measured** contrast (copper is fill-only: 4.27:1 on cream fails AA), e2e selector census (⚠ `.shrink-0.border-t` ×9 will break), screenshot gallery, assets. **No code written**                                                                                                                    |
-| F — close-out                   | not started                  |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Phase                           | Status                                                               | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A — read-only triage            | ✅ DONE 2026-07-30                                                   | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                                                                                                                                                                                      |
+| B — quick fixes (items 3/7/8/1) | ✅ DONE 2026-07-30                                                   | migrations `20260730000001` + `20260730000002` pushed by founder and verified: live drive 11/11 (umlauted checklist names + no leftovers; B1 empty-Weiter completes birth_name, survives reload, `''` row in DB; rentenbetrag renders with NO Brutto text at step 27); verify-baseline full replay all 12 tables identical; documents-m6 e2e regression PASS; unit 138/138. B4 no-op                                                                                                         |
+| C — spouse Vollmacht (PAN-011)  | ✅ DONE 2026-07-30                                                   | migration `20260730000003` pushed and verified. Data level: 105 rows, exactly PAN-011 inactive, Pankow active 49 / Essen 55, no upload references it. Live: married Pankow checklist 13 slots with partner section but NO Vollmacht (exactly 1 overall, person_1); Essen 7 slots with its own rules — both non-empty, proving the active-filter queries work against the new column in prod. unit 143/143, documents-m6 PASS, verify-baseline all 12 tables identical (incl. the new column) |
+| D — storage restructure         | ✅ DONE 2026-07-30                                                   | migration `20260730000004` (commit A `96ab5d8`) pushed + verified, then code (commit B `d1c9f92`) — rule #8 order honoured. New uploads land at `{case}/{Folder}/{Base}{n}.{ext}`; the 14 existing files are grandfathered and still download. Live verified 15/15 incl. Spouse override, hostile bank name, legacy-file download, export naming and counter cascade. unit 193/193, documents-m6 PASS, verify-baseline identical with `storage_category` in the guard                        |
+| E — UI restyle                  | plan ✅ approved · **E-0 done on branch, ⏸ STOP for preview review** | branch `feedback-pass3-ui`, commit `52cee76`. E-0 = 6 data-testids + 9 repointed selectors, **zero visual change** (diff touches no className). Preview built READY but is **SSO-protected**, so the suite ran against the identical build served locally: **11 passed, 3 failed — all three proven PRE-EXISTING**, none caused by E-0                                                                                                                                                       |
+| F — close-out                   | not started                                                          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ## Key Phase-A facts (so later phases need not re-derive)
 
@@ -387,10 +387,69 @@ carrying forward even if the plan is revised:
   screenshots only from throwaway accounts with synthetic answers, never a
   real pilot case.
 
-Four questions in plan §9: approve the plan, confirm E-0 is wanted, confirm
-who sends the Roman heads-up, and the form-control border colour (my
-recommendation: judge it from the E-2 gallery). On approval I create
-`feedback-pass3-ui` and implement **E-0 only**, then stop for the preview.
+Plan approved 2026-07-30 with all four answers: order stands with a hard
+gate per sub-phase; E-0 confirmed with a strict zero-visual bar; the Roman
+heads-up is drafted (`roman_ui_ankuendigung.md`) and **Berk sends it — the
+E-1 STOP must carry the reminder**; form-control border deferred to the
+E-2 gallery with both candidates side by side (`#8c8272` first choice,
+`graphite-soft` fallback), focus ring full-opacity petrol with offset,
+copper fills only on cream, petrol links.
+
+## Phase D leftover — audited before branching (main, `f9b3126`)
+
+Requested check: is the counter CAS retry loop bounded, and does exhaustion
+surface a clean user-facing error? **Both already true** — a plain `for`
+loop capped at `maxAttempts` (default 8), and `createUploadUrlAction`
+catches the throw and returns the DB-authored German upload error. The
+audit found two adjacent defects that were fixed in that standalone commit:
+
+- **PRIVACY:** the thrown message embedded `key.base`, which for an
+  additional bank account contains the user's **own typed bank name** —
+  and that message is logged server-side. A customer's bank would have
+  reached Vercel logs, against the M7 no-PII-in-logs rule. The message now
+  names only the folder (one of five fixed constants).
+- **OPACITY:** the `catch` swallowed the cause and `insertFirst` mapped
+  _any_ insert error to `'conflict'`, so a permanent fault (RLS, network)
+  was indistinguishable from a race and left no trace. Now only 23505 is
+  treated as the race; everything else is logged with code + message.
+
+Tests +2 (195 total): the failure message must not contain the bank name
+or case id, and a bounded-ness test counting store reads.
+
+## E-0 result (branch `feedback-pass3-ui`, commit `52cee76`)
+
+**Zero visual change, verified by diff:** the product diff is six
+`data-testid` attributes (`case-header`, `chat-history`, `answer-footer`,
+`question-card`, `group-prompt`, `all-answered`, `locked-banner`) and
+**not one className, element or ordering change**. Nine structural
+selectors repointed; zero structural CSS selectors remain in any spec.
+
+⚠ **Preview is not machine-reachable.** The Vercel project has
+**Vercel Authentication enabled** (`ssoProtection: all_except_custom_domains`),
+so `…-git-feedback-pass3-ui-…vercel.app` 302s to Vercel SSO. A logged-in
+human can open it; Playwright cannot. The suite therefore ran against the
+**identical production build served locally** (`next build` + `next start`,
+same prod Supabase). Enabling a Protection-Bypass-for-Automation token is a
+project-settings change and needs a founder decision — see the STOP report.
+
+**Suite: 11 passed, 3 failed — all three proven PRE-EXISTING:**
+
+1. `auth.spec` signup → `/case`: prod Supabase rejects `@hzp-test.invalid`
+   UI signups (the `.invalid` TLD). Documented since the M5/M7 notes; does
+   not touch any restyled DOM.
+2. `completion.spec`: its fixture user (`.playwright-test-user.json`,
+   created **2026-07-01**) still exists in auth but its **case row is
+   gone**, so `/case` throws "Kein Fall gefunden" and `#care_home_id` never
+   renders. Remedy is the spec's own documented setup step,
+   `node scripts/create-test-user.mjs`.
+3. `transitive-visibility-fix` **T1**: the drive reveals the spouse
+   Sonderstatus block by matching `text.includes('sonderstatus')`, but
+   **CP3 renamed that prompt** to "Hat Ihr Partner einen Vertriebenen-
+   oder Spätaussiedlerausweis?" — the word no longer exists, so "Nein" is
+   chosen and the dependents never appear. **Proven pre-existing by A/B:
+   the PRE-E-0 spec fails identically on the same build.** T2 and T3 in the
+   same file pass, and T2 completes a full drive through the repointed
+   footer selector — independent evidence E-0's selectors work.
 
 Remaining Roman items: logo as SVG, Ansprechpartner decision + assets,
 `/fertig` "Nächste Schritte" copy, the §10 folder-mapping FYI (flippable
