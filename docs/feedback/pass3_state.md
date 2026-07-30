@@ -6,14 +6,14 @@
 
 ## Phase status
 
-| Phase                           | Status                         | Notes                                                                                                                                                                                                                                                                                                                                                                                |
-| ------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| A — read-only triage            | ✅ DONE 2026-07-30             | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                                                                              |
-| B — quick fixes (items 3/7/8/1) | ✅ DONE 2026-07-30             | migrations `20260730000001` + `20260730000002` pushed by founder and verified: live drive 11/11 (umlauted checklist names + no leftovers; B1 empty-Weiter completes birth_name, survives reload, `''` row in DB; rentenbetrag renders with NO Brutto text at step 27); verify-baseline full replay all 12 tables identical; documents-m6 e2e regression PASS; unit 138/138. B4 no-op |
-| C — spouse Vollmacht (PAN-011)  | implemented 2026-07-30, ⏸ STOP | migration `20260730000003_office_rule_active_deactivate_pan011.sql` (column → backfill assert 105 → flip PAN-011; both DO-block NOTICEs fired on a local replay, end state verified: 105 rows, only PAN-011 inactive). Filters added at all 3 loading sites + verify-baseline column. 5 new regression tests (143/143). Awaiting founder `supabase db push`                          |
-| D — storage restructure         | not started                    | folders need zero RLS changes (first-segment policies); numbering source of truth = DB count (design in D-1)                                                                                                                                                                                                                                                                         |
-| E — UI restyle                  | not started                    | ⚠ BLOCKER: mockup repo `romanpfeiffer85/Sorglos-product-ui-mockup` not accessible to gh account BerkHakcil — need invite/URL. Live-site tokens already extracted (triage §12)                                                                                                                                                                                                        |
-| F — close-out                   | not started                    |                                                                                                                                                                                                                                                                                                                                                                                      |
+| Phase                           | Status             | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A — read-only triage            | ✅ DONE 2026-07-30 | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                                                                                                                                                                                      |
+| B — quick fixes (items 3/7/8/1) | ✅ DONE 2026-07-30 | migrations `20260730000001` + `20260730000002` pushed by founder and verified: live drive 11/11 (umlauted checklist names + no leftovers; B1 empty-Weiter completes birth_name, survives reload, `''` row in DB; rentenbetrag renders with NO Brutto text at step 27); verify-baseline full replay all 12 tables identical; documents-m6 e2e regression PASS; unit 138/138. B4 no-op                                                                                                         |
+| C — spouse Vollmacht (PAN-011)  | ✅ DONE 2026-07-30 | migration `20260730000003` pushed and verified. Data level: 105 rows, exactly PAN-011 inactive, Pankow active 49 / Essen 55, no upload references it. Live: married Pankow checklist 13 slots with partner section but NO Vollmacht (exactly 1 overall, person_1); Essen 7 slots with its own rules — both non-empty, proving the active-filter queries work against the new column in prod. unit 143/143, documents-m6 PASS, verify-baseline all 12 tables identical (incl. the new column) |
+| D — storage restructure         | not started        | folders need zero RLS changes (first-segment policies); numbering source of truth = DB count (design in D-1)                                                                                                                                                                                                                                                                                                                                                                                 |
+| E — UI restyle                  | not started        | ⚠ BLOCKER: mockup repo `romanpfeiffer85/Sorglos-product-ui-mockup` not accessible to gh account BerkHakcil — need invite/URL. Live-site tokens already extracted (triage §12)                                                                                                                                                                                                                                                                                                                |
+| F — close-out                   | not started        |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ## Key Phase-A facts (so later phases need not re-derive)
 
@@ -189,10 +189,50 @@ NULL DEFAULT TRUE` → DO-block assert (every row active AND count = 105,
 - ⚠ `verify-baseline` cannot run until the push (its prod SELECT now names
   the not-yet-existing column) — it is part of the post-push verification.
 
+## Phase C verification evidence (2026-07-30, post-push)
+
+- **Data level (prod):** 105 rule rows; exactly `PAN-011` inactive; the
+  app's own-office query returns **49** active Pankow rules (was 50) and
+  **55** Essen (unchanged); `PAN-010` (person_1 Vollmacht) still active; no
+  upload row references the retired rule (14 uploads).
+- **Live UI (throwaway accounts, both deleted):**
+  - Pankow/Berlin 13187, `marital_status = verheiratet` → checklist
+    **13 slots, non-empty**; "UNTERLAGEN IHRES PARTNERS" section present
+    (partner Personaldokument + Kontoauszüge) but carrying **no**
+    Vertretungsvollmacht; exactly **one** Vollmacht slot in total, under
+    "IHRE UNTERLAGEN" (PAN-010).
+  - Essen 45127 → checklist **7 slots, non-empty**, Essen's own rules
+    (Finanzstatus/Saldenübersicht present, Pankow-only Mobilitätsnachweis
+    absent), one person_1 Vollmacht (ESS-012).
+  - Both non-empty checks were added deliberately by the founder to prove
+    the `active`-filtered queries work against the **new column in prod**.
+- **Suites:** unit **143/143**; `documents-m6` e2e regression **PASS** (all
+  six criteria; the married drive now uploads 17 files instead of 18 —
+  exactly one fewer slot, consistent with the removal); **verify-baseline
+  full replay: all 12 tables identical**, with `active` now among the
+  compared Doc-rules columns.
+
+## ⚠ Process lesson from this round (now CLAUDE.md rule #8)
+
+**Code that references a new DB column or table must never deploy before the
+migration that creates it.** Order: migration pushed and verified on prod
+FIRST, then the dependent code deploy; a commit containing both waits until
+the migration is applied.
+
+This round the Phase C commit (containing the `.eq('active', true)` filters)
+was pushed to `main` immediately, so Vercel deployed code referencing
+`office_document_rule.active` while the migration was still waiting for the
+founder — every checklist render in that window would have queried a
+non-existent column. No user-visible damage occurred (the window fell
+outside pilot usage, and the post-push checks proved both office checklists
+render non-empty), but the ordering is now mandatory. Note the asymmetry
+that made Phase B safe: adding a **row** to an existing table degrades
+gracefully (missing `static_content` keys render `''` by design, the M6
+precedent) — adding a **column** does not.
+
 ## Next step
 
-STOP for founder `supabase db push` of `20260730000003`. After "pushed":
-live verification (fresh married Berlin throwaway via a Pankow PLZ → no
-person_2 Vollmacht slot, remaining slots match the fixture), documents-m6
-e2e regression, verify-baseline replay, milestone-log entry (incl. the
-deactivation trade-off), commit, then wait for "GO PHASE D".
+Wait for founder "GO PHASE D" (storage restructure; design gate D-1 first:
+`storage_category` mapping proposal for all 43 catalog docs + path scheme,
+then STOP for approval before implementing). Phase E remains blocked on
+mockup-repo access.
