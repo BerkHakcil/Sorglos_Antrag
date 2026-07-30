@@ -163,19 +163,19 @@ async function driveQuestionnaire(page: Page, opts: { maritalChoice: string; rev
           .filter((o) => o.value !== '')
           .map((o) => ({ value: o.value, label: o.text.trim() }))
       )
+      // ⚠ COPY-COUPLED BY DESIGN (accepted trade-off): the branches below
+      // recognise specific questions from their German prompt text, because
+      // the DOM carries no question key. Reword a prompt and the matching
+      // heuristic silently stops firing — for the reveal branch that means
+      // the drive answers "Nein", the dependents never appear, and T1 fails
+      // with "must have been shown+answered / Received: 0" rather than with
+      // an obvious selector error. Exactly that happened when CP3 renamed the
+      // Sonderstatus question to "Vertriebenen- oder Spätaussiedlerausweis":
+      // the old match term ('sonderstatus') is a key name that appears in no
+      // user-facing string.
       let chosen: string
       if (text.includes('familienstand')) {
         chosen = options.find((o) => o.label === opts.maritalChoice)?.value ?? options[0].value
-        // ⚠ COPY-COUPLED BY DESIGN (accepted trade-off): this driver has to
-        // recognise two specific questions from their German prompt text,
-        // because the DOM carries no question key. Reword either prompt and
-        // this heuristic silently stops revealing the block — the drive then
-        // answers "Nein", the dependents never appear, and T1 fails with
-        // "must have been shown+answered / Received: 0" rather than with an
-        // obvious selector error. That is exactly what happened when CP3
-        // renamed the Sonderstatus question to "Vertriebenen- oder
-        // Spätaussiedlerausweis"; the old match term ('sonderstatus') was a
-        // key name that no longer appears in any user-facing string.
       } else if (
         opts.reveal &&
         (text.includes('vertriebenen') ||
