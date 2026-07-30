@@ -37,6 +37,7 @@ A German-language web app that guides relatives through applying for _Hilfe zur 
 - `proxy.ts` at project root — session refresh (Next.js 16 name for middleware).
 - TypeScript strict; no `any` without justification.
 - Explain non-obvious decisions in code comments and in `docs/` so the developer can learn and defend the architecture.
+- **A stated reason must be a verified reason.** Any skip annotation, code comment, or doc that asserts _why_ something is true has to have that cause tested at the time of writing — never inherit a documented cause without re-checking it. (Precedent: `auth.spec`'s "prod rejects the `.invalid` TLD" claim, carried in the milestone log for weeks and repeated into a review; a direct `POST /auth/v1/signup` returned **200** and created a user. The real cause was that email confirmation is enabled. Feedback pass 3.)
 - Keep PRs/changes scoped to one milestone at a time.
 
 ## Out of scope (do not build)

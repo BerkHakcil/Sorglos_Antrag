@@ -475,6 +475,46 @@ project-settings change and needs a founder decision — see the STOP report.
   group depends on the user test 1 was meant to create. The spec's own
   inline comment had predicted exactly this.
 
+## PII defect closure — verified no real-customer exposure (2026-07-31)
+
+Requested: confirm from prod runtime logs that the counter-allocation
+failure path never fired while the PII-leaking message was live.
+
+⚠ **The log-based check cannot answer it, and saying otherwise would be
+false comfort.** Vercel runtime-log retention on this project is far
+shorter than the window: a query for `filename-seq` over 24 h returns
+nothing, but so does _any_ query scoped to commit B's deployment
+(`dpl_E29CSmBFfx2r3yMiypXNX2VjdqxF`) — zero lines survive for it, even
+though that deployment demonstrably served the Phase D live verification.
+Ingestion itself works (30 production requests are logged for the current
+deployment), so the tooling is fine; the window is simply gone. **Absence
+of a log line here is not evidence of absence.**
+
+**Closed instead on database evidence, which is decisive:**
+
+|                               |                                                                                                                                                                 |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Exposure window               | `2026-07-30T20:01:51Z` (commit B ready) → `2026-07-30T20:32:56Z` (fix `f9b3126` deployed) = **31 minutes**                                                      |
+| Uploads created in the window | **0 surviving rows** (newest upload overall is `2026-07-30T07:29Z`, ~12 h earlier)                                                                              |
+| Cases touched in the window   | **0** — no real user interacted with the app at all                                                                                                             |
+| Only actor in the window      | my own throwaway verification account, whose bank name was the **synthetic** `../Sparkasse 🏦 "Test"/..` I invented — its rows cascade-deleted with the account |
+| Reachability                  | the leak needs `allocateNumber` to lose **8 consecutive CAS races**, i.e. concurrent uploads to the _same_ slot; the verification uploaded sequentially         |
+
+**Conclusion: no real customer's bank name could have been logged** — not
+because no log line was found, but because no real customer's upload
+existed to produce one. Defect closed as _verified-no-exposure_.
+
+## Backlog (deliberate, not now)
+
+- **Purge the seven historical test users in prod auth** (`pw-vis+…` ×2,
+  `pw-completion+…` ×4 from 2026-06-30/07-01, `verif+…` from 06-28). They
+  predate this session and are unrelated to it. Treat as any prod deletion:
+  verify each is synthetic **individually**, confirm no case/upload/storage
+  data hangs off it, then remove one at a time. **Never bulk-delete by
+  email pattern** — the pattern is a heuristic, not proof, and a real user
+  who happened to match would be unrecoverable. Excludes the current
+  `completion.spec` fixture, which is in active use.
+
 ## E-0 final tally (branch, after merging main)
 
 **13 passed · 13 skipped (all annotated) · 0 failed · exit 0**, full suite,
