@@ -106,7 +106,7 @@ const [
   ),
   fetchAllProd(
     'office_document_rule',
-    'id, social_office_id, document_id, requirement_type, subject, instance_note, period_months, condition',
+    'id, social_office_id, document_id, requirement_type, subject, instance_note, period_months, condition, active',
     'id'
   ),
   fetchAllProd('app_config', 'key, value', 'key'),
@@ -216,7 +216,7 @@ const [
     `SELECT id, technical_key, name_de, category, instance_basis, active FROM public.document_catalog ORDER BY id`
   ),
   queryLocal(
-    `SELECT id, social_office_id, document_id, requirement_type, subject, instance_note, period_months, condition::text FROM public.office_document_rule ORDER BY id`
+    `SELECT id, social_office_id, document_id, requirement_type, subject, instance_note, period_months, condition::text, active FROM public.office_document_rule ORDER BY id`
   ),
   queryLocal(`SELECT key, value FROM public.app_config ORDER BY key`),
 ])
@@ -379,6 +379,7 @@ diffArrays('Doc rules', prodDocRules, localDocRules, (r) => r.id, [
   'instance_note',
   'period_months',
   'condition',
+  'active',
 ])
 // Feedback pass 3: app configuration (default document office etc.)
 diffArrays('App config', prodAppConfig, localAppConfig, (r) => r.key, ['value'])

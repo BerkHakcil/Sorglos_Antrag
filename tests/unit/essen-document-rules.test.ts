@@ -69,6 +69,73 @@ describe('PANKOW REGRESSION GATE — output byte-identical to pre-extension gold
   })
 })
 
+// ── Phase C: PAN-011 deactivation (feedback pass 3, item 5) ───────────────────
+// The DB flag is enforced at the QUERY layer (lib/dal.ts + case-export filter
+// `active = true`), so the regression models exactly that: evaluate the live
+// snapshot with inactive rules filtered out, and diff against the untouched
+// goldens. The gate above still evaluates ALL snapshot rules, so it keeps
+// proving the pre-existing behaviour byte-for-byte.
+
+describe('PAN-011 deactivated — spouse Vollmacht slot gone, everything else identical', () => {
+  const activeRules = (pankowSnap.rules as (OfficeDocumentRule & { active?: boolean })[]).filter(
+    (r) => r.active !== false
+  )
+
+  it('the snapshot mirrors prod: exactly PAN-011 is inactive', () => {
+    const inactive = (pankowSnap.rules as { id: string; active?: boolean }[])
+      .filter((r) => r.active === false)
+      .map((r) => r.id)
+    expect(inactive).toEqual(['PAN-011'])
+  })
+
+  it('F1 (married): person_2 Vollmacht slot removed, remaining slots byte-identical', () => {
+    const after = evaluateDocumentRules(activeRules, pankowCatalog as never, F1)
+    const goldenWithout = (pankowGolden.F1 as DocumentSlot[]).filter((s) => s.ruleId !== 'PAN-011')
+
+    // the slot that must disappear existed in the golden, and was the spouse Vollmacht
+    const removed = (pankowGolden.F1 as DocumentSlot[]).filter((s) => s.ruleId === 'PAN-011')
+    expect(removed).toHaveLength(1)
+    expect(removed[0].subject).toBe('person_2')
+    expect(removed[0].documentId).toBe('DOC-0006')
+
+    expect(ofRule(after, 'PAN-011')).toHaveLength(0)
+    expect(JSON.stringify(after)).toBe(JSON.stringify(goldenWithout))
+    expect(after).toHaveLength((pankowGolden.F1 as DocumentSlot[]).length - 1)
+  })
+
+  it('the applicant Vollmacht (PAN-010, person_1) is untouched', () => {
+    const after = evaluateDocumentRules(activeRules, pankowCatalog as never, F1)
+    const pan010 = ofRule(after, 'PAN-010')
+    expect(pan010).toHaveLength(1)
+    expect(pan010[0].subject).toBe('person_1')
+    expect(pan010[0].documentId).toBe('DOC-0006')
+  })
+
+  it('F2/F3 (single, separated): output identical — PAN-011 never fired for them', () => {
+    for (const [name, fixture] of [
+      ['F2', F2],
+      ['F3', F3],
+    ] as [string, EvalInput][]) {
+      const after = evaluateDocumentRules(activeRules, pankowCatalog as never, fixture)
+      expect(JSON.stringify(after), `${name} must be unchanged`).toBe(
+        JSON.stringify(pankowGolden[name])
+      )
+    }
+  })
+
+  it('Essen married is unaffected: Vollmacht stays person_1-only (ESS-012)', () => {
+    const slots = evalEssen({ answers: { marital_status: 'verheiratet' } })
+    const vollmacht = slots.filter((s) => s.documentId === 'DOC-0006')
+    expect(vollmacht).toHaveLength(1)
+    expect(vollmacht[0].ruleId).toBe('ESS-012')
+    expect(vollmacht[0].subject).toBe('person_1')
+    // and Essen has no person_2 Vollmacht rule at all
+    expect(essenRules.filter((r) => r.document_id === 'DOC-0006').map((r) => r.subject)).toEqual([
+      'person_1',
+    ])
+  })
+})
+
 // ── Partner chain via the remapped per-domain spouse questions ────────────────
 
 describe('partner chain — remapped spouse bulks (ESS-039)', () => {

@@ -234,12 +234,15 @@ export async function getDocumentData(caseId: string, socialOfficeId: string | n
   const sb = supabase as any
 
   // An office WITH rules always uses its own (feedback pass item 3).
+  // `active = false` rules are retired content (pass 3 item 5, PAN-011) — they
+  // stay in the table so existing uploads keep their FK, but never emit a slot.
   let rules: unknown[] = []
   if (socialOfficeId) {
     const { data } = await sb
       .from('office_document_rule')
       .select('*')
       .eq('social_office_id', socialOfficeId)
+      .eq('active', true)
     rules = data ?? []
   }
 
@@ -259,6 +262,7 @@ export async function getDocumentData(caseId: string, socialOfficeId: string | n
         .from('office_document_rule')
         .select('*')
         .eq('social_office_id', defaultOffice)
+        .eq('active', true)
       rules = data ?? []
     }
   }

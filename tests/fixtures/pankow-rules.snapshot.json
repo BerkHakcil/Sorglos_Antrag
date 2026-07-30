@@ -9,7 +9,8 @@
       "period_months": null,
       "condition": {
         "always": true
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-002",
@@ -40,7 +41,8 @@
             "operator": "equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-003",
@@ -50,7 +52,8 @@
       "period_months": null,
       "condition": {
         "repeat_for_each": "pension_type"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-004",
@@ -88,7 +91,8 @@
             "repeat_for_each": "spouse_pension_type"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-005",
@@ -99,7 +103,8 @@
       "condition": {
         "period_months": 4,
         "repeat_for_each": "applicant_bank_account"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-006",
@@ -138,7 +143,8 @@
             "repeat_for_each": "spouse_bank_account"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-007",
@@ -148,7 +154,8 @@
       "period_months": null,
       "condition": {
         "always": true
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-008",
@@ -158,7 +165,8 @@
       "period_months": null,
       "condition": {
         "always": true
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-009",
@@ -179,7 +187,8 @@
             "operator": "not_equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-010",
@@ -189,7 +198,8 @@
       "period_months": null,
       "condition": {
         "always": true
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-011",
@@ -220,7 +230,8 @@
             "operator": "equals"
           }
         ]
-      }
+      },
+      "active": false
     },
     {
       "id": "PAN-012",
@@ -230,7 +241,8 @@
       "period_months": null,
       "condition": {
         "always": true
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-013",
@@ -270,7 +282,8 @@
             "operator": "equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-014",
@@ -280,7 +293,8 @@
       "period_months": null,
       "condition": {
         "always": true
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-015",
@@ -320,7 +334,8 @@
             "operator": "equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-016",
@@ -330,7 +345,8 @@
       "period_months": null,
       "condition": {
         "always": true
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-017",
@@ -340,7 +356,8 @@
       "period_months": null,
       "condition": {
         "always": true
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-018",
@@ -350,7 +367,8 @@
       "period_months": null,
       "condition": {
         "always": true
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-019",
@@ -360,7 +378,8 @@
       "period_months": null,
       "condition": {
         "always": true
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-020",
@@ -386,7 +405,8 @@
             "operator": "equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-021",
@@ -426,7 +446,8 @@
             "operator": "equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-022",
@@ -438,7 +459,8 @@
         "field": "life_insurance",
         "value": "Sterbeversicherung",
         "operator": "equals"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-023",
@@ -478,7 +500,8 @@
             "operator": "equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-024",
@@ -490,7 +513,8 @@
         "field": "funeral_insurance_yes_no",
         "value": "Ja",
         "operator": "equals"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-025",
@@ -502,7 +526,8 @@
         "field": "marital_status",
         "value": "verwitwet",
         "operator": "equals"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-026",
@@ -514,7 +539,8 @@
         "field": "german_citizenship_yes_no",
         "value": "Nein",
         "operator": "equals"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-027",
@@ -554,7 +580,8 @@
             "operator": "equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-028",
@@ -566,7 +593,8 @@
         "field": "disability_card",
         "value": "Ja",
         "operator": "equals"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-029",
@@ -606,7 +634,8 @@
             "operator": "equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-030",
@@ -618,7 +647,8 @@
         "field": "general_liablity_insurance_yes_no",
         "value": "Ja",
         "operator": "equals"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-031",
@@ -658,7 +688,8 @@
             "operator": "equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-032",
@@ -670,7 +701,8 @@
         "field": "wohngeld_yes_no",
         "value": "Ja",
         "operator": "equals"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-033",
@@ -710,7 +742,8 @@
             "operator": "equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-034",
@@ -722,7 +755,8 @@
         "field": "special_origin_rights",
         "value": "Nein",
         "operator": "not_equals"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-035",
@@ -762,7 +796,8 @@
             "operator": "not_equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-036",
@@ -774,7 +809,8 @@
         "field": "marital_status",
         "value": "geschieden",
         "operator": "equals"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-037",
@@ -795,7 +831,8 @@
             "operator": "equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-038",
@@ -844,7 +881,8 @@
             ]
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-039",
@@ -856,7 +894,8 @@
         "field": "apartment_ownership",
         "value": "Mietwohnung",
         "operator": "equals"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-040",
@@ -877,7 +916,8 @@
             "operator": "equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-041",
@@ -892,7 +932,8 @@
           "operator": "equals"
         },
         "repeat_for_each": "other_income"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-042",
@@ -935,7 +976,8 @@
             "repeat_for_each": "spouse_other_income"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-043",
@@ -947,7 +989,8 @@
         "field": "automobile_owner",
         "value": "Ja",
         "operator": "equals"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-044",
@@ -987,7 +1030,8 @@
             "operator": "equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-045",
@@ -999,7 +1043,8 @@
         "field": "automobile_owner",
         "value": "Ja",
         "operator": "equals"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-046",
@@ -1039,7 +1084,8 @@
             "operator": "equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-047",
@@ -1051,7 +1097,8 @@
         "field": "automobile_owner",
         "value": "Ja",
         "operator": "equals"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-048",
@@ -1091,7 +1138,8 @@
             "operator": "equals"
           }
         ]
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-049",
@@ -1103,7 +1151,8 @@
         "field": "property_yes_no",
         "value": "Nein",
         "operator": "not_equals"
-      }
+      },
+      "active": true
     },
     {
       "id": "PAN-050",
@@ -1143,7 +1192,8 @@
             "operator": "not_equals"
           }
         ]
-      }
+      },
+      "active": true
     }
   ],
   "catalog": [

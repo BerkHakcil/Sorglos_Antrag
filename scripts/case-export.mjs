@@ -177,7 +177,14 @@ let slots = []
 let uploads = []
 if (caseRow.social_office_id) {
   const [{ data: rules }, { data: catalog }, { data: uploadRows }] = await Promise.all([
-    db.from('office_document_rule').select('*').eq('social_office_id', caseRow.social_office_id),
+    // active = true only — retired rules (pass 3 item 5) emit no slot, matching
+    // the app. files/ below still exports EVERY upload row, so a file uploaded
+    // before a rule was retired is never lost to the team.
+    db
+      .from('office_document_rule')
+      .select('*')
+      .eq('social_office_id', caseRow.social_office_id)
+      .eq('active', true),
     db.from('document_catalog').select('*'),
     db.from('document_upload').select('*').eq('case_id', caseId).order('created_at'),
   ])
