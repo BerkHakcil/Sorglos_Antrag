@@ -15,23 +15,23 @@
 Aufbau der Seiten, alle Texte, alle Fragen und die gesamte Logik bleiben
 unverändert.
 
-| Ordner                 | Inhalt                                                |
-| ---------------------- | ----------------------------------------------------- |
-| `E-1-tokens-BEFORE/`   | der bisherige Stand (aktuell live)                    |
-| `E-1-tokens-AFTER/`    | mit dem neuen Design                                  |
+| Ordner                   | Inhalt                                               |
+| ------------------------ | ---------------------------------------------------- |
+| `E-1-tokens-BEFORE/`     | der bisherige Stand (aktuell live)                   |
+| `E-1-tokens-AFTER/`      | mit dem neuen Design                                 |
 | `E-1-border-candidates/` | drei Varianten für die Rahmenfarbe der Eingabefelder |
 
 **Die Bilder (jeweils `-desktop` und `-mobile`):**
 
-| Datei                 | Bildschirm                                  |
-| --------------------- | ------------------------------------------- |
-| `01-login`            | Anmeldung                                   |
-| `02-signup`           | Registrierung                               |
-| `03-pre-carehome`     | Pflegeheim auswählen (nur Desktop)          |
-| `04-pre-plz`          | Postleitzahl eingeben (nur Desktop)         |
-| `05-fragen-fresh`     | Fragebogen, noch nichts beantwortet         |
-| `06-fragen-history`   | Fragebogen mit den ersten drei Antworten    |
-| `07-dokumente`        | Unterlagen-Liste                            |
+| Datei               | Bildschirm                               |
+| ------------------- | ---------------------------------------- |
+| `01-login`          | Anmeldung                                |
+| `02-signup`         | Registrierung                            |
+| `03-pre-carehome`   | Pflegeheim auswählen (nur Desktop)       |
+| `04-pre-plz`        | Postleitzahl eingeben (nur Desktop)      |
+| `05-fragen-fresh`   | Fragebogen, noch nichts beantwortet      |
+| `06-fragen-history` | Fragebogen mit den ersten drei Antworten |
+| `07-dokumente`      | Unterlagen-Liste                         |
 
 _(03 und 04 gibt es nur einmal: die beiden Schritte werden nur einmal pro
 Konto durchlaufen.)_
@@ -54,11 +54,11 @@ erkennen das Feld kaum, und es unterschreitet die Barrierefreiheits-Norm
 deutlich. In `E-1-border-candidates/` siehst du dieselben zwei Bildschirme mit
 drei Varianten:
 
-| Bild            | Rahmenfarbe | Bewertung                                    |
-| --------------- | ----------- | -------------------------------------------- |
-| `*-a-mockup-…`  | `#e6e0d0`   | wie im Entwurf — **zu schwach**, fällt durch |
-| `*-b-8c8272`    | `#8c8272`   | die hellste Variante, die die Norm erfüllt   |
-| `*-c-graphite-…`| `#5c6166`   | deutlich kräftiger, sicher                   |
+| Bild             | Rahmenfarbe | Bewertung                                    |
+| ---------------- | ----------- | -------------------------------------------- |
+| `*-a-mockup-…`   | `#e6e0d0`   | wie im Entwurf — **zu schwach**, fällt durch |
+| `*-b-8c8272`     | `#8c8272`   | die hellste Variante, die die Norm erfüllt   |
+| `*-c-graphite-…` | `#5c6166`   | deutlich kräftiger, sicher                   |
 
 Unser Vorschlag ist **b** — so nah wie möglich an deinem Entwurf und trotzdem
 gut erkennbar. Sag gern, welche dir am besten gefällt.
