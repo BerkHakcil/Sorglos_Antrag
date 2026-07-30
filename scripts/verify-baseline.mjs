@@ -101,7 +101,7 @@ const [
   fetchAllProd('static_content', 'key, value_de', 'key'),
   fetchAllProd(
     'document_catalog',
-    'id, technical_key, name_de, category, instance_basis, active',
+    'id, technical_key, name_de, category, instance_basis, active, storage_category',
     'id'
   ),
   fetchAllProd(
@@ -213,7 +213,7 @@ const [
   ),
   queryLocal(`SELECT key, value_de FROM public.static_content ORDER BY key`),
   queryLocal(
-    `SELECT id, technical_key, name_de, category, instance_basis, active FROM public.document_catalog ORDER BY id`
+    `SELECT id, technical_key, name_de, category, instance_basis, active, storage_category FROM public.document_catalog ORDER BY id`
   ),
   queryLocal(
     `SELECT id, social_office_id, document_id, requirement_type, subject, instance_note, period_months, condition::text, active FROM public.office_document_rule ORDER BY id`
@@ -370,6 +370,7 @@ diffArrays('Doc catalog', prodDocCat, localDocCat, (r) => r.id, [
   'category',
   'instance_basis',
   'active',
+  'storage_category',
 ])
 diffArrays('Doc rules', prodDocRules, localDocRules, (r) => r.id, [
   'social_office_id',

@@ -27,6 +27,7 @@
 import { test, expect, type Page } from '@playwright/test'
 import { createClient } from '@supabase/supabase-js'
 import { config } from 'dotenv'
+import { listAllObjectPaths, storageLister } from './storage-cleanup'
 
 config({ path: '.env.local' })
 
@@ -56,15 +57,16 @@ let cleanupCaseId: string | null = null
 
 test.afterEach(async () => {
   if (cleanupCaseId) {
-    const { data: objects } = await adminDb.storage.from('case-documents').list(cleanupCaseId)
-    if (objects && objects.length > 0) {
-      await adminDb.storage
-        .from('case-documents')
-        .remove(objects.map((o) => `${cleanupCaseId}/${o.name}`))
+    // Recursive: Phase D nests uploads under a category folder, and a
+    // one-level list() returns folders (not files) — it would leave every
+    // new-scheme object behind.
+    const paths = await listAllObjectPaths(storageLister(adminDb), cleanupCaseId)
+    if (paths.length > 0) {
+      await adminDb.storage.from('case-documents').remove(paths)
     }
-    const { data: after } = await adminDb.storage.from('case-documents').list(cleanupCaseId)
+    const after = await listAllObjectPaths(storageLister(adminDb), cleanupCaseId)
     console.log(
-      `[cleanup] bucket prefix ${cleanupCaseId}: removed ${objects?.length ?? 0}, remaining ${after?.length ?? 0}`
+      `[cleanup] bucket prefix ${cleanupCaseId}: removed ${paths.length}, remaining ${after.length}`
     )
     cleanupCaseId = null
   }

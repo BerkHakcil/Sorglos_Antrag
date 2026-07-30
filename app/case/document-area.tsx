@@ -91,10 +91,16 @@ export function DocumentArea({ slots, uploads, content }: Props) {
     }
     setBusySlot(key)
     try {
+      // Slot identity goes to the server so it can build the readable key
+      // ({case}/{Folder}/{Base}{n}.{ext}); the document's German name and
+      // category are read from the catalog server-side, never sent from here.
       const minted = await createUploadUrlAction({
         filename: file.name,
         mimeType: mime,
         sizeBytes: file.size,
+        documentId: slot.documentId,
+        subject: slot.subject,
+        instanceLabel: slot.instanceLabel,
       })
       if (!minted.ok) {
         setErrors((e) => ({ ...e, [key]: minted.error }))

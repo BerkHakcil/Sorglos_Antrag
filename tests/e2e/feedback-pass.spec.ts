@@ -22,6 +22,7 @@
 import { test, expect, type Page } from '@playwright/test'
 import { createClient } from '@supabase/supabase-js'
 import { config } from 'dotenv'
+import { purgeCasePrefix } from './storage-cleanup'
 
 config({ path: '.env.local' })
 
@@ -42,13 +43,10 @@ let cleanupUserId: string | null = null
 let cleanupCaseId: string | null = null
 test.afterEach(async () => {
   if (cleanupCaseId) {
-    const { data: objects } = await adminDb.storage.from('case-documents').list(cleanupCaseId)
-    if (objects && objects.length > 0) {
-      await adminDb.storage
-        .from('case-documents')
-        .remove(objects.map((o) => `${cleanupCaseId}/${o.name}`))
-        .catch((e) => console.error('[cleanup] storage remove FAILED:', e?.message))
-    }
+    // Recursive — Phase D nests uploads under a category folder.
+    await purgeCasePrefix(adminDb, cleanupCaseId).catch((e) =>
+      console.error('[cleanup] storage remove FAILED:', e?.message)
+    )
     cleanupCaseId = null
   }
   if (cleanupUserId) {

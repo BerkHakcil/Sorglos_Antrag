@@ -217,6 +217,25 @@ if (caseRow.social_office_id) {
   docLines.push('_No resolved social office — no document checklist._')
 }
 
+/**
+ * Export filename for one upload.
+ *
+ * Phase D keys are already readable ({case}/{Folder}/{Base}{n}.{ext}), so we
+ * reuse the stored basename and prefix the CATEGORY — not the rule id, which
+ * would be double prefixing. The folder prefix is required, not decoration:
+ * `files/` is flat, and Personal/Personaldokument1.pdf would otherwise collide
+ * with Spouse/Personaldokument1.pdf. Legacy flat keys are UUIDs, so those keep
+ * the original rule_instance_filename naming — the only readable option.
+ */
+function exportFileName(u) {
+  const segments = u.storage_path.split('/')
+  const raw =
+    segments.length >= 3
+      ? `${segments[segments.length - 2]}_${segments[segments.length - 1]}`
+      : `${u.rule_id}_${u.instance_key}_${u.original_filename}`
+  return raw.replace(/[^\w.\-äöüÄÖÜß ]/g, '_')
+}
+
 // ── Write output ──────────────────────────────────────────────────────────────
 
 const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '')
@@ -232,11 +251,7 @@ for (const u of uploads) {
     console.error(`  download FAILED: ${u.storage_path} — ${error?.message}`)
     continue
   }
-  const safe = `${u.rule_id}_${u.instance_key}_${u.original_filename}`.replace(
-    /[^\w.\-äöüÄÖÜß ]/g,
-    '_'
-  )
-  writeFileSync(join(outDir, 'files', safe), Buffer.from(await data.arrayBuffer()))
+  writeFileSync(join(outDir, 'files', exportFileName(u)), Buffer.from(await data.arrayBuffer()))
   downloaded++
 }
 
