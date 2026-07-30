@@ -418,6 +418,189 @@ graphite-soft (accessibility constraint).
 
 ---
 
+# A12 ADDENDUM — mockup repo inventory (access granted 2026-07-30)
+
+> Read-only side task, run after Phase C. Repo cloned shallow at commit
+> `8ea545f` ("Tab-Icon mit Logo ersetzt"). **Access confirmed working** for
+> `BerkHakcil` — the earlier 404 is resolved. Nothing from this addendum is
+> implemented; it is input for E-1 planning after Phase D closes.
+> **Scope reminder: tokens and visual patterns only — no Lovable logic,
+> routing or state comes across** (see "Do not port" below).
+
+## A12.1 Actual stack + versions
+
+|                 | Mockup                                                               | Our app                                    |
+| --------------- | -------------------------------------------------------------------- | ------------------------------------------ |
+| Framework       | **TanStack Start 1.168** + TanStack Router 1.170 (file-based routes) | **Next.js 16** App Router                  |
+| Bundler         | **Vite 8** (`@lovable.dev/vite-tanstack-config` 2.7.7)               | Turbopack                                  |
+| React           | 19.2                                                                 | 19.2.4                                     |
+| CSS             | **Tailwind v4.2.1** via `@tailwindcss/vite`                          | **Tailwind v4** via `@tailwindcss/postcss` |
+| UI kit          | shadcn "new-york" on **Radix primitives** (`@radix-ui/*`, 26 pkgs)   | shadcn on **`@base-ui/react`**             |
+| Icons           | `lucide-react` **^0.575.0**                                          | `lucide-react` **^1.17.0**                 |
+| Forms           | react-hook-form 7.71 + zod **3.24**                                  | react-hook-form 7.78 + zod **4.4**         |
+| Server          | Nitro 3 beta / `src/server.ts`                                       | Vercel serverless (fra1)                   |
+| Package manager | **bun** (`bun.lock`, `bunfig.toml`)                                  | npm                                        |
+
+It is **not** a plain Vite/React SPA as assumed — it is a TanStack Start SSR
+app. Irrelevant for token porting, decisive for why **no component file can
+be copied verbatim**: different router, different primitives library.
+
+## A12.2 Real design tokens (from `src/styles.css`) vs the live-site extraction
+
+**Result: the live-site extraction was exactly right — zero discrepancies.**
+Every value re-confirmed from source:
+
+```
+--radius: 0.875rem
+--petrol #245B5A   --petrol-soft #2f7371
+--sage   #A9BFAE   --sage-soft   #cbd8ce
+--copper #C44F15   --copper-hover #a34111
+--graphite #2C2F32 --graphite-soft #5c6166
+--cream  #F7F4ED   --cream-deep  #efeadd
+--background #F7F4ED  --foreground #2C2F32  --card #ffffff
+--primary #245B5A / --primary-foreground #F7F4ED
+--secondary #efeadd   --muted #efeadd   --muted-foreground #5c6166
+--accent #A9BFAE      --accent-foreground #2C2F32
+--border #e6e0d0      --input #e6e0d0    --ring #245B5A
+--destructive oklch(0.577 0.245 27.325)
+--font-sans "Lato", ui-sans-serif, system-ui, sans-serif
+```
+
+**The one discrepancy found is internal to the repo:** `.lovable/plan.md`
+(the original brief) specifies copper as **`#C9825A`**, but the shipped
+`styles.css` uses **`#C44F15`** — a far more saturated burnt orange.
+**Code wins** (per instruction, and it is what the live site renders).
+`plan.md` is stale in three further ways: it describes a two-column desktop
+with a contact card (shipped: left sidebar), a progress bar _without_ a
+number (shipped: % pill + dot marker), grouped form cards for "Angaben"
+(shipped: a chat UI), and names the contact "Sabine Müller" (shipped: Roman
+Pfeiffer). Treat `plan.md` as historical intent, not spec.
+
+Other token facts: **no `.dark` block at all** — the mockup is light-only
+(it declares `@custom-variant dark` but never defines the palette).
+Base layer sets `letter-spacing: -0.01em` on `h1–h4`, antialiasing, and
+`font-feature-settings: "kern"`.
+
+## A12.3 Tailwind config format — how tokens port (matters for E-1)
+
+Both sides are **Tailwind v4 CSS-first** — there is no `tailwind.config.js`
+in either project, so porting is editing `app/globals.css`, not a JS config.
+Three concrete differences:
+
+1. **Radius scale formula.** Mockup uses ± px offsets
+   (`--radius-sm: calc(var(--radius) - 4px)` … `3xl: +12px`); ours uses
+   multipliers (`calc(var(--radius) * 0.6)` … `* 2.6`). With
+   `--radius: 0.875rem` the two only agree at `lg`. **E-1 decision:** adopt
+   the mockup's offset formula, since every mockup class was drawn against
+   it (`rounded-2xl` = 22px there vs 25.2px here).
+2. **Import shape.** Mockup: `@import "tailwindcss" source(none)` +
+   `@source "../src"` (Vite plugin). Ours: `@import 'tailwindcss'` +
+   `@import 'shadcn/tailwind.css'`. Keep ours; only the `:root` values and
+   the `@theme inline` brand-token block port over.
+3. **Brand tokens are additive.** The mockup registers 10 extra
+   `--color-*` entries in `@theme inline` (petrol/sage/copper/graphite/cream
+   ± soft variants) which is what makes `bg-petrol`, `text-graphite-soft`,
+   `bg-sage-soft/40` work. Our `globals.css` has no equivalent → this block
+   must be added or every ported class silently no-ops.
+
+**Font — GDPR-relevant porting note.** The mockup loads Lato from
+`fonts.googleapis.com` via `<link>` + preconnect. Copying that would send
+every German caregiver's IP to Google on each page load. **Use
+`next/font/google` instead** (self-hosts at build time, zero third-party
+request) and wire it to `--font-sans`, which our `@theme inline` already
+reads. Weights actually used: 300/400/700 (the `<link>`), but the code only
+uses `font-medium` (500), `font-semibold` (600), `font-bold` (700) and
+normal — request 400/500/600/700 and drop 300.
+
+**Dark mode:** our `globals.css` carries a full `.dark` palette; the mockup
+has none, and our app never toggles it. E-1 recommendation: leave the
+`.dark` block untouched (dead but harmless) rather than invent brand darks.
+
+## A12.4 Component inventory → our app
+
+Bespoke components (the actual design; all hand-written Tailwind):
+
+| Mockup file                                     | What it is                                                                                                                                                                                                                                                                                                                                                                                         | Our counterpart                                         | Note for E-1                                                                                                                                                           |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | --------------------------------------------------------------------- | ------------------------------------- |
+| `AppShell.tsx` (264 ln)                         | **Used by all 3 app screens.** Desktop: fixed left sidebar (`lg:w-72 xl:w-80`, sage-soft bg) with logo, tagline, tab nav (active = copper pill), Hilfe + Abmelden. Mobile: sage-tinted header block, hamburger → `Sheet`, title, tab row, progress.                                                                                                                                                | `app/case/page.tsx` shell + `case-tabs.tsx`             | ⚠ **Layout change, not just tokens** — we are a centered `max-w-2xl` column with a top header. Adopting the sidebar is a structural rewrite; see A12.6 recommendation. |
+| `AppHeader.tsx` (111 ln)                        | **UNUSED** alternative: sticky top bar, logo + "Antrag für X", Hilfe/Abmelden, thin progress, underline tabs — **with a `· 4 offen` badge on "Unterlagen"**                                                                                                                                                                                                                                        | `case-tabs.tsx` + our missing-count badge               | **Closest to our current structure** and it already models our counter. Cheapest high-fidelity path.                                                                   |
+| `AuthShell.tsx` + `AuthField` + `PrimaryButton` | cream page, centered logo, white card `rounded-2xl` + petrol-tinted shadow, copper full-width CTA                                                                                                                                                                                                                                                                                                  | `app/(auth)/login                                       | signup                                                                                                                                                                 | reset-password | update-password`                                                      | Direct 1:1 restyle, no logic touched. |
+| `FormCard.tsx` + `Field`                        | white `rounded-2xl` card, title + description + `gap-5` field stack                                                                                                                                                                                                                                                                                                                                | pre-questionnaire cards (`CareHomeSelector`, `PlzForm`) | Direct 1:1.                                                                                                                                                            |
+| `ContactPanel.tsx`                              | Ansprechpartner card: photo, name, role, phone `0159 0469 5761`, `kundendienst@sorglosantrag.de`                                                                                                                                                                                                                                                                                                   | **none**                                                | ⚠ Not styling — it introduces **content + a feature** (help sheet). Product/content decision for Roman before E adopts it.                                             |
+| `routes/index.tsx` (388 ln)                     | **The questionnaire as a real chat**: `BubbleAssistant` (white, left, `rounded-bl-md`), `BubbleUser` (petrol, right, `rounded-br-md`, "Ändern" + check), `HintBubble` (sage-soft, Info icon), `ChipButton` (pill, petrol border → fills petrol on hover) for yes/no + choice, `ActiveAnswer` with "Später beantworten" link + copper "Antwort speichern", skipped marker, "Antwort geändert" flash | `app/case/chat-view.tsx`                                | **The biggest visual win.** Our chat is card-based; this is bubble-based. Pure presentation over our existing nav engine.                                              |
+| `routes/unterlagen.tsx` (223 ln)                | `DocRow` list in one `rounded-2xl` card, `divide-y`: status circle (FileText → petrol Check when done), title, "Noch hochladen" / "Hochgeladen · file", done rows tinted `bg-sage-soft/30`, "Datei auswählen" / "Ersetzen" + "Entfernen"                                                                                                                                                           | `app/case/document-area.tsx`                            | Direct restyle; our per-slot multi-file list maps onto the `files[]` summary pattern.                                                                                  |
+| `routes/fertig.tsx`                             | completion screen: petrol check medallion, thanks headline, **3-step "Nächste Schritte"** numbered list on cream, contact block, two outline buttons                                                                                                                                                                                                                                               | our `under_review` locked state (`EditLockedCard`)      | German copy here is Lovable-authored → **PLACEHOLDER_DE / Roman** if adopted.                                                                                          |
+| `routes/login                                   | register                                                                                                                                                                                                                                                                                                                                                                                           | email-sent.tsx`                                         | auth screens incl. 4 consent checkboxes (`accent-petrol`) and an "E-Mail bestätigen" sage info panel                                                                   | our auth pages | Consent copy in the mockup ≈ our live copy; ours stays authoritative. |
+| `__root.tsx` 404 + error components             | petrol `404`, "Seite nicht gefunden", retry/home buttons                                                                                                                                                                                                                                                                                                                                           | `app/global-error.tsx`                                  | Small win, low priority.                                                                                                                                               |
+
+**shadcn `ui/` directory: 46 files shipped, only 2 actually imported** —
+`input` and `sheet`. The other 44 (accordion, carousel, chart, sidebar,
+table, …) are untouched Lovable boilerplate. **Do not port the `ui/`
+directory**; it is Radix-based and 96% dead. Take the bespoke classes only.
+
+## A12.5 In the repo but NOT visible on the live site
+
+1. **The entire chat-bubble questionnaire** — the live crawl only ever
+   rendered question 1 and read as a plain form. The bubble/chip/edit/skip
+   design is the mockup's core idea and was invisible to A12's first pass.
+2. **`/fertig` completion screen** (not linked from the visible nav; it is
+   auto-navigated to 800 ms after the last upload).
+3. **`/login`, `/register`, `/email-sent`** auth screens.
+4. **`AppHeader.tsx`** — the unused alternative header, incl. the
+   **`· 4 offen`** tab badge (= our missing-documents counter).
+5. **Uploaded-state `DocRow`** (Ersetzen/Entfernen, sage-tinted row, petrol
+   check) — the live site showed only the empty state.
+6. **Skipped/edited states**: italic "Später beantworten" marker,
+   "Antwort geändert" flash pill, "Ändern" pencil affordance.
+7. **`simona-pfeiffer.png`** asset — referenced by **zero** code (dead;
+   possibly a second Ansprechpartnerin). Flag to Roman if the contact panel
+   is adopted.
+8. **Breakpoints:** `sm:` ×32, `lg:` ×7, `xl:` ×1 — mobile-first, `lg`
+   (1024px) is the sidebar switch, `xl` only widens the sidebar. No `md:`
+   usage at all.
+9. **Icon set:** lucide — `Pencil, FileText, Menu, Check, Info, Phone,
+Mail`. All exist in our lucide 1.x; verify names at use (major version
+   gap 0.575 → 1.17).
+10. **Signature shadow** (used on every card, not visible in the DOM dump):
+    `shadow-[0_2px_20px_-14px_rgba(36,91,90,0.25)]` — a petrol-tinted lift;
+    the auth card uses `-14px/0.3` at 24px blur. Worth a token.
+11. **Assets are Lovable-hosted**, not files: `*.asset.json` holds an R2
+    URL (`/__l5e/assets-v1/…`). Only `public/favicon.svg` is a real file.
+    **The logo SVG is therefore not obtainable from this repo** — keep our
+    `public/logo.jpg` or ask Roman for the source SVG.
+
+## A12.6 Do not port (hard boundary)
+
+`lib/lovable-error-reporting.ts` + `lib/error-capture.ts` (Lovable
+telemetry — posts errors to a Lovable endpoint), `.lovable/`, the TanStack
+router/`routeTree.gen.ts`, `server.ts`/`start.ts`, `QueryClientProvider`,
+all `useState` question/upload state (our questionnaire is DB-driven and
+server-validated), the hardcoded `QUESTIONS`/`initialDocs` arrays, the
+auto-navigate-on-complete behaviour, and the 44 unused Radix components.
+**Every German string in the mockup is Lovable-authored, not Roman's** —
+anything adopted as new user-facing copy is PLACEHOLDER_DE and goes to
+Roman (CLAUDE.md rule #2).
+
+## A12.7 Revised phased order for E-1
+
+1. **Tokens** — `globals.css`: brand tokens into `@theme inline`, `:root`
+   values, radius formula, Lato via `next/font/google`, shadow token.
+   Zero markup changes; whole app shifts to the palette at once.
+2. **Shared primitives** — buttons (copper CTA / outline / ghost), inputs,
+   cards, the petrol-tinted shadow, progress bar (track/fill/marker),
+   tab row.
+3. **Screens**, cheapest-first: auth (AuthShell 1:1) → pre-questionnaire
+   cards (FormCard 1:1) → document checklist (DocRow) → **questionnaire
+   chat bubbles** (biggest change) → completion/locked state.
+4. **Open E-1 decisions to put to the founder:** (a) desktop **sidebar**
+   (`AppShell`) vs keeping our centered column with the `AppHeader`-style
+   top bar — the latter is far less risky and still lands the look;
+   (b) whether the **Ansprechpartner/Hilfe panel** is in scope at all
+   (needs Roman's content); (c) whether `/fertig`-style "Nächste Schritte"
+   copy replaces our current locked-state text (Roman).
+
+---
+
 ## Working-as-designed confirmations (D1/D2)
 
 - **Item 2 (PLZ 10961 → Pankow checklist):** confirmed as designed — 10961 has
