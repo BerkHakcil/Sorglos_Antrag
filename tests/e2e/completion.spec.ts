@@ -12,8 +12,13 @@
  *  C4. Edits are locked — zero "Bearbeiten" buttons visible after server re-render.
  *  C5. Category header does NOT re-show when moving group→regular in same category.
  *
- * SETUP REQUIRED: run `node scripts/create-test-user.mjs` first — this spec
- * logs in as the pre-created user recorded in `.playwright-test-user.json`.
+ * SETUP REQUIRED **BEFORE EVERY RUN**: `node scripts/create-test-user.mjs`.
+ * This spec logs in as the user recorded in `.playwright-test-user.json` and
+ * drives its case all the way to `under_review`, which the M3 edit lock then
+ * freezes — so **the fixture is single-use**. Re-running without re-seeding
+ * finds a locked case, never renders `#care_home_id`, and times out after ten
+ * minutes. That is the ordinary outcome of a *successful* previous run, not a
+ * regression.
  *
  * ⚠ HOW A STALE FIXTURE PRESENTS (cost an hour on 2026-07-30): if that user's
  * CASE row was deleted while the auth user survived (cleanup sweeps delete
@@ -189,7 +194,25 @@ test.setTimeout(600_000)
 test('complete all Berlin questionnaire questions → DB flips to under_review + edits locked', async ({
   page,
 }) => {
-  // ── 0. Login ────────────────────────────────────────────────────────────────
+  // ── 0. Fixture precondition ────────────────────────────────────────────────
+  // Fail in seconds with the actual cause instead of after a ten-minute
+  // timeout on a selector that will never appear (see the header).
+  const { data: fixtureCase } = await adminDb
+    .from('cases')
+    .select('status')
+    .eq('id', CREDS.caseId)
+    .maybeSingle()
+  expect(
+    fixtureCase,
+    `Fixture case ${CREDS.caseId} no longer exists — run: node scripts/create-test-user.mjs`
+  ).not.toBeNull()
+  expect(
+    fixtureCase?.status,
+    `Fixture case is already "${fixtureCase?.status}" — this spec drives its case to under_review, ` +
+      'so the fixture is single-use. Re-seed with: node scripts/create-test-user.mjs'
+  ).toBe('in_progress')
+
+  // ── 0b. Login ───────────────────────────────────────────────────────────────
   await login(page)
   await page.screenshot({ path: 'test-results/01-after-login.png' })
 
