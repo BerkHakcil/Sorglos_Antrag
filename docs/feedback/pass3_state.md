@@ -451,6 +451,38 @@ project-settings change and needs a founder decision — see the STOP report.
    same file pass, and T2 completes a full drive through the repointed
    footer selector — independent evidence E-0's selectors work.
 
+## Test maintenance (main: `98a2edc` + `67dd0f0`) — all three resolved
+
+- **T1 heuristic repointed** to `vertriebenen` / `spätaussiedler`. The spec
+  now carries a ⚠ comment saying this matcher is **copy-coupled by design**
+  (accepted trade-off — the DOM has no question key, so the driver must
+  recognise the question from its German prompt; reword it and the reveal
+  silently stops, failing as "Received: 0" rather than an obvious selector
+  error).
+- **completion fixture refreshed** via `scripts/create-test-user.mjs`
+  (`.playwright-test-user.json` is gitignored). The spec header now
+  documents how a stale fixture presents — login succeeds, `/case` throws
+  "Kein Fall gefunden", and it surfaces as a 10-minute timeout on
+  `#care_home_id` that reads like a selector bug.
+- **auth.spec annotated known-skip**, gated on `E2E_ALLOW_SIGNUP` so the
+  switch _is_ the follow-up ticket.
+  ⚠ **CORRECTION on the record:** the previously documented reason —
+  "prod rejects the `.invalid` TLD" — is **false**. Verified by POSTing
+  `/auth/v1/signup` directly: **HTTP 200**, an unconfirmed user is created
+  (probe user deleted immediately). The real blocker is that **email
+  confirmation is enabled**, so the UI signup renders the check-your-inbox
+  notice instead of redirecting to `/case`; every later test in that serial
+  group depends on the user test 1 was meant to create. The spec's own
+  inline comment had predicted exactly this.
+
+## E-0 final tally (branch, after merging main)
+
+**13 passed · 13 skipped (all annotated) · 0 failed · exit 0**, full suite,
+`--workers=1`, against the merged branch build. The 13 skips are the single
+annotated `Auth flow` group. Prod left clean: 12 real users untouched, the
+only test user is the current fixture (the stale one was garbage-collected
+by the setup script); no leaked users from the run.
+
 Remaining Roman items: logo as SVG, Ansprechpartner decision + assets,
 `/fertig` "Nächste Schritte" copy, the §10 folder-mapping FYI (flippable
 rows), plus the older sign-offs in `german_copy_for_roman.md`.

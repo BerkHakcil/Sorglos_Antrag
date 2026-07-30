@@ -55,6 +55,38 @@ a preview URL therefore still writes to prod data — same as today, with the
 same cleanup discipline. Nothing about that changes; it just should not
 surprise anyone when preview runs create and delete test users.
 
+### Preview access (from E-1 onward)
+
+The project has **Vercel Authentication** enabled
+(`ssoProtection: all_except_custom_domains`), so preview URLs 302 to Vercel
+SSO and are not machine-reachable. E-0 therefore ran against the identical
+build served locally. From E-1 the founder supplies a
+**Protection Bypass for Automation** secret, which I consume as:
+
+```
+VERCEL_AUTOMATION_BYPASS_SECRET=<secret>     # in .env.local (gitignored)
+```
+
+That name is Vercel's own, so a deployment-side system env var of the same
+name lines up with the local one. `playwright.config.ts` then sends it on
+every request:
+
+```ts
+use: {
+  extraHTTPHeaders: process.env.VERCEL_AUTOMATION_BYPASS_SECRET
+    ? {
+        'x-vercel-protection-bypass': process.env.VERCEL_AUTOMATION_BYPASS_SECRET,
+        'x-vercel-set-bypass-cookie': 'true', // keeps client-side navigations authorised
+      }
+    : {},
+}
+```
+
+`x-vercel-set-bypass-cookie` matters: without it only the first document
+request is bypassed and subsequent client-side navigations bounce to SSO.
+The secret is a credential — `.env.local` only, never committed, never
+echoed into a screenshot, log or commit message.
+
 ---
 
 ## 2. Sub-phase breakdown
