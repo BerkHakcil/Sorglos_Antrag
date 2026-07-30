@@ -69,7 +69,17 @@ function seqStore(): SeqStore {
       const { error } = await admin
         .from('document_filename_seq')
         .insert({ case_id: k.caseId, folder: k.folder, base: k.base, last_n: 1 })
-      return error ? 'conflict' : 'inserted'
+      if (!error) return 'inserted'
+      // 23505 = unique violation: another upload created the row first. That is
+      // the expected race and the loop simply re-reads. ANY other error is a
+      // real fault (RLS, network, schema) that would otherwise be silently
+      // retried 8 times and reported as mere contention — log the cause, since
+      // an opaque failure is exactly what made the Brevo outage hard to
+      // diagnose. Codes/messages only, never row content.
+      if (error.code !== '23505') {
+        console.error('[filename-seq] insert failed:', error.code, error.message)
+      }
+      return 'conflict'
     },
     async bump(k, from) {
       // Compare-and-set: the .eq('last_n', from) guard makes this atomic —
@@ -134,7 +144,12 @@ export async function createUploadUrlAction(input: {
   let n: number
   try {
     n = await allocateNumber(seqStore(), { caseId: caseRow.id, folder, base })
-  } catch {
+  } catch (err) {
+    // Bounded loop exhausted (or the store threw). The user gets the normal
+    // German upload error; the cause is logged so a real failure is not silent.
+    // The thrown message carries no user data by construction (see
+    // allocateNumber).
+    console.error('[filename-seq]', err instanceof Error ? err.message : String(err))
     return { ok: false, error: content.docsErrorGeneric }
   }
 

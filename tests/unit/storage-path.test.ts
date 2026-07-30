@@ -353,7 +353,42 @@ describe('allocateNumber — concurrency', () => {
     }
     await expect(
       allocateNumber(store, { caseId: CASE, folder: 'Housing', base: 'Heimvertrag' }, 3)
-    ).rejects.toThrow(/contention/)
+    ).rejects.toThrow(/gave up after 3 contended attempts/)
+  })
+
+  it('is BOUNDED: it stops after exactly maxAttempts, it does not spin', async () => {
+    let reads = 0
+    const store: SeqStore = {
+      read: async () => {
+        reads++
+        return 5
+      },
+      insertFirst: async () => 'conflict',
+      bump: async () => null,
+    }
+    await expect(
+      allocateNumber(store, { caseId: CASE, folder: 'Housing', base: 'Heimvertrag' }, 4)
+    ).rejects.toThrow()
+    expect(reads).toBe(4)
+  })
+
+  it('the failure message leaks NO user data — the bank name never reaches logs', async () => {
+    const bankName = 'SparkasseGeheimKundeMueller' // sanitized user-typed bank name
+    const store: SeqStore = {
+      read: async () => 1,
+      insertFirst: async () => 'conflict',
+      bump: async () => null,
+    }
+    const err = await allocateNumber(
+      store,
+      { caseId: CASE, folder: 'Financial', base: `Kontoauszuege_${bankName}` },
+      2
+    ).catch((e: Error) => e)
+    expect(err).toBeInstanceOf(Error)
+    const message = (err as Error).message
+    expect(message).not.toContain(bankName)
+    expect(message).not.toContain(CASE) // no case id either
+    expect(message).toContain('Financial') // the fixed folder constant is fine
   })
 })
 

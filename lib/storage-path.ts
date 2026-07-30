@@ -182,8 +182,13 @@ export async function allocateNumber(
     const next = await store.bump(key, current)
     if (next !== null) return next
   }
+  // The message deliberately does NOT echo `key.base`: the base embeds the
+  // slot's instance label, which for additional bank accounts is the user's
+  // own typed bank name. This error is logged server-side, and a customer's
+  // bank is financial data that must never reach application logs (M7 log-PII
+  // audit). `folder` is one of five fixed constants and is safe to name.
   throw new Error(
-    `allocateNumber: contention on ${key.folder}/${key.base} after ${maxAttempts} tries`
+    `allocateNumber: gave up after ${maxAttempts} contended attempts in ${key.folder}`
   )
 }
 
