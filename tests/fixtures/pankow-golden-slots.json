@@ -48,7 +48,7 @@
     {
       "ruleId": "PAN-005",
       "documentId": "DOC-0003",
-      "nameDe": "Kontoauszuege",
+      "nameDe": "Kontoauszüge",
       "subject": "person_1",
       "instanceKey": "giro",
       "instanceLabel": "Girokonto",
@@ -57,7 +57,7 @@
     {
       "ruleId": "PAN-005",
       "documentId": "DOC-0003",
-      "nameDe": "Kontoauszuege",
+      "nameDe": "Kontoauszüge",
       "subject": "person_1",
       "instanceKey": "savings",
       "instanceLabel": "Sparkonto",
@@ -66,7 +66,7 @@
     {
       "ruleId": "PAN-005",
       "documentId": "DOC-0003",
-      "nameDe": "Kontoauszuege",
+      "nameDe": "Kontoauszüge",
       "subject": "person_1",
       "instanceKey": "instance-4",
       "instanceLabel": "Sparkasse",
@@ -75,7 +75,7 @@
     {
       "ruleId": "PAN-006",
       "documentId": "DOC-0003",
-      "nameDe": "Kontoauszuege",
+      "nameDe": "Kontoauszüge",
       "subject": "person_2",
       "instanceKey": "spouse_giro",
       "instanceLabel": "Girokonto",
@@ -156,7 +156,7 @@
     {
       "ruleId": "PAN-018",
       "documentId": "DOC-0011",
-      "nameDe": "Mobilitaetsnachweis",
+      "nameDe": "Mobilitätsnachweis",
       "subject": "person_1",
       "instanceKey": "default",
       "instanceLabel": null,
@@ -203,7 +203,7 @@
     {
       "ruleId": "PAN-005",
       "documentId": "DOC-0003",
-      "nameDe": "Kontoauszuege",
+      "nameDe": "Kontoauszüge",
       "subject": "person_1",
       "instanceKey": "giro",
       "instanceLabel": "Girokonto",
@@ -275,7 +275,7 @@
     {
       "ruleId": "PAN-018",
       "documentId": "DOC-0011",
-      "nameDe": "Mobilitaetsnachweis",
+      "nameDe": "Mobilitätsnachweis",
       "subject": "person_1",
       "instanceKey": "default",
       "instanceLabel": null,
@@ -304,7 +304,7 @@
     {
       "ruleId": "PAN-005",
       "documentId": "DOC-0003",
-      "nameDe": "Kontoauszuege",
+      "nameDe": "Kontoauszüge",
       "subject": "person_1",
       "instanceKey": "giro",
       "instanceLabel": "Girokonto",
@@ -313,7 +313,7 @@
     {
       "ruleId": "PAN-005",
       "documentId": "DOC-0003",
-      "nameDe": "Kontoauszuege",
+      "nameDe": "Kontoauszüge",
       "subject": "person_1",
       "instanceKey": "savings",
       "instanceLabel": "Sparkonto",
@@ -385,7 +385,7 @@
     {
       "ruleId": "PAN-018",
       "documentId": "DOC-0011",
-      "nameDe": "Mobilitaetsnachweis",
+      "nameDe": "Mobilitätsnachweis",
       "subject": "person_1",
       "instanceKey": "default",
       "instanceLabel": null,

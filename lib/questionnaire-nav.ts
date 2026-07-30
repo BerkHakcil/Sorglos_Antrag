@@ -145,6 +145,26 @@ function skipKey(q: NavQuestion): string {
   return q.instanceId ? `${q.id}:${q.instanceId}` : q.id
 }
 
+// ── Answered predicate ────────────────────────────────────────────────────────
+
+/**
+ * A required question needs a non-empty value. An OPTIONAL question is also
+ * complete when a saved row exists with an empty value (`''`/`[]`) — the
+ * server accepts empty answers for optional questions, and `rawValue !==
+ * undefined` is row-presence because answer maps only contain saved keys.
+ * Without this, an optional question saved empty re-asks forever (feedback
+ * pass 3, item 3). Skip stays separate: skipped questions have no row and
+ * legitimately return.
+ */
+function isAnsweredValue(isRequired: boolean, rawValue: unknown): boolean {
+  const nonEmpty =
+    rawValue !== undefined &&
+    rawValue !== null &&
+    rawValue !== '' &&
+    !(Array.isArray(rawValue) && rawValue.length === 0)
+  return nonEmpty || (!isRequired && rawValue !== undefined)
+}
+
 // ── Navigation builder ────────────────────────────────────────────────────────
 
 /**
@@ -208,11 +228,7 @@ export function buildNav(
             if (!isVisible(gq.visibility_rule, instanceAnswers, rulesByKey)) continue
 
             const rawValue = (groupAnswers[instanceId] ?? {})[gq.key]
-            const isAnswered =
-              rawValue !== undefined &&
-              rawValue !== null &&
-              rawValue !== '' &&
-              !(Array.isArray(rawValue) && rawValue.length === 0)
+            const isAnswered = isAnsweredValue(gq.is_required, rawValue)
 
             navQuestions.push({
               ...gq,
@@ -232,11 +248,7 @@ export function buildNav(
       if (!isVisible(q.visibility_rule, answersMap, rulesByKey)) continue
 
       const rawValue = answersMap[q.key]
-      const isAnswered =
-        rawValue !== undefined &&
-        rawValue !== null &&
-        rawValue !== '' &&
-        !(Array.isArray(rawValue) && rawValue.length === 0)
+      const isAnswered = isAnsweredValue(q.is_required, rawValue)
 
       navQuestions.push({
         ...q,

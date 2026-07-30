@@ -556,3 +556,168 @@ describe('findStaleAnswerRefs', () => {
     expect(findStaleAnswerRefs(nav.flatVisible, answersRaw)).toHaveLength(0)
   })
 })
+
+// ─── buildNav — optional completed-without-answer (B1, feedback pass 3) ───────
+// A saved empty row ('' / []) completes an OPTIONAL question; skip (no row)
+// still defers it. Fixtures mirror the two real Berlin optional questions.
+
+describe('buildNav — optional questions complete on saved empty row (B1)', () => {
+  // Berlin shape: first_name (req) → birth_name (opt, short_text) → last_name (req)
+  const berlinOpening = makeQuestionnaire([
+    { key: 'first_name', is_required: true },
+    { key: 'birth_name', is_required: false, sort_order: 1 },
+    { key: 'last_name', is_required: true, sort_order: 2 },
+  ])
+
+  it("empty 'Weiter' completes: saved '' row marks birth_name answered and moves on", () => {
+    const nav = buildNav(berlinOpening, { first_name: 'Maria', birth_name: '' })
+    const birthName = nav.flatVisible.find((q) => q.key === 'birth_name')
+    expect(birthName?.isAnswered).toBe(true)
+    expect(nav.nextQuestion?.key).toBe('last_name')
+  })
+
+  it('does NOT re-surface on a fresh buildNav (simulated reload — no skippedIds)', () => {
+    // After the empty save the row persists; a new session must not re-ask.
+    const nav = buildNav(berlinOpening, {
+      first_name: 'Maria',
+      birth_name: '',
+      last_name: 'Muster',
+    })
+    expect(nav.nextQuestion).toBeNull()
+    expect(nav.nextSkippedQuestion).toBeNull()
+  })
+
+  it('progress bar counts it consistently: optional rows never move the denominator', () => {
+    const before = buildNav(berlinOpening, { first_name: 'Maria' })
+    const after = buildNav(berlinOpening, { first_name: 'Maria', birth_name: '' })
+    expect(before.totalRequired).toBe(2)
+    expect(after.totalRequired).toBe(2)
+    expect(after.answeredRequired).toBe(before.answeredRequired)
+    expect(after.progressPercent).toBe(before.progressPercent)
+  })
+
+  it('skip semantics unchanged: skipped optional (no row) defers now, returns on reload', () => {
+    // This session: birth_name (q1) skipped → nextQuestion moves past it…
+    const skipped = buildNav(
+      berlinOpening,
+      { first_name: 'Maria' },
+      {},
+      {},
+      new Set(),
+      new Set(['q1'])
+    )
+    expect(skipped.nextQuestion?.key).toBe('last_name')
+    expect(skipped.nextSkippedQuestion?.key).toBe('birth_name')
+    // …fresh session (skippedIds reset): it is the active question again.
+    const reloaded = buildNav(berlinOpening, { first_name: 'Maria' })
+    expect(reloaded.nextQuestion?.key).toBe('birth_name')
+  })
+
+  it('dependency re-evaluation unaffected: not_empty on an empty-completed key stays false', () => {
+    const q = makeQuestionnaire([
+      { key: 'opt_ctrl', is_required: false },
+      {
+        key: 'dependent',
+        is_required: true,
+        sort_order: 1,
+        visibility_rule: { question_key: 'opt_ctrl', not_empty: true },
+      },
+    ])
+    const empty = buildNav(q, { opt_ctrl: '' })
+    expect(empty.flatVisible.map((x) => x.key)).toEqual(['opt_ctrl'])
+    expect(empty.totalRequired).toBe(0)
+    const filled = buildNav(q, { opt_ctrl: 'Wert' })
+    expect(filled.flatVisible.map((x) => x.key)).toEqual(['opt_ctrl', 'dependent'])
+    expect(filled.totalRequired).toBe(1)
+  })
+
+  it('answered-then-cleared behaves sanely: clearing to "" keeps it completed with savedValue ""', () => {
+    const answered = buildNav(berlinOpening, { first_name: 'Maria', birth_name: 'Schmidt' })
+    expect(answered.flatVisible.find((q) => q.key === 'birth_name')?.isAnswered).toBe(true)
+    const cleared = buildNav(berlinOpening, { first_name: 'Maria', birth_name: '' })
+    const bn = cleared.flatVisible.find((q) => q.key === 'birth_name')
+    expect(bn?.isAnswered).toBe(true)
+    expect(bn?.savedValue).toBe('')
+  })
+
+  it('required questions still block: a saved empty row does NOT complete a required question', () => {
+    const nav = buildNav(berlinOpening, { first_name: '', birth_name: '' })
+    expect(nav.flatVisible.find((q) => q.key === 'first_name')?.isAnswered).toBe(false)
+    expect(nav.nextQuestion?.key).toBe('first_name')
+    expect(nav.allRequiredAnswered).toBe(false)
+  })
+
+  it('power_of_attorney shape: optional single_select completes on saved "" and on a real option', () => {
+    const q = makeQuestionnaire([
+      {
+        key: 'power_of_attorney',
+        is_required: false,
+        answer_type: 'single_select',
+        options: [
+          { id: 'o0', key: 'o0', sort_order: 0, label_de: 'Nein', value: 'Nein' },
+          {
+            id: 'o1',
+            key: 'o1',
+            sort_order: 1,
+            label_de: 'Gesetzlicher Betreuer',
+            value: 'Gesetzlicher Betreuer',
+          },
+        ],
+      },
+      { key: 'next_q', is_required: true, sort_order: 1 },
+    ])
+    expect(buildNav(q, {}).nextQuestion?.key).toBe('power_of_attorney')
+    expect(buildNav(q, { power_of_attorney: '' }).nextQuestion?.key).toBe('next_q')
+    expect(buildNav(q, { power_of_attorney: 'Nein' }).nextQuestion?.key).toBe('next_q')
+  })
+
+  it('optional multi_select completes on a saved empty array', () => {
+    const q = makeQuestionnaire([
+      { key: 'opt_multi', is_required: false, answer_type: 'multi_select' },
+      { key: 'req', is_required: true, sort_order: 1 },
+    ])
+    const nav = buildNav(q, { opt_multi: [] })
+    expect(nav.flatVisible.find((x) => x.key === 'opt_multi')?.isAnswered).toBe(true)
+    expect(nav.nextQuestion?.key).toBe('req')
+  })
+
+  it('optional repeatable-group member completes on a saved empty row (group branch)', () => {
+    const q: LoadedQuestionnaire = {
+      id: 'qn',
+      name: 'Groups',
+      categories: [
+        {
+          id: 'cat1',
+          key: 'cat1',
+          sort_order: 0,
+          label_de: 'Kategorie 1',
+          questions: [
+            makeQuestion({
+              id: 'g0',
+              key: 'member_req',
+              sort_order: 0,
+              is_required: true,
+              group_id: 'grp1',
+              group_key: 'grp',
+              group_label_de: 'Gruppe',
+              group_is_repeatable: true,
+            }),
+            makeQuestion({
+              id: 'g1',
+              key: 'member_opt',
+              sort_order: 1,
+              is_required: false,
+              group_id: 'grp1',
+              group_key: 'grp',
+              group_label_de: 'Gruppe',
+              group_is_repeatable: true,
+            }),
+          ],
+        },
+      ],
+    }
+    const nav = buildNav(q, {}, { grp: ['inst1'] }, { inst1: { member_req: 'x', member_opt: '' } })
+    expect(nav.flatVisible.find((x) => x.key === 'member_opt')?.isAnswered).toBe(true)
+    expect(nav.nextQuestion).toBeNull()
+  })
+})

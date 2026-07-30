@@ -1159,7 +1159,7 @@
     },
     {
       "id": "DOC-0003",
-      "name_de": "Kontoauszuege",
+      "name_de": "Kontoauszüge",
       "category": "assets"
     },
     {
@@ -1199,7 +1199,7 @@
     },
     {
       "id": "DOC-0011",
-      "name_de": "Mobilitaetsnachweis",
+      "name_de": "Mobilitätsnachweis",
       "category": "person"
     },
     {
@@ -1249,7 +1249,7 @@
     },
     {
       "id": "DOC-0021",
-      "name_de": "Heimatvertriebener/Spaetaussiedler Nachweis",
+      "name_de": "Heimatvertriebener/Spätaussiedler Nachweis",
       "category": "person"
     },
     {
@@ -1269,7 +1269,7 @@
     },
     {
       "id": "DOC-0025",
-      "name_de": "Mietkuendigungsnachweis",
+      "name_de": "Mietkündigungsnachweis",
       "category": "expenses"
     },
     {

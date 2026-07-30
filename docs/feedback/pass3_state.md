@@ -6,14 +6,14 @@
 
 ## Phase status
 
-| Phase | Status | Notes |
-| ----- | ------ | ----- |
-| A — read-only triage | ✅ DONE 2026-07-30 | reports committed; STOP — awaiting "GO PHASE B" |
-| B — quick fixes (items 3/7/8/1) | not started | designs approved-ready in triage §3/§7/§8; B4 = no-op (item 1 not regressed) |
-| C — spouse Vollmacht (PAN-011) | not started | ⚠ needs `active` column on `office_document_rule` + dal.ts filter (no such column today); 0 uploads reference PAN-011 |
-| D — storage restructure | not started | folders need zero RLS changes (first-segment policies); numbering source of truth = DB count (design in D-1) |
-| E — UI restyle | not started | ⚠ BLOCKER: mockup repo `romanpfeiffer85/Sorglos-product-ui-mockup` not accessible to gh account BerkHakcil — need invite/URL. Live-site tokens already extracted (triage §12) |
-| F — close-out | not started | |
+| Phase                           | Status                         | Notes                                                                                                                                                                                                                                                                                                                      |
+| ------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A — read-only triage            | ✅ DONE 2026-07-30             | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                    |
+| B — quick fixes (items 3/7/8/1) | implemented 2026-07-30, ⏸ STOP | B1 shipped (isAnsweredValue predicate + 10 unit tests, 138 green; code deploys with this push). B2 = `20260730000001_delete_gross_pension_help.sql`, B3 = `20260730000002_catalog_umlaut_restoration.sql` (+ fixture mirror update). B4 no-op confirmed. Awaiting founder `supabase db push`, then live verify + close-out |
+| C — spouse Vollmacht (PAN-011)  | not started                    | ⚠ needs `active` column on `office_document_rule` + dal.ts filter (no such column today); 0 uploads reference PAN-011                                                                                                                                                                                                      |
+| D — storage restructure         | not started                    | folders need zero RLS changes (first-segment policies); numbering source of truth = DB count (design in D-1)                                                                                                                                                                                                               |
+| E — UI restyle                  | not started                    | ⚠ BLOCKER: mockup repo `romanpfeiffer85/Sorglos-product-ui-mockup` not accessible to gh account BerkHakcil — need invite/URL. Live-site tokens already extracted (triage §12)                                                                                                                                              |
+| F — close-out                   | not started                    |                                                                                                                                                                                                                                                                                                                            |
 
 ## Key Phase-A facts (so later phases need not re-derive)
 
@@ -54,10 +54,43 @@
 
 ## Decisions received from the founder
 
-- (none yet beyond the pass brief D1–D7)
+- 2026-07-30 GO PHASE B with adjustments: B3 = only the 4 mechanical rows (ss
+  rows get NO migration, confirm-only to Roman); B1 = exactly the
+  one-predicate design, skip semantics unchanged, tests must cover both
+  Berlin optional questions; B4 confirmed no-op.
+- 2026-07-30 Phase C amendments (apply after separate go): additive `active`
+  column on `office_document_rule` (boolean NOT NULL DEFAULT true, backfill
+  all 105, THEN flip PAN-011 false — order inside one migration is fine);
+  filter `active = true` in every rule-loading site and cite each;
+  re-run the PAN-011 upload-reference check against the THEN-current upload
+  set before the migration (STOP if any real upload references it);
+  regression unchanged (married Pankow fixture minus person_2 Vollmacht slot,
+  rest byte-identical; Essen unchanged); verify-baseline must stay green.
+- Roman package: item-1 explanation must state tabs appear once care home +
+  PLZ are chosen and ASK whether he wants document visibility before the
+  pre-steps (done, §3); item-3 post-fix semantics on record (done, §4).
+
+## Phase B implementation record (pre-push)
+
+- **B1 code:** `lib/questionnaire-nav.ts` — new `isAnsweredValue(isRequired,
+rawValue)` used by both the group and regular branches: non-empty OR
+  (optional AND row exists). 10 new unit tests in
+  `tests/unit/questionnaire-engine.test.ts` ("optional completed-without-
+  answer (B1)"): empty-Weiter completes, no re-surface on reload, progress
+  consistency, skip-defers-unchanged, not_empty dependency unaffected,
+  answered-then-cleared, required still blocks, power_of_attorney
+  single_select shape, multi_select `[]`, group-member branch. Suite 138/138;
+  typecheck/lint/format green.
+- **B3 side effect:** `tests/fixtures/pankow-rules.snapshot.json` +
+  `pankow-golden-slots.json` name_de/nameDe updated to the umlauted names so
+  the committed live-mirror stays true post-push (e2e specs don't match on
+  these names; `tests/unit/document-rules.test.ts`'s synthetic catalog
+  deliberately untouched).
 
 ## Next step
 
-Wait for founder "GO PHASE B", then implement B1 (engine fix + unit tests),
-B2/B3 (copy migrations + Real-Data reports), B4 no-op; STOP before push with
-migration filenames.
+Founder runs `supabase db push` (migrations `20260730000001` +
+`20260730000002`). After "pushed": verify live (help text gone on
+rentenbetrag; umlauted names on checklist; B1 behavior on prod), run e2e
+regression + verify-baseline, commit close-out, update this file. Then wait
+for "GO PHASE C".

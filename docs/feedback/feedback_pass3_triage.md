@@ -56,7 +56,7 @@
 
 - Server validation ([app/case/actions.ts](../../app/case/actions.ts)
   `validateAnswerValue`): `if (isRequired && isEmpty) error; if (isEmpty) return
-  valid` — empty is a **legal** answer for optional questions and is upserted.
+valid` — empty is a **legal** answer for optional questions and is upserted.
 - Engine ([lib/questionnaire-nav.ts](../../lib/questionnaire-nav.ts)
   `buildNav`): `isAnswered` treats `''` / `[]` / `null` as **unanswered**
   regardless of `is_required`, so the saved empty row never completes the
@@ -68,10 +68,10 @@
 
 **All optional questions sharing the bug** (`is_required = false`, whole DB):
 
-| Questionnaire | Key                 | Prompt                                                      | Note                                                                                              |
-| ------------- | ------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Berlin        | `birth_name`        | Was ist Ihr Geburtsname?                                    | Roman's repro case                                                                                |
-| Berlin        | `power_of_attorney` | Haben Sie eine gesetzliche Betreuung oder eine bevollmächt… | mitigated by the explicit "Nein" option (FP2), but an empty "Weiter" is still dead the same way   |
+| Questionnaire | Key                 | Prompt                                                      | Note                                                                                            |
+| ------------- | ------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Berlin        | `birth_name`        | Was ist Ihr Geburtsname?                                    | Roman's repro case                                                                              |
+| Berlin        | `power_of_attorney` | Haben Sie eine gesetzliche Betreuung oder eine bevollmächt… | mitigated by the explicit "Nein" option (FP2), but an empty "Weiter" is still dead the same way |
 
 Essen has **zero** optional questions — its `birth_name` (position 3) is
 **required**, so an empty "Weiter" there correctly shows the German
@@ -116,7 +116,11 @@ so they are unaffected; add the five B1 unit tests from the brief.
     "condition": {
       "any": [
         { "field": "marital_status", "operator": "equals", "value": "verheiratet" },
-        { "field": "marital_status", "operator": "equals", "value": "eingetragene Lebenspartnerschaft" },
+        {
+          "field": "marital_status",
+          "operator": "equals",
+          "value": "eingetragene Lebenspartnerschaft"
+        },
         { "field": "marital_status", "operator": "equals", "value": "eheähnliche Gemeinschaft" },
         { "field": "marital_status", "operator": "equals", "value": "Lebenspartnerschaft" }
       ]
@@ -139,7 +143,7 @@ so they are unaffected; add the five B1 unit tests from the brief.
   `getDocumentData` ([lib/dal.ts](../../lib/dal.ts)) loads rules unfiltered.
   The R6-compliant deactivation therefore needs: migration adding
   `active boolean NOT NULL DEFAULT true` + `UPDATE … SET active = false WHERE
-  id = 'PAN-011'`, plus a one-line `.eq('active', true)` filter in the two rule
+id = 'PAN-011'`, plus a one-line `.eq('active', true)` filter in the two rule
   queries in `dal.ts`. (Alternative — DELETE — rejected per R6.)
 - **Risk notes:** regression gate = married Pankow fixture loses exactly the
   PAN-011 slot, all others byte-identical; Essen married fixture unchanged.
@@ -150,14 +154,14 @@ so they are unaffected; add the five B1 unit tests from the brief.
 
 Full per-question tables (position | key | label | section | group | required |
 visibility gate) for **both** questionnaires are in
-[roman_package_pass3.md](roman_package_pass3.md) §4 — they are Roman's input,
+[roman_package_pass3.md](roman_package_pass3.md) §6 — they are Roman's input,
 in German. Berlin currently runs 168 rows / 9 categories, Essen 245 rows / 8
 categories. Category flow:
 
 - Berlin: `antragsteller(32) → wohnsituation(3) → einkommen(8) → kinder(9) →
-  income(10) → expenditure(11) → wealth(27) → additional(1) → spouse(67)`
+income(10) → expenditure(11) → wealth(27) → additional(1) → spouse(67)`
 - Essen: `antragsteller → wohnsituation → kinder → income → expenditure →
-  wealth → additional → spouse`
+wealth → additional → spouse`
 
 **Interleaving flags (Berlin — the ones Roman's "#28 previous address"
 complaint points at):**
@@ -211,20 +215,21 @@ the legacy Pankow-era rows:
 
 **Mechanical restoration table (B3 migration input — ae/oe/ue only):**
 
-| DOC-ID   | current `name_de`                            | proposed                                    | live exposure                                                          |
-| -------- | -------------------------------------------- | ------------------------------------------- | ---------------------------------------------------------------------- |
-| DOC-0003 | Kontoauszuege                                | Kontoauszüge                                | **every checklist** (PAN-005/006, ESS-010/011, all mandatory) — seen live today |
-| DOC-0011 | Mobilitaetsnachweis                          | Mobilitätsnachweis                          | every Pankow/default checklist (PAN-018 mandatory) — seen live today   |
-| DOC-0021 | Heimatvertriebener/Spaetaussiedler Nachweis  | Heimatvertriebener/Spätaussiedler Nachweis  | conditional (PAN-034/035, `special_origin_rights` ≠ Nein)              |
-| DOC-0025 | Mietkuendigungsnachweis                      | Mietkündigungsnachweis                      | conditional (PAN-040 Berlin-keyed; ESS-030 Essen)                      |
+| DOC-ID   | current `name_de`                           | proposed                                   | live exposure                                                                   |
+| -------- | ------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------- |
+| DOC-0003 | Kontoauszuege                               | Kontoauszüge                               | **every checklist** (PAN-005/006, ESS-010/011, all mandatory) — seen live today |
+| DOC-0011 | Mobilitaetsnachweis                         | Mobilitätsnachweis                         | every Pankow/default checklist (PAN-018 mandatory) — seen live today            |
+| DOC-0021 | Heimatvertriebener/Spaetaussiedler Nachweis | Heimatvertriebener/Spätaussiedler Nachweis | conditional (PAN-034/035, `special_origin_rights` ≠ Nein)                       |
+| DOC-0025 | Mietkuendigungsnachweis                     | Mietkündigungsnachweis                     | conditional (PAN-040 Berlin-keyed; ESS-030 Essen)                               |
 
-**`ss`-containing values — AMBIGUOUS list for Roman (per R3, never auto-ß):**
+**`ss`-containing values — assessed as correct German, no change planned;
+listed to Roman for confirmation only (per R3 we never auto-ß):**
 
-| DOC-ID   | value                                        | note (for Roman's call)                                |
-| -------- | -------------------------------------------- | ------------------------------------------------------ |
-| DOC-0005 | Leistungsbescheid Pflege**kass**e            | "Kasse" — standard spelling, almost certainly keep ss  |
-| DOC-0017 | Aufenthalt**ss**tatus                        | morpheme boundary (Aufenthalts-Status) — keep ss       |
-| DOC-0021 | …Spaetau**ss**iedler…                        | morpheme boundary (Aus-Siedler) — keep ss              |
+| DOC-ID   | value                             | note (for Roman's call)                               |
+| -------- | --------------------------------- | ----------------------------------------------------- |
+| DOC-0005 | Leistungsbescheid Pflege**kass**e | "Kasse" — standard spelling, almost certainly keep ss |
+| DOC-0017 | Aufenthalt**ss**tatus             | morpheme boundary (Aufenthalts-Status) — keep ss      |
+| DOC-0021 | …Spaetau**ss**iedler…             | morpheme boundary (Aus-Siedler) — keep ss             |
 
 **Question/option label spot-check (both questionnaires): CLEAN post-CP3.**
 The scan flagged only false positives: option labels "Einkommensteuern"
@@ -241,11 +246,11 @@ ss rows stay untouched pending Roman.
 ## Item 9 — pension yes/no + amount dependency report (A9)
 
 **Existence:** `hat_rente` ("Erhält die pflegebedürftige Person Rente?",
-yes_no, required, unconditional) and `rentenbetrag` ("Monatlicher Rentenbetrag
+yes*no, required, unconditional) and `rentenbetrag` ("Monatlicher Rentenbetrag
 (€)", amount, required) exist **only in Berlin** (`einkommen`, positions
 36–37). Essen never had them — its pension data lives exclusively in the
 repeatable `pension` group (type + **gross** + **net** per entry) plus the
-`pension_application_*` block.
+`pension_application*\*` block.
 
 **Complete dependency census:**
 
@@ -254,7 +259,7 @@ repeatable `pension` group (type + **gross** + **net** per entry) plus the
   they reference nothing else).
 - **Document rules:** **zero** of the 105 rules reference `hat_rente` or
   `rentenbetrag`. Pension document slots come from `repeat_for_each:
-  pension_type` (PAN-003/004, ESS-003/004) — i.e. from the **group**, not the
+pension_type` (PAN-003/004, ESS-003/004) — i.e. from the **group**, not the
   flat pair. (A dropped M1-era `document_rule` on `hat_rente` existed in
   `supabase/setup.sql` history; that table was deleted in M5.)
 - **Code paths reading the answers:** none in app code — the engine, export
@@ -272,14 +277,14 @@ repeatable `pension` group (type + **gross** + **net** per entry) plus the
 
 **What breaks on deactivating the pair (Berlin):**
 
-| Dependency                          | Effect                                                                                                             |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `rentenbetrag` visibility           | dies with its controller — the pair leaves together                                                                |
-| Berlin fresh denominator            | 53 → **51** (both required; e2e asserts need the new number)                                                       |
-| Document slots                      | **unchanged** (no rule references the pair)                                                                        |
-| Real answers                        | completed cases keep their rows only if the questions are deactivated rather than deleted — **the `question` table has no `active` flag**, so R6-style deactivation needs a mechanism decision (add flag vs. delete-with-`case:export`-snapshots per the Real-Data precedent) |
-| Amount storage for the Antrag       | preserved: per-entry `pension_amount` remains; `rentenbetrag` is the redundant single-amount duplicate             |
-| Tests                               | `visibility.spec.ts` V1 needs a new subject; `documents-m6` driver note; fixtures; verify-baseline key list        |
+| Dependency                    | Effect                                                                                                                                                                                                                                                                        |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rentenbetrag` visibility     | dies with its controller — the pair leaves together                                                                                                                                                                                                                           |
+| Berlin fresh denominator      | 53 → **51** (both required; e2e asserts need the new number)                                                                                                                                                                                                                  |
+| Document slots                | **unchanged** (no rule references the pair)                                                                                                                                                                                                                                   |
+| Real answers                  | completed cases keep their rows only if the questions are deactivated rather than deleted — **the `question` table has no `active` flag**, so R6-style deactivation needs a mechanism decision (add flag vs. delete-with-`case:export`-snapshots per the Real-Data precedent) |
+| Amount storage for the Antrag | preserved: per-entry `pension_amount` remains; `rentenbetrag` is the redundant single-amount duplicate                                                                                                                                                                        |
+| Tests                         | `visibility.spec.ts` V1 needs a new subject; `documents-m6` driver note; fixtures; verify-baseline key list                                                                                                                                                                   |
 
 **Recommendation to Roman (documented in the package, D4):** drop the
 redundant flat pair, keep the group + per-entry amounts — amounts stay
@@ -317,34 +322,34 @@ what "signed URL" means; after 60s it is dead. Roman saw exactly that.
 
 - **Path scheme:** `{case_id}/{uuid}.{ext}` — server-generated in
   `createUploadUrlAction` ([document-actions.ts:49](../../app/case/document-actions.ts)).
-  **Reconciliation of Roman's claim vs the UUID URL:** the *original* filename
+  **Reconciliation of Roman's claim vs the UUID URL:** the _original_ filename
   is preserved in **DB metadata** (`document_upload.original_filename`) and
-  shown in the UI; the *storage object* name is a UUID. Both observations were
+  shown in the UI; the _storage object_ name is a UUID. Both observations were
   right.
 - **`document_upload` columns:** `id, case_id, rule_id, document_id, subject,
-  instance_key, storage_path, original_filename, mime_type, size_bytes,
-  created_at`.
+instance_key, storage_path, original_filename, mime_type, size_bytes,
+created_at`.
 - **The real upload rows (now 14, not 6 — all grandfathered per D5):**
 
-| case (owner)                                   | rule / doc                                | instance  | original_filename                                     | stored object                | date  |
-| ---------------------------------------------- | ----------------------------------------- | --------- | ----------------------------------------------------- | ---------------------------- | ----- |
-| `2c8a5ca2` (bhakcil@gmail.com)                 | PAN-001 / DOC-0001 Personaldokument       | default   | gisma_logo.jpeg                                       | `cdf9a394….jpeg`             | 07-21 |
-| `2c8a5ca2`                                     | PAN-005 / DOC-0003 Kontoauszuege          | giro      | admission letter.pdf                                  | `e8ff0e5a….pdf`              | 07-21 |
-| `2c8a5ca2`                                     | PAN-005 / DOC-0003 Kontoauszuege          | giro      | April 2025 M509_AB.pdf                                | `db57f137….pdf`              | 07-21 |
-| `fc446257` (iremkarabulutlu@gmail.com)         | PAN-001 / DOC-0001                        | default   | sunexpress-boarding-pass-2.pdf                        | `26432e24….pdf`              | 07-21 |
-| `fc446257`                                     | PAN-002 / DOC-0001 (person_2)             | default   | Copy of IMG_5380.heic                                 | `6f88450b….heic`             | 07-21 |
-| `fc446257`                                     | PAN-017 / DOC-0010 Polizeiliche Anmeldung | default   | image.jpg                                             | `e563699e….jpg`              | 07-21 |
-| `de69f275` (roman.pfeiffer@sorglosantrag.de)   | PAN-001 / DOC-0001                        | default   | IMG_8449.jpeg                                         | `f008e4af….jpeg`             | 07-29 |
-| `de69f275`                                     | PAN-001 / DOC-0001                        | default   | IMG_8448.jpeg                                         | `d3d2c4ba….jpeg`             | 07-29 |
-| `de69f275`                                     | PAN-001 / DOC-0001                        | default   | 2F013DB0-03F3-4DBC-8C4C-C57E479644A9.jpeg             | `190fdf14….jpeg`             | 07-29 |
-| `de69f275`                                     | PAN-001 / DOC-0001                        | default   | Staatliche Förderung ohne Hürden – ….png              | `0c6e962d….png`              | 07-29 |
-| `298ac66b` (familiarize_professorial@simplelogin.com) | PAN-001 / DOC-0001                 | default   | Generated image 1.png                                 | `90d18198….png`              | 07-29 |
-| `d345b0f9` (info@sorglosantrag.de)             | PAN-014 / DOC-0008 Bisherige Heimrechnungen | default | Screenshot 2026-07-02 at 15.37.50.png                 | `222904e2….png`              | 07-30 |
-| `d345b0f9`                                     | PAN-012 / DOC-0007 Heimvertrag            | default   | Screenshot 2026-07-02 at 17.08.21.png                 | `13dd4022….png`              | 07-30 |
-| `d345b0f9`                                     | PAN-014 / DOC-0008                        | default   | Screenshot 2026-07-02 at 15.37.50.png (re-upload)     | `e5d0941b….png`              | 07-30 |
+| case (owner)                                          | rule / doc                                  | instance | original_filename                                 | stored object    | date  |
+| ----------------------------------------------------- | ------------------------------------------- | -------- | ------------------------------------------------- | ---------------- | ----- |
+| `2c8a5ca2` (bhakcil@gmail.com)                        | PAN-001 / DOC-0001 Personaldokument         | default  | gisma_logo.jpeg                                   | `cdf9a394….jpeg` | 07-21 |
+| `2c8a5ca2`                                            | PAN-005 / DOC-0003 Kontoauszuege            | giro     | admission letter.pdf                              | `e8ff0e5a….pdf`  | 07-21 |
+| `2c8a5ca2`                                            | PAN-005 / DOC-0003 Kontoauszuege            | giro     | April 2025 M509_AB.pdf                            | `db57f137….pdf`  | 07-21 |
+| `fc446257` (iremkarabulutlu@gmail.com)                | PAN-001 / DOC-0001                          | default  | sunexpress-boarding-pass-2.pdf                    | `26432e24….pdf`  | 07-21 |
+| `fc446257`                                            | PAN-002 / DOC-0001 (person_2)               | default  | Copy of IMG_5380.heic                             | `6f88450b….heic` | 07-21 |
+| `fc446257`                                            | PAN-017 / DOC-0010 Polizeiliche Anmeldung   | default  | image.jpg                                         | `e563699e….jpg`  | 07-21 |
+| `de69f275` (roman.pfeiffer@sorglosantrag.de)          | PAN-001 / DOC-0001                          | default  | IMG_8449.jpeg                                     | `f008e4af….jpeg` | 07-29 |
+| `de69f275`                                            | PAN-001 / DOC-0001                          | default  | IMG_8448.jpeg                                     | `d3d2c4ba….jpeg` | 07-29 |
+| `de69f275`                                            | PAN-001 / DOC-0001                          | default  | 2F013DB0-03F3-4DBC-8C4C-C57E479644A9.jpeg         | `190fdf14….jpeg` | 07-29 |
+| `de69f275`                                            | PAN-001 / DOC-0001                          | default  | Staatliche Förderung ohne Hürden – ….png          | `0c6e962d….png`  | 07-29 |
+| `298ac66b` (familiarize_professorial@simplelogin.com) | PAN-001 / DOC-0001                          | default  | Generated image 1.png                             | `90d18198….png`  | 07-29 |
+| `d345b0f9` (info@sorglosantrag.de)                    | PAN-014 / DOC-0008 Bisherige Heimrechnungen | default  | Screenshot 2026-07-02 at 15.37.50.png             | `222904e2….png`  | 07-30 |
+| `d345b0f9`                                            | PAN-012 / DOC-0007 Heimvertrag              | default  | Screenshot 2026-07-02 at 17.08.21.png             | `13dd4022….png`  | 07-30 |
+| `d345b0f9`                                            | PAN-014 / DOC-0008                          | default  | Screenshot 2026-07-02 at 15.37.50.png (re-upload) | `e5d0941b….png`  | 07-30 |
 
-  (`d345b0f9` is the founder account with **PLZ 10961** — the very case behind
-  item 2/D1.)
+(`d345b0f9` is the founder account with **PLZ 10961** — the very case behind
+item 2/D1.)
 
 - **Nested paths (folders) feasible without plan limitations: YES.** The
   storage RLS policies key on `(storage.foldername(name))[1]` — only the
@@ -361,7 +366,7 @@ what "signed URL" means; after 60s it is dead. Roman saw exactly that.
 ## Item 12 — Lovable mockup inventory (A12)
 
 **⚠ BLOCKER for full repo review:** `github.com/romanpfeiffer85/Sorglos-product-ui-mockup`
-returns *Repository not found* for the authenticated `BerkHakcil` account
+returns _Repository not found_ for the authenticated `BerkHakcil` account
 (private or renamed). → Need an invite/correct URL before E-phase starts.
 Everything below comes from the **live mockup**
 (https://sorglos-antrag-stellen.lovable.app/) — which is sufficient for the
@@ -373,17 +378,17 @@ routes `/` and `/unterlagen`.
 
 **Design tokens (extracted from `:root`):**
 
-| Token                | Value                    | Maps to (our app)          |
-| -------------------- | ------------------------ | -------------------------- |
-| `--petrol` / `--primary` | `#245b5a` (soft `#2f7371`) | primary / ring         |
-| `--copper`           | `#c44f15` (hover `#a34111`) | CTA buttons ("Antwort speichern") |
-| `--sage` / `--accent` | `#a9bfae` (soft `#cbd8ce`) | accent, progress track   |
-| `--cream` / `--background` | `#f7f4ed` (deep `#efeadd`) | background / secondary / muted |
-| `--graphite` / `--foreground` | `#2c2f32` (soft `#5c6166`) | text / muted text  |
-| `--border` / `--input` | `#e6e0d0`              | borders                    |
-| `--destructive`      | `oklch(57.7% .245 27.325)` | errors                   |
-| `--radius`           | `.875rem` (buttons observed 14–18px, cards 18px) | radius |
-| Font                 | `Lato, ui-sans-serif, system-ui` (400/500/700) | replaces default sans |
+| Token                         | Value                                            | Maps to (our app)                 |
+| ----------------------------- | ------------------------------------------------ | --------------------------------- |
+| `--petrol` / `--primary`      | `#245b5a` (soft `#2f7371`)                       | primary / ring                    |
+| `--copper`                    | `#c44f15` (hover `#a34111`)                      | CTA buttons ("Antwort speichern") |
+| `--sage` / `--accent`         | `#a9bfae` (soft `#cbd8ce`)                       | accent, progress track            |
+| `--cream` / `--background`    | `#f7f4ed` (deep `#efeadd`)                       | background / secondary / muted    |
+| `--graphite` / `--foreground` | `#2c2f32` (soft `#5c6166`)                       | text / muted text                 |
+| `--border` / `--input`        | `#e6e0d0`                                        | borders                           |
+| `--destructive`               | `oklch(57.7% .245 27.325)`                       | errors                            |
+| `--radius`                    | `.875rem` (buttons observed 14–18px, cards 18px) | radius                            |
+| Font                          | `Lato, ui-sans-serif, system-ui` (400/500/700)   | replaces default sans             |
 
 **Signature patterns:** cream page background with white cards; copper filled
 CTA + ghost secondary ("Später beantworten"); slim sage progress track with a
@@ -392,12 +397,12 @@ petrol fill, a floating petrol %-chip and a dot marker; centered H1
 
 **Screen → app-screen mapping:**
 
-| Mockup                          | Our app                                            | Notes                                             |
-| ------------------------------- | -------------------------------------------------- | ------------------------------------------------- |
-| `/` "Angaben" question flow     | `/case` Fragen tab (`chat-view.tsx`)               | mockup shows one-card-at-a-time + "Später beantworten" = our skip |
-| `/unterlagen` upload checklist  | `/case` Dokumente tab (`document-area.tsx`)        | per-doc cards, "Datei auswählen", status chip "Noch hochladen" |
-| header nav Angaben/Unterlagen   | `CaseTabs` Fragen/Dokumente                        | same 2-tab shape, labels differ (Roman's copy call) |
-| — (none)                        | login/signup/reset, care-home + PLZ pre-steps, locked/under-review state, group "add another?" prompts, patient banner | **no mockup counterpart — need styling by extension** |
+| Mockup                         | Our app                                                                                                                | Notes                                                             |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `/` "Angaben" question flow    | `/case` Fragen tab (`chat-view.tsx`)                                                                                   | mockup shows one-card-at-a-time + "Später beantworten" = our skip |
+| `/unterlagen` upload checklist | `/case` Dokumente tab (`document-area.tsx`)                                                                            | per-doc cards, "Datei auswählen", status chip "Noch hochladen"    |
+| header nav Angaben/Unterlagen  | `CaseTabs` Fragen/Dokumente                                                                                            | same 2-tab shape, labels differ (Roman's copy call)               |
+| — (none)                       | login/signup/reset, care-home + PLZ pre-steps, locked/under-review state, group "add another?" prompts, patient banner | **no mockup counterpart — need styling by extension**             |
 
 **Proposed phased application (E-phase plan skeleton):**
 (1) tokens — swap Tailwind/shadcn CSS variables + font in `app/globals.css`,
@@ -425,12 +430,12 @@ graphite-soft (accessibility constraint).
 
 ## Phase B–E readiness summary
 
-| Phase | Item | Ready? | Blockers                                                                 |
-| ----- | ---- | ------ | ------------------------------------------------------------------------ |
-| B1    | 3    | ✅ design proposed above | —                                                        |
-| B2    | 7    | ✅ row identified        | —                                                        |
-| B3    | 8    | ✅ 4-row table           | ss rows stay untouched (Roman)                           |
-| B4    | 1    | ✅ no-op                 | —                                                        |
-| C     | 5    | ✅ PAN-011 identified, 0 uploads reference it | needs `active` column (schema note above) |
-| D     | 11   | ✅ facts gathered        | category mapping proposal → my approval gate (D-1)       |
-| E     | 12   | ⚠ partially             | mockup repo access                                       |
+| Phase | Item | Ready?                                        | Blockers                                           |
+| ----- | ---- | --------------------------------------------- | -------------------------------------------------- |
+| B1    | 3    | ✅ design proposed above                      | —                                                  |
+| B2    | 7    | ✅ row identified                             | —                                                  |
+| B3    | 8    | ✅ 4-row table                                | ss rows stay untouched (Roman)                     |
+| B4    | 1    | ✅ no-op                                      | —                                                  |
+| C     | 5    | ✅ PAN-011 identified, 0 uploads reference it | needs `active` column (schema note above)          |
+| D     | 11   | ✅ facts gathered                             | category mapping proposal → my approval gate (D-1) |
+| E     | 12   | ⚠ partially                                   | mockup repo access                                 |
