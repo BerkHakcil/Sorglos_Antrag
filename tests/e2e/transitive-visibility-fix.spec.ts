@@ -166,9 +166,21 @@ async function driveQuestionnaire(page: Page, opts: { maritalChoice: string; rev
       let chosen: string
       if (text.includes('familienstand')) {
         chosen = options.find((o) => o.label === opts.maritalChoice)?.value ?? options[0].value
+        // ⚠ COPY-COUPLED BY DESIGN (accepted trade-off): this driver has to
+        // recognise two specific questions from their German prompt text,
+        // because the DOM carries no question key. Reword either prompt and
+        // this heuristic silently stops revealing the block — the drive then
+        // answers "Nein", the dependents never appear, and T1 fails with
+        // "must have been shown+answered / Received: 0" rather than with an
+        // obvious selector error. That is exactly what happened when CP3
+        // renamed the Sonderstatus question to "Vertriebenen- oder
+        // Spätaussiedlerausweis"; the old match term ('sonderstatus') was a
+        // key name that no longer appears in any user-facing string.
       } else if (
         opts.reveal &&
-        (text.includes('sonderstatus') || (text.includes('lebens') && text.includes('sterbe')))
+        (text.includes('vertriebenen') ||
+          text.includes('spätaussiedler') ||
+          (text.includes('lebens') && text.includes('sterbe')))
       ) {
         chosen = options.find((o) => o.label !== 'Nein')?.value ?? options[0].value
       } else {

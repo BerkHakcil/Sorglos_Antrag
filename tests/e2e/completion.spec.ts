@@ -11,6 +11,18 @@
  *  C3. status_event row with event_type='mandatory_complete' exists in DB.
  *  C4. Edits are locked — zero "Bearbeiten" buttons visible after server re-render.
  *  C5. Category header does NOT re-show when moving group→regular in same category.
+ *
+ * SETUP REQUIRED: run `node scripts/create-test-user.mjs` first — this spec
+ * logs in as the pre-created user recorded in `.playwright-test-user.json`.
+ *
+ * ⚠ HOW A STALE FIXTURE PRESENTS (cost an hour on 2026-07-30): if that user's
+ * CASE row was deleted while the auth user survived (cleanup sweeps delete
+ * cases; `create-test-user.mjs` only garbage-collects the previous *user*),
+ * login still succeeds, `/case` then throws "Kein Fall gefunden" from
+ * getCase(), the app renders its global error boundary, and the failure
+ * surfaces as a 10-minute timeout on `waiting for locator('#care_home_id')` —
+ * which reads like a selector bug and is not one. Check the server log for
+ * "Kein Fall gefunden" and re-run the setup script.
  */
 
 import { test, expect, type Page } from '@playwright/test'

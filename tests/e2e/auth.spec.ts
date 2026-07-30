@@ -64,6 +64,34 @@ async function fillSignupForm(
 
 // serial: tests 2–8 depend on the user created in test 1.
 test.describe.serial('Auth flow', () => {
+  /**
+   * KNOWN SKIP against the production Supabase project — annotated, never silent.
+   *
+   * REASON: email confirmation is ENABLED on prod. A UI signup therefore
+   * succeeds but renders the "check your inbox" notice (signup/form.tsx
+   * `showSuccess`) instead of redirecting, so test 1's
+   * `waitForURL('/case')` times out. Every later test in this serial block
+   * depends on the user test 1 was supposed to create, so the whole group is
+   * unrunnable here. The first test's own inline comment already predicted
+   * this ("Email confirmation must be off; otherwise …").
+   *
+   * NOT the reason (corrected 2026-07-30): earlier notes claimed prod rejects
+   * the `@hzp-test.invalid` TLD. Verified false — POST /auth/v1/signup with
+   * such an address returns HTTP 200 and creates an unconfirmed user. The
+   * blocker is confirmation, not the address.
+   *
+   * FOLLOW-UP: run this suite against a local/non-prod Supabase with
+   * "Confirm email" disabled, then set E2E_ALLOW_SIGNUP=1 to enable it —
+   * the switch below is the ticket. Until then these paths are covered
+   * manually plus by `npm run smoke:signup` (which asserts the signup
+   * endpoint + SMTP acceptance without needing a redirect).
+   */
+  test.skip(
+    !process.env.E2E_ALLOW_SIGNUP,
+    'KNOWN SKIP: prod has email confirmation enabled, so UI signup never redirects to /case. ' +
+      'Set E2E_ALLOW_SIGNUP=1 when running against a Supabase with confirmation disabled.'
+  )
+
   // ── 1. Signup ────────────────────────────────────────────
 
   test('signup → redirects to /case, shows case id', async ({ page }) => {
