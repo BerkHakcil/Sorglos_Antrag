@@ -6,14 +6,14 @@
 
 ## Phase status
 
-| Phase                           | Status                                                               | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A — read-only triage            | ✅ DONE 2026-07-30                                                   | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                                                                                                                                                                                      |
-| B — quick fixes (items 3/7/8/1) | ✅ DONE 2026-07-30                                                   | migrations `20260730000001` + `20260730000002` pushed by founder and verified: live drive 11/11 (umlauted checklist names + no leftovers; B1 empty-Weiter completes birth_name, survives reload, `''` row in DB; rentenbetrag renders with NO Brutto text at step 27); verify-baseline full replay all 12 tables identical; documents-m6 e2e regression PASS; unit 138/138. B4 no-op                                                                                                         |
-| C — spouse Vollmacht (PAN-011)  | ✅ DONE 2026-07-30                                                   | migration `20260730000003` pushed and verified. Data level: 105 rows, exactly PAN-011 inactive, Pankow active 49 / Essen 55, no upload references it. Live: married Pankow checklist 13 slots with partner section but NO Vollmacht (exactly 1 overall, person_1); Essen 7 slots with its own rules — both non-empty, proving the active-filter queries work against the new column in prod. unit 143/143, documents-m6 PASS, verify-baseline all 12 tables identical (incl. the new column) |
-| D — storage restructure         | ✅ DONE 2026-07-30                                                   | migration `20260730000004` (commit A `96ab5d8`) pushed + verified, then code (commit B `d1c9f92`) — rule #8 order honoured. New uploads land at `{case}/{Folder}/{Base}{n}.{ext}`; the 14 existing files are grandfathered and still download. Live verified 15/15 incl. Spouse override, hostile bank name, legacy-file download, export naming and counter cascade. unit 193/193, documents-m6 PASS, verify-baseline identical with `storage_category` in the guard                        |
-| E — UI restyle                  | plan ✅ approved · **E-0 done on branch, ⏸ STOP for preview review** | branch `feedback-pass3-ui`, commit `52cee76`. E-0 = 6 data-testids + 9 repointed selectors, **zero visual change** (diff touches no className). Preview built READY but is **SSO-protected**, so the suite ran against the identical build served locally: **11 passed, 3 failed — all three proven PRE-EXISTING**, none caused by E-0                                                                                                                                                       |
-| F — close-out                   | not started                                                          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Phase                           | Status                                                            | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A — read-only triage            | ✅ DONE 2026-07-30                                                | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                                                                                                                                                                                      |
+| B — quick fixes (items 3/7/8/1) | ✅ DONE 2026-07-30                                                | migrations `20260730000001` + `20260730000002` pushed by founder and verified: live drive 11/11 (umlauted checklist names + no leftovers; B1 empty-Weiter completes birth_name, survives reload, `''` row in DB; rentenbetrag renders with NO Brutto text at step 27); verify-baseline full replay all 12 tables identical; documents-m6 e2e regression PASS; unit 138/138. B4 no-op                                                                                                         |
+| C — spouse Vollmacht (PAN-011)  | ✅ DONE 2026-07-30                                                | migration `20260730000003` pushed and verified. Data level: 105 rows, exactly PAN-011 inactive, Pankow active 49 / Essen 55, no upload references it. Live: married Pankow checklist 13 slots with partner section but NO Vollmacht (exactly 1 overall, person_1); Essen 7 slots with its own rules — both non-empty, proving the active-filter queries work against the new column in prod. unit 143/143, documents-m6 PASS, verify-baseline all 12 tables identical (incl. the new column) |
+| D — storage restructure         | ✅ DONE 2026-07-30                                                | migration `20260730000004` (commit A `96ab5d8`) pushed + verified, then code (commit B `d1c9f92`) — rule #8 order honoured. New uploads land at `{case}/{Folder}/{Base}{n}.{ext}`; the 14 existing files are grandfathered and still download. Live verified 15/15 incl. Spouse override, hostile bank name, legacy-file download, export naming and counter cascade. unit 193/193, documents-m6 PASS, verify-baseline identical with `storage_category` in the guard                        |
+| E — UI restyle                  | E-0 ✅ merged to main · **E-1 done on branch, ⏸ STOP for review** | branch `feedback-pass3-ui`, commit `52cee76`. E-0 = 6 data-testids + 9 repointed selectors, **zero visual change** (diff touches no className). Preview built READY but is **SSO-protected**, so the suite ran against the identical build served locally: **11 passed, 3 failed — all three proven PRE-EXISTING**, none caused by E-0                                                                                                                                                       |
+| F — close-out                   | not started                                                       |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ## Key Phase-A facts (so later phases need not re-derive)
 
@@ -514,6 +514,61 @@ existed to produce one. Defect closed as _verified-no-exposure_.
   email pattern** — the pattern is a heuristic, not proof, and a real user
   who happened to match would be unrecoverable. Excludes the current
   `completion.spec` fixture, which is in active use.
+
+## E-1 (tokens) — implemented on the branch, ⏸ STOP for founder review
+
+Commits `d63aaa8` (tokens) + `814b4be` (gallery). **Not merged.**
+
+- **`app/globals.css`:** ten brand `--color-*` entries in `@theme inline`
+  (mandatory — Tailwind v4 generates utilities from `@theme`, so without them
+  `bg-petrol` etc. silently no-op); `:root` switched to the mockup palette;
+  radius scale switched from multipliers to the mockup's px offsets with
+  `--radius` 0.625rem → **0.875rem**; `--shadow-card` / `--shadow-card-lg`;
+  base-layer antialiasing, `kern`, −0.01em heading tracking. `.dark` left
+  untouched.
+- **`app/layout.tsx`:** Lato via `next/font/google`, **self-hosted** — never
+  the mockup's Google-Fonts `<link>` (no caregiver IP goes to Google).
+- ⚠ **Correction to the approved plan:** it specified Lato weights
+  400/500/600/700. **Lato ships 100/300/400/700/900 — no 500 or 600**, and
+  requesting them fails the build. Loading **400 + 700**; `font-medium` and
+  `font-semibold` resolve via CSS font matching, exactly as in the mockup
+  (whose link requests only 300;400;700).
+- ⚠ **Latent bug found and fixed in passing:** production has been rendering
+  in **Times New Roman**. `app/globals.css` mapped `--font-sans:
+var(--font-sans)` (self-referential) while `layout.tsx` defined
+  `--font-geist-sans`, so `--font-sans` was never defined, the
+  `font-family` declaration was invalid, and the loaded webfont was never
+  applied. Measured: prod `body` computed font = `"Times New Roman"`; E-1
+  build = `Lato, "Lato Fallback", …`. This is the largest visible change in
+  the before/after pair, alongside the palette.
+- ⚠ **E-2 input, found while building the comparison:** our form controls
+  bind to **`border-border`, not `border-input`**, so `--input` is
+  effectively unused and **`--border` is the token E-2 must decide** — and
+  it also colours decorative dividers, so E-2 must choose one value for both
+  or split the token. Candidates rendered on two real screens in
+  `ui-gallery/E-1-border-candidates/`.
+- **Gallery:** `ui-gallery/E-1-tokens-BEFORE|AFTER/` — 12 shots each
+  (login, signup, both pre-steps, questionnaire fresh + with history,
+  documents) at 1280×800 and 375×812, plus the German `README.md` for
+  Roman. Captured by the new `scripts/ui-gallery.mjs` /
+  `scripts/ui-border-candidates.mjs` on throwaway accounts with synthetic
+  data only (public repo).
+- **Suite: 13 passed · 13 skipped · 0 failed** against the E-1 build.
+- ⚠ **Outstanding:** the preview run. `VERCEL_AUTOMATION_BYPASS_SECRET` was
+  not yet in `.env.local`, so the preview (SSO-protected, 302) could not be
+  driven; `playwright.config.ts` and both gallery scripts already send the
+  bypass + `set-bypass-cookie` headers when it is present, so this is a
+  single re-run once the secret lands.
+
+### Process slip worth recording
+
+A `git add -A` on **main** swept E-1's gallery assets (AFTER shots, border
+candidates, README, capture script) into the main-branch test-maintenance
+commit `388e368`. On main those would advertise a design that has not
+shipped, while their matching BEFORE shots sat on the branch. Reverted in
+`c934a4e` and re-committed on the branch. **Lesson: on a gated branch
+workflow, stage paths explicitly (`git add <paths>`) rather than `-A`,
+because the two branches now carry deliberately different content.**
 
 ## E-0 final tally (branch, after merging main)
 
