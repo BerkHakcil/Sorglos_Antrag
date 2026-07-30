@@ -118,7 +118,7 @@ async function answerCurrentQuestion(
     return 'group_prompt'
   }
 
-  const footer = page.locator('.shrink-0.border-t').last()
+  const footer = page.locator('[data-testid=answer-footer]').last()
 
   // ── 3. yes_no ─────────────────────────────────────────────────────────────
   const neinRadio = footer.locator('input[type=radio][value="Nein"]')
@@ -241,10 +241,10 @@ test('complete all Berlin questionnaire questions → DB flips to under_review +
     // ── C5: Check category heading after group prompt dismissal ───────────
     if (result === 'group_prompt' && !criterion5Captured) {
       await page.waitForTimeout(500)
-      const footerHeadingEl = page.locator('.shrink-0.border-t h3').first()
+      const footerHeadingEl = page.locator('[data-testid=answer-footer] h3').first()
       const footerHeading = await footerHeadingEl.textContent({ timeout: 1_000 }).catch(() => '')
       if (footerHeading) {
-        const historyArea = page.locator('.overflow-y-auto')
+        const historyArea = page.locator('[data-testid=chat-history]')
         const historyHeadings = await historyArea
           .locator('h3')
           .allTextContents()

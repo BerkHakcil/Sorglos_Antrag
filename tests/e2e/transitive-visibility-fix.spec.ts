@@ -100,7 +100,7 @@ async function clickWeiter(page: Page) {
 }
 
 async function footerText(page: Page): Promise<string> {
-  const footer = page.locator('.shrink-0.border-t').last()
+  const footer = page.locator('[data-testid=answer-footer]').last()
   return (await footer.textContent({ timeout: 500 }).catch(() => '')) ?? ''
 }
 
@@ -134,7 +134,7 @@ async function driveQuestionnaire(page: Page, opts: { maritalChoice: string; rev
       .catch(() => false)
     if (done || locked) return
 
-    const footer = page.locator('.shrink-0.border-t').last()
+    const footer = page.locator('[data-testid=answer-footer]').last()
 
     const neinWeiter = page.getByRole('button', { name: 'Nein, weiter' })
     if (await neinWeiter.isVisible({ timeout: 300 }).catch(() => false)) {
@@ -360,7 +360,7 @@ test('T3 Haftpflicht toggle Ja→Nein deletes the dependent answers (BUG B)', as
     })
     await group.getByRole('button', { name: 'Bearbeiten' }).click()
     await page.waitForTimeout(300)
-    const footer = page.locator('.shrink-0.border-t').last()
+    const footer = page.locator('[data-testid=answer-footer]').last()
     await footer.locator('select').selectOption({ value: 'Nein' })
     await footer.getByRole('button', { name: 'Änderung speichern' }).click()
     await page.waitForTimeout(1_500)
