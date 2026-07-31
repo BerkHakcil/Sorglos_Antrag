@@ -12,9 +12,11 @@
  * change. Sharing the strings gets the single source of truth without
  * touching a single DOM node or attribute.
  *
- * (There is a `components/ui/button.tsx` from the shadcn scaffold. It is
- * imported by nothing and still carries the pre-E-1 palette. Left alone here
- * rather than half-adopted; its fate is a separate decision.)
+ * (The shadcn scaffold's `components/ui/button.tsx` was deleted rather than
+ * restyled: nothing imported it, so a fixed-up copy would have been an
+ * untested component that drifts off-brand again at the next token change.
+ * `components.json` is present, so `npx shadcn add button` regenerates one
+ * against the current tokens if a real need appears.)
  *
  * ── Colour rules encoded below, all measured, none assumed ──────────────
  *  • Copper is a FILL. White on copper = 4.69:1 (AA). Copper as TEXT on the
