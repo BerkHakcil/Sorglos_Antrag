@@ -9,6 +9,7 @@ import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input'
 import type { Value as PhoneValue } from 'react-phone-number-input'
 import deLabels from 'react-phone-number-input/locale/de.json'
 import 'react-phone-number-input/style.css'
+import { MailCheck } from 'lucide-react'
 import { ConsentInfoPopover } from '@/components/ui/consent-info-popover'
 import { cn } from '@/lib/utils'
 import { de } from '@/lib/strings/de'
@@ -92,11 +93,16 @@ export function SignupForm() {
 
   if (showSuccess) {
     return (
+      /* E-5: the "check your inbox" state is the one auth screen a user
+         actually sits and reads, so it gets the mockup's sage info panel
+         rather than a muted grey box — a positive, expected outcome, styled
+         as one. Copy untouched; role="status" kept so it is announced. */
       <div
         role="status"
-        className="border-border bg-muted/50 text-muted-foreground rounded-lg border p-4 text-sm"
+        className="border-sage-soft/70 bg-sage-soft/40 flex items-start gap-3 rounded-xl border p-4"
       >
-        {s.successMessage}
+        <MailCheck aria-hidden className="text-primary mt-0.5 size-5 shrink-0" />
+        <p className="text-foreground text-sm leading-relaxed">{s.successMessage}</p>
       </div>
     )
   }

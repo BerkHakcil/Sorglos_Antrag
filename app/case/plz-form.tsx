@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useTransition, useState } from 'react'
 import { de } from '@/lib/strings/de'
@@ -30,12 +30,12 @@ export function PlzForm() {
   }
 
   return (
-    <section className="space-y-4">
-      <h2 className="text-lg font-semibold">{s.heading}</h2>
-      <p className="text-muted-foreground text-sm">{s.description}</p>
+    <section className="space-y-5">
+      <h2 className="text-xl font-semibold">{s.heading}</h2>
+      <p className="text-graphite-soft text-sm leading-relaxed">{s.description}</p>
 
-      <form onSubmit={handleSubmit} noValidate className="space-y-3">
-        <div className="space-y-1">
+      <form onSubmit={handleSubmit} noValidate className="space-y-4">
+        <div className="space-y-2">
           <label htmlFor="plz_input" className={fieldLabel}>
             {s.label}
           </label>
