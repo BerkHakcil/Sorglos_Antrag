@@ -14,7 +14,14 @@ import { ConsentInfoPopover } from '@/components/ui/consent-info-popover'
 import { cn } from '@/lib/utils'
 import { de } from '@/lib/strings/de'
 import { signupAction, type SignupInput, type SignupResultField } from './actions'
-import { btnCopper, controlFull, controlTick, fieldLabel, linkPetrol } from '@/components/ui/styles'
+import {
+  btnCopper,
+  controlFull,
+  controlTick,
+  fieldLabel,
+  linkPetrol,
+  linkStandalone,
+} from '@/components/ui/styles'
 
 const s = de.signup
 
@@ -204,11 +211,18 @@ export function SignupForm() {
           )}
           numberInputProps={{
             'data-testid': 'phone-input',
-            className: 'flex-1 bg-transparent px-3 py-2 text-sm outline-none',
+            // min-h-11: the composite control's height comes from this child
+            // (E-7 touch-target floor). Focus indication for the number field
+            // is the wrapper's focus-within ring above.
+            className: 'min-h-11 flex-1 bg-transparent px-3 py-2 text-sm outline-none',
           }}
           countrySelectProps={{
+            // E-7: the country select gets its OWN inset ring on focus. The
+            // wrapper's focus-within ring lights up for either child, so
+            // without this a keyboard user cannot tell which of the two has
+            // focus — the audit flagged exactly that.
             className:
-              'border-border bg-background self-stretch cursor-pointer border-r px-2 text-sm outline-none',
+              'border-border bg-background focus-visible:ring-petrol self-stretch cursor-pointer border-r px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-inset',
           }}
         />
         {errors.phone && (
@@ -331,7 +345,7 @@ export function SignupForm() {
 
       <p className="text-muted-foreground text-center text-sm">
         {s.haveAccount}{' '}
-        <Link href="/login" className={linkPetrol}>
+        <Link href="/login" className={`${linkPetrol} ${linkStandalone}`}>
           {s.loginLink}
         </Link>
       </p>

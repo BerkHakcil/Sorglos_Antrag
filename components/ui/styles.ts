@@ -50,8 +50,10 @@ export const focusRing =
 /**
  * Native form controls: text/number/date/month inputs, selects, textareas.
  * `w-full` is intentionally NOT included — date/month inputs size to content.
+ * `min-h-11` (44px) since the E-7 audit: selects and inputs measured 36–40px
+ * tall at the mobile viewport, under the touch-target minimum.
  */
-export const control = `border-input bg-card rounded-lg border px-3 py-2 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`
+export const control = `border-input bg-card min-h-11 rounded-lg border px-3 py-2 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`
 
 /** The common case: a control that fills its row. */
 export const controlFull = `${control} w-full`
@@ -59,7 +61,10 @@ export const controlFull = `${control} w-full`
 /** Checkbox / radio: petrol tick via accent-color, matching focus treatment. */
 export const controlTick = `accent-petrol size-4 shrink-0 ${focusRing}`
 
-const buttonBase = `inline-flex shrink-0 items-center justify-center gap-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors disabled:pointer-events-none disabled:opacity-50 ${focusRing}`
+/* `min-h-11` since the E-7 audit: every button measured 32–40px tall at the
+   mobile viewport. 44px is the touch-target floor, applied at the base so no
+   per-site padding override can silently drop below it again. */
+const buttonBase = `inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors disabled:pointer-events-none disabled:opacity-50 ${focusRing}`
 
 /** Primary call to action — copper fill, white text. One per screen. */
 export const btnCopper = `${buttonBase} bg-copper px-5 py-2.5 text-white hover:bg-copper-hover`
@@ -73,8 +78,15 @@ export const btnOutline = `${buttonBase} border-border text-foreground bg-card b
 /** Lowest emphasis — no chrome until hover. */
 export const btnGhost = `${buttonBase} text-graphite-soft hover:bg-cream-deep hover:text-foreground px-3 py-2`
 
-/** Inline text link. Petrol, never copper. */
+/** Inline text link. Petrol, never copper.
+ *  Stays at text height on purpose: it is used INSIDE sentences (consent
+ *  labels), where WCAG 2.5.8's inline exception applies and a 44px box would
+ *  wreck line layout. A STANDALONE link (form footers, back links) must add
+ *  `linkStandalone` to get the touch-target floor. */
 export const linkPetrol = `text-primary underline-offset-4 hover:underline ${focusRing} rounded-sm`
+
+/** Add to linkPetrol when the link stands alone rather than inside a sentence. */
+export const linkStandalone = 'inline-flex min-h-11 items-center'
 
 /** The mockup's signature card: white, generous radius, petrol-tinted lift. */
 export const card = 'bg-card rounded-2xl shadow-card'

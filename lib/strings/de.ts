@@ -257,4 +257,21 @@ export const de = {
       },
     },
   },
+  // ── E-7 additions — ⚠ ALL PLACEHOLDER_DE, logged for Roman in
+  // docs/document-rules/german_copy_for_roman.md. Mechanical drafts so the
+  // states exist at all; every word is his to replace.
+  loading: {
+    // PLACEHOLDER_DE — sr-only text on the route-loading spinner
+    label: 'Wird geladen …',
+  },
+  notFound: {
+    // PLACEHOLDER_DE
+    pageTitle: 'Seite nicht gefunden – Hilfe zur Pflege',
+    // PLACEHOLDER_DE
+    heading: 'Seite nicht gefunden',
+    // PLACEHOLDER_DE
+    body: 'Diese Seite gibt es nicht oder sie wurde verschoben.',
+    // PLACEHOLDER_DE
+    backLink: 'Zu meinem Antrag',
+  },
 } as const

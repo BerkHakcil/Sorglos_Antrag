@@ -37,3 +37,20 @@ one-key static_content addition afterwards._
 
 _Names seed verbatim from your rules file. Flag anything to reword and it
 ships as a one-line UPDATE migration._
+
+## E-7 (2026-07-31): Lade-Anzeige und 404-Seite — PLACEHOLDER_DE
+
+Zwei Zustände, die es vorher gar nicht gab, brauchen je ein paar Worte.
+Die folgenden Entwürfe sind **mechanische Platzhalter** (in
+`lib/strings/de.ts`, markiert `PLACEHOLDER_DE`) — jedes Wort ist deins.
+
+**Lade-Anzeige** (nur für Screenreader hörbar, sonst ein Kreisel):
+
+> **PLACEHOLDER_DE:** „Wird geladen …"
+
+**404-Seite** (unbekannte Adresse aufgerufen):
+
+> **PLACEHOLDER_DE (Überschrift):** „Seite nicht gefunden"
+> **PLACEHOLDER_DE (Text):** „Diese Seite gibt es nicht oder sie wurde verschoben."
+> **PLACEHOLDER_DE (Link zurück):** „Zu meinem Antrag"
+> **PLACEHOLDER_DE (Browser-Tab):** „Seite nicht gefunden – Hilfe zur Pflege"

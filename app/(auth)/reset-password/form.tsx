@@ -4,7 +4,13 @@ import { useActionState } from 'react'
 import Link from 'next/link'
 import { de } from '@/lib/strings/de'
 import { resetPasswordAction, type ResetPasswordState } from './actions'
-import { btnCopper, controlFull, fieldLabel, linkPetrol } from '@/components/ui/styles'
+import {
+  btnCopper,
+  controlFull,
+  fieldLabel,
+  linkPetrol,
+  linkStandalone,
+} from '@/components/ui/styles'
 
 const rp = de.resetPassword
 
@@ -25,7 +31,7 @@ export function ResetPasswordForm() {
         >
           {state.success}
         </p>
-        <Link href="/login" className={`${linkPetrol} block text-center text-sm`}>
+        <Link href="/login" className={`${linkPetrol} ${linkStandalone} justify-center text-sm`}>
           {rp.backToLogin}
         </Link>
       </div>
@@ -59,7 +65,7 @@ export function ResetPasswordForm() {
       </button>
 
       <p className="text-muted-foreground text-center text-sm">
-        <Link href="/login" className={linkPetrol}>
+        <Link href="/login" className={`${linkPetrol} ${linkStandalone}`}>
           {rp.backToLogin}
         </Link>
       </p>

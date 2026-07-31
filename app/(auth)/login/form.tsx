@@ -3,7 +3,13 @@
 import { useActionState } from 'react'
 import Link from 'next/link'
 import { loginAction, type LoginState } from './actions'
-import { btnCopper, controlFull, fieldLabel, linkPetrol } from '@/components/ui/styles'
+import {
+  btnCopper,
+  controlFull,
+  fieldLabel,
+  linkPetrol,
+  linkStandalone,
+} from '@/components/ui/styles'
 
 export function LoginForm() {
   const [state, formAction, isPending] = useActionState<LoginState, FormData>(
@@ -52,10 +58,10 @@ export function LoginForm() {
       </button>
 
       <div className="flex justify-between text-sm">
-        <Link href="/signup" className={linkPetrol}>
+        <Link href="/signup" className={`${linkPetrol} ${linkStandalone}`}>
           Registrieren
         </Link>
-        <Link href="/reset-password" className={linkPetrol}>
+        <Link href="/reset-password" className={`${linkPetrol} ${linkStandalone}`}>
           Passwort vergessen?
         </Link>
       </div>
