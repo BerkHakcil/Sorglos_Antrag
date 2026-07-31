@@ -164,6 +164,21 @@ Auswahl-Knöpfe statt der Ja/Nein-Felder und der Vermerk „Später
 beantworten". Das sind Änderungen an der **Bedienung**, nicht nur am
 Aussehen — die brauchen eine eigene Runde mit eigener Freigabe.
 
+### ⚠ Zur Kenntnis: die gelben Kästen sind weg
+
+Die beiden gelben Hinweiskästen (der Hinweis zur pflegebedürftigen Person
+und der Vermerk bei einer erneut gestellten Frage) sind jetzt salbeigrün.
+Grund: Gelb ist in der Oberfläche die Farbe für **Warnungen**. Diese beiden
+Texte sind aber keine Warnung, sondern Orientierung — Gelb hat sie
+dringlicher aussehen lassen, als sie sind.
+
+Ab jetzt gilt bei uns: **Gelb und Rot nur für echte Warnungen und Fehler.**
+Ein Zustand, den jemand einfach noch nicht erreicht hat — etwa ein noch
+nicht hochgeladenes Dokument — ist neutral-grau, nicht gelb.
+
+Der Text selbst ist unverändert. Sag Bescheid, falls du die gelbe Variante
+lieber behalten möchtest.
+
 **Barrierefreiheit — gemessen, nicht geschätzt:** weiße Schrift auf Petrol
 7,72:1, dunkle Schrift auf Weiß 13,46:1, Hinweistext auf Salbei 5,09:1,
 Abschnitts-Pille 5,72:1. Alle Werte liegen über der Norm (4,5:1).

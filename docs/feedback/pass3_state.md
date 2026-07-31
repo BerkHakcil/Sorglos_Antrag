@@ -603,11 +603,27 @@ The binding rule for the rest of Phase E. Mirrored in
 | Gallery                            | **required**, per the plan: before/after per touched component, real screens, both viewports | required              |
 | Unit (Vitest)                      | required                                                                                     | required              |
 
-### Tripwire (mandatory, not discretionary)
+### Tripwire (mandatory, not discretionary) — AMENDED 2026-07-31 after E-3
+
+⚠ **The signature limb is not sufficient on its own.** E-3 proved it: a
+locator broken by the restyle (`div.space-y-1` → `flex flex-col gap-2`)
+produced a 420 s timeout against a page that rendered perfectly and was
+logged in — **indistinguishable** from the infra signature by that test
+alone. Invoking the fallback on signature would have routed around a real
+regression in the sub-phase's own code.
+
+**Amended rule.** Before invoking the fallback for a signature match:
+
+1. **Read the failing locator.** Open the error context and identify what
+   the test was waiting for.
+2. The fallback is permitted **only if that locator is provably OUTSIDE
+   the DOM this sub-phase touched.** If it targets markup the sub-phase
+   changed — or targets it by layout class rather than testid — it is a
+   regression to fix, not infra to route around.
+3. The 15-minute limb is unchanged and still fires on its own.
 
 If a preview suite run **exceeds 15 min**, _or_ fails with the **infra
-signature** — timeouts while the failure snapshots show correctly
-rendered, logged-in pages — then:
+signature** _and_ clears the locator check above, then:
 
 1. **Kill the run.** Do not let it burn to completion.
 2. Fall back to **full suite against the local identical build + the

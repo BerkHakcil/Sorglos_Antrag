@@ -28,6 +28,19 @@
  *    `ring-petrol/20` — at 20% alpha the ring is ~1.2:1 against a white card
  *    and effectively invisible, which is a 2.4.7 failure. The offset is what
  *    keeps the ring legible on a control whose own border is already dark.
+ *
+ * ── SEMANTIC COLOUR RULE (founder decision, 2026-07-31) ─────────────────
+ * **Amber and red are reserved for genuine warnings and errors.** Neither
+ * may be used for an ordinary, expected, non-problematic state.
+ *
+ * A state the user simply has not reached yet is NOT a warning. Concretely:
+ * a document that has not been uploaded ("Fehlt") is neutral/muted, never
+ * amber or red; a re-asked question is guidance, so it is the sage hint
+ * bubble. Positive tones (petrol, sage) are available for confirmed and
+ * completed states. `--destructive` stays for real errors only.
+ *
+ * Precedent: E-3 moved the re-ask note and the patient banner off an amber
+ * alert palette they never warranted.
  */
 
 /** Focus treatment shared by every interactive element. */
