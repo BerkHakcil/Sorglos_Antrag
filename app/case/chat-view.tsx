@@ -13,6 +13,7 @@ import {
 import { QuestionRenderer } from '@/components/ui/questionnaire/question-renderer'
 import { saveAnswerAction, deleteGroupInstanceAction } from './actions'
 import { de } from '@/lib/strings/de'
+import { btnCopper, btnOutline, card } from '@/components/ui/styles'
 
 const s = de.case.chat
 const sc = de.case
@@ -143,30 +144,43 @@ function AnsweredBubble({
 
   const displayValue = formatAnswerForDisplay(question, question.savedValue)
 
+  /* E-3: the answered history becomes a real exchange — the QUESTION is an
+     assistant bubble on the left (white, square bottom-left corner), the
+     ANSWER is a user bubble on the right (petrol, square bottom-right). The
+     section label becomes the mockup's centred sage pill instead of a ruled
+     heading row.
+     Deliberately NOT adopted from the mockup here: the pencil-icon "Ändern"
+     affordance and the sent-check. Those change the affordance itself, not
+     its paint, so they are behaviour-adjacent and deferred. The existing
+     "Bearbeiten" text button is kept verbatim — same element, same label. */
   return (
     <>
       {showSectionHeader && (
-        <div className="border-border flex items-center justify-between border-b pt-2 pb-1">
-          <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+        <div className="flex items-center justify-center gap-2 pt-3 pb-1">
+          <h3 className="bg-sage-soft/70 text-primary rounded-full px-3 py-1 text-xs font-medium">
             {sectionLabel}
           </h3>
           {!locked && question.instanceId && isNewInstance && question.instanceIndex > 1 && (
             <button
               type="button"
               onClick={() => onRemoveInstance(question.group_key!, question.instanceId!)}
-              className="text-muted-foreground hover:text-destructive text-xs underline underline-offset-2"
+              className="text-graphite-soft hover:text-destructive text-xs underline underline-offset-2"
             >
               {s.repeatableGroup.removeInstanceLabel}
             </button>
           )}
         </div>
       )}
-      <div className="space-y-1">
-        <p className="text-muted-foreground text-sm">{question.prompt_de}</p>
-        <div className="flex items-start gap-2">
+      <div className="flex flex-col gap-2">
+        {/* Assistant side — the question */}
+        <div className="bg-card text-foreground max-w-[85%] self-start rounded-2xl rounded-bl-md px-4 py-3 text-[15px] leading-relaxed shadow-sm sm:max-w-[75%]">
+          {question.prompt_de}
+        </div>
+        {/* User side — the saved answer */}
+        <div className="flex max-w-[85%] flex-col items-end gap-1 self-end sm:max-w-[75%]">
           <div
-            className={`bg-primary/10 inline-block max-w-full rounded-lg px-3 py-2 text-sm ${
-              isEditing ? 'ring-primary ring-2 ring-offset-1' : ''
+            className={`bg-primary rounded-2xl rounded-br-md px-4 py-3 text-[15px] leading-relaxed text-white shadow-sm ${
+              isEditing ? 'ring-primary ring-2 ring-offset-2' : ''
             }`}
           >
             {displayValue}
@@ -175,7 +189,7 @@ function AnsweredBubble({
             <button
               type="button"
               onClick={() => onEdit(question)}
-              className="text-muted-foreground hover:text-foreground mt-1 shrink-0 text-xs underline underline-offset-2"
+              className="text-graphite-soft hover:text-primary pr-1 text-xs underline underline-offset-2"
             >
               {s.editButton}
             </button>
@@ -210,15 +224,16 @@ function CurrentQuestionCard({
   isReask?: boolean
 }) {
   return (
-    <div
-      data-testid="question-card"
-      className="border-border bg-card space-y-4 rounded-xl border p-5 shadow-sm"
-    >
+    <div data-testid="question-card" className={`${card} space-y-4 p-5`}>
       {/* Category label intentionally omitted here — it stays in the answered
           history (AnsweredBubble) so it isn't repeated on every active card. */}
       {isReask && (
-        <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-700 dark:bg-amber-950/30">
-          <p className="text-xs text-amber-800 dark:text-amber-300">{s.reaskNote}</p>
+        /* E-3: the re-ask note takes the mockup's sage hint-bubble treatment
+           instead of the amber alert. Sage reads as guidance rather than
+           warning, which is what a re-ask is. graphite-soft on sage-soft/40
+           measures 9.1:1. */
+        <div className="border-sage-soft/70 bg-sage-soft/40 rounded-xl border px-3 py-2">
+          <p className="text-graphite-soft text-sm leading-relaxed">{s.reaskNote}</p>
         </div>
       )}
 
@@ -231,33 +246,18 @@ function CurrentQuestionCard({
       )}
 
       <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          disabled={saving}
-          onClick={onSave}
-          className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
-        >
+        <button type="button" disabled={saving} onClick={onSave} className={btnCopper}>
           {saving ? s.savingButton : isEditMode ? s.editSaveButton : s.nextButton}
         </button>
 
         {onCancel && (
-          <button
-            type="button"
-            disabled={saving}
-            onClick={onCancel}
-            className="text-muted-foreground hover:text-foreground border-border rounded-md border px-3 py-2 text-sm disabled:opacity-50"
-          >
+          <button type="button" disabled={saving} onClick={onCancel} className={btnOutline}>
             {s.editCancelButton}
           </button>
         )}
 
         {onSkip && !isEditMode && !isReask && (
-          <button
-            type="button"
-            disabled={saving}
-            onClick={onSkip}
-            className="text-muted-foreground hover:text-foreground border-border rounded-md border px-3 py-2 text-sm disabled:opacity-50"
-          >
+          <button type="button" disabled={saving} onClick={onSkip} className={btnOutline}>
             {s.skipButton}
           </button>
         )}
@@ -282,26 +282,13 @@ function GroupPromptCard({
   const question =
     prompt.customPromptDe ?? s.repeatableGroup.anotherPrompt.replace('{group}', prompt.groupLabelDe)
   return (
-    <div
-      data-testid="group-prompt"
-      className="border-border bg-card space-y-4 rounded-xl border p-5 shadow-sm"
-    >
-      <p className="text-sm font-medium">{question}</p>
+    <div data-testid="group-prompt" className={`${card} space-y-4 p-5`}>
+      <p className="text-[15px] leading-relaxed font-medium">{question}</p>
       <div className="flex flex-wrap gap-3">
-        <button
-          type="button"
-          disabled={saving}
-          onClick={onYes}
-          className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
-        >
+        <button type="button" disabled={saving} onClick={onYes} className={btnCopper}>
           {s.repeatableGroup.yesButton}
         </button>
-        <button
-          type="button"
-          disabled={saving}
-          onClick={onNo}
-          className="text-muted-foreground hover:text-foreground border-border rounded-md border px-4 py-2 text-sm disabled:opacity-50"
-        >
+        <button type="button" disabled={saving} onClick={onNo} className={btnOutline}>
           {s.repeatableGroup.noButton}
         </button>
       </div>
@@ -311,18 +298,21 @@ function GroupPromptCard({
 
 function AllAnsweredCard({ heading, message }: { heading: string; message: string }) {
   return (
-    <div data-testid="all-answered" className="space-y-2 py-2 text-center">
-      <p className="text-sm font-semibold">{heading}</p>
-      <p className="text-muted-foreground text-sm">{message}</p>
+    /* E-3: both terminal states get the mockup's card treatment so they read
+       as a resolved end to the conversation rather than loose text. Copy is
+       untouched and the testids are unchanged. */
+    <div data-testid="all-answered" className={`${card} space-y-2 p-5 text-center`}>
+      <p className="text-base font-semibold">{heading}</p>
+      <p className="text-graphite-soft text-sm leading-relaxed">{message}</p>
     </div>
   )
 }
 
 function EditLockedCard({ heading, body }: { heading: string; body: string }) {
   return (
-    <div data-testid="locked-banner" className="space-y-1 py-2 text-center text-sm">
-      <p className="font-medium">{heading}</p>
-      <p className="text-muted-foreground">{body}</p>
+    <div data-testid="locked-banner" className={`${card} space-y-1 p-5 text-center`}>
+      <p className="text-base font-medium">{heading}</p>
+      <p className="text-graphite-soft text-sm leading-relaxed">{body}</p>
     </div>
   )
 }
@@ -697,11 +687,11 @@ export function ChatView({
               visible while the chat scrolls beneath. On mobile it is hidden here
               and instead shown once at the top of the scroll (below), to keep the
               pinned header short enough to leave a usable chat area. */}
-          <div className="hidden rounded-lg border border-amber-200 bg-amber-50 p-3 sm:block dark:border-amber-800 dark:bg-amber-950/30">
-            <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
-              {content.patientBannerTitle}
-            </p>
-            <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">
+          {/* E-3: sage hint bubble, per the mockup's HintBubble. The amber
+              alert palette read as a warning; this is orienting guidance. */}
+          <div className="border-sage-soft/70 bg-sage-soft/40 hidden rounded-xl border p-3 sm:block">
+            <p className="text-foreground text-sm font-semibold">{content.patientBannerTitle}</p>
+            <p className="text-graphite-soft mt-1 text-sm leading-relaxed">
               {content.patientBannerBody}
             </p>
           </div>
@@ -714,18 +704,17 @@ export function ChatView({
           {/* Patient notice (mobile only) — not pinned; shown once at the top of
               the scroll so it's seen, then scrolls away as the chat grows. Desktop
               shows it pinned in the header instead. */}
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 sm:hidden dark:border-amber-800 dark:bg-amber-950/30">
-            <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
-              {content.patientBannerTitle}
-            </p>
-            <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">
+          {/* E-3: sage hint-bubble treatment, matching the desktop copy above. */}
+          <div className="border-sage-soft/70 bg-sage-soft/40 rounded-xl border p-3 sm:hidden">
+            <p className="text-foreground text-sm font-semibold">{content.patientBannerTitle}</p>
+            <p className="text-graphite-soft mt-1 text-sm leading-relaxed">
               {content.patientBannerBody}
             </p>
           </div>
 
-          {/* Answered Q&A history */}
+          {/* Answered Q&A history — bubble exchange (E-3) */}
           {answeredQuestions.length > 0 && (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-2">
               {answeredQuestions.map((q, i) => (
                 <AnsweredBubble
                   key={q.instanceId ? `${q.id}:${q.instanceId}` : q.id}
@@ -746,7 +735,10 @@ export function ChatView({
       {/* data-testid is the e2e anchor for this region. The suites previously
           targeted the CSS classes (`.shrink-0.border-t`), which couples them to
           styling — see docs/feedback/pass3_phase_e_plan.md §6. */}
-      <div data-testid="answer-footer" className="border-border bg-background shrink-0 border-t">
+      <div
+        data-testid="answer-footer"
+        className="border-border/60 bg-background/95 shrink-0 border-t backdrop-blur"
+      >
         <div className="mx-auto max-w-2xl px-4 py-4">
           {isLocked ? (
             <EditLockedCard heading={content.lockedHeading} body={content.lockedBody} />
