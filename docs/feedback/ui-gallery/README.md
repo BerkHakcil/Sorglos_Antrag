@@ -122,3 +122,48 @@ Wechsel ist eine Zeile.
 _(Der ältere Ordner `E-1-border-candidates/` zeigt noch die Variante, bei der
 Trennlinien und Felder dieselbe Farbe hatten. `E-2-border-candidates/` ersetzt
 ihn.)_
+
+---
+
+## E-3 — Der Fragen-Bildschirm wird ein echter Chat
+
+**Was sich ändert:** nur die Darstellung. **Kein Text ändert sich**, keine
+Frage, keine Reihenfolge, keine Funktion.
+
+| Ordner             | Inhalt                                   |
+| ------------------ | ---------------------------------------- |
+| `E-3-chat-BEFORE/` | Stand nach E-2 (aktuell live)            |
+| `E-3-chat-AFTER/`  | mit dem Chat-Design                      |
+| `E-3-chat-states/` | die vier Zustände des Fragen-Bildschirms |
+
+**Das Wichtigste:**
+
+1. **Aus der Liste wird ein Gespräch.** Die Frage steht links in einer weißen
+   Sprechblase, Ihre Antwort rechts in einer petrolfarbenen — wie in einem
+   Messenger, genau wie in deinem Entwurf.
+2. **Abschnittsüberschriften** sind jetzt kleine salbeigrüne Pillen in der
+   Mitte statt einer Trennlinie mit Großbuchstaben.
+3. **Die gelben Hinweiskästen sind weg.** Gelb liest sich wie eine Warnung;
+   der Hinweis zur pflegebedürftigen Person ist aber keine Warnung, sondern
+   eine Orientierung. Er ist jetzt salbeigrün, wie dein „Hinweis"-Kasten.
+4. **Der Haupt-Knopf „Weiter"** ist kupferfarben, die Nebenknöpfe sind
+   schlicht umrandet.
+
+**Die vier Zustände in `E-3-chat-states/`:**
+
+| Bild                   | Zustand                                                     |
+| ---------------------- | ----------------------------------------------------------- |
+| `01-chat-fresh`        | ganz am Anfang, noch keine Antwort                          |
+| `02-chat-history`      | ein paar Fragen beantwortet — hier sieht man den Chat       |
+| `03-chat-locked`       | Antrag abgeschickt, Angaben werden geprüft (nicht änderbar) |
+| `04-chat-all-answered` | alle Fragen beantwortet, kurz bevor gesperrt wird           |
+
+**Nicht übernommen (bewusst, kommt eventuell später):** die Stift-Symbole
+statt „Bearbeiten", das Häkchen an gesendeten Antworten, runde
+Auswahl-Knöpfe statt der Ja/Nein-Felder und der Vermerk „Später
+beantworten". Das sind Änderungen an der **Bedienung**, nicht nur am
+Aussehen — die brauchen eine eigene Runde mit eigener Freigabe.
+
+**Barrierefreiheit — gemessen, nicht geschätzt:** weiße Schrift auf Petrol
+7,72:1, dunkle Schrift auf Weiß 13,46:1, Hinweistext auf Salbei 5,09:1,
+Abschnitts-Pille 5,72:1. Alle Werte liegen über der Norm (4,5:1).

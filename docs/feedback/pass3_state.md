@@ -639,6 +639,97 @@ under this one: full suite **13 passed / 13 skipped / 0 failed against the
 real preview in 3.1 min**, plus the gallery re-shot from the preview with
 `body` computing to `Lato…` on `rgb(247,244,237)`.
 
+## E-3 (Fragen screen / chat UI) — on the branch, ⏸ STOP for founder review
+
+Commits `b72c856` (restyle) + `dbacc14` (selector fix) + gallery. **Not
+merged.** Preview:
+`sorglos-antrag-k6y5h62xr-berk-solutions.vercel.app`.
+
+**Gate:** full suite against the real preview — **13 passed / 13 skipped /
+0 failed, 4.1 min**. Unit 195/195. Typecheck, lint, prettier, build clean.
+
+The answered history is now a conversation: question = assistant bubble
+left (white, squared bottom-left), answer = user bubble right (petrol,
+squared bottom-right). Section labels became the centred sage pill. The
+active-question / group-prompt / all-answered / locked cards moved onto
+the shared `card` token, the answer footer onto the translucent
+page-background treatment, and the re-ask note + patient banner off the
+**amber alert palette** onto the sage hint bubble — amber reads as a
+warning and neither of those is one.
+
+### Contrast — computed by the browser from the DEPLOYED tokens
+
+Not hand arithmetic: the values below were produced in-page by reading
+`:root`, alpha-compositing the translucent backdrops, and applying the
+WCAG relative-luminance formula.
+
+| Pair                                      | Ratio       |
+| ----------------------------------------- | ----------- |
+| white on petrol — user bubble             | **7.72:1**  |
+| graphite on white — assistant bubble      | **13.46:1** |
+| graphite-soft on sage-soft/40 — hint body | **5.09:1**  |
+| graphite on sage-soft/40 — hint title     | **10.95:1** |
+| petrol on sage-soft/70 — section pill     | **5.72:1**  |
+| graphite-soft on cream — "Bearbeiten"     | **5.70:1**  |
+
+Blends resolved: `sage-soft/40` over cream = `rgb(229,233,225)`;
+`sage-soft/70` over cream = `rgb(216,224,215)`. All pass AA; the two
+bubble pairs pass AAA. (`b72c856`'s message states 7.73 / 13.47 for the
+first two — hand-computed before this check, off by 0.01. No conclusion
+changes; these are the authoritative figures.)
+
+### ⚠ The failure that matters more than the restyle
+
+The first preview run failed T3 in `transitive-visibility-fix` on a 420 s
+timeout. **It was my change, not infra.** The spec located an answered
+Q&A pair as `page.locator('div.space-y-1', …)`; E-3 changed that wrapper
+to `flex flex-col gap-2`, so the locator matched nothing and the click sat
+there until the test died — against a page that rendered perfectly.
+
+**This is a hole in the tripwire's second limb.** The recorded infra
+signature is "timeouts while snapshots show rendered pages", and that is
+_precisely_ how a broken structural selector presents. The 15-minute limb
+is still sound; the signature limb **cannot** be read as "not our code".
+Every occurrence needs the failing locator inspected before the fallback
+is invoked. Recorded here so a future run does not route around a real
+regression.
+
+Fixed with E-0's own remedy at a site E-0's census missed (it caught
+`.shrink-0.border-t`, 9 uses): the wrapper now carries
+`data-testid="answered-bubble"` and the spec anchors on it. **Swept the
+whole suite for class-based locators afterwards — that was the only one,
+and there are now zero.**
+
+### Scope guards held
+
+- `question-renderer.tsx` **was not edited at all**, so every native
+  control keeps its element and attributes and the ~25 selectors targeting
+  them are untouched.
+- All E-0 testids survive verbatim: `answer-footer`, `question-card`,
+  `chat-history`, `group-prompt`, `all-answered` (+ `case-header`,
+  `locked-banner`). One **added**: `answered-bubble`.
+- Behaviour-adjacent patterns stayed out: no chips replacing radios, no
+  "Antwort geändert" flash, no "Später beantworten" marker, no change to
+  the Bearbeiten affordance. The mockup's pencil icon and sent-check were
+  available and deliberately not taken.
+- **Zero text changes**, verified by diff: every German-bearing line is a
+  className wrapper around the same `{s.*}` / `{content.*}` expression;
+  the only German characters added anywhere are inside code comments.
+
+### Gallery note — how `all-answered` was reached
+
+`E-3-chat-states/` covers fresh, history, locked, all-answered at both
+viewports, via the new `scripts/ui-gallery-chat.mjs`.
+
+`all-answered` must be shot **in-session**, at the moment the drive
+completes. It is **not** reachable by reloading a completed case, and the
+first attempt to do so failed: replies to repeatable-group prompts
+("Nein, weiter") are session state rather than answers, so a fresh load
+re-asks them and the group-prompt card takes the footer. Rewinding
+`cases.status` was tried for the same purpose and fails for that reason.
+The script now captures it live and, if the server's lock re-render wins
+the race, says so instead of producing a substitute.
+
 ## E-2 (shared primitives) — ✅ MERGED to main 2026-07-31 (`6d19dbe`)
 
 Commits `fcfaea7` (code) + `1b3491b` (gallery) + `0300dfd` (comment fix);
