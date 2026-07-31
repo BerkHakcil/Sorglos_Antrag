@@ -6,14 +6,14 @@
 
 ## Phase status
 
-| Phase                           | Status                                                                             | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ------------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A — read-only triage            | ✅ DONE 2026-07-30                                                                 | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                                                                                                                                                                                      |
-| B — quick fixes (items 3/7/8/1) | ✅ DONE 2026-07-30                                                                 | migrations `20260730000001` + `20260730000002` pushed by founder and verified: live drive 11/11 (umlauted checklist names + no leftovers; B1 empty-Weiter completes birth_name, survives reload, `''` row in DB; rentenbetrag renders with NO Brutto text at step 27); verify-baseline full replay all 12 tables identical; documents-m6 e2e regression PASS; unit 138/138. B4 no-op                                                                                                         |
-| C — spouse Vollmacht (PAN-011)  | ✅ DONE 2026-07-30                                                                 | migration `20260730000003` pushed and verified. Data level: 105 rows, exactly PAN-011 inactive, Pankow active 49 / Essen 55, no upload references it. Live: married Pankow checklist 13 slots with partner section but NO Vollmacht (exactly 1 overall, person_1); Essen 7 slots with its own rules — both non-empty, proving the active-filter queries work against the new column in prod. unit 143/143, documents-m6 PASS, verify-baseline all 12 tables identical (incl. the new column) |
-| D — storage restructure         | ✅ DONE 2026-07-30                                                                 | migration `20260730000004` (commit A `96ab5d8`) pushed + verified, then code (commit B `d1c9f92`) — rule #8 order honoured. New uploads land at `{case}/{Folder}/{Base}{n}.{ext}`; the 14 existing files are grandfathered and still download. Live verified 15/15 incl. Spouse override, hostile bank name, legacy-file download, export naming and counter cascade. unit 193/193, documents-m6 PASS, verify-baseline identical with `storage_category` in the guard                        |
-| E — UI restyle                  | E-0 ✅ merged · E-1 ✅ merged 2026-07-31 (`8a74f69`) · **E-2 in progress**          | E-0 = 6 data-testids + 9 repointed selectors, zero visual change. E-1 = tokens + Lato, approved from the preview and merged to main (prod now carries the mockup palette and, for the first time, an actually-applied webfont). Gate from E-2 on: **full preview suite + gallery + unit, with the 15-min tripwire**                                                                                                                                                       |
-| F — close-out                   | not started                                                                        |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Phase                           | Status                                                                     | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A — read-only triage            | ✅ DONE 2026-07-30                                                         | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                                                                                                                                                                                      |
+| B — quick fixes (items 3/7/8/1) | ✅ DONE 2026-07-30                                                         | migrations `20260730000001` + `20260730000002` pushed by founder and verified: live drive 11/11 (umlauted checklist names + no leftovers; B1 empty-Weiter completes birth_name, survives reload, `''` row in DB; rentenbetrag renders with NO Brutto text at step 27); verify-baseline full replay all 12 tables identical; documents-m6 e2e regression PASS; unit 138/138. B4 no-op                                                                                                         |
+| C — spouse Vollmacht (PAN-011)  | ✅ DONE 2026-07-30                                                         | migration `20260730000003` pushed and verified. Data level: 105 rows, exactly PAN-011 inactive, Pankow active 49 / Essen 55, no upload references it. Live: married Pankow checklist 13 slots with partner section but NO Vollmacht (exactly 1 overall, person_1); Essen 7 slots with its own rules — both non-empty, proving the active-filter queries work against the new column in prod. unit 143/143, documents-m6 PASS, verify-baseline all 12 tables identical (incl. the new column) |
+| D — storage restructure         | ✅ DONE 2026-07-30                                                         | migration `20260730000004` (commit A `96ab5d8`) pushed + verified, then code (commit B `d1c9f92`) — rule #8 order honoured. New uploads land at `{case}/{Folder}/{Base}{n}.{ext}`; the 14 existing files are grandfathered and still download. Live verified 15/15 incl. Spouse override, hostile bank name, legacy-file download, export naming and counter cascade. unit 193/193, documents-m6 PASS, verify-baseline identical with `storage_category` in the guard                        |
+| E — UI restyle                  | E-0 ✅ merged · E-1 ✅ merged 2026-07-31 (`8a74f69`) · **E-2 in progress** | E-0 = 6 data-testids + 9 repointed selectors, zero visual change. E-1 = tokens + Lato, approved from the preview and merged to main (prod now carries the mockup palette and, for the first time, an actually-applied webfont). Gate from E-2 on: **full preview suite + gallery + unit, with the 15-min tripwire**                                                                                                                                                                          |
+| F — close-out                   | not started                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ## Key Phase-A facts (so later phases need not re-derive)
 
@@ -638,6 +638,78 @@ definition survives into the fallback path above.
 under this one: full suite **13 passed / 13 skipped / 0 failed against the
 real preview in 3.1 min**, plus the gallery re-shot from the preview with
 `body` computing to `Lato…` on `rgb(247,244,237)`.
+
+## E-2 (shared primitives) — on the branch, ⏸ STOP for founder review
+
+Commit `fcfaea7` + gallery. **Not merged.** Preview:
+`sorglos-antrag-m58b3edk9-berk-solutions.vercel.app`.
+
+**Gate met under the new rule:** full suite **against the real preview** —
+**13 passed / 13 skipped / 0 failed, 3.2 min**, no tripwire. Unit
+**195/195**. Typecheck, lint, prettier, build clean.
+
+### What E-2 found, which changed its shape
+
+`components/ui/button.tsx` is imported by **nothing**, and the app renders
+raw `<button>` / `<input>` / `<select>` with inline Tailwind everywhere —
+the control class string appears **10× verbatim** in
+`question-renderer.tsx` alone. There was no shared layer to restyle, so
+E-2 created one: `components/ui/styles.ts`, a module of **class strings,
+not components**. Wrapping native elements would insert a rendering layer
+between the e2e suite and the tags/attributes it asserts on
+(`#care_home_id`, `[name=email]`, `input[type=radio][value="Nein"]`,
+`locator('select')`) for zero visual gain, since the restyle is purely a
+class-name change.
+
+### The border token is SPLIT (the recorded steer, implemented)
+
+| Token      | Value     | Job                                    | Measured                                            |
+| ---------- | --------- | -------------------------------------- | --------------------------------------------------- |
+| `--border` | `#e6e0d0` | decorative only — dividers, card edges | 1.32:1 — fine, 1.4.11 does not apply                |
+| `--input`  | `#8c8272` | form-control boundaries                | **3.78:1** white / 3.44:1 cream / 3.15:1 cream-deep |
+
+One value could not do both: the mockup's `#e6e0d0` is correct for a
+divider and a real 1.4.11 failure for an input. Fallback graphite-soft
+`#5c6166` (6.26:1) is rendered beside it in `E-2-border-candidates/`,
+which now varies **only** `--input` with `--border` pinned — the earlier
+E-1 candidate set varied both and is superseded.
+
+**Founder's call outstanding at this STOP.** `#8c8272` is what ships today.
+
+### Also in E-2
+
+- Focus ring = **full-opacity petrol + offset**, per plan — not the
+  mockup's `ring-petrol/20`, which is ~1.2:1 on a white card and
+  effectively invisible (2.4.7).
+- Copper is a **fill only** (white on copper 4.69:1). Never text: copper on
+  cream 4.27:1, on cream-deep 3.91:1, both fail AA. Links are petrol.
+- Header and tab row moved off white slabs onto the page background with a
+  soft rule, per the mockup's `AppHeader`.
+- Two **pre-existing** a11y gaps closed in passing: the progress bar had no
+  `role=progressbar` / `aria-valuenow` (progress was visual-only), and the
+  active tab was marked by colour alone (1.4.1) — it now carries a petrol
+  underline too.
+
+### Trap avoided, worth recording
+
+The mockup renders the tab badge as `· 4 offen`. Writing that into the
+badge element would have broken `feedback-pass.spec.ts:354`, which does
+`Number(await badge.textContent())` and would have read **NaN**. The `·`
+is therefore its own `aria-hidden` span **outside**
+`data-testid=docs-tab-badge`, which still contains only the number. I had
+initially written the combined form with a comment claiming the assertion
+still worked — caught before commit; that comment would have been exactly
+the kind of unverified stated reason CLAUDE.md forbids.
+
+The mockup's trailing word **"offen" is new German copy** and is
+deliberately NOT added (R3) — flagged to Roman in the gallery README.
+
+### Scope held
+
+No German copy changed. No id / name / testid changed. No native control
+swapped for a custom widget. No behaviour touched. From `chat-view.tsx`
+only `ProgressBar` and the case header were taken — bubbles, history and
+the answer footer are E-3's.
 
 ## Fragile-primitive fix (main, `53fdf73`) — networkidle removed
 

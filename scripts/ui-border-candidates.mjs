@@ -4,17 +4,20 @@
  *
  *   node scripts/ui-border-candidates.mjs [--base <url>]
  *
- * Candidates (measured against white / cream):
+ * Candidates for the CONTROL border (measured against white / cream):
  *   #e6e0d0  1.32 / 1.20  — the mockup's value; FAILS WCAG 1.4.11 (needs ≥3:1)
  *   #8c8272  3.78 / 3.44  — lightest value that passes; first choice per the
  *                           tiebreak rule ("closest to the mockup's softness
- *                           that still passes in situ")
+ *                           that still passes in situ"). SHIPPED in E-2.
  *   #5c6166  6.26 / 5.70  — graphite-soft; safe fallback
  *
- * ⚠ Our components bind form-control borders to `border-border` (NOT
- * `border-input`), so the token under test is --border — which also colours
- * decorative dividers. That coupling is exactly what E-2 has to judge: one
- * token for both, or split them.
+ * ⚠ UPDATED FOR E-2. This script previously set --border AND --input to the
+ * same value, because our components bound control borders to `border-border`
+ * and the two jobs shared one token. E-2 SPLIT them: controls now bind to
+ * `border-input`, and `--border` is decorative only. So only --input varies
+ * below, with --border pinned at the mockup's #e6e0d0 — which is what each
+ * shot must show, since the decision being made is about control edges alone
+ * and the dividers are meant to stay soft in every candidate.
  *
  * Same privacy rule as the gallery: throwaway account, synthetic data only.
  */
@@ -30,7 +33,7 @@ config({ path: '.env.local' })
 const baseIdx = process.argv.indexOf('--base')
 const BASE =
   baseIdx > -1 ? process.argv[baseIdx + 1] : (process.env.E2E_BASE_URL ?? 'http://localhost:3000')
-const OUT = join('docs', 'feedback', 'ui-gallery', 'E-1-border-candidates')
+const OUT = join('docs', 'feedback', 'ui-gallery', 'E-2-border-candidates')
 mkdirSync(OUT, { recursive: true })
 
 const CANDIDATES = [
@@ -86,25 +89,27 @@ try {
   await page.getByRole('button', { name: 'Postleitzahl bestätigen' }).click()
   await page.waitForTimeout(3500)
 
+  // Only the CONTROL token varies; the decorative one is pinned so every shot
+  // shows the split as shipped.
   const apply = (value) =>
     page.evaluate((v) => {
-      document.documentElement.style.setProperty('--border', v)
+      document.documentElement.style.setProperty('--border', '#e6e0d0')
       document.documentElement.style.setProperty('--input', v)
     }, value)
 
   for (const c of CANDIDATES) {
     // questionnaire (single input + card + divider lines)
     await page.goto(`${BASE}/case`)
-    await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(700)
+    // Deterministic: the questionnaire is ready when its answer area renders.
+    await page.locator('[data-testid=answer-footer]').waitFor({ state: 'visible', timeout: 30_000 })
     await apply(c.value)
     await page.screenshot({ path: join(OUT, `fragen-${c.tag}.png`) })
     console.log(`   fragen-${c.tag}.png   (${c.note})`)
 
     // signup (form-dense: many inputs + checkboxes)
     await page.goto(`${BASE}/signup`)
-    await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(500)
+    // Deterministic: the signup form is ready when its first field renders.
+    await page.locator('[name=first_name]').waitFor({ state: 'visible', timeout: 30_000 })
     await apply(c.value)
     await page.screenshot({ path: join(OUT, `signup-${c.tag}.png`) })
     console.log(`   signup-${c.tag}.png   (${c.note})`)
