@@ -554,11 +554,35 @@ var(--font-sans)` (self-referential) while `layout.tsx` defined
   `scripts/ui-border-candidates.mjs` on throwaway accounts with synthetic
   data only (public repo).
 - **Suite: 13 passed · 13 skipped · 0 failed** against the E-1 build.
-- ⚠ **Outstanding:** the preview run. `VERCEL_AUTOMATION_BYPASS_SECRET` was
-  not yet in `.env.local`, so the preview (SSO-protected, 302) could not be
-  driven; `playwright.config.ts` and both gallery scripts already send the
-  bypass + `set-bypass-cookie` headers when it is present, so this is a
-  single re-run once the secret lands.
+- **Preview access solved (2026-07-31).** `VERCEL_AUTOMATION_BYPASS_SECRET`
+  supplied; bypass verified (302 → 307 + `_vercel_jwt` cookie → 200 with a
+  cookie jar; Playwright contexts persist cookies so it just works).
+- **Preview render verified:** on the real preview URL, `body` computes to
+  `Lato, "Lato Fallback", …` with background `rgb(247, 244, 237)`. The
+  AFTER gallery and the border candidates were **re-shot against the
+  preview** (not the local build).
+- ⚠ **UNRESOLVED: the full suite against the preview took 2 h and returned
+  12 failed / 1 passed / 13 skipped** — every failure the same
+  `page.waitForLoadState('networkidle')` timeout, with page snapshots
+  showing the app correctly rendered and logged in. The 2 h _was_ the
+  failure: 12 tests each burning a 600–900 s timeout.
+  **The same build is 13/13 green locally**, so this is a harness/preview
+  interaction, not a product regression.
+  **Root cause NOT identified.** A hypothesis that Vercel's preview-only
+  Live-feedback script (`vercel.live/_next-live/feedback/feedback.js`,
+  confirmed present) held the network open was **disproved by A/B**:
+  networkidle settles in ~500 ms with the host blocked _and_ unblocked. A
+  faithful replay of the exact `setupCase` sequence (login → care home →
+  PLZ → reload → networkidle) against the preview now **passes in 488 ms**.
+  So the failure is currently **not reproducible** — transient (cold
+  functions / a Vercel hiccup) or load-related when 13 drives run
+  back-to-back. Do not claim a cause without new evidence.
+  **Consequence for the gate:** a 2 h preview suite per sub-phase is not
+  viable (~16 h across E-2…E-8). Proposed split gate — full suite against
+  the local identical build (same artifact, ~15 min) + a preview smoke;
+  the gallery scripts already _are_ a preview smoke (login, both
+  pre-steps, three answer saves, tab switch, documents render, two
+  viewports). Founder decision pending.
 
 ### Process slip worth recording
 
