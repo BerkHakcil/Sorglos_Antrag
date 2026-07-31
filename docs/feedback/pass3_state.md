@@ -655,6 +655,87 @@ under this one: full suite **13 passed / 13 skipped / 0 failed against the
 real preview in 3.1 min**, plus the gallery re-shot from the preview with
 `body` computing to `Lato…` on `rgb(247,244,237)`.
 
+## E-6 (completion + locked state) — on the branch, ⏸ STOP for founder review
+
+Commits `a10af8e` + `b259fa4` + gallery. **Not merged.** Preview:
+`sorglos-antrag-iqwq5oxgy-berk-solutions.vercel.app`.
+
+**Gate:** full suite against the real preview — **13 passed / 13 skipped /
+0 failed, 3.2 min**. Unit 195/195. Typecheck, lint, prettier, build clean.
+
+Both terminal states take the mockup's `/fertig` layout — medallion,
+heading, body, centred — so they read as one family. **Their tones
+deliberately differ.**
+
+| State            | Register           | Medallion                     | Heading  | Why                                                                                                    |
+| ---------------- | ------------------ | ----------------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| **all-answered** | achievement        | petrol + white `Check`        | petrol   | petrol is the palette's positive/confirmed tone, and this is the moment that earns it                  |
+| **locked**       | pending, not a win | cream-deep + graphite `Clock` | graphite | a petrol tick would say the application was **approved** — a claim we cannot make and no copy supports |
+
+Amber and red stay out of both: being under review is not a warning.
+Neutral is the honest register for "you are done; someone else must act".
+
+**The mockup's "Nächste Schritte" numbered list is NOT built.** Its copy is
+Lovable-authored German with no Roman version, and scaffolding structure
+for absent text would leave an empty frame on a real screen (R3).
+
+### The last off-palette colour, found in passing
+
+The header status label still used Tailwind `green-600` / `blue-600`. The
+green actively contradicted this sub-phase: the locked _card_ avoided a
+success tone while the _label_ above it shouted one. Now petrol for
+"vollständig", graphite-soft for "in Prüfung". **Sweep afterwards: zero
+`text-`/`bg-` green|blue|amber|red|yellow utilities remain anywhere under
+`app/`.**
+
+### ⚠ Finding for Roman: the two states show IDENTICAL German
+
+Read from the DB, not inferred:
+
+- `case.all_answered_heading` == `case.locked_heading` == "Sie haben alle
+  Fragen beantwortet!"
+- `case.all_answered_message` == `case.locked_body` == "Wir prüfen nun alle
+  Ihre Angaben und übertragen diese in das Antragsformular. …"
+
+So after E-6 the **only** thing distinguishing "everything answered" from
+"locked, under review" is the medallion and its tone. That makes the tone
+work far more load-bearing than it should be, and a user who does not
+notice a small icon change cannot tell the two states apart at all.
+Not fixed here — the copy is Roman's (R3). Logged in the ledger as a
+question for him.
+
+### Contrast — in-engine
+
+| Pair                                          | Ratio       |
+| --------------------------------------------- | ----------- |
+| graphite on white — both headings/bodies      | **13.46:1** |
+| petrol on white — all-answered heading        | **7.72:1**  |
+| petrol on page — status "vollständig"         | **7.03:1**  |
+| graphite-soft on white — locked body          | **6.26:1**  |
+| graphite-soft on page — status "in Prüfung"   | **5.70:1**  |
+| graphite-soft on docs pane — locked checklist | **5.50:1**  |
+
+Non-text: white Check on petrol **7.72:1**; graphite-soft Clock on
+cream-deep **5.21:1**. ⚠ The cream-deep medallion's own fill is **1.20:1**
+against the white card — deliberate and compliant for the same reason as
+E-5's notice panel: the circle conveys nothing, the glyph inside it does,
+at 5.21:1.
+
+### Scope held
+
+`completion.spec`'s five criteria are untouched and it passes in the
+suite; `all-answered` and `locked-banner` keep their testids and still
+render the same `content.*` strings. The single-use fixture was re-seeded
+for each run and is live afterwards. Zero German changes — the only German
+in the diff is inside explanatory comments.
+
+### Gallery
+
+`E-6-completion-BEFORE/` (prod = E-5 state) and `E-6-completion-AFTER/`
+(preview): fresh, history, **locked**, **all-answered**, and
+**`05-docs-locked`** — the documents checklist while the case is frozen —
+each at both viewports.
+
 ## Harness rule: preview readiness is NEVER an HTTP status (2026-07-31)
 
 **A Vercel preview serves its "Deployment is building" holding page with
@@ -1138,12 +1219,14 @@ by the setup script); no leaked users from the run.
 
 ## Roman ledger (open items for the non-technical co-founder)
 
-| Item                                    | Status                                                                                                                                        |
-| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Logo as SVG                             | open — upgrade when it arrives, not a dependency                                                                                              |
-| Ansprechpartner decision + assets       | open — his personal data, out of Phase E scope                                                                                                |
-| `/fertig` "Nächste Schritte" copy       | open — PLACEHOLDER_DE proposal, not shipped                                                                                                   |
-| §10 folder-mapping FYI (flippable rows) | open                                                                                                                                          |
-| Older sign-offs                         | in `german_copy_for_roman.md`                                                                                                                 |
-| **Tab badge — the word "offen" (E-2)**  | **open.** The mockup reads `· 4 offen`; we ship `· 4`. "offen" is NEW German copy and is his to author (R3). Asked in the gallery README.     |
-| **Form-control border colour (E-2)**    | ✅ **CLOSED 2026-07-31** — founder confirmed `#8c8272` from the real-screen gallery; dividers keep `#e6e0d0`. No longer a question for Roman. |
+| Item                                                               | Status                                                                                                                                                                                                                                                                           |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Logo as SVG                                                        | open — upgrade when it arrives, not a dependency                                                                                                                                                                                                                                 |
+| Ansprechpartner decision + assets                                  | open — his personal data, out of Phase E scope                                                                                                                                                                                                                                   |
+| `/fertig` "Nächste Schritte" copy                                  | open — PLACEHOLDER_DE proposal, not shipped                                                                                                                                                                                                                                      |
+| §10 folder-mapping FYI (flippable rows)                            | open                                                                                                                                                                                                                                                                             |
+| Older sign-offs                                                    | in `german_copy_for_roman.md`                                                                                                                                                                                                                                                    |
+| **Tab badge — the word "offen" (E-2)**                             | **open.** The mockup reads `· 4 offen`; we ship `· 4`. "offen" is NEW German copy and is his to author (R3). Asked in the gallery README.                                                                                                                                        |
+| **Form-control border colour (E-2)**                               | ✅ **CLOSED 2026-07-31** — founder confirmed `#8c8272` from the real-screen gallery; dividers keep `#e6e0d0`. No longer a question for Roman.                                                                                                                                    |
+| **Amber → sage on the two hint boxes (E-3)**                       | **open** — flagged in the gallery README with the reason and an explicit offer to revert.                                                                                                                                                                                        |
+| **"Alles beantwortet" and "In Prüfung" have IDENTICAL copy (E-6)** | **open, and the most substantive.** `case.all_answered_heading`/`_message` are byte-identical to `case.locked_heading`/`_body` in the DB. After E-6 the only difference a user sees is the medallion icon and its colour. Does he want distinct copy for the under-review state? |
