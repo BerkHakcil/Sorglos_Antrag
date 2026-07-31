@@ -289,33 +289,50 @@ dormant (gated on an unset repo variable), so e2e runs are local and
 deliberate. Phase E does not change that; it just means "suite green" is my
 manual gate, reported per sub-phase.
 
-### 6a. The gate itself — SPLIT GATE (founder decision, 2026-07-31)
+### 6a. The gate itself — PREVIEW-FIRST WITH A TRIPWIRE
 
-This **supersedes** "the full e2e suite must run green before every merge"
-above, in one respect only: _where_ the full suite runs.
+**Founder decision, 2026-07-31 (second decision that day).** This is the
+binding gate. It **supersedes** both "the full e2e suite must run green
+before every merge" above and the split gate that briefly replaced it.
 
-| Scope                       | E-2 … E-7 (each)                                                                             | E-8 + final pre-merge |
-| --------------------------- | -------------------------------------------------------------------------------------------- | --------------------- |
-| Full suite, **local** build | **required** (the correctness gate — same artifact the preview serves)                       | required              |
-| **Preview** smoke           | **required** — and it _is_ the gallery run: `scripts/ui-gallery.mjs` against the preview URL | —                     |
-| Full suite, **preview**     | not required                                                                                 | **required**, once    |
-| Unit (Vitest)               | required                                                                                     | required              |
+| Scope                   | E-2 … E-7 (each)                                                                     | E-8 + final pre-merge |
+| ----------------------- | ------------------------------------------------------------------------------------ | --------------------- |
+| Full suite, **preview** | **required** — against the real preview URL (~3 min)                                 | **unconditional**     |
+| Gallery                 | **required** — before/after per touched component, real screens, both viewports (§7) | required              |
+| Unit (Vitest)           | required                                                                             | required              |
 
-The gallery script is a genuine smoke, not a screenshot loop: it signs up,
-completes both pre-steps, saves three answers, switches tabs, renders the
-document checklist, and does it at two viewports. Anything that breaks in
-the deployed CSS/font/edge pipeline but not locally shows up there.
+**Tripwire.** If a preview run exceeds **15 min**, or fails with the
+**infra signature** (timeouts while the failure snapshots show correctly
+rendered, logged-in pages): kill it, fall back to **full suite against the
+local identical build + the gallery smoke** for that sub-phase, record the
+fallback in `pass3_state.md`, and continue. A tripwire hit does not block
+the sub-phase.
 
-**Why:** the E-1 preview run took **2 h** for 12 failures (see the state
-file). Repeating that for E-2…E-8 is ~16 h of wall time buying a residual
-delta over the local suite that the gallery already covers on the screens
-each sub-phase actually touches. Pay it once, at the end.
+15 min is ~5× the measured cost, so it fires long before another 2 h is
+lost; the signature check is what keeps it from firing on a genuine
+product regression, which shows a _broken_ page in the snapshot rather
+than a rendered one.
 
-**Prerequisite, now done:** the failures were all
-`waitForLoadState('networkidle')` timeouts. All 11 sites are gone from the
-specs (main, `53fdf73`), replaced by assertions on the specific element
-each test needs. That is a fragility fix, **not** a diagnosis — the 2 h run
-was never reproduced and no cause is claimed.
+**E-8 and the final pre-merge check are exempt from the fallback.** They
+run the full preview suite unconditionally. A tripwire there is a thing to
+investigate, not to route around.
+
+**Why preview-first:** the split gate was priced against a 2 h preview
+run. The re-baseline measured **3.1 min** (13 passed / 13 skipped /
+0 failed), so the reason to skip it is gone and the preview is strictly
+more faithful — it is the deployed CSS/font pipeline and the edge runtime,
+not a local approximation of them.
+
+**Fallback smoke definition** (inherited from the split gate, still
+correct): `scripts/ui-gallery.mjs` is a genuine smoke, not a screenshot
+loop — it signs up, completes both pre-steps, saves three answers,
+switches tabs, renders the document checklist, at two viewports.
+
+**Context, not a diagnosis:** the 2 h run's failures were all
+`waitForLoadState('networkidle')` timeouts, and all 11 sites are gone from
+the specs (main, `53fdf73`). That is a fragility fix. The run was never
+reproduced and **no cause is claimed** — which is precisely why the
+tripwire exists rather than an assumption that it cannot recur.
 
 ---
 

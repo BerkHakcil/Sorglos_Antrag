@@ -591,28 +591,53 @@ shipped, while their matching BEFORE shots sat on the branch. Reverted in
 workflow, stage paths explicitly (`git add <paths>`) rather than `-A`,
 because the two branches now carry deliberately different content.**
 
-## Verification gate for E-2…E-8 — SPLIT GATE (founder decision 2026-07-31)
+## Verification gate for E-2…E-8 — PREVIEW-FIRST WITH A TRIPWIRE
 
-The binding rule for the rest of Phase E. Also mirrored in
-`pass3_phase_e_plan.md` §6.
+**Founder decision 2026-07-31 (second), supersedes the split gate below.**
+The binding rule for the rest of Phase E. Mirrored in
+`pass3_phase_e_plan.md` §6a.
 
-| Scope                                  | Per sub-phase (E-2…E-7)                                                                                                                                                                                                                                                        | E-8 + final pre-merge    |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------ |
-| Full Playwright suite, **local** build | **required** — the deploy artifact is byte-identical to the preview's, so this is the correctness gate                                                                                                                                                                         | required                 |
-| **Preview** smoke                      | **required**, and it is the gallery run itself: `scripts/ui-gallery.mjs` drives login → both pre-steps → three answer saves → tab switch → documents render, at 1280×800 and 375×812, against the real preview URL. Producing the gallery _is_ the smoke — no separate script. | —                        |
-| Full Playwright suite, **preview**     | **not required**                                                                                                                                                                                                                                                               | **required** (once each) |
-| Unit (Vitest)                          | required                                                                                                                                                                                                                                                                       | required                 |
+| Scope                              | Per sub-phase (E-2…E-7)                                                                      | E-8 + final pre-merge |
+| ---------------------------------- | -------------------------------------------------------------------------------------------- | --------------------- |
+| Full Playwright suite, **preview** | **required** — the real preview URL, now ~3 min                                              | **unconditional**     |
+| Gallery                            | **required**, per the plan: before/after per touched component, real screens, both viewports | required              |
+| Unit (Vitest)                      | required                                                                                     | required              |
 
-Rationale: the local suite and the preview serve the same build; what the
-preview adds that local cannot is the deployed CSS/font pipeline and the
-edge runtime, and the gallery exercises exactly that on every screen the
-sub-phase touched. Paying 2 h × 7 for the residual coverage is not a
-trade worth making mid-phase; it is worth making once at the end.
+### Tripwire (mandatory, not discretionary)
 
-**E-1's verification bar is MET** under this gate: full local suite
-13 passed / 13 skipped / 0 failed; preview smoke = the AFTER gallery and
-border candidates, re-shot against the live preview URL with `body`
-computing to `Lato…` on `rgb(247,244,237)`.
+If a preview suite run **exceeds 15 min**, _or_ fails with the **infra
+signature** — timeouts while the failure snapshots show correctly
+rendered, logged-in pages — then:
+
+1. **Kill the run.** Do not let it burn to completion.
+2. Fall back to **full suite against the local identical build + the
+   gallery smoke** for that sub-phase.
+3. **Record the fallback in this file** — which sub-phase, what the run
+   looked like when killed, what the fallback returned.
+4. **Continue.** A tripwire hit does not block the sub-phase.
+
+The tripwire exists because the failure mode is known and unattributed:
+15 min is roughly 5× the current cost, so it fires long before another 2 h
+is lost, and the signature check keeps it from firing on a genuine product
+regression (a real break shows a broken page in the snapshot, not a
+rendered one).
+
+**E-8 and the final pre-merge check are exempt from the fallback** — they
+run the full preview suite unconditionally, tripwire or not. If it trips
+there, it is investigated, not routed around.
+
+### Superseded: the split gate (first decision, same day)
+
+Kept for the record because the reasoning still explains the shape. It
+made the preview suite optional per sub-phase (local suite + gallery
+smoke instead), on the assumption a preview run cost 2 h. The re-baseline
+measured **3.1 min**, which removed the reason. The gallery-as-smoke
+definition survives into the fallback path above.
+
+**E-1's verification bar was MET** under the split gate and remains met
+under this one: full suite **13 passed / 13 skipped / 0 failed against the
+real preview in 3.1 min**, plus the gallery re-shot from the preview with
+`body` computing to `Lato…` on `rgb(247,244,237)`.
 
 ## Fragile-primitive fix (main, `53fdf73`) — networkidle removed
 
