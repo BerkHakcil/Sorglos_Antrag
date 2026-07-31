@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useTransition, useState } from 'react'
 import { de } from '@/lib/strings/de'
@@ -25,11 +25,11 @@ export function CareHomeSelector({ careHomes }: { careHomes: CareHome[] }) {
   }
 
   return (
-    <section className="space-y-4">
-      <h2 className="text-lg font-semibold">{s.heading}</h2>
+    <section className="space-y-5">
+      <h2 className="text-xl font-semibold">{s.heading}</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="space-y-1">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
           <label htmlFor="care_home_id" className={fieldLabel}>
             {s.label}
           </label>
@@ -44,7 +44,7 @@ export function CareHomeSelector({ careHomes }: { careHomes: CareHome[] }) {
               {s.placeholder}
             </option>
             {careHomes.map((ch) => (
-              /* Facility name only — the full address stays in the DB. */
+              /* Facility name only â€” the full address stays in the DB. */
               <option key={ch.id} value={ch.id}>
                 {ch.name}
               </option>

@@ -655,7 +655,91 @@ under this one: full suite **13 passed / 13 skipped / 0 failed against the
 real preview in 3.1 min**, plus the gallery re-shot from the preview with
 `body` computing to `Lato…` on `rgb(247,244,237)`.
 
-## E-4 (Dokumente screen) — on the branch, ⏸ STOP for founder review
+## E-5 (auth + pre-steps) — on the branch, ⏸ STOP for founder review
+
+Commit `b878597` + gallery. **Not merged.** Preview:
+`sorglos-antrag-5iyws30ph-berk-solutions.vercel.app`.
+
+**Gate:** full suite against the real preview — **13 passed / 13 skipped /
+0 failed, 3.3 min**. Unit 195/195. Typecheck, lint, prettier, build clean.
+
+Auth pages get the mockup's `AuthShell`: cream page, logo centred above
+the card, `max-w-lg` column (was `max-w-md` — signup's two-column name row
+was cramped at 28rem), larger headings, relaxed subtitles, responsive card
+padding. Pre-steps got matching heading scale and rhythm.
+
+**Both "we emailed you" confirmations** — signup's and password-reset's —
+moved off a muted grey box onto the sage info panel, signup's with a
+`MailCheck` icon. These are the auth screens a user actually sits and
+reads and both are positive expected outcomes; grey read as neither good
+nor bad. `role="status"` preserved on both; the icon is `aria-hidden`.
+
+### Contrast — computed in-engine
+
+Notice panel = `sage-soft/40` on the white card = `rgb(234,239,235)`.
+
+| Pair                                   | Ratio       |
+| -------------------------------------- | ----------- |
+| graphite on white — auth heading       | **13.46:1** |
+| graphite on notice panel — notice body | **11.57:1** |
+| petrol on white — links                | **7.72:1**  |
+| graphite-soft on white — auth subtitle | **6.26:1**  |
+| petrol MailCheck icon on notice panel  | **6.64:1**  |
+
+⚠ One figure that looks like a failure and is not: the notice panel's own
+fill is **1.16:1** against the white card. 1.4.11 governs boundaries that
+_convey information_; this panel conveys nothing by itself — the German
+text inside does, at 11.57:1 — and it additionally carries a
+`sage-soft/70` border and an icon. Recorded so nobody "fixes" it into a
+heavy grey box later.
+
+### ⚠ The failed first run was MY HARNESS, not the app
+
+The first preview suite returned **10 failed / 3 passed in 15.1 min** —
+tripping the 15-minute limb. The failure snapshots showed Vercel's
+**"Deployment is building"** holding page.
+
+**Cause: my readiness poll was wrong.** It waited for HTTP **200**, and
+Vercel serves 200 for the build placeholder. So the whole suite ran
+against a page with no login form. Re-run against the actually-ready
+deployment: **13/13 green in 3.3 min.**
+
+**Lesson for every future sub-phase:** an HTTP 200 from a preview URL does
+**not** mean ready. Gate on real content (`name="email"` present _and_
+"Deployment is building" absent) or on the deployment's `readyState`
+from the API. This is now a third distinct cause behind the same
+"timeouts against a rendered page" presentation — after the E-3 broken
+selector and the original unexplained run. The tripwire's signature limb
+keeps earning its amendment.
+
+### Scope held
+
+`auth.spec` **untouched** — `git status` clean for `tests/`; its
+`E2E_ALLOW_SIGNUP` gate and skip reason are byte-identical. `#care_home_id`
+and `#plz_input` keep their ids; every `[name=…]` unchanged, so
+`completion.spec` drives the pre-steps as before. Zero German changes —
+the single German-bearing diff line is a className wrapper around the same
+literal.
+
+### Judgement calls to flag
+
+1. **Logo links to `/login`, not `/`.** `/` redirects to `/case`, which
+   bounces a signed-out visitor straight back to `/login` — a link that
+   appears to do nothing.
+2. **Column widened** `max-w-md` → `max-w-lg`, for the signup name row.
+3. **`MailCheck` icon added** to the signup confirmation only; the reset
+   confirmation is text-only because its markup is a bare `<p>` and adding
+   an icon would have meant restructuring it.
+
+### Gallery
+
+`E-5-auth-BEFORE/` (prod = E-4 state) and `E-5-auth-AFTER/` (preview),
+five states each at both viewports: login, signup, **signup confirmation**,
+reset request, **reset confirmation**. New `scripts/ui-gallery-auth.mjs`
+performs a **real** signup so the confirmation is the genuine state; the
+account is deleted in `finally`.
+
+## E-4 (Dokumente screen) — ✅ MERGED to main 2026-07-31 (`36a765d`)
 
 Commit `35584a3` + gallery. **Not merged.** Preview:
 `sorglos-antrag-m0u0bt2u8-berk-solutions.vercel.app`.

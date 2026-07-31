@@ -220,3 +220,34 @@ Ersetzen und Entfernen verhalten sich exakt wie vorher.
 
 Die Screenshots zeigen echte Uploads (eine Test-PDF „Musterdokument"), kein
 nachgestelltes Bild.
+
+---
+
+## E-5 — Anmelden, Registrieren und die zwei Vorab-Schritte
+
+**Was sich ändert:** nur Aufbau und Abstände. **Kein Text ändert sich.**
+
+| Ordner             | Inhalt                        |
+| ------------------ | ----------------------------- |
+| `E-5-auth-BEFORE/` | Stand nach E-4 (aktuell live) |
+| `E-5-auth-AFTER/`  | mit dem neuen Aufbau          |
+
+**Das Wichtigste:**
+
+1. **Das Logo steht jetzt über der Karte.** Vorher war auf den Anmelde-
+   Seiten überhaupt kein Logo zu sehen — die erste Seite, die ein
+   Angehöriger von uns sieht, war ohne Absender.
+2. **Die Karte ist etwas breiter** und die Überschrift größer. Bei
+   „Registrieren" standen Vor- und Nachname vorher sehr gedrängt
+   nebeneinander.
+3. **Die Bestätigungs-Meldung nach dem Registrieren** („Bitte bestätigen
+   Sie Ihre E-Mail-Adresse") ist jetzt ein salbeigrünes Feld mit einem
+   Briefsymbol statt eines grauen Kastens. Das ist die Meldung, die
+   Angehörige am längsten anschauen — grau wirkte, als wäre etwas
+   schiefgelaufen. Dasselbe gilt für „Passwort vergessen".
+
+**Die fünf Ansichten (je `-desktop` und `-mobile`):** `01-login`,
+`02-signup`, `03-signup-confirm`, `04-reset-request`, `05-reset-confirm`.
+
+**Barrierefreiheit:** Überschrift 13,46:1, Meldungstext 11,57:1, Links
+7,72:1, Unterzeile 6,26:1 — alle deutlich über der Norm.

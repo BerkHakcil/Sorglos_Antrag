@@ -17,9 +17,11 @@ export function ResetPasswordForm() {
   if (state?.success) {
     return (
       <div className="space-y-4">
+        {/* E-5: same sage info panel as the signup confirmation — both are
+            "we've sent you an email" outcomes and should look alike. */}
         <p
           role="status"
-          className="border-border bg-muted/50 text-muted-foreground rounded-lg border p-4 text-sm"
+          className="border-sage-soft/70 bg-sage-soft/40 text-foreground rounded-xl border p-4 text-sm leading-relaxed"
         >
           {state.success}
         </p>
