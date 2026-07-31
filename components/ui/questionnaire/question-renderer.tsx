@@ -11,6 +11,7 @@
 
 import type { Question, QuestionOption } from '@/lib/questionnaire-types'
 import { de } from '@/lib/strings/de'
+import { control, controlFull, controlTick } from '@/components/ui/styles'
 
 const s = de.case.questionnaire
 const sc = de.case.chat
@@ -48,7 +49,7 @@ function ShortTextInput({ question, value, onChange, onSubmit }: InputProps) {
         }
       }}
       aria-label={question.prompt_de}
-      className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
+      className={controlFull}
     />
   )
 }
@@ -69,7 +70,7 @@ function LongTextInput({ question, value, onChange, onSubmit }: InputProps) {
           }
         }}
         aria-label={question.prompt_de}
-        className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
+        className={controlFull}
       />
       {onSubmit && <p className="text-muted-foreground text-xs">{sc.longTextHint}</p>}
     </div>
@@ -91,7 +92,7 @@ function NumberInput({ question, value, onChange, onSubmit }: InputProps) {
         }
       }}
       aria-label={question.prompt_de}
-      className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
+      className={controlFull}
     />
   )
 }
@@ -113,7 +114,7 @@ function AmountInput({ question, value, onChange, onSubmit }: InputProps) {
           }
         }}
         aria-label={question.prompt_de}
-        className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
+        className={controlFull}
       />
       <span className="text-muted-foreground shrink-0 text-sm">€</span>
     </div>
@@ -142,7 +143,7 @@ function DateInput({ question, value, onChange, onSubmit }: InputProps) {
         }
       }}
       aria-label={question.prompt_de}
-      className="border-border bg-muted/30 rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
+      className={control}
     />
   )
 }
@@ -167,7 +168,7 @@ function MonthYearInput({ question, value, onChange, onSubmit }: InputProps) {
         }
       }}
       aria-label={question.prompt_de}
-      className="border-border bg-muted/30 rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
+      className={control}
     />
   )
 }
@@ -195,6 +196,7 @@ function YesNoInput({ question, value, onChange, onSubmit }: InputProps) {
             value={opt}
             checked={value === opt}
             onChange={() => onChange?.(opt)}
+            className={controlTick}
           />
           {opt}
         </label>
@@ -222,7 +224,7 @@ function SingleSelectInput({
         }
       }}
       aria-label={question.prompt_de}
-      className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
+      className={controlFull}
     >
       <option value="">–</option>
       {options.map((o) => (
@@ -268,6 +270,7 @@ function MultiSelectInput({
             checked={selected.includes(o.value)}
             onChange={() => toggle(o.value)}
             value={o.value}
+            className={controlTick}
           />
           {o.label_de}
         </label>
@@ -302,7 +305,7 @@ function AddressInput({ question, value, onChange, onSubmit }: InputProps) {
             }
           }}
           aria-label={`${question.prompt_de} – ${placeholder}`}
-          className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
+          className={controlFull}
         />
       ))}
     </div>
@@ -335,7 +338,7 @@ function PersonInput({ question, value, onChange, onSubmit }: InputProps) {
             }
           }}
           aria-label={`${question.prompt_de} – ${placeholder}`}
-          className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
+          className={controlFull}
         />
       ))}
     </div>
@@ -368,7 +371,7 @@ function BankAccountInput({ question, value, onChange, onSubmit }: InputProps) {
             }
           }}
           aria-label={`${question.prompt_de} – ${placeholder}`}
-          className="border-border bg-muted/30 w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed"
+          className={controlFull}
         />
       ))}
     </div>

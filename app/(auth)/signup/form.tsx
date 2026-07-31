@@ -13,6 +13,7 @@ import { ConsentInfoPopover } from '@/components/ui/consent-info-popover'
 import { cn } from '@/lib/utils'
 import { de } from '@/lib/strings/de'
 import { signupAction, type SignupInput, type SignupResultField } from './actions'
+import { btnCopper, controlFull, controlTick, fieldLabel, linkPetrol } from '@/components/ui/styles'
 
 const s = de.signup
 
@@ -39,10 +40,9 @@ const signupSchema = z.object({
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-const inputBase =
-  'border-border bg-background focus:ring-ring w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-2'
+const inputBase = controlFull
 
-const inputError = 'border-destructive focus:ring-destructive'
+const inputError = 'border-destructive focus-visible:ring-destructive'
 
 export function SignupForm() {
   const [isPending, startTransition] = useTransition()
@@ -123,7 +123,7 @@ export function SignupForm() {
       {/* ── Name row ─────────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1">
-          <label htmlFor="first_name" className="text-sm font-medium">
+          <label htmlFor="first_name" className={fieldLabel}>
             {s.fields.firstName}
           </label>
           <input
@@ -143,7 +143,7 @@ export function SignupForm() {
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="last_name" className="text-sm font-medium">
+          <label htmlFor="last_name" className={fieldLabel}>
             {s.fields.lastName}
           </label>
           <input
@@ -165,7 +165,7 @@ export function SignupForm() {
 
       {/* ── Phone ────────────────────────────────────────── */}
       <div className="space-y-1">
-        <label htmlFor="phone" className="text-sm font-medium">
+        <label htmlFor="phone" className={fieldLabel}>
           {s.fields.phone}
         </label>
         {/*
@@ -188,10 +188,13 @@ export function SignupForm() {
           aria-describedby={errors.phone ? 'phone-error' : undefined}
           aria-invalid={!!errors.phone}
           className={cn(
-            'bg-background flex w-full items-stretch overflow-hidden rounded-md border focus-within:ring-2',
+            // Control boundary, so it takes --input like every other control;
+            // focus-within mirrors the shared ring because the real <input>
+            // is nested and never receives the class itself.
+            'bg-card focus-within:ring-offset-background flex w-full items-stretch overflow-hidden rounded-lg border transition-colors focus-within:ring-2 focus-within:ring-offset-2',
             errors.phone
               ? 'border-destructive focus-within:ring-destructive'
-              : 'border-border focus-within:ring-ring'
+              : 'border-input focus-within:ring-petrol'
           )}
           numberInputProps={{
             'data-testid': 'phone-input',
@@ -211,7 +214,7 @@ export function SignupForm() {
 
       {/* ── Email ────────────────────────────────────────── */}
       <div className="space-y-1">
-        <label htmlFor="email" className="text-sm font-medium">
+        <label htmlFor="email" className={fieldLabel}>
           {s.fields.email}
         </label>
         <input
@@ -232,7 +235,7 @@ export function SignupForm() {
 
       {/* ── Password ─────────────────────────────────────── */}
       <div className="space-y-1">
-        <label htmlFor="password" className="text-sm font-medium">
+        <label htmlFor="password" className={fieldLabel}>
           {s.fields.password}
         </label>
         <input
@@ -259,7 +262,7 @@ export function SignupForm() {
         <label className="flex cursor-pointer items-start gap-3">
           <input
             type="checkbox"
-            className="accent-primary mt-0.5 h-4 w-4 shrink-0"
+            className={`${controlTick} mt-0.5`}
             {...register('consent_datenschutz')}
           />
           <span className="text-sm leading-snug">
@@ -273,11 +276,7 @@ export function SignupForm() {
 
         {/* 2 — AGB */}
         <label className="flex cursor-pointer items-start gap-3">
-          <input
-            type="checkbox"
-            className="accent-primary mt-0.5 h-4 w-4 shrink-0"
-            {...register('consent_agb')}
-          />
+          <input type="checkbox" className={`${controlTick} mt-0.5`} {...register('consent_agb')} />
           <span className="text-sm leading-snug">
             {s.consents.agb.prefix}
             <Link href="/agb" className="underline underline-offset-2" target="_blank">
@@ -291,7 +290,7 @@ export function SignupForm() {
         <label className="flex cursor-pointer items-start gap-3">
           <input
             type="checkbox"
-            className="accent-primary mt-0.5 h-4 w-4 shrink-0"
+            className={`${controlTick} mt-0.5`}
             {...register('consent_data_processing')}
           />
           <span className="inline-flex flex-wrap items-baseline gap-x-0 text-sm leading-snug">
@@ -307,7 +306,7 @@ export function SignupForm() {
         <label className="flex cursor-pointer items-start gap-3">
           <input
             type="checkbox"
-            className="accent-primary mt-0.5 h-4 w-4 shrink-0"
+            className={`${controlTick} mt-0.5`}
             {...register('consent_authority_to_act')}
           />
           <span className="inline-flex flex-wrap items-baseline gap-x-0 text-sm leading-snug">
@@ -320,17 +319,13 @@ export function SignupForm() {
         </label>
       </div>
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="bg-primary text-primary-foreground w-full rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
-      >
+      <button type="submit" disabled={isPending} className={`${btnCopper} w-full`}>
         {isPending ? s.submitPending : s.submitIdle}
       </button>
 
       <p className="text-muted-foreground text-center text-sm">
         {s.haveAccount}{' '}
-        <Link href="/login" className="hover:text-foreground underline underline-offset-4">
+        <Link href="/login" className={linkPetrol}>
           {s.loginLink}
         </Link>
       </p>

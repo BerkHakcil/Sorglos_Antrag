@@ -4,6 +4,7 @@ import { useActionState } from 'react'
 import Link from 'next/link'
 import { de } from '@/lib/strings/de'
 import { resetPasswordAction, type ResetPasswordState } from './actions'
+import { btnCopper, controlFull, fieldLabel, linkPetrol } from '@/components/ui/styles'
 
 const rp = de.resetPassword
 
@@ -22,10 +23,7 @@ export function ResetPasswordForm() {
         >
           {state.success}
         </p>
-        <Link
-          href="/login"
-          className="text-muted-foreground hover:text-foreground block text-center text-sm underline underline-offset-4"
-        >
+        <Link href="/login" className={`${linkPetrol} block text-center text-sm`}>
           {rp.backToLogin}
         </Link>
       </div>
@@ -41,7 +39,7 @@ export function ResetPasswordForm() {
       )}
 
       <div className="space-y-1">
-        <label htmlFor="email" className="text-sm font-medium">
+        <label htmlFor="email" className={fieldLabel}>
           {rp.emailLabel}
         </label>
         <input
@@ -50,20 +48,16 @@ export function ResetPasswordForm() {
           type="email"
           autoComplete="email"
           required
-          className="border-border bg-background focus:ring-ring w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-2"
+          className={controlFull}
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="bg-primary text-primary-foreground w-full rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
-      >
+      <button type="submit" disabled={isPending} className={`${btnCopper} w-full`}>
         {isPending ? rp.submitPending : rp.submitIdle}
       </button>
 
       <p className="text-muted-foreground text-center text-sm">
-        <Link href="/login" className="hover:text-foreground underline underline-offset-4">
+        <Link href="/login" className={linkPetrol}>
           {rp.backToLogin}
         </Link>
       </p>

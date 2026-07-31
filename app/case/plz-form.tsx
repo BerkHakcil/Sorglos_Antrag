@@ -3,6 +3,7 @@
 import { useTransition, useState } from 'react'
 import { de } from '@/lib/strings/de'
 import { resolvePlzAction } from './actions'
+import { btnCopper, controlFull, fieldLabel } from '@/components/ui/styles'
 
 const s = de.case.plz
 const PLZ_RE = /^\d{5}$/
@@ -35,7 +36,7 @@ export function PlzForm() {
 
       <form onSubmit={handleSubmit} noValidate className="space-y-3">
         <div className="space-y-1">
-          <label htmlFor="plz_input" className="text-sm font-medium">
+          <label htmlFor="plz_input" className={fieldLabel}>
             {s.label}
           </label>
           <input
@@ -46,7 +47,7 @@ export function PlzForm() {
             value={plz}
             onChange={(e) => setPlz(e.target.value)}
             placeholder={s.placeholder}
-            className="border-border bg-background focus:ring-ring w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-2"
+            className={controlFull}
           />
         </div>
 
@@ -56,11 +57,7 @@ export function PlzForm() {
           </p>
         )}
 
-        <button
-          type="submit"
-          disabled={isPending}
-          className="bg-primary text-primary-foreground w-full rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
-        >
+        <button type="submit" disabled={isPending} className={`${btnCopper} w-full`}>
           {isPending ? s.loadingButton : s.submitButton}
         </button>
       </form>

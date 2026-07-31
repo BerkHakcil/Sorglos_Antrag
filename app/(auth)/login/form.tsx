@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import Link from 'next/link'
 import { loginAction, type LoginState } from './actions'
+import { btnCopper, controlFull, fieldLabel, linkPetrol } from '@/components/ui/styles'
 
 export function LoginForm() {
   const [state, formAction, isPending] = useActionState<LoginState, FormData>(
@@ -11,15 +12,15 @@ export function LoginForm() {
   )
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-5">
       {state?.error && (
         <p role="alert" className="text-destructive text-sm">
           {state.error}
         </p>
       )}
 
-      <div className="space-y-1">
-        <label htmlFor="email" className="text-sm font-medium">
+      <div className="space-y-2">
+        <label htmlFor="email" className={fieldLabel}>
           E-Mail-Adresse
         </label>
         <input
@@ -28,12 +29,12 @@ export function LoginForm() {
           type="email"
           autoComplete="email"
           required
-          className="border-border bg-background focus:ring-ring w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-2"
+          className={controlFull}
         />
       </div>
 
-      <div className="space-y-1">
-        <label htmlFor="password" className="text-sm font-medium">
+      <div className="space-y-2">
+        <label htmlFor="password" className={fieldLabel}>
           Passwort
         </label>
         <input
@@ -42,23 +43,19 @@ export function LoginForm() {
           type="password"
           autoComplete="current-password"
           required
-          className="border-border bg-background focus:ring-ring w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-2"
+          className={controlFull}
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="bg-primary text-primary-foreground w-full rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
-      >
+      <button type="submit" disabled={isPending} className={`${btnCopper} w-full`}>
         {isPending ? 'Anmelden…' : 'Anmelden'}
       </button>
 
-      <div className="text-muted-foreground flex justify-between text-sm">
-        <Link href="/signup" className="hover:text-foreground underline underline-offset-4">
+      <div className="flex justify-between text-sm">
+        <Link href="/signup" className={linkPetrol}>
           Registrieren
         </Link>
-        <Link href="/reset-password" className="hover:text-foreground underline underline-offset-4">
+        <Link href="/reset-password" className={linkPetrol}>
           Passwort vergessen?
         </Link>
       </div>
