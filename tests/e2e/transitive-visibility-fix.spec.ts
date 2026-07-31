@@ -356,7 +356,9 @@ test('T3 Haftpflicht toggle Ja→Nein deletes the dependent answers (BUG B)', as
 
     // Edit the trigger bubble in history: Ja → Nein
     const triggerPrompt = 'Haben Sie eine Haftpflichtversicherung?'
-    const group = page.locator('div.space-y-1', {
+    // Anchored on the testid, not on layout classes: this wrapper used to be
+    // matched as `div.space-y-1`, which E-3's flex layout silently invalidated.
+    const group = page.locator('[data-testid=answered-bubble]', {
       has: page.getByText(triggerPrompt, { exact: true }),
     })
     await group.getByRole('button', { name: 'Bearbeiten' }).click()
