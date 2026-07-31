@@ -18,6 +18,7 @@ import { CareHomeSelector } from './care-home-selector'
 import { PlzForm } from './plz-form'
 import { ChatView } from './chat-view'
 import { logoutAction } from './actions'
+import { btnGhost, card } from '@/components/ui/styles'
 
 export const metadata = { title: de.case.pageTitle }
 
@@ -32,7 +33,10 @@ export default async function CasePage() {
   return (
     <div className="bg-background flex h-dvh flex-col overflow-hidden">
       {/* ── Brand header — always pinned at top ─────────────── */}
-      <header className="border-border bg-card shrink-0 border-b">
+      {/* E-2: the mockup's AppHeader sits on the page background with a soft
+          rule, not on a white slab — the white card surface is reserved for
+          content. */}
+      <header className="border-border/60 bg-background/95 shrink-0 border-b backdrop-blur">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
             {/* Logo lockup (icon + "Sorglos Antrag" wordmark) — replaces the brand
@@ -45,15 +49,12 @@ export default async function CasePage() {
               priority
               className="h-9 w-auto shrink-0 rounded-md"
             />
-            <p className="text-muted-foreground min-w-0 truncate text-[11px] leading-tight">
+            <p className="text-graphite-soft min-w-0 truncate text-[11px] leading-tight">
               {content.brandTagline}
             </p>
           </div>
           <form action={logoutAction} className="shrink-0">
-            <button
-              type="submit"
-              className="border-border text-muted-foreground hover:bg-muted rounded-md border px-3 py-1.5 text-xs"
-            >
+            <button type="submit" className={`${btnGhost} px-3 py-1.5 text-xs`}>
               {s.logoutButton}
             </button>
           </form>
@@ -79,7 +80,7 @@ export default async function CasePage() {
         <div className="bg-muted/40 flex-1 overflow-y-auto">
           <div className="mx-auto max-w-2xl space-y-6 px-4 py-6">
             {/* Case meta */}
-            <div className="border-border bg-card rounded-xl border p-6 shadow-sm">
+            <div className={`${card} p-6`}>
               <h2 className="mb-3 font-semibold">{content.caseSubheading}</h2>
               <dl className="divide-border divide-y text-sm">
                 <div className="flex justify-between py-2">
@@ -101,14 +102,14 @@ export default async function CasePage() {
 
             {/* Step 1: Care-home selection */}
             {!caseData.care_home_id && (
-              <div className="border-border bg-card rounded-xl border p-6 shadow-sm">
+              <div className={`${card} p-6`}>
                 <CareHomeSelectorSection />
               </div>
             )}
 
             {/* Step 2: PLZ entry */}
             {caseData.care_home_id && caseData.plz_resolution_status === 'unclear' && (
-              <div className="border-border bg-card rounded-xl border p-6 shadow-sm">
+              <div className={`${card} p-6`}>
                 <PlzForm />
               </div>
             )}

@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import { de } from '@/lib/strings/de'
 import { updatePasswordAction, type UpdatePasswordState } from './actions'
+import { btnCopper, controlFull, fieldLabel } from '@/components/ui/styles'
 
 const up = de.updatePassword
 
@@ -21,7 +22,7 @@ export function UpdatePasswordForm() {
       )}
 
       <div className="space-y-1">
-        <label htmlFor="password" className="text-sm font-medium">
+        <label htmlFor="password" className={fieldLabel}>
           {up.newPasswordLabel}
         </label>
         <input
@@ -31,13 +32,13 @@ export function UpdatePasswordForm() {
           autoComplete="new-password"
           minLength={8}
           required
-          className="border-border bg-background focus:ring-ring w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-2"
+          className={controlFull}
         />
         <p className="text-muted-foreground text-xs">{up.passwordHint}</p>
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="confirm" className="text-sm font-medium">
+        <label htmlFor="confirm" className={fieldLabel}>
           {up.confirmPasswordLabel}
         </label>
         <input
@@ -46,15 +47,11 @@ export function UpdatePasswordForm() {
           type="password"
           autoComplete="new-password"
           required
-          className="border-border bg-background focus:ring-ring w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-2"
+          className={controlFull}
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="bg-primary text-primary-foreground w-full rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
-      >
+      <button type="submit" disabled={isPending} className={`${btnCopper} w-full`}>
         {isPending ? up.submitPending : up.submitIdle}
       </button>
     </form>

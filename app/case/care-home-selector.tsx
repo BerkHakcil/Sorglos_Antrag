@@ -3,6 +3,7 @@
 import { useTransition, useState } from 'react'
 import { de } from '@/lib/strings/de'
 import { saveCareHomeAction } from './actions'
+import { btnCopper, controlFull, fieldLabel } from '@/components/ui/styles'
 
 const s = de.case.careHome
 
@@ -29,14 +30,14 @@ export function CareHomeSelector({ careHomes }: { careHomes: CareHome[] }) {
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="space-y-1">
-          <label htmlFor="care_home_id" className="text-sm font-medium">
+          <label htmlFor="care_home_id" className={fieldLabel}>
             {s.label}
           </label>
           <select
             id="care_home_id"
             value={selected}
             onChange={(e) => setSelected(e.target.value)}
-            className="border-border bg-background focus:ring-ring w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-2"
+            className={controlFull}
             required
           >
             <option value="" disabled>
@@ -57,11 +58,7 @@ export function CareHomeSelector({ careHomes }: { careHomes: CareHome[] }) {
           </p>
         )}
 
-        <button
-          type="submit"
-          disabled={isPending || !selected}
-          className="bg-primary text-primary-foreground w-full rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
-        >
+        <button type="submit" disabled={isPending || !selected} className={`${btnCopper} w-full`}>
           {isPending ? s.loadingButton : s.submitButton}
         </button>
       </form>

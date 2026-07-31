@@ -112,13 +112,23 @@ body {
   --accent: #a9bfae;
   --accent-foreground: #2c2f32;
   --destructive: oklch(0.577 0.245 27.325);
+  /* ── E-2: the border token is SPLIT ────────────────────────────────────
+     One value cannot serve both jobs. WCAG 1.4.11 requires >= 3:1 only for
+     boundaries that convey information — a form control's edge does, a
+     decorative divider does not. The mockup uses #e6e0d0 for both, which is
+     1.32:1 on white: correct for dividers, a real failure for inputs.
+
+     --border  = decorative only (dividers, card edges, table rules). Keeps
+                 the mockup's soft cream so the design reads as authored.
+     --input   = form-control boundaries. Measured against every surface a
+                 control actually sits on: 3.78:1 on white cards, 3.44:1 on
+                 the cream page, 3.15:1 on cream-deep. All clear 3:1.
+
+     Fallback if #8c8272 reads too warm on real screens: graphite-soft
+     #5c6166 (6.26:1 on white). Both are rendered side by side in the E-2
+     gallery; the founder makes the final call at the STOP. */
   --border: #e6e0d0;
-  /* ⚠ --input is the mockup's value and is only 1.32:1 against white, below
-     the 3:1 WCAG 1.4.11 minimum for form-control boundaries. E-2 decides the
-     replacement from the gallery comparison (#8c8272 = 3.78:1 first choice,
-     graphite-soft = 6.26:1 fallback). Left at the mockup value for E-1 so the
-     token port stays a pure port. */
-  --input: #e6e0d0;
+  --input: #8c8272;
   --ring: #245b5a;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);

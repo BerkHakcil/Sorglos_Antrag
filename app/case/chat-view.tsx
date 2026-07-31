@@ -81,15 +81,29 @@ function ProgressBar({ nav }: { nav: NavState }) {
     .replace('{answered}', String(nav.answeredRequired))
     .replace('{total}', String(nav.totalRequired))
 
+  /* E-2: mockup progress treatment — sage-soft track, petrol fill, and the
+     percentage as a petrol chip rather than plain text. The bar is the only
+     part of chat-view E-2 touches; bubbles, history and the answer footer
+     belong to E-3. role/aria added here because the old markup conveyed
+     progress purely visually. */
   return (
     <div className="space-y-1.5">
-      <div className="text-muted-foreground flex justify-between text-xs">
+      <div className="text-graphite-soft flex items-center justify-between text-xs">
         <span>{label}</span>
-        <span className="font-medium">{nav.progressPercent}%</span>
+        <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-[11px] font-semibold">
+          {nav.progressPercent}%
+        </span>
       </div>
-      <div className="bg-muted h-2 overflow-hidden rounded-full">
+      <div
+        className="bg-sage-soft/60 h-1.5 overflow-hidden rounded-full"
+        role="progressbar"
+        aria-valuenow={nav.progressPercent}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={label}
+      >
         <div
-          className="bg-primary h-full rounded-full transition-all duration-300"
+          className="bg-primary h-full rounded-full transition-all duration-500 ease-out"
           style={{ width: `${nav.progressPercent}%` }}
         />
       </div>
@@ -662,12 +676,15 @@ export function ChatView({
   return (
     <div className="flex h-full flex-col">
       {/* ── Fixed top: subheader + progress bar ─────────────── */}
-      <div data-testid="case-header" className="border-border bg-card shrink-0 border-b">
+      <div
+        data-testid="case-header"
+        className="border-border/60 bg-background/95 shrink-0 border-b backdrop-blur"
+      >
         <div className="mx-auto max-w-2xl space-y-2 px-4 pt-3 pb-3">
           {/* Subheader: title + case meta + live status */}
           <div className="space-y-1">
             <h2 className="text-sm font-semibold">{content.caseSubheading}</h2>
-            <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
+            <div className="text-graphite-soft flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
               <span className="font-mono">{`${caseId.slice(0, 8)}…`}</span>
               {plzBeforeMove && <span>PLZ {plzBeforeMove}</span>}
               <span className={statusClass}>{derivedStatusLabel}</span>
