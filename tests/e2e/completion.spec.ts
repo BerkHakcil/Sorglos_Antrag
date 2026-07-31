@@ -15,10 +15,17 @@
  * SETUP REQUIRED **BEFORE EVERY RUN**: `node scripts/create-test-user.mjs`.
  * This spec logs in as the user recorded in `.playwright-test-user.json` and
  * drives its case all the way to `under_review`, which the M3 edit lock then
- * freezes — so **the fixture is single-use**. Re-running without re-seeding
- * finds a locked case, never renders `#care_home_id`, and times out after ten
- * minutes. That is the ordinary outcome of a *successful* previous run, not a
- * regression.
+ * freezes — so **the fixture is single-use**.
+ *
+ * The fixture is consumed EARLIER than "completed", though: the spec's step 1
+ * needs the care-home pre-step, which stops rendering the moment
+ * `cases.care_home_id` is set. So ANY previous run that got past login — a
+ * successful one, or one that failed at question 40 — leaves the fixture
+ * unusable, and `#care_home_id` then never appears. The precondition below
+ * checks `care_home_id IS NULL`, not just the status, for exactly that reason
+ * (verified 2026-07-31 against a fixture with care_home_id + plz set, status
+ * still `in_progress`, 0 answers). Re-seeding is the fix; this is not a
+ * regression in the app.
  *
  * ⚠ HOW A STALE FIXTURE PRESENTS (cost an hour on 2026-07-30): if that user's
  * CASE row was deleted while the auth user survived (cleanup sweeps delete
@@ -199,18 +206,28 @@ test('complete all Berlin questionnaire questions → DB flips to under_review +
   // timeout on a selector that will never appear (see the header).
   const { data: fixtureCase } = await adminDb
     .from('cases')
-    .select('status')
+    .select('status, care_home_id')
     .eq('id', CREDS.caseId)
     .maybeSingle()
-  expect(
-    fixtureCase,
-    `Fixture case ${CREDS.caseId} no longer exists — run: node scripts/create-test-user.mjs`
-  ).not.toBeNull()
+  const reseed = 'Re-seed with: node scripts/create-test-user.mjs'
+  expect(fixtureCase, `Fixture case ${CREDS.caseId} no longer exists — ${reseed}`).not.toBeNull()
   expect(
     fixtureCase?.status,
     `Fixture case is already "${fixtureCase?.status}" — this spec drives its case to under_review, ` +
-      'so the fixture is single-use. Re-seed with: node scripts/create-test-user.mjs'
+      `so the fixture is single-use. ${reseed}`
   ).toBe('in_progress')
+  // A partially-advanced case is just as unusable as a completed one: once
+  // care_home_id is set the care-home pre-step stops rendering, so step 1's
+  // `#care_home_id` never appears and the test burns its full 10-minute
+  // timeout. Any earlier run that got past login — including one that failed
+  // later — leaves the fixture in exactly this state, so status alone is not
+  // a sufficient precondition. (Observed 2026-07-31: care_home_id and
+  // plz_before_move both set, status still in_progress, 0 answers.)
+  expect(
+    fixtureCase?.care_home_id,
+    `Fixture case already has a care home selected, so the care-home pre-step will not render. ` +
+      `A previous run consumed this fixture. ${reseed}`
+  ).toBeNull()
 
   // ── 0b. Login ───────────────────────────────────────────────────────────────
   await login(page)
