@@ -639,10 +639,34 @@ under this one: full suite **13 passed / 13 skipped / 0 failed against the
 real preview in 3.1 min**, plus the gallery re-shot from the preview with
 `body` computing to `Lato…` on `rgb(247,244,237)`.
 
-## E-2 (shared primitives) — on the branch, ⏸ STOP for founder review
+## E-2 (shared primitives) — ✅ MERGED to main 2026-07-31 (`6d19dbe`)
 
-Commit `fcfaea7` + gallery. **Not merged.** Preview:
+Commits `fcfaea7` (code) + `1b3491b` (gallery) + `0300dfd` (comment fix);
+branch tip `0300dfd`. Preview it was approved from:
 `sorglos-antrag-m58b3edk9-berk-solutions.vercel.app`.
+
+**Border pick CONFIRMED by the founder from the real-screen gallery:**
+`--input: #8c8272` ships; `--border` stays the mockup's soft `#e6e0d0`.
+The split is settled — later sub-phases inherit it and should not
+re-litigate it.
+
+### Dead-code decision taken alongside E-2 (main `c33a718`)
+
+`components/ui/button.tsx` (shadcn scaffold, `Button` + `buttonVariants`)
+**deleted**. Imported by zero files, therefore covered by zero tests,
+therefore nothing would have reported that its `cva` variants had missed
+both the E-1 token port and E-2. Rewriting it to delegate to `styles.ts`
+was rejected: still an untested component with no consumers, drifting
+off-brand again at the next token change. `components.json` is present,
+so `npx shadcn add button` regenerates one against current tokens.
+
+⚠ **`class-variance-authority` is now used by nothing and is DELIBERATELY
+RETAINED.** Do not "clean it up": with `components.json` in the repo, the
+next `shadcn add` generates a component that expects it, so removing it
+only buys a reinstall. Verified at the time of writing that it has exactly
+one former consumer (the deleted file) and that `@base-ui/react` is still
+required — `consent-info-popover.tsx` imports its popover — and that
+`cn()` in `lib/utils` is still used by `signup/form.tsx`.
 
 **Gate met under the new rule:** full suite **against the real preview** —
 **13 passed / 13 skipped / 0 failed, 3.2 min**, no tripwire. Unit
@@ -807,6 +831,14 @@ annotated `Auth flow` group. Prod left clean: 12 real users untouched, the
 only test user is the current fixture (the stale one was garbage-collected
 by the setup script); no leaked users from the run.
 
-Remaining Roman items: logo as SVG, Ansprechpartner decision + assets,
-`/fertig` "Nächste Schritte" copy, the §10 folder-mapping FYI (flippable
-rows), plus the older sign-offs in `german_copy_for_roman.md`.
+## Roman ledger (open items for the non-technical co-founder)
+
+| Item                                    | Status                                                                                                                                        |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Logo as SVG                             | open — upgrade when it arrives, not a dependency                                                                                              |
+| Ansprechpartner decision + assets       | open — his personal data, out of Phase E scope                                                                                                |
+| `/fertig` "Nächste Schritte" copy       | open — PLACEHOLDER_DE proposal, not shipped                                                                                                   |
+| §10 folder-mapping FYI (flippable rows) | open                                                                                                                                          |
+| Older sign-offs                         | in `german_copy_for_roman.md`                                                                                                                 |
+| **Tab badge — the word "offen" (E-2)**  | **open.** The mockup reads `· 4 offen`; we ship `· 4`. "offen" is NEW German copy and is his to author (R3). Asked in the gallery README.     |
+| **Form-control border colour (E-2)**    | ✅ **CLOSED 2026-07-31** — founder confirmed `#8c8272` from the real-screen gallery; dividers keep `#e6e0d0`. No longer a question for Roman. |
