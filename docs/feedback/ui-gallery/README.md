@@ -182,3 +182,41 @@ lieber behalten möchtest.
 **Barrierefreiheit — gemessen, nicht geschätzt:** weiße Schrift auf Petrol
 7,72:1, dunkle Schrift auf Weiß 13,46:1, Hinweistext auf Salbei 5,09:1,
 Abschnitts-Pille 5,72:1. Alle Werte liegen über der Norm (4,5:1).
+
+---
+
+## E-4 — Die Dokumenten-Liste
+
+**Was sich ändert:** nur die Darstellung. **Kein Text ändert sich**, keine
+Dokumentnamen, keine Reihenfolge, nichts an der Funktion. Hochladen,
+Ersetzen und Entfernen verhalten sich exakt wie vorher.
+
+| Ordner             | Inhalt                        |
+| ------------------ | ----------------------------- |
+| `E-4-docs-BEFORE/` | Stand nach E-3 (aktuell live) |
+| `E-4-docs-AFTER/`  | mit dem neuen Design          |
+
+**Das Wichtigste:**
+
+1. **Eine Karte pro Bereich** statt vieler einzelner Kästchen. Die
+   Dokumente stehen als Zeilen darin, mit feinen Trennlinien.
+2. **Jede Zeile bekommt ein Zeichen links:** ein Dokument-Symbol, solange
+   noch nichts hochgeladen ist — ein petrolfarbener Haken, sobald eine
+   Datei da ist. Erledigte Zeilen sind zusätzlich zart salbeigrün
+   hinterlegt, so sieht man den Fortschritt auf einen Blick.
+3. **„Fehlt" bleibt bewusst unauffällig grau.** Ein noch nicht
+   hochgeladenes Dokument ist kein Fehler und keine Warnung, sondern
+   einfach ein Schritt, der noch aussteht. Deshalb kein Rot und kein Gelb.
+4. **„Alle Dokumente hochgeladen"** ist jetzt petrolfarben statt in einem
+   Grün, das nicht zur Palette gehörte.
+
+**Die drei Zustände (je `-desktop` und `-mobile`):**
+
+| Bild            | Zustand                    |
+| --------------- | -------------------------- |
+| `01-docs-empty` | noch nichts hochgeladen    |
+| `02-docs-mixed` | zwei von elf Dokumenten da |
+| `03-docs-full`  | alle elf da                |
+
+Die Screenshots zeigen echte Uploads (eine Test-PDF „Musterdokument"), kein
+nachgestelltes Bild.
