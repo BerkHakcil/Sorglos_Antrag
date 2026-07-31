@@ -6,14 +6,14 @@
 
 ## Phase status
 
-| Phase                           | Status                                                            | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A — read-only triage            | ✅ DONE 2026-07-30                                                | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                                                                                                                                                                                      |
-| B — quick fixes (items 3/7/8/1) | ✅ DONE 2026-07-30                                                | migrations `20260730000001` + `20260730000002` pushed by founder and verified: live drive 11/11 (umlauted checklist names + no leftovers; B1 empty-Weiter completes birth_name, survives reload, `''` row in DB; rentenbetrag renders with NO Brutto text at step 27); verify-baseline full replay all 12 tables identical; documents-m6 e2e regression PASS; unit 138/138. B4 no-op                                                                                                         |
-| C — spouse Vollmacht (PAN-011)  | ✅ DONE 2026-07-30                                                | migration `20260730000003` pushed and verified. Data level: 105 rows, exactly PAN-011 inactive, Pankow active 49 / Essen 55, no upload references it. Live: married Pankow checklist 13 slots with partner section but NO Vollmacht (exactly 1 overall, person_1); Essen 7 slots with its own rules — both non-empty, proving the active-filter queries work against the new column in prod. unit 143/143, documents-m6 PASS, verify-baseline all 12 tables identical (incl. the new column) |
-| D — storage restructure         | ✅ DONE 2026-07-30                                                | migration `20260730000004` (commit A `96ab5d8`) pushed + verified, then code (commit B `d1c9f92`) — rule #8 order honoured. New uploads land at `{case}/{Folder}/{Base}{n}.{ext}`; the 14 existing files are grandfathered and still download. Live verified 15/15 incl. Spouse override, hostile bank name, legacy-file download, export naming and counter cascade. unit 193/193, documents-m6 PASS, verify-baseline identical with `storage_category` in the guard                        |
-| E — UI restyle                  | E-0 ✅ merged to main · **E-1 done on branch, ⏸ STOP for review** | branch `feedback-pass3-ui`, commit `52cee76`. E-0 = 6 data-testids + 9 repointed selectors, **zero visual change** (diff touches no className). Preview built READY but is **SSO-protected**, so the suite ran against the identical build served locally: **11 passed, 3 failed — all three proven PRE-EXISTING**, none caused by E-0                                                                                                                                                       |
-| F — close-out                   | not started                                                       |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Phase                           | Status                                                                             | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A — read-only triage            | ✅ DONE 2026-07-30                                                                 | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                                                                                                                                                                                      |
+| B — quick fixes (items 3/7/8/1) | ✅ DONE 2026-07-30                                                                 | migrations `20260730000001` + `20260730000002` pushed by founder and verified: live drive 11/11 (umlauted checklist names + no leftovers; B1 empty-Weiter completes birth_name, survives reload, `''` row in DB; rentenbetrag renders with NO Brutto text at step 27); verify-baseline full replay all 12 tables identical; documents-m6 e2e regression PASS; unit 138/138. B4 no-op                                                                                                         |
+| C — spouse Vollmacht (PAN-011)  | ✅ DONE 2026-07-30                                                                 | migration `20260730000003` pushed and verified. Data level: 105 rows, exactly PAN-011 inactive, Pankow active 49 / Essen 55, no upload references it. Live: married Pankow checklist 13 slots with partner section but NO Vollmacht (exactly 1 overall, person_1); Essen 7 slots with its own rules — both non-empty, proving the active-filter queries work against the new column in prod. unit 143/143, documents-m6 PASS, verify-baseline all 12 tables identical (incl. the new column) |
+| D — storage restructure         | ✅ DONE 2026-07-30                                                                 | migration `20260730000004` (commit A `96ab5d8`) pushed + verified, then code (commit B `d1c9f92`) — rule #8 order honoured. New uploads land at `{case}/{Folder}/{Base}{n}.{ext}`; the 14 existing files are grandfathered and still download. Live verified 15/15 incl. Spouse override, hostile bank name, legacy-file download, export naming and counter cascade. unit 193/193, documents-m6 PASS, verify-baseline identical with `storage_category` in the guard                        |
+| E — UI restyle                  | E-0 ✅ merged to main · **E-1 done on branch, bar MET, ⏸ STOP for the merge word** | branch `feedback-pass3-ui`, commit `52cee76`. E-0 = 6 data-testids + 9 repointed selectors, **zero visual change** (diff touches no className). Preview built READY but is **SSO-protected**, so the suite ran against the identical build served locally: **11 passed, 3 failed — all three proven PRE-EXISTING**, none caused by E-0                                                                                                                                                       |
+| F — close-out                   | not started                                                                        |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ## Key Phase-A facts (so later phases need not re-derive)
 
@@ -578,11 +578,8 @@ var(--font-sans)` (self-referential) while `layout.tsx` defined
   functions / a Vercel hiccup) or load-related when 13 drives run
   back-to-back. Do not claim a cause without new evidence.
   **Consequence for the gate:** a 2 h preview suite per sub-phase is not
-  viable (~16 h across E-2…E-8). Proposed split gate — full suite against
-  the local identical build (same artifact, ~15 min) + a preview smoke;
-  the gallery scripts already _are_ a preview smoke (login, both
-  pre-steps, three answer saves, tab switch, documents render, two
-  viewports). Founder decision pending.
+  viable (~16 h across E-2…E-8). → **Split gate adopted by the founder
+  2026-07-31, see below.**
 
 ### Process slip worth recording
 
@@ -593,6 +590,94 @@ shipped, while their matching BEFORE shots sat on the branch. Reverted in
 `c934a4e` and re-committed on the branch. **Lesson: on a gated branch
 workflow, stage paths explicitly (`git add <paths>`) rather than `-A`,
 because the two branches now carry deliberately different content.**
+
+## Verification gate for E-2…E-8 — SPLIT GATE (founder decision 2026-07-31)
+
+The binding rule for the rest of Phase E. Also mirrored in
+`pass3_phase_e_plan.md` §6.
+
+| Scope                                  | Per sub-phase (E-2…E-7)                                                                                                                                                                                                                                                        | E-8 + final pre-merge    |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------ |
+| Full Playwright suite, **local** build | **required** — the deploy artifact is byte-identical to the preview's, so this is the correctness gate                                                                                                                                                                         | required                 |
+| **Preview** smoke                      | **required**, and it is the gallery run itself: `scripts/ui-gallery.mjs` drives login → both pre-steps → three answer saves → tab switch → documents render, at 1280×800 and 375×812, against the real preview URL. Producing the gallery _is_ the smoke — no separate script. | —                        |
+| Full Playwright suite, **preview**     | **not required**                                                                                                                                                                                                                                                               | **required** (once each) |
+| Unit (Vitest)                          | required                                                                                                                                                                                                                                                                       | required                 |
+
+Rationale: the local suite and the preview serve the same build; what the
+preview adds that local cannot is the deployed CSS/font pipeline and the
+edge runtime, and the gallery exercises exactly that on every screen the
+sub-phase touched. Paying 2 h × 7 for the residual coverage is not a
+trade worth making mid-phase; it is worth making once at the end.
+
+**E-1's verification bar is MET** under this gate: full local suite
+13 passed / 13 skipped / 0 failed; preview smoke = the AFTER gallery and
+border candidates, re-shot against the live preview URL with `body`
+computing to `Lato…` on `rgb(247,244,237)`.
+
+## Fragile-primitive fix (main, `53fdf73`) — networkidle removed
+
+All **11** `waitForLoadState('networkidle')` sites across six specs
+replaced with an assertion on the state the test actually needs: six
+setup helpers now assert `[data-testid=answer-footer]` is visible; three
+`documents-m6` sites dropped it because the following `openDocumentsTab()`
+already waits for `[data-testid=tab-documents]`; two `m7-regression`
+sites dropped it because the next line is already an explicit
+`expect(...).toBeVisible()`. Grep for `networkidle` now returns nothing.
+
+**The 12-timeout run is the precedent, not an attributed cause.** No
+cause was established; the Vercel-Live hypothesis was disproved by A/B
+and the exact sequence replayed green in 488 ms. What is established is
+that networkidle waits on a global condition no assertion depends on and
+converts any stray keep-alive into a multi-minute timeout. The honest
+record is **"not reproduced, primitive replaced."** If the failure
+recurs after this change, that is new evidence and the investigation
+reopens — with the timeout removed, a recurrence will now surface as a
+fast, specific assertion failure instead of a 900 s hang.
+
+### Post-migration suite result (branch, after merging main)
+
+**13 passed · 13 skipped · 0 failed.** Every previously-networkidle site
+now settles in normal time; no wait-related failure anywhere.
+
+One test did fail on the first attempt and it was **not** the waits:
+`completion.spec` timed out 10 min on `#care_home_id`. Cause found and
+fixed — see below. On a re-seeded fixture it passes **all five criteria in
+1.0 min**.
+
+### `completion.spec` fixture precondition was checking the wrong invariant
+
+The precondition added earlier this pass asserted `status = 'in_progress'`.
+That is necessary but **not sufficient**: step 1 needs the care-home
+pre-step, which stops rendering the instant `cases.care_home_id` is set.
+The fixture was sitting at `care_home_id` + `plz_before_move` set,
+`status` still `in_progress`, `0` answers — left there by the 2 h preview
+run, which got through the pre-steps before dying. So the precondition
+waved it through and the spec burned its full 600 s timeout on a selector
+that could never appear.
+
+Fixed: the precondition now also asserts `care_home_id IS NULL`, and the
+header records the real invariant — **any** prior run that got past login
+consumes the fixture, not only a successful one. This is a test-harness
+defect, not an app regression, and it is unrelated to the networkidle
+change (the same spec failed the same way before it).
+
+## Prod debris sweep from the 2 h run window — 0 deletions (2026-07-31)
+
+Read-only audit of all **20** auth users, then per-user verification —
+never a pattern delete. Result: **nothing to delete.**
+
+- 12 real users — untouched, not candidates.
+- 7 historical synthetic leftovers (06-28 → 07-01) — **explicitly out of
+  scope**, they remain the backlog item above, unchanged and unfolded.
+- 1 candidate from the window, `pw-completion+1785486311150@…`
+  (08:25:15Z): **kept** — it is the current `completion.spec` fixture
+  (1 case, 0 answers, 0 uploads), in active use.
+- All 5 storage prefixes belong to **real** users. `document_filename_seq`
+  rows: 0; orphaned counter rows: 0.
+
+Why zero: the specs' `afterEach` cleanup survives failures, so the 12
+failed drives cleaned up after themselves. The failure mode did not leak
+prod data.
 
 ## E-0 final tally (branch, after merging main)
 

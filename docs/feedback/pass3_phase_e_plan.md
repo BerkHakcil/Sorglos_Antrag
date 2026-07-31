@@ -289,6 +289,34 @@ dormant (gated on an unset repo variable), so e2e runs are local and
 deliberate. Phase E does not change that; it just means "suite green" is my
 manual gate, reported per sub-phase.
 
+### 6a. The gate itself — SPLIT GATE (founder decision, 2026-07-31)
+
+This **supersedes** "the full e2e suite must run green before every merge"
+above, in one respect only: _where_ the full suite runs.
+
+| Scope                       | E-2 … E-7 (each)                                                                             | E-8 + final pre-merge |
+| --------------------------- | -------------------------------------------------------------------------------------------- | --------------------- |
+| Full suite, **local** build | **required** (the correctness gate — same artifact the preview serves)                       | required              |
+| **Preview** smoke           | **required** — and it _is_ the gallery run: `scripts/ui-gallery.mjs` against the preview URL | —                     |
+| Full suite, **preview**     | not required                                                                                 | **required**, once    |
+| Unit (Vitest)               | required                                                                                     | required              |
+
+The gallery script is a genuine smoke, not a screenshot loop: it signs up,
+completes both pre-steps, saves three answers, switches tabs, renders the
+document checklist, and does it at two viewports. Anything that breaks in
+the deployed CSS/font/edge pipeline but not locally shows up there.
+
+**Why:** the E-1 preview run took **2 h** for 12 failures (see the state
+file). Repeating that for E-2…E-8 is ~16 h of wall time buying a residual
+delta over the local suite that the gallery already covers on the screens
+each sub-phase actually touches. Pay it once, at the end.
+
+**Prerequisite, now done:** the failures were all
+`waitForLoadState('networkidle')` timeouts. All 11 sites are gone from the
+specs (main, `53fdf73`), replaced by assertions on the specific element
+each test needs. That is a fragility fix, **not** a diagnosis — the 2 h run
+was never reproduced and no cause is claimed.
+
 ---
 
 ## 7. Screenshot gallery — Roman's sign-off package
