@@ -661,6 +661,29 @@ consumes the fixture, not only a successful one. This is a test-harness
 defect, not an app regression, and it is unrelated to the networkidle
 change (the same spec failed the same way before it).
 
+### Preview re-baseline (one run, as instructed) — 3.1 min, all green
+
+Against the branch deployment of `48b8c02`
+(`sorglos-antrag-fgg4et4mr-berk-solutions.vercel.app`, bypass verified
+HTTP 200), default workers:
+
+**13 passed · 13 skipped · 0 failed · exit 0 · wall time 3.1 min.**
+Slowest specs: `visibility` 2.4 min, `documents-m6` 2.5 min. Nothing
+approached a timeout. The comparable earlier run on the same preview:
+**2 h, 12 failed / 1 passed.**
+
+⚠ **Read this as a baseline, not as proof of a fix.** The old failure was
+already non-reproducible _before_ the change — the exact sequence replayed
+green in 488 ms. A green run now therefore cannot distinguish "the
+primitive was the problem" from "the transient is simply gone". What it
+does establish is the number the split gate is priced against: a full
+preview suite currently costs **~3 min**, not 2 h.
+
+Consequence worth noting: at 3 min, the E-8 / pre-merge full preview run is
+cheap. If it stays at this cost through E-2, running it per sub-phase
+becomes affordable again and the gate can be tightened — that is the
+founder's call, not a change I will make unilaterally.
+
 ## Prod debris sweep from the 2 h run window — 0 deletions (2026-07-31)
 
 Read-only audit of all **20** auth users, then per-user verification —
