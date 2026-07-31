@@ -77,7 +77,17 @@ function probe() {
       : el
   const r = targetEl.getBoundingClientRect()
   const hasOutline = cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0
-  const hasRing = cs.boxShadow !== 'none'
+  // The ring may sit on a child (the popover trigger paints its ring on the
+  // inner circle via group-focus-visible) or on a composite parent (the phone
+  // wrapper rings on focus-within for its nested input). Both are visible
+  // indications; credit them.
+  const ringOn = (node) => node && getComputedStyle(node).boxShadow !== 'none'
+  const hasRing =
+    ringOn(el) ||
+    ringOn(el.firstElementChild) ||
+    ringOn(el.parentElement?.closest('.ring-2, [class*="focus-within"]'))
+  // Links inside running text fall under WCAG 2.5.8's inline exception.
+  const isInline = el.tagName === 'A' && !!el.closest('label, p')
   const label = (
     el.getAttribute('aria-label') ||
     el.textContent ||
@@ -98,6 +108,7 @@ function probe() {
     // one, silently truncating the documents walk to one stop.
     top: Math.round(el.getBoundingClientRect().top + window.scrollY),
     visibleIndicator: hasOutline || hasRing,
+    inline: isInline,
     w: Math.round(r.width),
     h: Math.round(r.height),
   }
@@ -112,9 +123,18 @@ async function auditScreen(page, name, maxTabs = 40) {
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
   })
   let firstKey = null
+  const inlineExempt = []
   for (let i = 0; i < maxTabs; i++) {
     await page.keyboard.press('Tab')
-    const info = await page.evaluate(probe)
+    let info = await page.evaluate(probe)
+    if (!info && i === 0) {
+      // Right after a save the page re-renders (router.refresh) and a Tab can
+      // land on an element that unmounts under it. One settled retry
+      // distinguishes that transient from a genuinely unreachable screen.
+      await page.waitForTimeout(1000)
+      await page.keyboard.press('Tab')
+      info = await page.evaluate(probe)
+    }
     if (!info) {
       // focus left the page's controls: wrapped (fine) or never entered (broken)
       if (i === 0)
@@ -130,9 +150,14 @@ async function auditScreen(page, name, maxTabs = 40) {
     if (!info.visibleIndicator) noIndicator.push(`${key}`)
     // Width leniency for full-row text controls; height is the strict axis.
     if (info.h < 44 && !(info.tag === 'input' && info.w >= 200)) {
-      small.push(`${key} → ${info.w}x${info.h}`)
+      if (info.inline) inlineExempt.push(`${key} → ${info.w}x${info.h}`)
+      else small.push(`${key} → ${info.w}x${info.h}`)
     }
   }
+  if (inlineExempt.length)
+    console.log(
+      `   ○ inline links, 2.5.8 exception (not failures):\n      ${inlineExempt.join('\n      ')}`
+    )
   console.log(`\n── ${name} — ${stops.length} tab stops ──`)
   stops.forEach((s, i) => console.log(`   ${String(i + 1).padStart(2)} ${s}`))
   console.log(
