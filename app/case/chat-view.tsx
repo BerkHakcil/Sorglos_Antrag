@@ -171,7 +171,13 @@ function AnsweredBubble({
           )}
         </div>
       )}
-      <div className="flex flex-col gap-2">
+      {/* data-testid is the e2e anchor for one answered Q&A pair.
+          transitive-visibility-fix.spec previously located this wrapper by its
+          CSS class (`div.space-y-1`) and broke silently when E-3 changed the
+          layout to flex — the click simply waited out its timeout against a
+          page that rendered perfectly. Same lesson as E-0's `.shrink-0.border-t`;
+          this one was missed by that census. */}
+      <div data-testid="answered-bubble" className="flex flex-col gap-2">
         {/* Assistant side — the question */}
         <div className="bg-card text-foreground max-w-[85%] self-start rounded-2xl rounded-bl-md px-4 py-3 text-[15px] leading-relaxed shadow-sm sm:max-w-[75%]">
           {question.prompt_de}
