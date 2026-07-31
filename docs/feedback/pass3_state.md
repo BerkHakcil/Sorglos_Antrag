@@ -655,7 +655,49 @@ under this one: full suite **13 passed / 13 skipped / 0 failed against the
 real preview in 3.1 min**, plus the gallery re-shot from the preview with
 `body` computing to `Lato…` on `rgb(247,244,237)`.
 
-## E-5 (auth + pre-steps) — on the branch, ⏸ STOP for founder review
+## Harness rule: preview readiness is NEVER an HTTP status (2026-07-31)
+
+**A Vercel preview serves its "Deployment is building" holding page with
+HTTP 200.** Any poll that waits for 200 therefore returns immediately, and
+everything downstream runs against a page with none of the app on it.
+This cost the first E-5 suite 15.1 min and 10 false failures.
+
+**Gate on CONTENT** (an element only the real app renders, plus the
+absence of the building marker) **or on the deployment's `readyState`
+from the Vercel API.** Never the status code.
+
+Implemented as `scripts/lib/preview-ready.mjs` → `gotoWhenReady()`, used
+by **all five** capture scripts (`ui-gallery`, `-chat`, `-docs`, `-auth`,
+`ui-border-candidates`). It names the holding page in its error rather
+than letting a later selector time out and look like a product failure.
+
+Also cleared while in those files: the last four
+`waitForLoadState('networkidle')` calls (in `ui-gallery.mjs`). **Grep
+across `scripts/` now returns zero** — this was the E-7 sweep item, done
+early.
+
+### ⚠ Encoding defect I introduced, found and fixed (`af64a3c`)
+
+A PowerShell `Get-Content`/`Set-Content` round-trip on
+`ui-gallery-chat.mjs` decoded UTF-8 as Windows-1252 and re-encoded it,
+corrupting every non-ASCII character — **including three German button
+labels the script clicks** (`Weiß ich gerade nicht`,
+`Pflegeheim bestätigen`, `Postleitzahl bestätigen`). The script could no
+longer find them. It landed _after_ the runs that produced the E-3
+gallery, which is why nothing failed at the time.
+
+Repaired by explicit sequence mapping with assertions. A blind Latin-1
+round-trip does **not** work here: cp1252 maps `0x9F` to `U+0178`, which
+is outside Latin-1 and is lost. **Lesson: never round-trip a source file
+through PowerShell's `Get-Content`/`Set-Content`** — use the editing tools
+or Node's `fs` with an explicit `utf8` encoding.
+
+## E-5 (auth + pre-steps) — ✅ MERGED to main 2026-07-31 (`6f1de39`)
+
+Prod verified after deploy: page background `rgb(247,244,237)` cream, logo
+present and centred with `alt="Sorglos Antrag"`, `href="/login"`, column
+`max-width: 512px`. Sage confirmation panels confirmed in the prod capture
+run.
 
 Commit `b878597` + gallery. **Not merged.** Preview:
 `sorglos-antrag-5iyws30ph-berk-solutions.vercel.app`.
