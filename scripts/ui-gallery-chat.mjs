@@ -12,14 +12,20 @@
  *   all-answered  the completion card WITHOUT the lock
  *
  * ⚠ How `all-answered` is reached, stated plainly because it is not a state a
- * user lingers in: completing the last required question flips
- * cases.status to under_review, and the server re-render replaces the
- * completion card with the locked card almost immediately (this is the same
- * C1-vs-C4 race documented in completion.spec). To photograph the completion
- * card at all, this script drives the case to completion, captures `locked`,
- * then sets status back to in_progress through the admin client and reloads.
- * The answers are real; only the status is rewound, and only on a throwaway
- * case that is deleted at the end.
+ * user lingers in. Completing the last required question flips cases.status
+ * to under_review and the server re-render swaps the completion card for the
+ * locked card (the C1-vs-C4 race documented in completion.spec), so it must
+ * be captured IN-SESSION, immediately after the drive reports done.
+ *
+ * Two approaches were tried and REJECTED, both verified as failing here:
+ *   - reloading the completed case, and
+ *   - rewinding cases.status to in_progress and reloading.
+ * Neither works, for the same reason: "Nein, weiter" replies to
+ * repeatable-group prompts are SESSION state, not stored answers, so any
+ * fresh load re-asks them and the group-prompt card claims the footer before
+ * the completion card can. If the lock re-render wins the race on a given
+ * run, this script logs that and captures nothing rather than substituting
+ * some other screen.
  *
  * ⚠ PRIVACY — the repo is PUBLIC. Throwaway account, obviously synthetic
  * answers, deleted in `finally`. A real pilot case is never photographed.
