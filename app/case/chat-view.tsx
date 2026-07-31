@@ -420,12 +420,19 @@ export function ChatView({
         ? (sc.statusLabels['completed'] ?? caseStatus)
         : (sc.statusLabels['in_progress'] ?? caseStatus)
 
+  /* E-6: the live status label was the last off-palette colour left in this
+     screen — Tailwind's green-600 for "complete" and blue-600 for "under
+     review", neither of which exists in the brand palette. Mapped onto the
+     same semantics as the two terminal cards: petrol for the positive
+     "everything answered", neutral graphite-soft for the informational
+     "under review". Same reasoning as the cards — under review is neither a
+     success nor a warning. */
   const statusClass =
     caseStatus === 'under_review'
-      ? 'text-blue-600 dark:text-blue-400'
+      ? 'text-graphite-soft'
       : nav.allRequiredAnswered
-        ? 'text-green-600 dark:text-green-400'
-        : 'text-muted-foreground'
+        ? 'text-primary font-medium'
+        : 'text-graphite-soft'
 
   // ── Resolve the currently active question ──────────────────────────────────
   const editingQ = editingId
