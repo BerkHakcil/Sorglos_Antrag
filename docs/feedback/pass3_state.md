@@ -6,14 +6,14 @@
 
 ## Phase status
 
-| Phase                           | Status                                                                     | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A — read-only triage            | ✅ DONE 2026-07-30                                                         | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                                                                                                                                                                                      |
-| B — quick fixes (items 3/7/8/1) | ✅ DONE 2026-07-30                                                         | migrations `20260730000001` + `20260730000002` pushed by founder and verified: live drive 11/11 (umlauted checklist names + no leftovers; B1 empty-Weiter completes birth_name, survives reload, `''` row in DB; rentenbetrag renders with NO Brutto text at step 27); verify-baseline full replay all 12 tables identical; documents-m6 e2e regression PASS; unit 138/138. B4 no-op                                                                                                         |
-| C — spouse Vollmacht (PAN-011)  | ✅ DONE 2026-07-30                                                         | migration `20260730000003` pushed and verified. Data level: 105 rows, exactly PAN-011 inactive, Pankow active 49 / Essen 55, no upload references it. Live: married Pankow checklist 13 slots with partner section but NO Vollmacht (exactly 1 overall, person_1); Essen 7 slots with its own rules — both non-empty, proving the active-filter queries work against the new column in prod. unit 143/143, documents-m6 PASS, verify-baseline all 12 tables identical (incl. the new column) |
-| D — storage restructure         | ✅ DONE 2026-07-30                                                         | migration `20260730000004` (commit A `96ab5d8`) pushed + verified, then code (commit B `d1c9f92`) — rule #8 order honoured. New uploads land at `{case}/{Folder}/{Base}{n}.{ext}`; the 14 existing files are grandfathered and still download. Live verified 15/15 incl. Spouse override, hostile bank name, legacy-file download, export naming and counter cascade. unit 193/193, documents-m6 PASS, verify-baseline identical with `storage_category` in the guard                        |
-| E — UI restyle                  | E-0 ✅ merged · E-1 ✅ merged 2026-07-31 (`8a74f69`) · **E-2 in progress** | E-0 = 6 data-testids + 9 repointed selectors, zero visual change. E-1 = tokens + Lato, approved from the preview and merged to main (prod now carries the mockup palette and, for the first time, an actually-applied webfont). Gate from E-2 on: **full preview suite + gallery + unit, with the 15-min tripwire**                                                                                                                                                                          |
-| F — close-out                   | not started                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Phase                           | Status                                                   | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A — read-only triage            | ✅ DONE 2026-07-30                                       | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                                                                                                                                                                                      |
+| B — quick fixes (items 3/7/8/1) | ✅ DONE 2026-07-30                                       | migrations `20260730000001` + `20260730000002` pushed by founder and verified: live drive 11/11 (umlauted checklist names + no leftovers; B1 empty-Weiter completes birth_name, survives reload, `''` row in DB; rentenbetrag renders with NO Brutto text at step 27); verify-baseline full replay all 12 tables identical; documents-m6 e2e regression PASS; unit 138/138. B4 no-op                                                                                                         |
+| C — spouse Vollmacht (PAN-011)  | ✅ DONE 2026-07-30                                       | migration `20260730000003` pushed and verified. Data level: 105 rows, exactly PAN-011 inactive, Pankow active 49 / Essen 55, no upload references it. Live: married Pankow checklist 13 slots with partner section but NO Vollmacht (exactly 1 overall, person_1); Essen 7 slots with its own rules — both non-empty, proving the active-filter queries work against the new column in prod. unit 143/143, documents-m6 PASS, verify-baseline all 12 tables identical (incl. the new column) |
+| D — storage restructure         | ✅ DONE 2026-07-30                                       | migration `20260730000004` (commit A `96ab5d8`) pushed + verified, then code (commit B `d1c9f92`) — rule #8 order honoured. New uploads land at `{case}/{Folder}/{Base}{n}.{ext}`; the 14 existing files are grandfathered and still download. Live verified 15/15 incl. Spouse override, hostile bank name, legacy-file download, export naming and counter cascade. unit 193/193, documents-m6 PASS, verify-baseline identical with `storage_category` in the guard                        |
+| E — UI restyle                  | E-0…E-6 ✅ merged 2026-07-31 · **E-7 on branch, ⏸ STOP** | E-1 tokens+Lato `8a74f69` · E-2 primitives `6d19dbe` · E-3 chat `eac7a65` · E-4 docs `36a765d` · E-5 auth `6f1de39` · E-6 completion `0249c44` — each preview-approved then prod-verified. E-7 (a11y sweep, loading/404, Roman index) at its STOP on the branch. Gate: full preview suite + amended tripwire + content-based readiness (never HTTP status)                                                                                                                                   |
+| F — close-out                   | not started                                              |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ## Key Phase-A facts (so later phases need not re-derive)
 
@@ -655,7 +655,92 @@ under this one: full suite **13 passed / 13 skipped / 0 failed against the
 real preview in 3.1 min**, plus the gallery re-shot from the preview with
 `body` computing to `Lato…` on `rgb(247,244,237)`.
 
-## E-6 (completion + locked state) — on the branch, ⏸ STOP for founder review
+## E-7 (polish + a11y sweep) — on the branch, ⏸ STOP for founder review
+
+Commits `fa05879` (reduced motion, h1, first touch targets, error palette)
+
+- `1e45821` on main (mojibake CI guard) + `4d4cbc6`/`0f...` (audit harness
+  saga, below) + `3c98930` (audit-driven fixes, loading/404, Roman index)
+- `f7975d4` (audit refinements). **Not merged.** Preview the gate ran
+  against: `sorglos-antrag-1kz7kvu6b-berk-solutions.vercel.app` (tip
+  `f7975d4`; later commits are docs/output-format only).
+
+**Gate:** full suite against the real preview — **13 passed / 13 skipped /
+0 failed, 3.2 min**. Unit 195/195. `npm run verify` (typecheck + lint +
+format + encoding) clean.
+
+One earlier run failed **L2 at 10.1 min**: the snapshot shows a
+`Speichern …` button stuck `[disabled]` at question 33/56 — a save action
+that never resolved. Locator inspected per the amended tripwire: the wait
+is on a global disabled-button count, the page was healthy, and E-7
+touches no save path. **Did not recur on the re-run.** Recorded as a
+one-off hung server action with snapshot evidence; if it recurs, the
+`waitForIdle` primitive (a global condition, same family as networkidle)
+is the thing to revisit.
+
+### The audit harness saga — worth its own paragraphs
+
+1. First version reported **"0 tab stops / no findings" on every screen**
+   and I committed a diagnosis of "Tab does not move focus in headless".
+   **That was false and unverified.** The real bug: the probe was passed to
+   `page.evaluate` as a **string**, which Playwright evaluates as an
+   expression; an arrow-function expression is an unserializable function
+   object → `undefined` → the probe never ran. A three-way direct test
+   proved headless Chromium moves focus on Tab perfectly. Record corrected
+   in the fix commit.
+2. The first real run then exposed three measurement gaps, each fixed:
+   label-only wrap keys truncated the documents walk (11 identical "Datei
+   hochladen" buttons) → position-qualified keys; checkboxes measured bare
+   at 16×16 though the wrapping label is the target → label box measured;
+   post-save re-render made Tab land on an unmounting element → one
+   settled retry.
+3. Probe refined to credit rings on a child (popover) or composite parent
+   (phone wrapper), and to classify links inside sentences under WCAG
+   2.5.8's inline exception rather than as failures.
+
+### Keyboard/touch findings → fixes (all verified by the re-audit)
+
+| Finding (first real run)                                          | Fix                                                                       |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| every button 32–40px high (Anmelden, Weiter, Abmelden, …)         | `min-h-11` in `buttonBase` — no per-site override can undercut it again   |
+| selects 36–37px (care home, phone country)                        | `min-h-11` in the `control` base                                          |
+| standalone links 17–20px (login footer, reset back, signup)       | new `linkStandalone` (min-h-11 inline-flex) at those sites                |
+| auth logo link 40px                                               | `min-h-11` on the link                                                    |
+| consent info buttons 18×18                                        | 44×44 hit area, small visible circle nested, ring via group-focus-visible |
+| phone country select: no distinguishable focus                    | own inset focus-visible ring (wrapper ring lights for either child)       |
+| `Bearbeiten` / remove-instance / upload / delete (from `fa05879`) | `min-h-11`                                                                |
+
+**Final audit: 8 screens — login, signup, both pre-steps, questionnaire
+fresh + with history, documents, completion/locked — 0 findings.**
+Keyboard-only drives verified: care-home step, PLZ step, answering a
+question via Enter. The two consent-sentence links are listed as
+2.5.8-inline-exempt, deliberately not enlarged.
+
+### Also in E-7
+
+- `prefers-reduced-motion: reduce` collapses every transition/animation to
+  0.01ms (not 0, so `transitionend` still fires).
+- The case screen's **missing `h1`** added as `sr-only`, reusing the
+  authored `de.case.pageTitle` — no new German.
+- `global-error.tsx` onto the brand palette; styles stay inline because
+  global-error replaces the root layout and `globals.css` never loads.
+  Petrol action, not copper, not `--destructive`.
+- **`app/loading.tsx`** (petrol spinner, `role=status`) and
+  **`app/not-found.tsx`** (404 + heading + line + petrol link to `/case`)
+  — both previously missing entirely. ⚠ Both carry **PLACEHOLDER_DE**
+  strings in `lib/strings/de.ts`, logged for Roman in
+  `german_copy_for_roman.md` §E-7.
+- Upload-error rendering **verified, not changed**: `role=alert` +
+  `--destructive` is correct semantic use for a genuine failure.
+- **networkidle grep-zero repo-wide** re-confirmed (only the two docs
+  files narrating the incident mention the word).
+- **Mojibake CI guard** (`npm run check:encoding`, in `verify` and CI) —
+  caught a third cp1252 artifact on its first run, already fixed.
+- **Roman sign-off index:** `docs/feedback/ui-gallery/INDEX.md` — every
+  BEFORE/AFTER set E-1…E-6 plus all 13 open items in priority order,
+  the identical-copy pair first. This is the page the founder forwards.
+
+## E-6 (completion + locked state) — ✅ MERGED to main 2026-07-31 (`0249c44`)
 
 Commits `a10af8e` + `b259fa4` + gallery. **Not merged.** Preview:
 `sorglos-antrag-iqwq5oxgy-berk-solutions.vercel.app`.

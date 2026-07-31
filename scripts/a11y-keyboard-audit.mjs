@@ -154,12 +154,12 @@ async function auditScreen(page, name, maxTabs = 40) {
       else small.push(`${key} → ${info.w}x${info.h}`)
     }
   }
+  console.log(`\n── ${name} — ${stops.length} tab stops ──`)
+  stops.forEach((s, i) => console.log(`   ${String(i + 1).padStart(2)} ${s}`))
   if (inlineExempt.length)
     console.log(
       `   ○ inline links, 2.5.8 exception (not failures):\n      ${inlineExempt.join('\n      ')}`
     )
-  console.log(`\n── ${name} — ${stops.length} tab stops ──`)
-  stops.forEach((s, i) => console.log(`   ${String(i + 1).padStart(2)} ${s}`))
   console.log(
     `   ✖ no visible focus: ${noIndicator.length ? '\n      ' + noIndicator.join('\n      ') : 'none'}`
   )
