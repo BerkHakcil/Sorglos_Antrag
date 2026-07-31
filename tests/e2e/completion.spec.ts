@@ -228,7 +228,8 @@ test('complete all Berlin questionnaire questions → DB flips to under_review +
   await page.waitForTimeout(3_000)
 
   await page.reload()
-  await page.waitForLoadState('networkidle')
+  // Deterministic: the questionnaire is ready when its answer area renders.
+  await expect(page.locator('[data-testid=answer-footer]')).toBeVisible({ timeout: 30_000 })
   await page.waitForTimeout(1_500)
   await page.screenshot({ path: 'test-results/03-questionnaire-loaded.png' })
 
