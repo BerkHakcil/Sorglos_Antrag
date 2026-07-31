@@ -1,5 +1,11 @@
 # Paket für Roman — Feedback-Runde 3 (Stand 30.07.2026)
 
+> **Nachtrag 31.07.:** Die Design-Umstellung auf deinen Lovable-Entwurf ist
+> **fertig und live**. Alle Vorher/Nachher-Bilder und **alle offenen Fragen
+> an dich in einer nummerierten Liste** findest du auf einer Seite:
+> **[ui-gallery/INDEX.md](ui-gallery/INDEX.md)** — fang dort an; dieses
+> Paket bleibt die Detail-Referenz für die Punkte 4–11.
+
 Hallo Roman,
 
 hier ist das gesammelte Paket aus der dritten Feedback-Runde: drei Erklärungen

@@ -6,14 +6,14 @@
 
 ## Phase status
 
-| Phase                           | Status                                                   | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A — read-only triage            | ✅ DONE 2026-07-30                                       | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                                                                                                                                                                                      |
-| B — quick fixes (items 3/7/8/1) | ✅ DONE 2026-07-30                                       | migrations `20260730000001` + `20260730000002` pushed by founder and verified: live drive 11/11 (umlauted checklist names + no leftovers; B1 empty-Weiter completes birth_name, survives reload, `''` row in DB; rentenbetrag renders with NO Brutto text at step 27); verify-baseline full replay all 12 tables identical; documents-m6 e2e regression PASS; unit 138/138. B4 no-op                                                                                                         |
-| C — spouse Vollmacht (PAN-011)  | ✅ DONE 2026-07-30                                       | migration `20260730000003` pushed and verified. Data level: 105 rows, exactly PAN-011 inactive, Pankow active 49 / Essen 55, no upload references it. Live: married Pankow checklist 13 slots with partner section but NO Vollmacht (exactly 1 overall, person_1); Essen 7 slots with its own rules — both non-empty, proving the active-filter queries work against the new column in prod. unit 143/143, documents-m6 PASS, verify-baseline all 12 tables identical (incl. the new column) |
-| D — storage restructure         | ✅ DONE 2026-07-30                                       | migration `20260730000004` (commit A `96ab5d8`) pushed + verified, then code (commit B `d1c9f92`) — rule #8 order honoured. New uploads land at `{case}/{Folder}/{Base}{n}.{ext}`; the 14 existing files are grandfathered and still download. Live verified 15/15 incl. Spouse override, hostile bank name, legacy-file download, export naming and counter cascade. unit 193/193, documents-m6 PASS, verify-baseline identical with `storage_category` in the guard                        |
-| E — UI restyle                  | E-0…E-6 ✅ merged 2026-07-31 · **E-7 on branch, ⏸ STOP** | E-1 tokens+Lato `8a74f69` · E-2 primitives `6d19dbe` · E-3 chat `eac7a65` · E-4 docs `36a765d` · E-5 auth `6f1de39` · E-6 completion `0249c44` — each preview-approved then prod-verified. E-7 (a11y sweep, loading/404, Roman index) at its STOP on the branch. Gate: full preview suite + amended tripwire + content-based readiness (never HTTP status)                                                                                                                                   |
-| F — close-out                   | not started                                              |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Phase                           | Status                                                          | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A — read-only triage            | ✅ DONE 2026-07-30                                              | reports committed + pushed; Roman package extended per founder (item-1 pre-steps + product question, item-3 post-fix semantics, ss rows = confirm-only)                                                                                                                                                                                                                                                                                                                                      |
+| B — quick fixes (items 3/7/8/1) | ✅ DONE 2026-07-30                                              | migrations `20260730000001` + `20260730000002` pushed by founder and verified: live drive 11/11 (umlauted checklist names + no leftovers; B1 empty-Weiter completes birth_name, survives reload, `''` row in DB; rentenbetrag renders with NO Brutto text at step 27); verify-baseline full replay all 12 tables identical; documents-m6 e2e regression PASS; unit 138/138. B4 no-op                                                                                                         |
+| C — spouse Vollmacht (PAN-011)  | ✅ DONE 2026-07-30                                              | migration `20260730000003` pushed and verified. Data level: 105 rows, exactly PAN-011 inactive, Pankow active 49 / Essen 55, no upload references it. Live: married Pankow checklist 13 slots with partner section but NO Vollmacht (exactly 1 overall, person_1); Essen 7 slots with its own rules — both non-empty, proving the active-filter queries work against the new column in prod. unit 143/143, documents-m6 PASS, verify-baseline all 12 tables identical (incl. the new column) |
+| D — storage restructure         | ✅ DONE 2026-07-30                                              | migration `20260730000004` (commit A `96ab5d8`) pushed + verified, then code (commit B `d1c9f92`) — rule #8 order honoured. New uploads land at `{case}/{Folder}/{Base}{n}.{ext}`; the 14 existing files are grandfathered and still download. Live verified 15/15 incl. Spouse override, hostile bank name, legacy-file download, export naming and counter cascade. unit 193/193, documents-m6 PASS, verify-baseline identical with `storage_category` in the guard                        |
+| E — UI restyle                  | ✅ **COMPLETE at E-7** — all seven sub-phases merged 2026-07-31 | E-0 `72d7b0f` · E-1 `8a74f69` · E-2 `6d19dbe` · E-3 `eac7a65` · E-4 `36a765d` · E-5 `6f1de39` · E-6 `0249c44` · E-7 `b5e1a2f` — each preview-approved then prod-verified (E-7 prod checks: 44px buttons/selects at 375px, loading spinner seen, /404 serves the new page, phone country select has its own ring). **E-8 deferred entirely** — backlog below                                                                                                                                  |
+| F — close-out                   | ✅ DONE 2026-07-31 — **PASS CLOSED**                            | milestone-log entry with the 12-item disposition table + four corrected false records; Roman package headed by `ui-gallery/INDEX.md` (14-item ledger); backlog carried below                                                                                                                                                                                                                                                                                                                 |
 
 ## Key Phase-A facts (so later phases need not re-derive)
 
@@ -504,16 +504,57 @@ of a log line here is not evidence of absence.**
 because no log line was found, but because no real customer's upload
 existed to produce one. Defect closed as _verified-no-exposure_.
 
-## Backlog (deliberate, not now)
+## PASS CLOSED 2026-07-31 — backlog carried forward
 
-- **Purge the seven historical test users in prod auth** (`pw-vis+…` ×2,
-  `pw-completion+…` ×4 from 2026-06-30/07-01, `verif+…` from 06-28). They
-  predate this session and are unrelated to it. Treat as any prod deletion:
-  verify each is synthetic **individually**, confirm no case/upload/storage
-  data hangs off it, then remove one at a time. **Never bulk-delete by
-  email pattern** — the pattern is a heuristic, not proof, and a real user
-  who happened to match would be unrecoverable. Excludes the current
-  `completion.spec` fixture, which is in active use.
+The four items below survive the pass. Everything else in this file is
+historical record.
+
+### 1. E-8 ticket — behaviour-adjacent restyle extras (DEFERRED ENTIRELY)
+
+The restyle is **complete at E-7** by founder decision. E-8's scope, if it
+ever revives: **pill chips** replacing the yes/no radios and
+single-selects, the **"Antwort geändert" flash**, the **"Später
+beantworten" marker** in history, and **Ändern-affordance changes**
+(pencil icon, sent check).
+
+**Risk notes, attached so nobody underestimates it later:** chips are a
+**native-control swap** — `input[type=radio]` and `select` disappear, one
+click submits instead of select-then-Weiter, and native radio keyboard/AT
+semantics are lost and must be rebuilt by hand. **~25 e2e selectors**
+target those native controls (`input[type=radio][value="Nein"]`,
+`locator('select')`, …) and break with them. The skip marker surfaces
+session-only state in the transcript; the flash and pencil change the
+edit affordance itself.
+
+**Condition:** revives only after Roman's reaction to the shipped restyle,
+and then per-item with individual STOPs — never as one batch.
+
+### 2. Purge the seven historical test users in prod auth
+
+(`pw-vis+…` ×2, `pw-completion+…` ×4 from 2026-06-30/07-01, `verif+…` from
+06-28.) They predate this pass. Treat as any prod deletion: verify each is
+synthetic **individually**, confirm no case/upload/storage data hangs off
+it, then remove one at a time. **Never bulk-delete by email pattern** — a
+real user who happened to match would be unrecoverable. Excludes the
+current `completion.spec` fixture, which is in active use.
+
+### 3. auth.spec e2e vs. a local Supabase
+
+The 13 auth tests remain an annotated skip (`E2E_ALLOW_SIGNUP` gate):
+prod has email confirmation enabled, so UI signup never redirects to
+`/case`. The ticket: point the auth suite at a local Supabase (or a
+confirmation-disabled test project) so those paths run in CI instead of
+being covered manually + by `npm run smoke:signup`.
+
+### 4. `waitForIdle` family note
+
+`waitForIdle` in the e2e helpers waits on a **global**
+disabled-button count — the same family of primitive as the removed
+networkidle. It caused one 10-minute burn this pass (L2, a `Speichern …`
+button stuck disabled at question 33/56 — a hung save action,
+snapshot-evidenced, did not recur). If it recurs, replace it with waits on
+the specific control each step needs, exactly as was done for networkidle
+in `53fdf73`.
 
 ## E-1 (tokens) — implemented on the branch, ⏸ STOP for founder review
 

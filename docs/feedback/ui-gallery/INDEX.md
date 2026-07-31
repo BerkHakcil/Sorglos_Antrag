@@ -50,4 +50,8 @@
 11. **Logo als SVG** — wenn du die Quelldatei hast, tauschen wir das JPG aus. Kein Blocker.
 12. **Ansprechpartner-Kasten** (Foto, Name, Telefonnummer aus deinem Entwurf) — deine
     Daten, deine Entscheidung; erst nach deinem Go _(Paket, Punkt 9)_.
-13. **Ältere Freigaben** aus früheren Runden — Sammelliste im Paket, Punkt 11.
+13. **Die 13 neuen Dokumentnamen** aus den Essener Regeln — live in der Checkliste,
+    wortwörtlich aus deiner Regeldatei übernommen; Tabelle in
+    [german_copy_for_roman.md](../../document-rules/german_copy_for_roman.md) §2.
+    Umformulierungen sind je eine Ein-Zeilen-Migration.
+14. **Ältere Freigaben** aus früheren Runden — Sammelliste im Paket, Punkt 11.

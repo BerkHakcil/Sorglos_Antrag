@@ -50,6 +50,113 @@ Quick orientation for anyone picking this up cold:
 
 ---
 
+## Feedback pass 3 — phase E (UI restyle) + close-out — ✅ PASS CLOSED 2026-07-31
+
+Phase E restyled the entire app to Roman's Lovable mockup in seven gated
+sub-phases, each preview-approved by the founder before merging, each
+prod-verified after. **The restyle is declared complete at E-7; E-8
+(behaviour-adjacent extras) is deferred entirely** — see backlog. Phases
+A–D are logged in the entry below this one. Resume/state:
+`docs/feedback/pass3_state.md`; Roman's one-page sign-off:
+`docs/feedback/ui-gallery/INDEX.md`.
+
+**Sub-phases and merge commits.** E-0 testid anchors, zero visual change
+(`72d7b0f`) · E-1 design tokens + self-hosted Lato (`8a74f69`) — also
+fixed the latent self-referential `--font-sans` that had prod rendering in
+Times New Roman · E-2 shared primitives in `components/ui/styles.ts`
+class-strings, border token **split** (`--input #8c8272` ≥3:1 for control
+edges, `--border #e6e0d0` decorative; founder-confirmed from real-screen
+renders) (`6d19dbe`) · E-3 chat bubbles for the questionnaire (`eac7a65`)
+· E-4 DocRow document checklist (`36a765d`) · E-5 AuthShell + sage
+confirmation panels (`6f1de39`) · E-6 completion/locked terminal cards
+with deliberate tone split — petrol Check = achievement, cream-deep
+Clock = pending, because a petrol tick on "in Prüfung" would read as
+"approved" (`0249c44`) · E-7 a11y sweep, loading + 404 states, Roman
+index (`b5e1a2f`).
+
+**Verification model that emerged.** Per sub-phase: full Playwright suite
+against the **real preview** (bypass secret; ~3 min) + before/after
+gallery at 1280×800 and 375×812 + unit suite; a 15-minute **tripwire**
+with the amended rule that a "timeout against a rendered page" signature
+must have its failing locator inspected before being called infra — the
+pass produced **three distinct causes** with that identical presentation
+(the never-reproduced 2 h run; a locator broken by the restyle itself;
+a readiness poll accepting Vercel's HTTP-200 "Deployment is building"
+page). Preview readiness is now gated on **content or API readyState,
+never HTTP status** (`scripts/lib/preview-ready.mjs`, used by all five
+capture scripts).
+
+**Semantic colour rule (recorded in `components/ui/styles.ts`).** Amber
+and red only for genuine warnings/errors; an unreached state ("Fehlt") is
+neutral; petrol/sage carry positive states; copper is a fill, never text
+(measured: copper text on cream fails AA). Applied through E-3…E-6,
+including replacing off-palette `green-600`/`blue-600`/amber boxes.
+
+**A11y shipped in E-7** (audit: 8 screens, 0 findings after fixes): 44px
+touch floor in the button/control bases + `linkStandalone`; distinct
+focus ring on the phone country select; 44×44 popover hit areas; missing
+`h1` added (sr-only); `prefers-reduced-motion` honoured; keyboard-only
+drive verified for both pre-steps and answering; `global-error`/
+`loading`/`not-found` on the palette (the latter two are NEW, with
+PLACEHOLDER_DE copy in `lib/strings/de.ts`, logged for Roman).
+
+**Four corrected false records this pass — each verified, then fixed:**
+
+1. **auth.spec skip reason** ("prod rejects the `.invalid` TLD") — a direct
+   `POST /auth/v1/signup` returned 200 and created a user; the real cause
+   is email confirmation being enabled. Became the CLAUDE.md
+   verified-reason rule.
+2. **The 12-timeout preview run's attribution** — my Vercel-Live-feedback
+   hypothesis was disproved by my own A/B; the honest record is "not
+   reproduced, primitive replaced" (networkidle is now grep-zero across
+   the repo, and `waitForIdle`'s global disabled-button count is flagged
+   as the same family if it ever recurs).
+3. **"Tab does not move focus in headless"** — false; the audit probe had
+   been passed to `page.evaluate` as a string (evaluated as an expression
+   → unserializable function → `undefined`), so it never ran. A three-way
+   test proved headless tabbing works; the record was corrected in the fix
+   commit.
+4. **E-6 copy finding** — before attributing the completion/locked
+   distinction to copy, the four `static_content` rows were read from the
+   DB: `all_answered_*` and `locked_*` are **byte-identical**, so the
+   medallion is currently the only differentiator. Top item on Roman's
+   ledger, not silently "fixed".
+
+**Rules added to CLAUDE.md this pass:** #8 migration-before-code ordering
+(hard rule, with the benign row-vs-column distinction) · "a stated reason
+must be a verified reason" · stage paths explicitly, never `git add -A`.
+Plus in CI: the **cp1252 mojibake guard** (`npm run check:encoding`, in
+`npm run verify` and the workflow) after two PowerShell round-trips
+corrupted files — one of them German button labels a capture script
+clicks; the guard caught a third artifact on its first run.
+
+**Final disposition of Roman's 12 pilot items:**
+
+| #   | Item                                | Disposition                                                                                                    |
+| --- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| 1   | Documents from first login          | **explained, no change** — not regressed; tabs render immediately after the pre-steps (Phase A, live-verified) |
+| 2   | PLZ 10961 shows "Pankow" list       | **explained, no change** — default checklist serves Berlin-questionnaire cases by design (Phase A)             |
+| 3   | Optional questions can't complete   | **shipped** — `isAnsweredValue` predicate; empty Weiter = completed, "Weiß ich gerade nicht" = deferred (B1)   |
+| 4   | Question perspective ("Sie" = wer?) | **awaiting Roman** — his formulation rule (package §5)                                                         |
+| 5   | Spouse Vollmacht on checklist       | **shipped** — PAN-011 deactivated via new `active` column, migration `20260730000003` (Phase C)                |
+| 6   | Question order                      | **awaiting Roman** — order tables delivered, his target order pending (package §6)                             |
+| 7   | Gross-pension info text             | **shipped** — `help_de` NULLed, migration `20260730000001` (B2)                                                |
+| 8   | Umlauts in document names           | **shipped** — 4 mechanical fixes, migration `20260730000002`; 3 `ss` rows correct, confirm-only (B3)           |
+| 9   | Pension double-capture (Berlin)     | **awaiting Roman** — dependency report delivered, removal touches tests/denominator (package §7)               |
+| 10  | "Upload link is public"             | **explained, no change** — private bucket, 60 s signed URLs, audit zero deviations (Phase A)                   |
+| 11  | Storage structure unreadable        | **shipped** — `{case}/{Folder}/{Base}{n}.{ext}`, migration `20260730000004` + `d1c9f92` (Phase D)              |
+| 12  | UI restyle to the Lovable mockup    | **shipped** — E-0…E-7, seven merges `72d7b0f`…`b5e1a2f`, complete at E-7; E-8 extras deferred                  |
+
+**E-8 deferred entirely (backlog ticket in the state file).** Scope: pill
+chips replacing yes/no + single-select, "Antwort geändert" flash, "Später
+beantworten" marker, Ändern-affordance changes (pencil icon, sent check).
+Risk notes attached to the ticket: chips are a **native-control swap**
+(radio semantics lost, one-click-submit behaviour change, ~25 e2e
+selectors on `input[type=radio]`/`select` break). Revives only after
+Roman's reaction to the shipped restyle, and then with individual STOPs.
+
+---
+
 ## Feedback pass 3 (second pilot review) — phases A–D — ✅ complete 2026-07-30
 
 Twelve founder items from the pilot review, run as gated phases (read-only triage → quick fixes → rule deactivation → storage restructure → UI restyle). **Phases A, B, C, D shipped;** E (UI restyle to the Lovable mockup) is scoped and unblocked but not started. Reports: `docs/feedback/feedback_pass3_triage.md` (full triage), `docs/feedback/roman_package_pass3.md` (German package for Roman incl. both questionnaires' complete order tables), `docs/feedback/pass3_state.md` (phase state / resume file).
