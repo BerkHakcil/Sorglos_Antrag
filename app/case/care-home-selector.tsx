@@ -44,7 +44,7 @@ export function CareHomeSelector({ careHomes }: { careHomes: CareHome[] }) {
               {s.placeholder}
             </option>
             {careHomes.map((ch) => (
-              /* Facility name only â€” the full address stays in the DB. */
+              /* Facility name only — the full address stays in the DB. */
               <option key={ch.id} value={ch.id}>
                 {ch.name}
               </option>

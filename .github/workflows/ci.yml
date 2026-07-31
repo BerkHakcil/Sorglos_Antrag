@@ -32,6 +32,13 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
+      # Guards against cp1252 mojibake. The app is German: a silent encoding
+      # corruption mangles user-facing strings and the selectors that match
+      # them. Two happened during feedback pass 3, one corrupting German
+      # button labels a capture script clicks.
+      - name: Encoding check
+        run: npm run check:encoding
+
       - name: Unit tests
         run: npm test
 
