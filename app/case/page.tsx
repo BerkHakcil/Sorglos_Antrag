@@ -32,6 +32,12 @@ export default async function CasePage() {
 
   return (
     <div className="bg-background flex h-dvh flex-col overflow-hidden">
+      {/* E-7: the case screen had no h1 at all — it began at h2, so screen-reader
+          users got a document with no title and a skipped level. The visible
+          brand mark is an image, and the visible headings below are section
+          headings, so the page title is exposed here for assistive tech only.
+          Reuses the already-authored de.case.pageTitle: no new German. */}
+      <h1 className="sr-only">{s.pageTitle}</h1>
       {/* ── Brand header — always pinned at top ─────────────── */}
       {/* E-2: the mockup's AppHeader sits on the page background with a soft
           rule, not on a white slab — the white card surface is reserved for
