@@ -12,6 +12,7 @@ import {
 } from '@/lib/questionnaire-nav'
 import { QuestionRenderer } from '@/components/ui/questionnaire/question-renderer'
 import { saveAnswerAction, deleteGroupInstanceAction } from './actions'
+import { Check, Clock } from 'lucide-react'
 import { de } from '@/lib/strings/de'
 import { btnCopper, btnOutline, card } from '@/components/ui/styles'
 
@@ -304,21 +305,54 @@ function GroupPromptCard({
 
 function AllAnsweredCard({ heading, message }: { heading: string; message: string }) {
   return (
-    /* E-3: both terminal states get the mockup's card treatment so they read
-       as a resolved end to the conversation rather than loose text. Copy is
-       untouched and the testids are unchanged. */
-    <div data-testid="all-answered" className={`${card} space-y-2 p-5 text-center`}>
-      <p className="text-base font-semibold">{heading}</p>
-      <p className="text-graphite-soft text-sm leading-relaxed">{message}</p>
+    /* E-6: the ACHIEVEMENT state, on the mockup's /fertig pattern — petrol
+       check medallion, petrol heading, centred. Petrol is the palette's
+       positive tone and this is the one moment that has earned it: the user
+       has answered everything.
+       The mockup's "Nächste Schritte" numbered list is deliberately NOT
+       built. Its copy is Lovable-authored German we do not have Roman's
+       version of, and inventing structure for absent text would leave an
+       empty scaffold on a real user's screen (R3). */
+    <div
+      data-testid="all-answered"
+      className={`${card} flex flex-col items-center p-6 text-center`}
+    >
+      <span
+        aria-hidden
+        className="bg-primary grid size-14 place-items-center rounded-full text-white"
+      >
+        <Check className="size-7" strokeWidth={2.5} />
+      </span>
+      <p className="text-primary mt-5 text-xl font-medium">{heading}</p>
+      <p className="text-foreground mt-3 max-w-md text-base leading-relaxed">{message}</p>
     </div>
   )
 }
 
 function EditLockedCard({ heading, body }: { heading: string; body: string }) {
   return (
-    <div data-testid="locked-banner" className={`${card} space-y-1 p-5 text-center`}>
-      <p className="text-base font-medium">{heading}</p>
-      <p className="text-graphite-soft text-sm leading-relaxed">{body}</p>
+    /* E-6: the PENDING state, and deliberately NOT a celebration.
+       It shares the /fertig layout so the two read as one family, but its
+       tones are neutral-informational: a cream-deep medallion with a
+       graphite-soft clock, and a graphite heading — not the petrol check.
+       Reason: petrol is the positive/confirmed tone, and "Angaben werden
+       geprüft" is not a confirmation. A petrol tick here would tell the user
+       their application had been approved, which is a claim we cannot make
+       and which no German copy on this card supports. Amber and red stay out
+       too — being under review is not a warning. Neutral is the honest
+       register for "you are done; someone else now has to act". */
+    <div
+      data-testid="locked-banner"
+      className={`${card} flex flex-col items-center p-6 text-center`}
+    >
+      <span
+        aria-hidden
+        className="bg-cream-deep text-graphite-soft grid size-14 place-items-center rounded-full"
+      >
+        <Clock className="size-7" />
+      </span>
+      <p className="text-foreground mt-5 text-xl font-medium">{heading}</p>
+      <p className="text-graphite-soft mt-3 max-w-md text-base leading-relaxed">{body}</p>
     </div>
   )
 }
