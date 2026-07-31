@@ -655,7 +655,79 @@ under this one: full suite **13 passed / 13 skipped / 0 failed against the
 real preview in 3.1 min**, plus the gallery re-shot from the preview with
 `body` computing to `Lato…` on `rgb(247,244,237)`.
 
-## E-3 (Fragen screen / chat UI) — on the branch, ⏸ STOP for founder review
+## E-4 (Dokumente screen) — on the branch, ⏸ STOP for founder review
+
+Commit `35584a3` + gallery. **Not merged.** Preview:
+`sorglos-antrag-m0u0bt2u8-berk-solutions.vercel.app`.
+
+**Gate:** full suite against the real preview — **13 passed / 13 skipped /
+0 failed, 3.3 min**, no tripwire. Unit 195/195. Typecheck, lint, prettier,
+build clean.
+
+Each subject group is now **one card with hairline-separated rows**
+instead of a stack of bordered boxes. Every row gains a status medallion
+(FileText on cream-deep while outstanding → white Check on petrol once
+filled), completed rows are tinted `sage-soft/30`, the upload control is
+the outline button, filenames are petrol links, and attached files are
+indented under the medallion so a row reads as one unit.
+
+### Semantic colour rule applied
+
+- **"Fehlt" stays neutral** — graphite-soft text, neutral medallion. An
+  un-uploaded document is a step not yet reached, not a warning. No amber,
+  no red.
+- The all-uploaded counter moved off an **off-palette `text-green-700`**
+  onto the palette's petrol.
+- `--destructive` remains only where it belongs: upload errors and the
+  delete hover.
+
+### Contrast — computed in-engine from the deployed tokens
+
+Blends resolved: uploaded row `sage-soft/30` on white = `rgb(239,243,240)`;
+documents pane `muted/40` on cream = `rgb(244,240,231)`.
+
+| Pair                                          | Ratio       |
+| --------------------------------------------- | ----------- |
+| graphite on white — doc name, outstanding row | **13.46:1** |
+| graphite-soft on white — "Fehlt"              | **6.26:1**  |
+| graphite on uploaded row — doc name           | **12.02:1** |
+| petrol on uploaded row — status + filename    | **6.90:1**  |
+| graphite-soft on uploaded row — "Entfernen"   | **5.59:1**  |
+| petrol on docs pane — all-uploaded counter    | **6.79:1**  |
+| graphite-soft on docs pane — group heading    | **5.50:1**  |
+
+Non-text (1.4.11, needs ≥3:1): white Check on petrol **7.72:1**;
+graphite-soft icon on cream-deep **5.21:1**; petrol medallion against the
+white card **7.72:1**. All clear.
+
+### Scope held
+
+`documents-m6` drives this screen end to end and every anchor it uses is
+unchanged: `document-area`, `doc-slot`, `slot-status`,
+`missing-docs-counter` (including its `data-missing` attribute), the
+hidden file input and its `accept` list. Upload behaviour untouched;
+Phase D's path/naming layer is server-side and stays invisible here. Zero
+German changes — every string is still `content.docs*`.
+
+### Judgement calls to flag
+
+1. **Medallions are `aria-hidden`.** The `slot-status` text beside them
+   already states the state in German; the icon would only repeat it.
+2. **Group headings shrank** from `text-sm` to `text-xs` uppercase, to sit
+   as quiet labels above a card rather than compete with the card's own
+   rows.
+3. **Icons introduced** (`lucide-react`, already a dependency): `Check`
+   and `FileText`, exactly the two the mockup's DocRow uses.
+
+### Gallery
+
+`E-4-docs-BEFORE/` (prod = E-3 state) and `E-4-docs-AFTER/` (preview),
+three states each at both viewports: empty, mixed (2 of 11 filled), full
+(11 of 11). New `scripts/ui-gallery-docs.mjs` — the uploads are **real**,
+pushed through the actual signed-URL flow with a tiny synthetic PDF, so
+the shots show the true uploaded-row rendering rather than a mock.
+
+## E-3 (Fragen screen / chat UI) — ✅ MERGED to main 2026-07-31 (`eac7a65`)
 
 Commits `b72c856` (restyle) + `dbacc14` (selector fix) + gallery. **Not
 merged.** Preview:

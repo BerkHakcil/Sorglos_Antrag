@@ -13,12 +13,14 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { countMissingSlots, type DocumentSlot } from '@/lib/document-rules'
 import type { UploadRow, StaticContent } from '@/lib/dal'
+import { Check, FileText } from 'lucide-react'
 import {
   createUploadUrlAction,
   recordUploadAction,
   deleteUploadAction,
   createDownloadUrlAction,
 } from './document-actions'
+import { btnOutline, card, focusRing, linkPetrol } from '@/components/ui/styles'
 
 const MAX_BYTES = 15 * 1024 * 1024
 const ALLOWED_MIME = ['application/pdf', 'image/jpeg', 'image/png', 'image/heic', 'image/heif']
@@ -152,107 +154,139 @@ export function DocumentArea({ slots, uploads, content }: Props) {
         : content.docsMissingCount.replace('{n}', String(missing))
 
   return (
-    <section data-testid="document-area" className="space-y-4">
+    <section data-testid="document-area" className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold">{content.docsAreaTitle}</h2>
+        <h2 className="text-xl font-semibold">{content.docsAreaTitle}</h2>
+        {/* E-4: the "done" state uses the palette's petrol, not an off-palette
+            green-700. Missing stays neutral by the semantic colour rule —
+            an un-uploaded document is an unreached step, not a warning, so it
+            gets no amber and no red. */}
         <p
           data-testid="missing-docs-counter"
           data-missing={missing}
-          className={missing === 0 ? 'text-sm font-medium text-green-700' : 'text-sm font-medium'}
+          className={missing === 0 ? 'text-primary text-sm font-medium' : 'text-sm font-medium'}
         >
           {counterText}
         </p>
-        <p className="text-muted-foreground text-sm">{content.docsAreaIntro}</p>
+        <p className="text-graphite-soft mt-1 text-sm leading-relaxed">{content.docsAreaIntro}</p>
       </div>
       {groups.map(({ heading, subject }) => {
         const list = slots.filter((s) => s.subject === subject)
         if (list.length === 0) return null
         return (
           <div key={subject} className="space-y-2">
-            <h3 className="text-muted-foreground text-sm font-medium tracking-wide uppercase">
+            <h3 className="text-graphite-soft text-xs font-semibold tracking-wide uppercase">
               {heading}
             </h3>
-            {list.map((slot) => {
-              const key = slotKey(slot)
-              const files = filesFor(slot)
-              return (
-                <div
-                  key={key}
-                  data-testid="doc-slot"
-                  className="border-border bg-card rounded-lg border p-3"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium">
-                        {slot.nameDe}
-                        {slot.instanceLabel ? ` – ${slot.instanceLabel}` : ''}
-                      </p>
-                      <p className="text-muted-foreground text-xs" data-testid="slot-status">
-                        {files.length === 0
-                          ? content.docsStatusMissing
-                          : content.docsStatusUploaded.replace('{n}', String(files.length))}
-                      </p>
+            {/* E-4: the mockup groups rows into ONE card separated by hairlines,
+                rather than a stack of separate bordered boxes. doc-slot stays on
+                each row so documents-m6 still counts and reads slots exactly as
+                before. */}
+            <div className={`${card} divide-border divide-y overflow-hidden`}>
+              {list.map((slot) => {
+                const key = slotKey(slot)
+                const files = filesFor(slot)
+                const done = files.length > 0
+                return (
+                  <div
+                    key={key}
+                    data-testid="doc-slot"
+                    className={`p-4 transition-colors ${done ? 'bg-sage-soft/30' : ''}`}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex min-w-0 items-center gap-3">
+                        {/* Status medallion. aria-hidden: the adjacent
+                            slot-status text already states the state, so the
+                            icon would only repeat it to a screen reader. */}
+                        <span
+                          aria-hidden
+                          className={`flex size-9 shrink-0 items-center justify-center rounded-full ${
+                            done ? 'bg-primary text-white' : 'bg-cream-deep text-graphite-soft'
+                          }`}
+                        >
+                          {done ? <Check className="size-4" /> : <FileText className="size-4" />}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium">
+                            {slot.nameDe}
+                            {slot.instanceLabel ? ` – ${slot.instanceLabel}` : ''}
+                          </p>
+                          <p
+                            className={`text-xs ${done ? 'text-primary' : 'text-graphite-soft'}`}
+                            data-testid="slot-status"
+                          >
+                            {files.length === 0
+                              ? content.docsStatusMissing
+                              : content.docsStatusUploaded.replace('{n}', String(files.length))}
+                          </p>
+                        </div>
+                      </div>
+                      <div>
+                        <input
+                          ref={(el) => {
+                            inputs.current[key] = el
+                          }}
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,application/pdf,image/jpeg,image/png,image/heic,image/heif"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0]
+                            if (f) void handleFile(slot, f)
+                            e.target.value = ''
+                          }}
+                        />
+                        <button
+                          type="button"
+                          disabled={busySlot === key}
+                          onClick={() => inputs.current[key]?.click()}
+                          className={`${btnOutline} px-3 py-1.5 text-xs`}
+                        >
+                          {content.docsUploadButton}
+                        </button>
+                      </div>
                     </div>
-                    <div>
-                      <input
-                        ref={(el) => {
-                          inputs.current[key] = el
-                        }}
-                        type="file"
-                        accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,application/pdf,image/jpeg,image/png,image/heic,image/heif"
-                        className="hidden"
-                        onChange={(e) => {
-                          const f = e.target.files?.[0]
-                          if (f) void handleFile(slot, f)
-                          e.target.value = ''
-                        }}
-                      />
-                      <button
-                        type="button"
-                        disabled={busySlot === key}
-                        onClick={() => inputs.current[key]?.click()}
-                        className="bg-primary text-primary-foreground rounded-md px-3 py-1.5 text-xs font-medium disabled:opacity-50"
-                      >
-                        {content.docsUploadButton}
-                      </button>
-                    </div>
+                    {errors[key] && (
+                      <p role="alert" className="text-destructive mt-2 text-xs">
+                        {errors[key]}
+                      </p>
+                    )}
+                    {files.length > 0 && (
+                      /* Uploaded files sit indented under the medallion so the
+                         row reads as one unit. */
+                      <ul className="mt-3 space-y-1 pl-12">
+                        {files.map((u) => (
+                          <li
+                            key={u.id}
+                            className="flex items-center justify-between gap-2 text-xs"
+                          >
+                            <button
+                              type="button"
+                              className={`${linkPetrol} min-w-0 truncate`}
+                              onClick={async () => {
+                                const r = await createDownloadUrlAction(u.id)
+                                if (r.ok) window.open(r.url, '_blank', 'noopener')
+                              }}
+                            >
+                              {u.original_filename}
+                            </button>
+                            <button
+                              type="button"
+                              className={`text-graphite-soft hover:text-destructive shrink-0 rounded-sm ${focusRing}`}
+                              onClick={async () => {
+                                await deleteUploadAction(u.id)
+                                startTransition(() => router.refresh())
+                              }}
+                            >
+                              {content.docsDeleteButton}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
-                  {errors[key] && (
-                    <p role="alert" className="text-destructive mt-1 text-xs">
-                      {errors[key]}
-                    </p>
-                  )}
-                  {files.length > 0 && (
-                    <ul className="mt-2 space-y-1">
-                      {files.map((u) => (
-                        <li key={u.id} className="flex items-center justify-between gap-2 text-xs">
-                          <button
-                            type="button"
-                            className="text-primary min-w-0 truncate underline-offset-2 hover:underline"
-                            onClick={async () => {
-                              const r = await createDownloadUrlAction(u.id)
-                              if (r.ok) window.open(r.url, '_blank', 'noopener')
-                            }}
-                          >
-                            {u.original_filename}
-                          </button>
-                          <button
-                            type="button"
-                            className="text-muted-foreground hover:text-destructive shrink-0"
-                            onClick={async () => {
-                              await deleteUploadAction(u.id)
-                              startTransition(() => router.refresh())
-                            }}
-                          >
-                            {content.docsDeleteButton}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
         )
       })}
