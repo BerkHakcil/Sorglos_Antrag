@@ -251,3 +251,44 @@ nachgestelltes Bild.
 
 **Barrierefreiheit:** Überschrift 13,46:1, Meldungstext 11,57:1, Links
 7,72:1, Unterzeile 6,26:1 — alle deutlich über der Norm.
+
+---
+
+## E-6 — Fertig-Zustand und „In Prüfung"
+
+**Was sich ändert:** nur die Darstellung. **Kein Text ändert sich.**
+
+| Ordner                   | Inhalt                        |
+| ------------------------ | ----------------------------- |
+| `E-6-completion-BEFORE/` | Stand nach E-5 (aktuell live) |
+| `E-6-completion-AFTER/`  | mit dem neuen Design          |
+
+Beide Abschluss-Zustände bekommen jetzt das Muster aus deinem Entwurf: ein
+rundes Zeichen oben, darunter Überschrift und Text, mittig auf einer Karte.
+**Die Farben unterscheiden sich aber bewusst:**
+
+- **„Alle Fragen beantwortet"** — petrolfarbener Kreis mit Haken. Das ist
+  ein Erfolg, und Petrol ist unsere Farbe für „erledigt".
+- **„In Prüfung"** — schlichter beiger Kreis mit einer Uhr, graue
+  Überschrift. Das ist **kein** Erfolg und **keine** Warnung, sondern ein
+  Zwischenstand: der Angehörige ist fertig, jetzt sind wir am Zug. Ein
+  petrolfarbener Haken würde hier fälschlich aussehen wie „Antrag bewilligt".
+
+### ⚠ Frage an dich: die zwei Zustände haben denselben Text
+
+In der Datenbank steht bei „alle Fragen beantwortet" und bei „in Prüfung"
+**wortwörtlich derselbe** Text:
+
+> „Sie haben alle Fragen beantwortet!" / „Wir prüfen nun alle Ihre Angaben
+> und übertragen diese in das Antragsformular. …"
+
+Nach dieser Umstellung ist das kleine Symbol der **einzige** Unterschied,
+den jemand sieht. Wer das Symbol übersieht, merkt nicht, dass sich der
+Zustand geändert hat. Möchtest du für „in Prüfung" einen eigenen Text
+schreiben? Wir ändern von uns aus keinen einzigen Buchstaben.
+
+**Nicht übernommen:** die Liste „Nächste Schritte" aus deinem Entwurf — den
+Text dazu hast du noch nicht geschrieben, und wir erfinden ihn nicht.
+
+**Barrierefreiheit:** Überschriften 13,46:1, Petrol-Überschrift 7,72:1,
+Statuszeile 7,03:1 bzw. 5,70:1 — alle über der Norm.
