@@ -199,4 +199,22 @@ body {
   h4 {
     letter-spacing: -0.01em;
   }
+
+  /* E-7 — honour prefers-reduced-motion.
+     The restyle added or kept several transitions: the progress fill
+     (duration-500), the document row tint, tab colour changes, and every
+     button/control colour transition. None of them carries information, so
+     all of them can be reduced to effectively instant for users who ask for
+     that. Kept at 0.01ms rather than 0 so transitionend still fires and any
+     code awaiting it cannot hang. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }

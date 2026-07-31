@@ -16,7 +16,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <main className="bg-background flex min-h-screen justify-center px-4 py-10 sm:py-16">
       <div className="flex w-full max-w-lg flex-col items-center">
-        <Link href="/login" className="shrink-0">
+        <Link href="/login" className="inline-flex min-h-11 shrink-0 items-center">
           <Image
             src="/logo.jpg"
             alt={de.brand.name}

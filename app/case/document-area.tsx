@@ -239,7 +239,7 @@ export function DocumentArea({ slots, uploads, content }: Props) {
                           type="button"
                           disabled={busySlot === key}
                           onClick={() => inputs.current[key]?.click()}
-                          className={`${btnOutline} px-3 py-1.5 text-xs`}
+                          className={`${btnOutline} min-h-11 px-4 text-xs`}
                         >
                           {content.docsUploadButton}
                         </button>
@@ -271,7 +271,7 @@ export function DocumentArea({ slots, uploads, content }: Props) {
                             </button>
                             <button
                               type="button"
-                              className={`text-graphite-soft hover:text-destructive shrink-0 rounded-sm ${focusRing}`}
+                              className={`text-graphite-soft hover:text-destructive inline-flex min-h-11 shrink-0 items-center rounded-sm px-2 ${focusRing}`}
                               onClick={async () => {
                                 await deleteUploadAction(u.id)
                                 startTransition(() => router.refresh())

@@ -165,7 +165,7 @@ function AnsweredBubble({
             <button
               type="button"
               onClick={() => onRemoveInstance(question.group_key!, question.instanceId!)}
-              className="text-graphite-soft hover:text-destructive text-xs underline underline-offset-2"
+              className="text-graphite-soft hover:text-destructive inline-flex min-h-11 items-center text-xs underline underline-offset-2"
             >
               {s.repeatableGroup.removeInstanceLabel}
             </button>
@@ -196,7 +196,7 @@ function AnsweredBubble({
             <button
               type="button"
               onClick={() => onEdit(question)}
-              className="text-graphite-soft hover:text-primary pr-1 text-xs underline underline-offset-2"
+              className="text-graphite-soft hover:text-primary inline-flex min-h-11 items-center pr-1 text-xs underline underline-offset-2"
             >
               {s.editButton}
             </button>
