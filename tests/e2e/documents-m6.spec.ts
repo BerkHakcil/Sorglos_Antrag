@@ -236,7 +236,8 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
   await page.getByRole('button', { name: 'Postleitzahl bestätigen' }).click()
   await page.waitForTimeout(3_000)
   await page.reload()
-  await page.waitForLoadState('networkidle')
+  // Deterministic: the questionnaire is ready when its answer area renders.
+  await expect(page.locator('[data-testid=answer-footer]')).toBeVisible({ timeout: 30_000 })
   await page.waitForTimeout(1_500)
 
   // ── Adaptive drive: married, 2 applicant pensions, disability Nein ──────────
@@ -370,7 +371,6 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
   }
 
   await page.reload()
-  await page.waitForLoadState('networkidle')
   // Since the feedback pass the area lives in the Dokumente tab — open it.
   await openDocumentsTab(page)
   const area = page.locator('[data-testid=document-area]')
@@ -486,7 +486,6 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (adminDb as any).from('answer').update({ value: 'Ja' }).eq('id', dAnswer.id)
   await page.reload()
-  await page.waitForLoadState('networkidle')
   await openDocumentsTab(page)
   const slotsFlipped = await readSlots(page)
   const disabilityAfterFlip = slotsFlipped.filter((s) => s.name.includes(docName['DOC-0018']))
@@ -502,7 +501,6 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (adminDb as any).from('answer').update({ value: 'Nein' }).eq('id', dAnswer.id)
   await page.reload()
-  await page.waitForLoadState('networkidle')
   await openDocumentsTab(page)
   const slotsRestored = await readSlots(page)
   expect(

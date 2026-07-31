@@ -121,7 +121,8 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
   await page.getByRole('button', { name: 'Postleitzahl bestätigen' }).click()
   await page.waitForTimeout(3_000)
   await page.reload()
-  await page.waitForLoadState('networkidle')
+  // Deterministic: the questionnaire is ready when its answer area renders.
+  await expect(page.locator('[data-testid=answer-footer]')).toBeVisible({ timeout: 30_000 })
   await page.waitForTimeout(1_500)
 
   // ── Adaptive loop with targeted overrides ───────────────────────────────────

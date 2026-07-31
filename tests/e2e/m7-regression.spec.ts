@@ -108,7 +108,8 @@ async function setupCase(page: Page, plz: string) {
   await page.getByRole('button', { name: 'Postleitzahl bestätigen' }).click()
   await page.waitForTimeout(3_000)
   await page.reload()
-  await page.waitForLoadState('networkidle')
+  // Deterministic: the questionnaire is ready when its answer area renders.
+  await expect(page.locator('[data-testid=answer-footer]')).toBeVisible({ timeout: 30_000 })
   await page.waitForTimeout(1_500)
 }
 
@@ -239,7 +240,6 @@ test('R1: Essen — 45127 loads Essen (50 questions), completes, default checkli
   }
 
   await page.reload()
-  await page.waitForLoadState('networkidle')
   await expect(page.getByText('In Prüfung', { exact: false })).toBeVisible({ timeout: 15_000 })
   const { data: after } = await adminDb
     .from('cases')
@@ -320,7 +320,6 @@ test('R2: fallback — 66606 serves the Berlin questionnaire, answers persist', 
     .eq('case_id', caseRow!.id)
   expect(count ?? 0, 'answers saved').toBeGreaterThanOrEqual(3)
   await page.reload()
-  await page.waitForLoadState('networkidle')
   await expect(page.getByText('von 53 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
   console.log(`[R2] fallback PLZ → Berlin, ${count} answers persisted — PASS`)
 })
