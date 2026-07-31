@@ -1,17 +1,17 @@
 ﻿/**
- * E-3 chat-state gallery â€” the four states the Fragen screen actually has,
+ * E-3 chat-state gallery — the four states the Fragen screen actually has,
  * which the general gallery script does not reach.
  *
  *   node scripts/ui-gallery-chat.mjs <sub-phase> [--base <url>]
  *
  * States captured, each at 1280x800 and 375x812:
- *   fresh         no answers yet â€” first question, empty history
- *   history       a handful answered â€” the bubble exchange
+ *   fresh         no answers yet — first question, empty history
+ *   history       a handful answered — the bubble exchange
  *   locked        every required question answered; the case has flipped to
  *                 under_review and the edit lock is showing
  *   all-answered  the completion card WITHOUT the lock
  *
- * âš  How `all-answered` is reached, stated plainly because it is not a state a
+ * ⚠ How `all-answered` is reached, stated plainly because it is not a state a
  * user lingers in. Completing the last required question flips cases.status
  * to under_review and the server re-render swaps the completion card for the
  * locked card (the C1-vs-C4 race documented in completion.spec), so it must
@@ -27,7 +27,7 @@
  * run, this script logs that and captures nothing rather than substituting
  * some other screen.
  *
- * âš  PRIVACY â€” the repo is PUBLIC. Throwaway account, obviously synthetic
+ * ⚠ PRIVACY — the repo is PUBLIC. Throwaway account, obviously synthetic
  * answers, deleted in `finally`. A real pilot case is never photographed.
  */
 
@@ -36,6 +36,7 @@ import { chromium } from '@playwright/test'
 import { mkdirSync } from 'fs'
 import { join } from 'path'
 import { config } from 'dotenv'
+import { gotoWhenReady } from './lib/preview-ready.mjs'
 
 config({ path: '.env.local' })
 
@@ -155,7 +156,7 @@ async function answerOne(page) {
       else if (await text.isVisible({ timeout: 300 }).catch(() => false))
         await text.fill('Musterfrau')
       else if (await check.isVisible({ timeout: 300 }).catch(() => false)) {
-        const skip = page.getByRole('button', { name: 'WeiÃŸ ich gerade nicht' })
+        const skip = page.getByRole('button', { name: 'Weiß ich gerade nicht' })
         if (await skip.isVisible({ timeout: 300 }).catch(() => false)) {
           await skip.click()
           await idle(page)
@@ -190,17 +191,17 @@ try {
   const ctx = await browser.newContext({ viewport: DESKTOP, extraHTTPHeaders })
   const page = await ctx.newPage()
 
-  await page.goto(`${BASE}/login`)
+  await gotoWhenReady(page, `${BASE}/login`, '[name=email]')
   await page.locator('[name=email]').fill(email)
   await page.locator('[name=password]').fill('TestPassw0rd!')
   await page.getByRole('button', { name: 'Anmelden' }).click()
   await page.waitForURL(`${BASE}/case`, { timeout: 20_000 })
 
   await page.locator('#care_home_id').selectOption({ index: 1 })
-  await page.getByRole('button', { name: 'Pflegeheim bestÃ¤tigen' }).click()
+  await page.getByRole('button', { name: 'Pflegeheim bestätigen' }).click()
   await page.locator('#plz_input').waitFor({ state: 'visible', timeout: 20_000 })
   await page.locator('#plz_input').fill('13187')
-  await page.getByRole('button', { name: 'Postleitzahl bestÃ¤tigen' }).click()
+  await page.getByRole('button', { name: 'Postleitzahl bestätigen' }).click()
   await page.locator('[data-testid=answer-footer]').waitFor({ state: 'visible', timeout: 30_000 })
 
   await shoot(page, '01-chat-fresh')
@@ -227,7 +228,7 @@ try {
   ) {
     await shoot(page, '04-chat-all-answered')
   } else {
-    console.log('   [drive] all-answered not observable â€” lock re-render won the race')
+    console.log('   [drive] all-answered not observable — lock re-render won the race')
   }
 
   await page.reload()

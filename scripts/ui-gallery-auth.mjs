@@ -30,6 +30,7 @@ import { chromium } from '@playwright/test'
 import { mkdirSync } from 'fs'
 import { join } from 'path'
 import { config } from 'dotenv'
+import { gotoWhenReady } from './lib/preview-ready.mjs'
 
 config({ path: '.env.local' })
 
@@ -75,7 +76,7 @@ try {
   const ctx = await browser.newContext({ viewport: DESKTOP, extraHTTPHeaders })
   const page = await ctx.newPage()
 
-  await page.goto(`${BASE}/login`)
+  await gotoWhenReady(page, `${BASE}/login`, '[name=email]')
   await page.locator('[name=email]').waitFor({ state: 'visible', timeout: 30_000 })
   await shoot(page, '01-login')
 

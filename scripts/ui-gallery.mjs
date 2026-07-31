@@ -18,6 +18,7 @@ import { chromium } from '@playwright/test'
 import { mkdirSync } from 'fs'
 import { join } from 'path'
 import { config } from 'dotenv'
+import { gotoWhenReady } from './lib/preview-ready.mjs'
 
 config({ path: '.env.local' })
 
@@ -87,14 +88,15 @@ try {
       console.log(`   ${file}`)
     }
 
-    // 1. login (logged out)
-    await page.goto(`${BASE}/login`)
-    await page.waitForLoadState('networkidle')
+    // 1. login (logged out). gotoWhenReady is the readiness gate: a Vercel
+    // preview serves its "Deployment is building" page with HTTP 200, so a
+    // plain goto can photograph a holding page and call it the app.
+    await gotoWhenReady(page, `${BASE}/login`, '[name=email]')
     await shot('01-login')
 
     // 2. signup
     await page.goto(`${BASE}/signup`)
-    await page.waitForLoadState('networkidle')
+    await page.locator('[name=first_name]').waitFor({ state: 'visible', timeout: 30_000 })
     await shot('02-signup')
 
     // log in for the case screens
@@ -103,7 +105,12 @@ try {
     await page.locator('[name=password]').fill('TestPassw0rd!')
     await page.getByRole('button', { name: 'Anmelden' }).click()
     await page.waitForURL(`${BASE}/case`, { timeout: 20_000 })
-    await page.waitForLoadState('networkidle')
+    // Deterministic: the case shell is ready when its header or the first
+    // pre-step control renders.
+    await page
+      .locator('[data-testid=case-header], #care_home_id')
+      .first()
+      .waitFor({ state: 'visible', timeout: 30_000 })
 
     // 3. pre-step: care-home selector (only before it is confirmed)
     const selector = page.locator('#care_home_id')
@@ -124,8 +131,9 @@ try {
 
     // 5. questionnaire (Fragen tab), fresh
     await page.goto(`${BASE}/case`)
-    await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(800)
+    // Deterministic: the questionnaire is ready when its answer area renders.
+    await page.locator('[data-testid=answer-footer]').waitFor({ state: 'visible', timeout: 30_000 })
+    await page.waitForTimeout(400)
     await shot('05-fragen-fresh')
 
     // 6. questionnaire with history — answer three questions with synthetic data
