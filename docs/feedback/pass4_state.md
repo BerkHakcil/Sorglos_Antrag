@@ -7,13 +7,13 @@
 
 ## Phase status
 
-| Phase                                  | Status                                                                                                            | Notes                                                                                                                                                                                                                                                                          |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| A — read-only report + Roman Package 2 | ✅ DONE 2026-08-01 — approved same day (all 7 decisions, below)                                                   | `pass4_phase_a.md` (A1–A9 + appendix order table) + `roman_package_pass4.md`. §4 (new-German nod list) appended to the package per founder item 7 — **package ready to send**                                                                                                  |
-| Batch 1 (D1/D3/D4/D9/D10/D11/D2)       | ✅ **DONE 2026-08-01 — live on prod, all seven spot-checks green**                                                | Migrations `20260801000001/2` pushed by founder + verified on prod (twice, incl. post-reboot). Code merged `51a8064`, deployed `dpl_GRFPKP55…`. Gate: cumulative green vs the immutable `9b562c3` preview (deviation recorded below). Live spot-checks: see the Batch-1 record |
-| Batch 2 (pension, D15)                 | 🔶 migrations LIVE on prod + code written — **⏸ STOP: founder pushes branch `pass4-batch2` for the preview gate** | Migrations applied (all 12 NOTICEs) + verified: 414/412 questions, pair `active=false`, group count-driven, options 0–8, Keine-Rente gone, member vis NULL, backfills `2/1/0`. Engine + tests on the branch; record below                                                      |
-| Batch 3 (D5/D6/D12)                    | not started                                                                                                       | blocked on Roman's answers to Package 2                                                                                                                                                                                                                                        |
-| Close-out                              | not started                                                                                                       |                                                                                                                                                                                                                                                                                |
+| Phase                                  | Status                                                                                  | Notes                                                                                                                                                                                                                                                                                                                                          |
+| -------------------------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A — read-only report + Roman Package 2 | ✅ DONE 2026-08-01 — approved same day (all 7 decisions, below)                         | `pass4_phase_a.md` (A1–A9 + appendix order table) + `roman_package_pass4.md`. §4 (new-German nod list) appended to the package per founder item 7 — **package ready to send**                                                                                                                                                                  |
+| Batch 1 (D1/D3/D4/D9/D10/D11/D2)       | ✅ **DONE 2026-08-01 — live on prod, all seven spot-checks green**                      | Migrations `20260801000001/2` pushed by founder + verified on prod (twice, incl. post-reboot). Code merged `51a8064`, deployed `dpl_GRFPKP55…`. Gate: cumulative green vs the immutable `9b562c3` preview (deviation recorded below). Live spot-checks: see the Batch-1 record                                                                 |
+| Batch 2 (pension, D15)                 | ✅ **DONE 2026-08-01 — live on prod, 12/12 live checks + real-case render check green** | Migrations applied + verified (414/412, pair retired, count-driven, backfills 2/1/0). Code merged `3a09bfc`, deployed `dpl_9ZRqoCM2…`. Gate: 12/13 preview run (zero stalls, 4.2 min) + the fixed V1 green vs the same `5a419f3` deployment (the sole failure was the rewritten spec's own ambiguous-key bug — test-side). Live evidence below |
+| Batch 3 (D5/D6/D12)                    | not started                                                                             | blocked on Roman's answers to Package 2                                                                                                                                                                                                                                                                                                        |
+| Close-out                              | not started                                                                             |                                                                                                                                                                                                                                                                                                                                                |
 
 ## Decisions received from the founder (2026-08-01) — Phase-A STOP closed
 
@@ -357,16 +357,43 @@ button[disabled]`, the specific state each drive step actually needs,
 instead of a global document-wide disabled-button count that any stray
 busy control could wedge.
 
+## Batch 2 — live verification on prod (2026-08-01, deployment `dpl_9ZRqoCM2…` = merge `3a09bfc`)
+
+**Throwaway Berlin `count=2` drive — 12/12 checks green:** fresh
+denominator **52** → `pension_count = 2` (found structurally) →
+denominator **60** → instance 1 (Altersrente, 800) → **reload mid-group
+resumed exactly on the open Abrechnungsnummer** → empty Weiter on it
+BLOCKED with the German error (required-field gate) → instance 2 rendered
+immediately with NO prompt (Unfallrente, 300) → Dokumente tab showed
+**exactly two Rentenbescheid slots** ("Rente 1: Altersrente" / "Rente 2:
+Unfallrente") → DB held count="2" + 2 instances × 4 answers → **decrease
+2→1 via Bearbeiten** surfaced the confirm card with the PLACEHOLDER copy
+("Angaben löschen?…überzähligen Renten") → "Ja, löschen" → DB showed
+count="1", instance-2's 4 rows DELETED by the sweep, denominator **56**,
+exactly ONE slot left. User deleted.
+
+**Read-only render check of backfilled REAL case `d345b0f9`** (actual lib
+code over the app's exact load path, zero writes): the two retired
+answers exist in the DB but are excluded from `answersRaw` (sweep-proof),
+`pension_count = "2"` renders exactly 2 instances / 8 member questions,
+retired keys absent from `flatVisible`, and instance 2's preserved data
+(Unfallrente / 22 / 2323) renders with its real `pension_issuer` gap open.
+One check premise corrected on the record: resume targets
+`id_expiry_date` — an EARLIER real gap in this case — because resume is
+first-unanswered-in-flow-order by spec; my original expectation
+(pension_issuer) assumed the pension gap was the only one. The pension
+gap is in `flatVisible`, unanswered, and will be asked in order.
+
+Hygiene: fixture re-seeded; leak sweep found **zero** candidates (every
+gate/live run cleaned up after itself).
+
 ## Next step
 
-**⏸ STOP — founder: `git push origin pass4-batch2`** → preview builds → I
-re-seed the fixture and run the full suite against the preview → on green
-merge to `main`, founder pushes `main` (deploy) → live verification:
-throwaway Berlin `count=2` drive end-to-end (two detail groups, two
-Rentenbescheid slots, progress math, decrease 2→1 via the dialog, resume
-mid-group after reload) + the read-only render check of a backfilled real
-case with preserved retired answers invisible → final Batch-2 report,
-then STOP before Batch 3 (which waits on Roman regardless). Note: the
-deploy window since the migrations currently shows BOTH the old pair and
-pension_count to Berlin users on prod — ugly but safe (no data risk, no
-crash); the merge closes it, so speed matters.
+**⏸ STOP — Batch 2 CLOSED.** Remaining in the pass: **Batch 3**
+(D5 perspective rewordings, D6 reorder migration, D12 partner texts) —
+**gated entirely on Roman's answers to `roman_package_pass4.md`** — and
+the close-out (milestone-log entry, final ledger, disposition table
+D1–D16). Local `main` is one docs commit ahead of origin (this record) —
+founder pushes at leisure. When Roman's answers arrive, paste them and
+Batch 3 starts with its own Phase-1-style verification of his approved
+texts against the live rows.
