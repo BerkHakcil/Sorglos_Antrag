@@ -57,7 +57,12 @@ export async function loadQuestionnaire(questionnaireId: string): Promise<Loaded
 
   const catIds = cats.map((c) => c.id)
 
-  // 3. Questions with group join (sorted within each category)
+  // 3. Questions with group join (sorted within each category).
+  // active = true only (pass 4 / D15): retired questions — hat_rente and
+  // rentenbetrag — never enter the loaded questionnaire, so they are not
+  // rendered, not counted in the denominator and never a resume target.
+  // Their preserved answers are protected from the stale-answer sweep by the
+  // matching filter in getCaseAnswers (lib/dal.ts) — see the comment there.
   const { data: qs, error: qsErr } = await supabase
     .from('question')
     .select(
@@ -65,11 +70,12 @@ export async function loadQuestionnaire(questionnaireId: string): Promise<Loaded
       id, key, sort_order, answer_type, is_required,
       prompt_de, help_de, validation, visibility_rule, group_id, category_id,
       question_group (
-        id, key, sort_order, label_de, custom_prompt_de, is_repeatable, min_count, max_count
+        id, key, sort_order, label_de, custom_prompt_de, is_repeatable, min_count, max_count, count_source_key
       )
     `
     )
     .in('category_id', catIds)
+    .eq('active', true)
     .order('sort_order')
   if (qsErr) throw new Error('Fragen nicht geladen')
 
@@ -119,6 +125,7 @@ export async function loadQuestionnaire(questionnaireId: string): Promise<Loaded
       group_sort_order: grp?.sort_order ?? null,
       group_min_count: grp?.min_count ?? null,
       group_max_count: grp?.max_count ?? null,
+      group_count_source_key: grp?.count_source_key ?? null,
       options: optsByQuestion[q.id] ?? [],
     }
     if (!qsByCategory[q.category_id]) qsByCategory[q.category_id] = []

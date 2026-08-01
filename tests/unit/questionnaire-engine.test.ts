@@ -28,6 +28,7 @@ function makeQuestion(overrides: Partial<Question> = {}): Question {
     group_sort_order: null,
     group_min_count: null,
     group_max_count: null,
+    group_count_source_key: null,
     options: [],
     ...overrides,
   }

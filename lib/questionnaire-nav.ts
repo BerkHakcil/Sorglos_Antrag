@@ -297,6 +297,10 @@ export function buildNav(
     const groupNavQs = flatVisible.filter((q) => q.group_key === groupKey)
     if (groupNavQs.length === 0) continue // cross-group visibility hid everything
 
+    // Count-driven groups (pass 4 / D15) never ask "add another?" — the
+    // instance count is the count question's answer, nothing else.
+    if (groupNavQs[0]?.group_count_source_key) continue
+
     if (!groupNavQs.every((q) => q.isAnswered)) continue
 
     const maxCount = groupNavQs[0]?.group_max_count ?? null

@@ -84,11 +84,19 @@ async function setupCareHomeAndPlz(page: Page) {
   await page.waitForTimeout(1_500)
 }
 
-async function waitForIdle(page: Page, timeout = 15_000) {
-  await page.waitForFunction(
-    () => document.querySelectorAll<HTMLButtonElement>('button[disabled]').length === 0,
-    { timeout }
-  )
+/**
+ * Waits until the ANSWER FOOTER has no disabled control — the specific state
+ * every drive step needs before its next interaction (a pending save
+ * disables exactly the footer's buttons). Replaces waitForIdle, which
+ * counted button[disabled] across the WHOLE document: a global condition no
+ * assertion depended on — the same primitive family as the removed
+ * networkidle (53fdf73). Flagged in pass-3 backlog item 4; replaced in
+ * pass 4 after the stall recurrences during the Batch-1 spot-checks.
+ */
+async function waitForFooterSettled(page: Page, timeout = 15_000) {
+  await expect(page.locator('[data-testid=answer-footer] button[disabled]')).toHaveCount(0, {
+    timeout,
+  })
 }
 
 async function clickWeiter(page: Page) {
@@ -97,7 +105,7 @@ async function clickWeiter(page: Page) {
   await weiter.waitFor({ state: 'visible', timeout: 8_000 })
   await weiter.click()
   await page.waitForTimeout(200)
-  await waitForIdle(page)
+  await waitForFooterSettled(page)
 }
 
 async function footerText(page: Page): Promise<string> {
@@ -143,7 +151,7 @@ async function driveQuestionnaire(page: Page, opts: { maritalChoice: string; rev
     if (await neinWeiter.isVisible({ timeout: 300 }).catch(() => false)) {
       await neinWeiter.click()
       await page.waitForTimeout(150)
-      await waitForIdle(page)
+      await waitForFooterSettled(page)
       stuck = 0
       continue
     }
@@ -221,7 +229,7 @@ async function driveQuestionnaire(page: Page, opts: { maritalChoice: string; rev
       const skip = page.getByRole('button', { name: 'Weiß ich gerade nicht' })
       if (await skip.isVisible({ timeout: 300 }).catch(() => false)) {
         await skip.click()
-        await waitForIdle(page)
+        await waitForFooterSettled(page)
       } else {
         await chk.click()
         await clickWeiter(page)
@@ -369,7 +377,7 @@ test('T3 Haftpflicht toggle Ja→Nein deletes the dependent answers (BUG B)', as
     await footer.locator('select').selectOption({ value: 'Nein' })
     await footer.getByRole('button', { name: 'Änderung speichern' }).click()
     await page.waitForTimeout(1_500)
-    await waitForIdle(page)
+    await waitForFooterSettled(page)
     await page.waitForTimeout(1_000)
 
     const providerCount = await answerCountByKey(caseId, 'general_liablity_insurance_provider')

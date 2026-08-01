@@ -12,6 +12,7 @@ import {
 } from '@/lib/questionnaire-nav'
 import { QuestionRenderer } from '@/components/ui/questionnaire/question-renderer'
 import { saveAnswerAction, deleteGroupInstanceAction } from './actions'
+import { capInstances, parseCount } from '@/lib/group-instances'
 import { Check, Clock } from 'lucide-react'
 import { de } from '@/lib/strings/de'
 import { btnCopper, btnOutline, card } from '@/components/ui/styles'
@@ -165,15 +166,21 @@ function AnsweredBubble({
           <h3 className="bg-sage-soft/70 text-primary rounded-full px-3 py-1 text-xs font-medium">
             {sectionLabel}
           </h3>
-          {!locked && question.instanceId && isNewInstance && question.instanceIndex > 1 && (
-            <button
-              type="button"
-              onClick={() => onRemoveInstance(question.group_key!, question.instanceId!)}
-              className="text-graphite-soft hover:text-destructive inline-flex min-h-11 items-center text-xs underline underline-offset-2"
-            >
-              {s.repeatableGroup.removeInstanceLabel}
-            </button>
-          )}
+          {/* Count-driven groups (D15): no direct instance removal — the count
+              question is the single source of how many instances exist. */}
+          {!locked &&
+            question.instanceId &&
+            isNewInstance &&
+            question.instanceIndex > 1 &&
+            !question.group_count_source_key && (
+              <button
+                type="button"
+                onClick={() => onRemoveInstance(question.group_key!, question.instanceId!)}
+                className="text-graphite-soft hover:text-destructive inline-flex min-h-11 items-center text-xs underline underline-offset-2"
+              >
+                {s.repeatableGroup.removeInstanceLabel}
+              </button>
+            )}
         </div>
       )}
       {/* data-testid is the e2e anchor for one answered Q&A pair.
@@ -301,6 +308,36 @@ function GroupPromptCard({
         </button>
         <button type="button" disabled={saving} onClick={onNo} className={btnOutline}>
           {s.repeatableGroup.noButton}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function CountDecreaseConfirmCard({
+  onConfirm,
+  onCancel,
+  saving,
+}: {
+  onConfirm: () => void
+  onCancel: () => void
+  saving: boolean
+}) {
+  // Pass 4 / D15 confirm-and-clear. All strings PLACEHOLDER_DE (Roman nod
+  // list). Deliberately NOT --destructive styling on the card itself: the
+  // register is a question, not an error — but the confirm button is the
+  // copper primary, matching every other decisive action.
+  const c = s.countDecrease
+  return (
+    <div data-testid="count-decrease-confirm" className={`${card} space-y-4 p-5`}>
+      <p className="text-[15px] leading-relaxed font-medium">{c.title}</p>
+      <p className="text-graphite-soft text-sm leading-relaxed">{c.body}</p>
+      <div className="flex flex-wrap gap-3">
+        <button type="button" disabled={saving} onClick={onConfirm} className={btnCopper}>
+          {c.confirmButton}
+        </button>
+        <button type="button" disabled={saving} onClick={onCancel} className={btnOutline}>
+          {c.cancelButton}
         </button>
       </div>
     </div>
@@ -451,6 +488,27 @@ export function ChatView({
     [questionnaire, answersMap, groupInstances, groupAnswers, dismissedGroups, skippedIds]
   )
 
+  // Pass 4 / D15: count-source question key → the group it drives (today only
+  // pension_count → pension). Saving such a question adjusts the group's
+  // instance list to exactly N; a DECREASE below the number of filled
+  // instances needs the confirm-and-clear dialog first (founder decision
+  // 2026-08-01) — the excess instances leave flatVisible on save and the
+  // server's stale-answer sweep deletes their rows.
+  const countGroups = useMemo(() => {
+    const map: Record<string, string> = {}
+    for (const cat of questionnaire.categories) {
+      for (const q of cat.questions) {
+        if (q.group_count_source_key && q.group_key) map[q.group_count_source_key] = q.group_key
+      }
+    }
+    return map
+  }, [questionnaire])
+
+  // Non-null while a count decrease awaits the user's confirmation.
+  const [pendingCountDecrease, setPendingCountDecrease] = useState<{ groupKey: string } | null>(
+    null
+  )
+
   const isLocked = caseStatus === 'under_review'
 
   // ── Live status label derived from nav + caseStatus ────────────────────────
@@ -577,7 +635,7 @@ export function ChatView({
     }
   }
 
-  const handleSave = () => {
+  const handleSave = (countDecreaseConfirmed = false) => {
     if (!activeQ || isPending) return
 
     const qId = activeQ.id
@@ -586,6 +644,33 @@ export function ChatView({
     const value = currentValue
     const dk2 = draftKey(qId, instanceId)
     const wasEditing = editingId
+
+    // ── Count-driven group adjustment (pass 4 / D15) ────────────────────────
+    const countGroupKey = countGroups[qKey]
+    let instancesAdjustment: { groupKey: string; prev: string[]; next: string[] } | null = null
+    if (countGroupKey && !instanceId) {
+      const newN = parseCount(value)
+      const current = groupInstances[countGroupKey] ?? []
+      const droppedWithData = current
+        .slice(newN)
+        .some((iid) =>
+          Object.values(groupAnswers[iid] ?? {}).some(
+            (v) => v !== undefined && v !== null && v !== ''
+          )
+        )
+      if (droppedWithData && !countDecreaseConfirmed) {
+        // Confirm-and-clear: ask before the save deletes the excess instances'
+        // data (the sweep clears their rows once they leave flatVisible).
+        setPendingCountDecrease({ groupKey: countGroupKey })
+        return
+      }
+      instancesAdjustment = {
+        groupKey: countGroupKey,
+        prev: current,
+        next: capInstances(current, newN, () => crypto.randomUUID()),
+      }
+      setPendingCountDecrease(null)
+    }
 
     if (instanceId) {
       // ── Group question save ───────────────────────────────────────────────
@@ -635,6 +720,12 @@ export function ChatView({
       const prevValue = answersMap[qKey]
 
       setAnswersMap((prev) => ({ ...prev, [qKey]: value }))
+      // Count save: the driven group's instance list becomes exactly N in the
+      // same render, so nav/progress/docs recompute consistently.
+      if (instancesAdjustment) {
+        const { groupKey, next } = instancesAdjustment
+        setGroupInstances((prev) => ({ ...prev, [groupKey]: next }))
+      }
       if (wasEditing) {
         setEditingId(null)
         setEditingInstanceId(null)
@@ -661,6 +752,11 @@ export function ChatView({
             }
             return { ...prev, [qKey]: prevValue }
           })
+          // Failed count save: the instance adjustment rolls back with it.
+          if (instancesAdjustment) {
+            const { groupKey, prev: prevList } = instancesAdjustment
+            setGroupInstances((prev) => ({ ...prev, [groupKey]: prevList }))
+          }
           if (wasEditing) {
             setEditingId(qId)
             setEditingInstanceId(null)
@@ -844,6 +940,12 @@ export function ChatView({
               onNo={() => handleGroupNo(nav.groupPrompt!.groupKey)}
               saving={isPending}
             />
+          ) : pendingCountDecrease && activeQ ? (
+            <CountDecreaseConfirmCard
+              onConfirm={() => handleSave(true)}
+              onCancel={() => setPendingCountDecrease(null)}
+              saving={isPending}
+            />
           ) : showQuestionCard && activeQ ? (
             <CurrentQuestionCard
               question={activeQ}
@@ -851,7 +953,10 @@ export function ChatView({
               onChange={handleChange}
               error={validationError}
               saving={isPending}
-              onSave={handleSave}
+              /* Wrapped: handleSave takes countDecreaseConfirmed — passing the
+                 handler bare would feed it the click event (truthy) and skip
+                 the confirm dialog. */
+              onSave={() => handleSave()}
               onSkip={!editingId ? handleSkip : undefined}
               onCancel={editingId ? cancelEdit : undefined}
               isEditMode={!!editingId}

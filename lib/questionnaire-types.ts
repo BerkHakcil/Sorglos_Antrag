@@ -39,6 +39,10 @@ export type Question = {
   group_sort_order: number | null
   group_min_count: number | null
   group_max_count: number | null
+  /** Pass 4 / D15: when set, the group renders EXACTLY N instances where N is
+   *  the answer to the question with this key (count-driven; the add-another
+   *  prompt is suppressed). NULL → classic add-another behavior. */
+  group_count_source_key: string | null
   options: QuestionOption[]
 }
 

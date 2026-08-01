@@ -2,11 +2,11 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
-import { verifySession, getCaseAnswers, type SavedAnswer } from '@/lib/dal'
+import { verifySession, getCaseAnswers } from '@/lib/dal'
 import { de } from '@/lib/strings/de'
 import { loadQuestionnaire } from '@/lib/questionnaire-engine'
 import { buildNav, findStaleAnswerRefs } from '@/lib/questionnaire-nav'
-import type { LoadedQuestionnaire } from '@/lib/questionnaire-types'
+import { deriveGroupData } from '@/lib/group-instances'
 
 const PLZ_RE = /^\d{5}$/
 
@@ -202,7 +202,13 @@ export async function saveAnswerAction(input: SaveAnswerInput): Promise<SaveAnsw
     getCaseAnswers(caseRow.id),
   ])
 
-  const { groupInstances, groupAnswers } = deriveGroupDataForCompletion(questionnaire, answersRaw)
+  // Mode 'completion' (pass 4 / D15, shared helper): classic empty groups get
+  // the zero-UUID placeholder so their required questions still count and
+  // completion cannot fire early; count-driven groups get EXACTLY N instances
+  // and deliberately NO placeholder — with pension_count = 0 there is nothing
+  // to answer, and a placeholder would hold an unanswerable required
+  // pension_type, blocking completion forever.
+  const { groupInstances, groupAnswers } = deriveGroupData(questionnaire, answersRaw, 'completion')
   const nav = buildNav(questionnaire, answersMap, groupInstances, groupAnswers)
 
   // ── Stale-answer cleanup (BUG B) ───────────────────────────────────────────────
@@ -419,53 +425,5 @@ async function getCaseId(
   return data?.id ?? ''
 }
 
-/**
- * Mirrors page.tsx's deriveGroupData for the server-side completion check.
- * Adds a placeholder instance for repeatable groups with no saved answers so
- * buildNav counts their required questions (prevents false-positive completion
- * when the user hasn't started a required repeatable group yet).
- */
-function deriveGroupDataForCompletion(
-  questionnaire: LoadedQuestionnaire,
-  answersRaw: SavedAnswer[]
-): {
-  groupInstances: Record<string, string[]>
-  groupAnswers: Record<string, Record<string, unknown>>
-} {
-  const qidToGroup = new Map<string, { groupKey: string; questionKey: string }>()
-  const repGroupKeys = new Set<string>()
-  for (const cat of questionnaire.categories) {
-    for (const q of cat.questions) {
-      if (q.group_key && q.group_is_repeatable) {
-        qidToGroup.set(q.id, { groupKey: q.group_key, questionKey: q.key })
-        repGroupKeys.add(q.group_key)
-      }
-    }
-  }
-
-  const groupInstances: Record<string, string[]> = {}
-  const groupAnswers: Record<string, Record<string, unknown>> = {}
-
-  for (const a of answersRaw) {
-    if (a.group_instance === 'default') continue
-    const info = qidToGroup.get(a.question_id)
-    if (!info) continue
-    const { groupKey, questionKey } = info
-    if (!groupInstances[groupKey]) groupInstances[groupKey] = []
-    if (!groupInstances[groupKey].includes(a.group_instance)) {
-      groupInstances[groupKey].push(a.group_instance)
-    }
-    if (!groupAnswers[a.group_instance]) groupAnswers[a.group_instance] = {}
-    groupAnswers[a.group_instance][questionKey] = a.value
-  }
-
-  // Without a placeholder, buildNav skips the group entirely → its required
-  // questions are excluded from totalRequired → allRequiredAnswered is falsely true.
-  for (const gk of repGroupKeys) {
-    if (!groupInstances[gk]) {
-      groupInstances[gk] = ['00000000-0000-0000-0000-000000000000']
-    }
-  }
-
-  return { groupInstances, groupAnswers }
-}
+// deriveGroupDataForCompletion moved to lib/group-instances.ts (pass 4 / D15,
+// mode 'completion') — one shared derivation for all four former sites.

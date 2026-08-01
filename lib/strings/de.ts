@@ -241,6 +241,17 @@ export const de = {
         instanceLabel: '{group} {index}',
       },
 
+      // Pass 4 / D15 — confirm-and-clear when a count-driven group's count is
+      // DECREASED below the number of filled instances (founder decision
+      // 2026-08-01). ⚠ ALL PLACEHOLDER_DE, on Roman's nod list
+      // (roman_package_pass4.md §4, german_copy_for_roman.md).
+      countDecrease: {
+        title: 'Angaben löschen?',
+        body: 'Sie haben die Anzahl der Renten verringert. Die Angaben zu den überzähligen Renten werden dabei gelöscht.',
+        confirmButton: 'Ja, löschen',
+        cancelButton: 'Abbrechen',
+      },
+
       errors: {
         generic: 'Antwort konnte nicht gespeichert werden. Bitte erneut versuchen.',
         editLocked: 'Der Antrag ist bereits zur Prüfung eingereicht.',

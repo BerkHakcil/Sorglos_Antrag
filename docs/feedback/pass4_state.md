@@ -7,13 +7,13 @@
 
 ## Phase status
 
-| Phase                                  | Status                                                                 | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| -------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A — read-only report + Roman Package 2 | ✅ DONE 2026-08-01 — approved same day (all 7 decisions, below)        | `pass4_phase_a.md` (A1–A9 + appendix order table) + `roman_package_pass4.md`. §4 (new-German nod list) appended to the package per founder item 7 — **package ready to send**                                                                                                                                                                                                                                                                           |
-| Batch 1 (D1/D3/D4/D9/D10/D11/D2)       | ✅ **DONE 2026-08-01 — live on prod, all seven spot-checks green**     | Migrations `20260801000001/2` pushed by founder + verified on prod (twice, incl. post-reboot). Code merged `51a8064`, deployed `dpl_GRFPKP55…`. Gate: cumulative green vs the immutable `9b562c3` preview (deviation recorded below). Live spot-checks: see the Batch-1 record                                                                                                                                                                          |
-| Batch 2 (pension, D15)                 | 🔶 migrations written — **⏸ STOP: awaiting manual `supabase db push`** | `20260801000003` (structural) + `20260801000004` (backfill, strict per-case guards). Fresh R2 2026-08-01: the three REAL cases match the approved table byte-for-byte; deviation on record — the tabled TEST fixture was GC'd by Batch-1 re-seeds, successor fixtures get NO backfill (re-seedable). Docker still down → no local replay; migrations abort loudly. Code follows after prod verification (R8 — two NEW columns this time, the hard case) |
-| Batch 3 (D5/D6/D12)                    | not started                                                            | blocked on Roman's answers to Package 2                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| Close-out                              | not started                                                            |                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Phase                                  | Status                                                                                                            | Notes                                                                                                                                                                                                                                                                          |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A — read-only report + Roman Package 2 | ✅ DONE 2026-08-01 — approved same day (all 7 decisions, below)                                                   | `pass4_phase_a.md` (A1–A9 + appendix order table) + `roman_package_pass4.md`. §4 (new-German nod list) appended to the package per founder item 7 — **package ready to send**                                                                                                  |
+| Batch 1 (D1/D3/D4/D9/D10/D11/D2)       | ✅ **DONE 2026-08-01 — live on prod, all seven spot-checks green**                                                | Migrations `20260801000001/2` pushed by founder + verified on prod (twice, incl. post-reboot). Code merged `51a8064`, deployed `dpl_GRFPKP55…`. Gate: cumulative green vs the immutable `9b562c3` preview (deviation recorded below). Live spot-checks: see the Batch-1 record |
+| Batch 2 (pension, D15)                 | 🔶 migrations LIVE on prod + code written — **⏸ STOP: founder pushes branch `pass4-batch2` for the preview gate** | Migrations applied (all 12 NOTICEs) + verified: 414/412 questions, pair `active=false`, group count-driven, options 0–8, Keine-Rente gone, member vis NULL, backfills `2/1/0`. Engine + tests on the branch; record below                                                      |
+| Batch 3 (D5/D6/D12)                    | not started                                                                                                       | blocked on Roman's answers to Package 2                                                                                                                                                                                                                                        |
+| Close-out                              | not started                                                                                                       |                                                                                                                                                                                                                                                                                |
 
 ## Decisions received from the founder (2026-08-01) — Phase-A STOP closed
 
@@ -296,12 +296,77 @@ the 13 names marked signed off (§2), pass-4 PLACEHOLDER_DE table added
 (Hilfe/Ansprechpartner labels, Nächste-Schritte heading, Schließen
 aria-label, Batch-2 confirm dialog + netto hint).
 
+## Batch 2 — engine + tests record (2026-08-01, branch `pass4-batch2`)
+
+**Retirement (question.active):** loader filter in
+`lib/questionnaire-engine.ts` (retired questions never load) + the
+LOAD-BEARING keyMap filter in `lib/dal.ts` `getCaseAnswers` — retired
+answers never enter `answersRaw`, so the stale-answer sweep cannot delete
+them (comment marks it explicitly). `case-export` deliberately stays
+unfiltered: answers.md keeps showing preserved retired answers to ops.
+
+**Count-driven groups — the FOUR derivation sites, all through the new
+shared `lib/group-instances.ts` (cited per the founder's gate item 2):**
+
+1. `app/case/page.tsx` — `deriveGroupData(questionnaire, answersRaw,
+'render')` (auto-create-1 for classic groups; count groups exactly N).
+2. `app/case/actions.ts` (completion gate) — mode `'completion'`
+   (zero-UUID placeholder for classic groups; count groups get NO
+   placeholder — count 0 must not block completion).
+3. `app/case/chat-view.tsx` — client adjustments via the exported
+   `capInstances`/`parseCount`: saving a count-source question truncates/
+   extends the driven group's instance list in the same render; a DECREASE
+   below the number of FILLED instances first shows the confirm-and-clear
+   card (`data-testid=count-decrease-confirm`, PLACEHOLDER_DE strings in
+   de.ts per the nod list); rollback restores the previous list on save
+   failure. The per-instance "Eintrag entfernen" affordance is suppressed
+   for count-driven groups (the count is the single source of instance
+   count).
+4. `scripts/case-export.mjs` — mode `'export'` feeds the CAPPED derivation
+   to `evaluateDocumentRules` (documents.md mirrors the app's slots) while
+   answers.md iterates the RAW uncapped collection (ops keeps seeing e.g.
+   the locked Keine-Rente instance).
+
+Instance order is deterministic: `getCaseAnswers` now orders answer rows
+by `created_at`, so count truncation drops the NEWEST instances. The
+add-another prompt is suppressed for count groups in `buildNav`;
+`verify-baseline` gained both new columns in its drift guard and swapped
+its critical-keys spot-check to `pension_count`/`pension_type`.
+
+**Doc rules:** ZERO rule changes — PAN-003/004 read the capped derivation;
+count 0 → no pension slots (proven in unit); Essen untouched (evaluator
+unchanged; 53/53 doc-rule tests green with goldens byte-identical after
+removing the inert `hat_rente` keys from the Pankow fixtures).
+
+**Tests:** unit 219/219 (14 new in `group-instances.test.ts`: parse/cap,
+per-mode derivation, truncate-keeps-oldest, denominator math, unanswered
+Abrechnungsnummer blocks completion, prompt suppression + classic-group
+regression, PAN-003 slots follow the cap incl. the count-0 Keine-Rente
+shape). e2e rebuilt: visibility V1 = count-driven (STRUCTURAL detection
+of the count select by option values — no copy coupling; asserts 2
+instances in DB, prompt never seen, retired pair `active=false`, zero
+`hat_rente` answers saved), documents-m6 drives `pension_count='2'` via
+the override map and FAILS LOUDLY if the pension loop prompt ever
+reappears, Berlin denominators 53 → **52** (m7 ×2, feedback-pass L1/L2).
+
+**waitForIdle REPLACED (founder item 4; precedent: networkidle removal
+`53fdf73`, pass-3 backlog item 4, promoted after the Batch-1 stall
+recurrences):** all six specs now use `waitForFooterSettled` — an
+`expect(...).toHaveCount(0)` on `[data-testid=answer-footer]
+button[disabled]`, the specific state each drive step actually needs,
+instead of a global document-wide disabled-button count that any stray
+busy control could wedge.
+
 ## Next step
 
-**⏸ STOP — Batch 1 closed. Next: the Batch-2 design round (D15 pension
-redesign per the approved A1 design + decisions 1–2: confirm-and-clear,
-backfill as tabled).** Its migrations get their own Real-Data report at
-execution time (any drift vs the Phase-A table stops the migration) and
-their own manual-push STOP. Note for the founder: local `main` carries
-the Batch-1 close-out docs commit — push whenever convenient; Roman's
-Package-2 answers gate Batch 3 only.
+**⏸ STOP — founder: `git push origin pass4-batch2`** → preview builds → I
+re-seed the fixture and run the full suite against the preview → on green
+merge to `main`, founder pushes `main` (deploy) → live verification:
+throwaway Berlin `count=2` drive end-to-end (two detail groups, two
+Rentenbescheid slots, progress math, decrease 2→1 via the dialog, resume
+mid-group after reload) + the read-only render check of a backfilled real
+case with preserved retired answers invisible → final Batch-2 report,
+then STOP before Batch 3 (which waits on Roman regardless). Note: the
+deploy window since the migrations currently shows BOTH the old pair and
+pension_count to Berlin users on prod — ugly but safe (no data risk, no
+crash); the merge closes it, so speed matters.
