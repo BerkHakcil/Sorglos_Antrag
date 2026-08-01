@@ -4,7 +4,8 @@
  * checklist via the configured default office (Pankow until the Essen seed),
  * so the old "area ABSENT for Essen/fallback" asserts became present-and-works.
  *
- *  R1  Essen: PLZ 45127 loads the Essen questionnaire (denominator 50), a full
+ *  R1  Essen: PLZ 45127 loads the Essen questionnaire (denominator 49 since
+ *      pass 4 / D4 made birth_name optional), a full
  *      single-path drive completes it, and the Dokumente tab carries the
  *      Pankow-DEFAULT checklist — an upload succeeds there.
  *  R2  Fallback: an unmapped PLZ (66606) silently serves the Berlin
@@ -203,7 +204,7 @@ async function answerStep(page: Page): Promise<'continue' | 'done' | 'stuck'> {
 
 test.setTimeout(600_000)
 
-test('R1: Essen — 45127 loads Essen (50 questions), completes, default checklist works', async ({
+test('R1: Essen — 45127 loads Essen (49 questions), completes, default checklist works', async ({
   page,
 }) => {
   const userId = await makeUserAndLogin(page, 'essen')
@@ -219,7 +220,9 @@ test('R1: Essen — 45127 loads Essen (50 questions), completes, default checkli
   expect(caseRow!.questionnaire_id, '45127 must route to the Essen questionnaire').toBe(
     ESSEN_QUESTIONNAIRE
   )
-  await expect(page.getByText('von 50 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
+  // 49 since pass 4 (D4): Essen birth_name became optional — optional
+  // questions add 0 to the denominator (migration 20260801000002).
+  await expect(page.getByText('von 49 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
 
   // Feedback pass item 3: the Dokumente tab is present from FIRST LOGIN
   // (Essen's office has no rules — the Pankow DEFAULT set applies).

@@ -37,6 +37,10 @@ type Props = {
     allAnsweredMessage: string
     lockedHeading: string
     lockedBody: string
+    nextStepsHeading: string
+    nextSteps1: string
+    nextSteps2: string
+    nextSteps3: string
   }
 }
 
@@ -329,7 +333,17 @@ function AllAnsweredCard({ heading, message }: { heading: string; message: strin
   )
 }
 
-function EditLockedCard({ heading, body }: { heading: string; body: string }) {
+function EditLockedCard({
+  heading,
+  body,
+  nextStepsHeading,
+  nextSteps,
+}: {
+  heading: string
+  body: string
+  nextStepsHeading: string
+  nextSteps: string[]
+}) {
   return (
     /* E-6: the PENDING state, and deliberately NOT a celebration.
        It shares the /fertig layout so the two read as one family, but its
@@ -353,6 +367,33 @@ function EditLockedCard({ heading, body }: { heading: string; body: string }) {
       </span>
       <p className="text-foreground mt-5 text-xl font-medium">{heading}</p>
       <p className="text-graphite-soft mt-3 max-w-md text-base leading-relaxed">{body}</p>
+      {/* Pass 4 / D2: Roman's three steps — LOCKED state only by decision
+          (2026-08-01): in the all-answered state documents may still be
+          missing, so "Antrag zur Unterschrift" would over-promise there.
+          Tones stay in this card's neutral register (E-6): being under
+          review is not a celebration, so the number medallions are
+          cream-deep/graphite (5.21:1), not petrol. Renders nothing while the
+          content rows are absent ('' by design). */}
+      {nextSteps.length > 0 && (
+        <div data-testid="next-steps" className="mt-6 w-full max-w-md text-left">
+          {nextStepsHeading && (
+            <p className="text-foreground text-sm font-semibold">{nextStepsHeading}</p>
+          )}
+          <ol className="mt-3 space-y-2">
+            {nextSteps.map((step, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <span
+                  aria-hidden
+                  className="bg-cream-deep text-graphite-soft grid size-6 shrink-0 place-items-center rounded-full text-xs font-semibold"
+                >
+                  {i + 1}
+                </span>
+                <span className="text-graphite-soft text-sm leading-relaxed">{step}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
     </div>
   )
 }
@@ -788,7 +829,14 @@ export function ChatView({
       >
         <div className="mx-auto max-w-2xl px-4 py-4">
           {isLocked ? (
-            <EditLockedCard heading={content.lockedHeading} body={content.lockedBody} />
+            <EditLockedCard
+              heading={content.lockedHeading}
+              body={content.lockedBody}
+              nextStepsHeading={content.nextStepsHeading}
+              nextSteps={[content.nextSteps1, content.nextSteps2, content.nextSteps3].filter(
+                Boolean
+              )}
+            />
           ) : showGroupPrompt && nav.groupPrompt ? (
             <GroupPromptCard
               prompt={nav.groupPrompt}

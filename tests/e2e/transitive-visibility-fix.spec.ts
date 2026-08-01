@@ -125,12 +125,14 @@ async function answerCountByKey(caseId: string, key: string): Promise<number> {
 async function driveQuestionnaire(page: Page, opts: { maritalChoice: string; reveal: boolean }) {
   let stuck = 0
   for (let step = 1; step <= 260 && stuck < 5; step++) {
+    // Testid anchors since pass 4 (D1 made the two terminal states' German
+    // distinct — the old text matchers were copy-coupled).
     const done = await page
-      .getByText('Sie haben alle Fragen beantwortet', { exact: false })
+      .locator('[data-testid=all-answered]')
       .isVisible({ timeout: 300 })
       .catch(() => false)
     const locked = await page
-      .getByText('Angaben werden geprüft', { exact: false })
+      .locator('[data-testid=locked-banner]')
       .isVisible({ timeout: 300 })
       .catch(() => false)
     if (done || locked) return

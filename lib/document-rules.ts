@@ -226,6 +226,24 @@ export function instancesForBinding(
   }
 }
 
+// ── Period suffix (pass 4, D10) ───────────────────────────────────────────────
+
+/**
+ * Per-office bank-statement period, rendered as a display suffix on the slot
+ * name — e.g. "Kontoauszüge – Girokonto (letzte 4 Monate)". The German lives
+ * in static_content ('docs.period_suffix', "(letzte {n} Monate)"); this only
+ * fills {n}. Display-only by design: stored filenames come from the catalog
+ * name via lib/storage-path.ts, so the suffix can never fork the counters.
+ *
+ * n = 1 renders NOTHING: the plural template would produce wrong German
+ * ("letzte 1 Monate") and no rule carries 1 today — a future 1-month rule
+ * must bring Roman-approved singular wording before it can render (R3).
+ */
+export function periodSuffix(periodMonths: number | null | undefined, template: string): string {
+  if (periodMonths == null || periodMonths < 2 || !template) return ''
+  return template.replace('{n}', String(periodMonths))
+}
+
 // ── Missing-documents counter (M6) ────────────────────────────────────────────
 
 /** The (rule_id, instance_key) pair is the same join key the checklist UI uses

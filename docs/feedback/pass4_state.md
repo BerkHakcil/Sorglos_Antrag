@@ -146,26 +146,122 @@ three D9 rows carry exactly the expected old values, partition 11/7/16/9;
 **11 uploads, all legacy UUID paths, 0 new-scheme** (flips strand nothing);
 period_months confirmed on exactly PAN-005/006/ESS-010/011 = 4.
 
-**Batch-1 code scope after push verification (queued):** D3 pre-steps
-wrapped in CaseTabs + placeholder pane; D10 suffix in
-`document-area.tsx:210` + `case-export.mjs:210` via the `docs.period_suffix`
-template (n≥2 only; a 1-month rule would need Roman wording first —
-documented, none exists); D11 header-Hilfe sheet with RP-initials avatar;
-D2 next-steps list on `EditLockedCard` only; e2e updates: the three
-`'Sie haben alle Fragen beantwortet'` anchors (completion :105/:320,
-visibility :139, transitive-visibility-fix :129) + Essen denominator 50→49
-(m7-regression :222, feedback-pass L3/L4); unit tests for the suffix
-renderer + docs-pane gating; full e2e; live spot-checks incl. **Pankow
-suffix** per decision 4.
+**Batch-1 code (written 2026-08-01, on branch `pass4-batch1`):** D3
+pre-steps wrapped in CaseTabs + `DocsPlaceholder` pane (gating pure helper
+`lib/docs-pane.ts`, unit-tested); D10 `periodSuffix` in
+`lib/document-rules.ts` (template `docs.period_suffix`, n≥2 only — a
+1-month rule would need Roman singular wording first) rendered in
+`document-area.tsx` + `case-export.mjs`; D11 `app/case/help-sheet.tsx`
+(base-ui Dialog, RP-initials avatar with `photoSrc` drop-in slot,
+`contact.*` content; close aria-label "Schließen" = new PLACEHOLDER_DE in
+de.ts, ledgered); D2 next-steps on `EditLockedCard` only; e2e: the three
+old text anchors → testids (completion/visibility/transitive), Essen
+denominators 50→49 (m7-regression, feedback-pass L3/L4); unit 205/205
+(195 + 7 periodSuffix + 3 docsPaneMode). Migration-history note: both `20260801…` files applied+tracked
+by the founder's push, verified on prod data-level (15/15 rows, partition
+11/5/19/8, birth_name optional).
+
+**⚠ Harness finding (2026-08-01) — local e2e gate not viable, cause
+unattributed.** Full-suite drives against a LOCAL `next start` (prod
+build, prod Supabase) hang mid-drive: a save transition never settles
+("Speichern …" stuck `[disabled]`), `waitForIdle` burns 15-s timeouts, the
+test dies at 600 s against a perfectly rendered page — the pass-3 L2
+signature, now recurring. Evidence chain: first seen with default workers
+(20-core machine → ~10 parallel drives), **recurred with `--workers=1`**,
+and **recurred on a CLEAN-MAIN build (A/B with the Batch-1 diff stashed)**
+— so it is NOT this batch's code. Single-drive probe on the same build:
+6 saves, 0.8–1.1 s each. While one hung render was live, the same server
+answered fresh requests in 60 ms and Supabase REST in 95–304 ms — the
+wedge is per-session (one browser session's `/case` hung deterministically
+until a fresh login; token-refresh suspected, NOT verified). Pass-3 local
+full-suite runs were green (E-0, `--workers=1`), so this is
+new-or-intermittent environment behavior on this machine. Recorded per the
+"not reproduced ≠ explained" standard; no primitive changed. **Gate
+re-routed to a Vercel preview** (the pass-3 measured-green path, bypass
+secret already configured).
+
+**Local verification that DID pass (Batch-1 build):** unit 205/205,
+typecheck/lint/format/encoding, production build; browser walkthrough on
+the local build — tabs + "Ihre Dokumente" placeholder pre-steps with NO
+badge, Hilfe sheet opens with card label/name/tel/mailto and closes
+cleanly, badge `· 11` appears after PLZ 13187, and the **Pankow checklist
+renders "Kontoauszüge – Girokonto (letzte 4 Monate)"** with every other
+slot suffix-free (decision 4 verified locally).
+
+**⚠ Defect found and fixed during the walkthrough:** base-ui Dialog keeps
+Backdrop+Popup mounted with `[data-closed]` after close — without styling
+that state, the invisible full-screen backdrop swallowed every click on
+the page (the closed sheet blocked the pre-step submit). Fix:
+`data-closed:hidden` on both (comment in help-sheet.tsx marks it
+load-bearing). Verified: closed state computes `display:none`, page
+clickable.
+
+**Prod hygiene:** killed-run sweep found only 2 leaked users (afterEach
+survived most kills); both verified individually (0 objects, 0/3 answers,
+synthetic) and deleted; the active completion fixture kept.
 
 ## Next step
 
-**⏸ STOP — two things for the founder:**
+**Preview gate, first attempt (2026-08-01 ~13:00) — killed at the 15-min
+tripwire; the hang followed the CLIENT, not the code and not the server.**
+Branch pushed; preview `dpl_EMTvW1fKXebKX39etNwV9i7H6AbU`
+(`sorglos-antrag-9hbjbclr3-…`, commit `9b562c3`, readyState READY in 40 s).
+Suite against it: **completion.spec and visibility.spec completed** (final
+screenshots, no error contexts — the D1 testid anchors and the locked flow
+work end-to-end on the preview), feedback-pass L3/L4 hit save-stalls at
+the same drive step and **recovered**, transitive-T1 (420 s) and m7-R1
+(600 s) died on the stuck-"Speichern …" signature (m7 frozen at Essen
+`legal_guardian_yes_no` with a pending transition). **Decisive
+instrument — Vercel runtime logs for the preview deployment over the run
+window: 1537 requests, ALL 2xx/3xx, zero errors, zero server-side
+timeouts.** The server answered everything that arrived; the stalls sit
+between this machine's Chromium and the network. Corroborating: identical
+hangs against localhost (no WLAN involved), clean-main local A/B hangs,
+trivial node scripts on this box throw libuv teardown asserts today, and
+the SAME machine ran the E-7 preview gate green yesterday. Classification:
+**machine-side, today-specific, unattributed** — no product assert failed
+in any run today; every failure is a stalled save transition against a
+correctly rendered page. Leaked users from both killed runs swept
+per-user (2 + 2, all synthetic, fixture kept).
 
-1. `roman_package_pass4.md` is final (incl. §4) — **send it to Roman**.
-2. **Push the two Batch-1 migrations** (`supabase db push`). ⚠ Docker was
-   not running this session, so the pre-push local replay was skipped — the
-   migrations abort loudly on any mismatch; if you want the replay first,
-   start Docker Desktop and say so. After "pushed", I verify on prod, then
-   ship the dependent code, tests, and live spot-checks, then STOP before
-   the Batch-2 design.
+**Preview gate, retry after reboot (2026-08-01 ~14:00) — CUMULATIVE GREEN,
+recorded as a deviation.** Migrations re-confirmed applied on prod before
+the run (fresh read: distinct copy pair live, suffix template +
+placeholder rows present, birth_name optional, partition 11/5/19/8 — the
+founder's rule-#8 question answered on record: applied, so code merges
+after migrations as required). Full suite vs the same immutable deployment
+(`9b562c3`): **11 passed / 13 skipped / 2 failed in 15.1 min** — and the
+two failures were DIFFERENT specs than attempt 1 (everything that failed
+there passed here, incl. transitive T1–T3 and m7 R1/R2). The two failures,
+each then re-run alone against the same deployment:
+
+- `feedback-pass` T1 — the day's only assert-class failure (badge stayed
+  13 instead of dropping to 12 after an upload). **Re-run: PASS in
+  30.8 s**, badge decrement + live spouse slots + pre-completion upload
+  all green → the earlier failure was the machine stall eating the upload
+  roundtrip, not a decrement regression.
+- `documents-m6` — the stall signature mid-QUESTIONNAIRE drive (900 s
+  burn at a `clickWeiter`, nowhere near the docs code). **Re-run: PASS in
+  2.5 min, all six criteria** incl. A4's full counter cycle and 17 real
+  uploads, cleanup verified.
+
+**⚠ Deviation on record:** the gate is satisfied CUMULATIVELY (one
+11/13-run + two green single-spec re-runs against the same deployment),
+not by a single all-green run — the machine stalls persist post-reboot
+(stuck-screenshots re-written this run; stalls recovered mid-drive in
+m7/L3/L4). Justification: the deployment is immutable, no product assert
+failed twice, every failure re-ran green, the stall class is attributed
+to this machine (lambda logs all-2xx across 1537 requests), and the
+pass-3 tripwire convention explicitly prefers a documented fallback over
+blocking on non-product harness failures. If the stalls recur on a
+healthy machine, the `waitForIdle` global-disabled-count primitive is the
+flagged suspect (pass-3 backlog item 4) — replace it with per-control
+waits before burning another day.
+
+## Next step
+
+**Merged to `main` — founder pushes, then the seven prod spot-checks:**
+placeholder before PLZ, list after PLZ, Essen "(letzte 4 Monate)",
+**Pankow "(letzte 4 Monate)"** (decision 4), distinct copy pair on both
+terminal states, contact sheet opens, next-steps absent from
+all-answered. Then **⏸ STOP before the Batch-2 design.**

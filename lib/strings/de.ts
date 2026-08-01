@@ -208,6 +208,13 @@ export const de = {
       documents: 'Dokumente',
     },
 
+    // Pass 4 / D11 — the Hilfe contact sheet. Visible strings come from
+    // static_content (contact.*); only the close button's screen-reader
+    // label lives here. PLACEHOLDER_DE, logged in german_copy_for_roman.md.
+    help: {
+      closeLabel: 'Schließen',
+    },
+
     chat: {
       stepLabel: 'Schritt 3: Fragebogen ausfüllen',
       nextButton: 'Weiter',

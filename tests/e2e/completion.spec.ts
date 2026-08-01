@@ -4,8 +4,8 @@
  * Drives a fresh test case through the entire Berlin questionnaire (~61 questions)
  * using an adaptive loop and verifies 5 criteria after the DB-flipping fix:
  *
- *  C1. Completion message "Sie haben alle Fragen beantwortet" shown  OR
- *      the edit-lock card "Angaben werden geprüft" shown immediately after
+ *  C1. Completion card ([data-testid=all-answered]) shown  OR
+ *      the locked card ([data-testid=locked-banner]) shown immediately after
  *      (server re-render may replace C1 with C4 before we can screenshot it).
  *  C2. DB cases.status = 'under_review' (actual DB check via admin client).
  *  C3. status_event row with event_type='mandatory_complete' exists in DB.
@@ -99,10 +99,15 @@ async function clickWeiter(page: Page) {
 async function answerCurrentQuestion(
   page: Page
 ): Promise<'done' | 'locked' | 'continue' | 'group_prompt' | 'stuck'> {
-  // ── 1. Completion message ─────────────────────────────────────────────────
+  // ── 1. Completion card ─────────────────────────────────────────────────────
+  // Anchored on the E-0 testid, not the German: pass 4 (D1) gave the two
+  // terminal states DISTINCT DB-authored copy, so the old text matcher
+  // ('Sie haben alle Fragen beantwortet') would only ever match the transient
+  // all-answered body — and its locked twin ('Angaben werden geprüft') never
+  // matched ANY copy that has been live (a dead branch since FP2).
   if (
     await page
-      .getByText('Sie haben alle Fragen beantwortet', { exact: false })
+      .locator('[data-testid=all-answered]')
       .isVisible({ timeout: 500 })
       .catch(() => false)
   ) {
@@ -114,7 +119,7 @@ async function answerCurrentQuestion(
   // the completion card with the locked card before we can see C1.
   if (
     await page
-      .getByText('Angaben werden geprüft', { exact: false })
+      .locator('[data-testid=locked-banner]')
       .isVisible({ timeout: 500 })
       .catch(() => false)
   ) {
@@ -316,9 +321,10 @@ test('complete all Berlin questionnaire questions → DB flips to under_review +
   await page.waitForTimeout(2_000)
   await page.screenshot({ path: 'test-results/05-post-settle.png', fullPage: true })
 
-  // ── C1: Completion message OR locked card visible ───────────────────────────
-  const completionMsg = page.getByText('Sie haben alle Fragen beantwortet', { exact: false })
-  const lockedMsg = page.getByText('Angaben werden geprüft', { exact: false })
+  // ── C1: Completion card OR locked card visible ──────────────────────────────
+  // Testid anchors (see the driver comment): survives DB-authored copy changes.
+  const completionMsg = page.locator('[data-testid=all-answered]')
+  const lockedMsg = page.locator('[data-testid=locked-banner]')
   const c1completion = await completionMsg.isVisible({ timeout: 2_000 }).catch(() => false)
   const c1locked = await lockedMsg.isVisible({ timeout: 2_000 }).catch(() => false)
   const c1 = c1completion || c1locked

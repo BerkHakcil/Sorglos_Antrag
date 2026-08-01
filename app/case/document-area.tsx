@@ -11,7 +11,7 @@
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { countMissingSlots, type DocumentSlot } from '@/lib/document-rules'
+import { countMissingSlots, periodSuffix, type DocumentSlot } from '@/lib/document-rules'
 import type { UploadRow, StaticContent } from '@/lib/dal'
 import { Check, FileText } from 'lucide-react'
 import {
@@ -65,6 +65,7 @@ type Props = {
     | 'docsMissingCount'
     | 'docsMissingCountOne'
     | 'docsAllUploaded'
+    | 'docsPeriodSuffix'
   >
 }
 
@@ -187,6 +188,11 @@ export function DocumentArea({ slots, uploads, content }: Props) {
                 const key = slotKey(slot)
                 const files = filesFor(slot)
                 const done = files.length > 0
+                // D10 (pass 4): per-office bank-statement period as a display
+                // suffix, e.g. "Kontoauszüge – Girokonto (letzte 4 Monate)".
+                // NULL period renders unchanged; display-only (never in
+                // stored filenames — see periodSuffix docs).
+                const suffix = periodSuffix(slot.periodMonths, content.docsPeriodSuffix)
                 return (
                   <div
                     key={key}
@@ -210,6 +216,7 @@ export function DocumentArea({ slots, uploads, content }: Props) {
                           <p className="text-sm font-medium">
                             {slot.nameDe}
                             {slot.instanceLabel ? ` – ${slot.instanceLabel}` : ''}
+                            {suffix ? ` ${suffix}` : ''}
                           </p>
                           <p
                             className={`text-xs ${done ? 'text-primary' : 'text-graphite-soft'}`}

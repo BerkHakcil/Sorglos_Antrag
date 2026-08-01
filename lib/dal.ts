@@ -148,6 +148,17 @@ export type StaticContent = {
   docsMissingCount: string
   docsMissingCountOne: string
   docsAllUploaded: string
+  docsPlaceholderNeedsPlz: string
+  docsPeriodSuffix: string
+  nextStepsHeading: string
+  nextSteps1: string
+  nextSteps2: string
+  nextSteps3: string
+  contactName: string
+  contactPhone: string
+  contactEmail: string
+  contactCardLabel: string
+  contactHelpButton: string
 }
 
 const STATIC_CONTENT_KEYS: Record<keyof StaticContent, string> = {
@@ -174,6 +185,17 @@ const STATIC_CONTENT_KEYS: Record<keyof StaticContent, string> = {
   docsMissingCount: 'docs.missing_count',
   docsMissingCountOne: 'docs.missing_count_one',
   docsAllUploaded: 'docs.all_uploaded',
+  docsPlaceholderNeedsPlz: 'docs.placeholder_needs_plz',
+  docsPeriodSuffix: 'docs.period_suffix',
+  nextStepsHeading: 'case.next_steps_heading',
+  nextSteps1: 'case.next_steps_1',
+  nextSteps2: 'case.next_steps_2',
+  nextSteps3: 'case.next_steps_3',
+  contactName: 'contact.name',
+  contactPhone: 'contact.phone',
+  contactEmail: 'contact.email',
+  contactCardLabel: 'contact.card_label',
+  contactHelpButton: 'contact.help_button',
 }
 
 /**
