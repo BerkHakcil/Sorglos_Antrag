@@ -1,7 +1,8 @@
 /**
  * Feedback-pass verification (items 1 + 2 + 3), driven live on prod.
  *
- *  L1/L2  Berlin ledig + verwitwet full drives: fresh denominator 53, case
+ *  L1/L2  Berlin ledig + verwitwet full drives: fresh denominator 52 since
+ *         pass 4 / D15 (retired pair, count-driven pensions), case
  *         completes, and ZERO spouse/Partner questions were ever asked —
  *         asserted at the DB level: a completed case has answered every
  *         visible required question, so "no spouse-ish answer rows" proves
@@ -61,11 +62,19 @@ test.afterEach(async () => {
 
 // ── Shared helpers (m7-regression pattern) ────────────────────────────────────
 
-async function waitForIdle(page: Page, timeout = 15_000) {
-  await page.waitForFunction(
-    () => document.querySelectorAll<HTMLButtonElement>('button[disabled]').length === 0,
-    { timeout }
-  )
+/**
+ * Waits until the ANSWER FOOTER has no disabled control — the specific state
+ * every drive step needs before its next interaction (a pending save
+ * disables exactly the footer's buttons). Replaces waitForIdle, which
+ * counted button[disabled] across the WHOLE document: a global condition no
+ * assertion depended on — the same primitive family as the removed
+ * networkidle (53fdf73). Flagged in pass-3 backlog item 4; replaced in
+ * pass 4 after the stall recurrences during the Batch-1 spot-checks.
+ */
+async function waitForFooterSettled(page: Page, timeout = 15_000) {
+  await expect(page.locator('[data-testid=answer-footer] button[disabled]')).toHaveCount(0, {
+    timeout,
+  })
 }
 
 async function clickWeiter(page: Page) {
@@ -74,7 +83,7 @@ async function clickWeiter(page: Page) {
   await weiter.waitFor({ state: 'visible', timeout: 8_000 })
   await weiter.click()
   await page.waitForTimeout(200)
-  await waitForIdle(page)
+  await waitForFooterSettled(page)
 }
 
 async function questionsOf(questionnaireId: string) {
@@ -158,7 +167,7 @@ async function answerStep(
   if (await neinWeiter.isVisible({ timeout: 250 }).catch(() => false)) {
     await neinWeiter.click()
     await page.waitForTimeout(200)
-    await waitForIdle(page)
+    await waitForFooterSettled(page)
     return 'continue'
   }
   const neinRadio = footer.locator('input[type=radio][value="Nein"]')
@@ -320,12 +329,12 @@ async function leakDrive(
 
 test.setTimeout(600_000)
 
-test('L1: Berlin ledig — 53 questions, zero Partner prompts', async ({ page }) => {
-  await leakDrive(page, 'bledig', '13187', BERLIN, 'ledig', 53, [])
+test('L1: Berlin ledig — 52 questions, zero Partner prompts', async ({ page }) => {
+  await leakDrive(page, 'bledig', '13187', BERLIN, 'ledig', 52, [])
 })
 
-test('L2: Berlin verwitwet — 53 questions, zero Partner prompts', async ({ page }) => {
-  await leakDrive(page, 'bwitwe', '13187', BERLIN, 'verwitwet', 53, [])
+test('L2: Berlin verwitwet — 52 questions, zero Partner prompts', async ({ page }) => {
+  await leakDrive(page, 'bwitwe', '13187', BERLIN, 'verwitwet', 52, [])
 })
 
 test('L3: Essen ledig — 49 questions, zero Partner prompts', async ({ page }) => {

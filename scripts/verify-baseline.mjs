@@ -85,12 +85,12 @@ const [
   fetchAllProd('category', 'id, key, label_de, sort_order', 'sort_order'),
   fetchAllProd(
     'question_group',
-    'id, category_id, key, sort_order, label_de, custom_prompt_de, is_repeatable, min_count, max_count',
+    'id, category_id, key, sort_order, label_de, custom_prompt_de, is_repeatable, min_count, max_count, count_source_key',
     'key'
   ),
   fetchAllProd(
     'question',
-    'id, category_id, group_id, key, sort_order, answer_type, is_required, prompt_de, help_de, validation, visibility_rule',
+    'id, category_id, group_id, key, sort_order, answer_type, is_required, prompt_de, help_de, validation, visibility_rule, active',
     'key'
   ),
   fetchAllProd('question_option', 'id, question_id, key, sort_order, label_de, value', 'id'),
@@ -131,9 +131,10 @@ for (const q of prodQs) byType[q.answer_type] = (byType[q.answer_type] ?? 0) + 1
 for (const [type, count] of Object.entries(byType).sort()) console.log(`  ${type}: ${count}`)
 
 // Spot-check critical questions
+// pass 4 / D15: the retired pair swapped for the count-driven trio.
 const criticalKeys = [
-  'rentenbetrag',
-  'hat_rente',
+  'pension_count',
+  'pension_type',
   'spouse_wohngeld_yes_no',
   'spouse_wohngeld_amount',
   'spouse_wohngeld_id',
@@ -193,10 +194,10 @@ const [
 ] = await Promise.all([
   queryLocal(`SELECT id, key, label_de, sort_order FROM public.category ORDER BY sort_order`),
   queryLocal(
-    `SELECT id, category_id, key, sort_order, label_de, custom_prompt_de, is_repeatable, min_count, max_count FROM public.question_group ORDER BY key`
+    `SELECT id, category_id, key, sort_order, label_de, custom_prompt_de, is_repeatable, min_count, max_count, count_source_key FROM public.question_group ORDER BY key`
   ),
   queryLocal(
-    `SELECT id, category_id, group_id, key, sort_order, answer_type, is_required, prompt_de, help_de, validation::text, visibility_rule::text FROM public.question ORDER BY key`
+    `SELECT id, category_id, group_id, key, sort_order, answer_type, is_required, prompt_de, help_de, validation::text, visibility_rule::text, active FROM public.question ORDER BY key`
   ),
   queryLocal(
     `SELECT id, question_id, key, sort_order, label_de, value FROM public.question_option ORDER BY id`
@@ -321,6 +322,7 @@ diffArrays('Groups', prodGrps, localGrps, (r) => r.id, [
   'is_repeatable',
   'min_count',
   'max_count',
+  'count_source_key',
 ])
 // Keyed by id, NOT key: question keys repeat across questionnaires (Berlin and
 // Essen both have e.g. marital_status), and key-based maps would collapse rows.
@@ -335,6 +337,7 @@ diffArrays('Questions', prodQs, localQs, (r) => r.id, [
   'help_de',
   'validation',
   'visibility_rule',
+  'active',
 ])
 diffArrays('Options', prodOpts, localOpts, (r) => `${r.question_id}/${r.key}`, [
   'sort_order',

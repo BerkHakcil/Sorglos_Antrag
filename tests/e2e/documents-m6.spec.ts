@@ -81,11 +81,19 @@ test.afterEach(async () => {
 
 // ── Drive helpers ─────────────────────────────────────────────────────────────
 
-async function waitForIdle(page: Page, timeout = 15_000) {
-  await page.waitForFunction(
-    () => document.querySelectorAll<HTMLButtonElement>('button[disabled]').length === 0,
-    { timeout }
-  )
+/**
+ * Waits until the ANSWER FOOTER has no disabled control — the specific state
+ * every drive step needs before its next interaction (a pending save
+ * disables exactly the footer's buttons). Replaces waitForIdle, which
+ * counted button[disabled] across the WHOLE document: a global condition no
+ * assertion depended on — the same primitive family as the removed
+ * networkidle (53fdf73). Flagged in pass-3 backlog item 4; replaced in
+ * pass 4 after the stall recurrences during the Batch-1 spot-checks.
+ */
+async function waitForFooterSettled(page: Page, timeout = 15_000) {
+  await expect(page.locator('[data-testid=answer-footer] button[disabled]')).toHaveCount(0, {
+    timeout,
+  })
 }
 
 async function clickWeiter(page: Page) {
@@ -94,7 +102,7 @@ async function clickWeiter(page: Page) {
   await weiter.waitFor({ state: 'visible', timeout: 8_000 })
   await weiter.click()
   await page.waitForTimeout(200)
-  await waitForIdle(page)
+  await waitForFooterSettled(page)
 }
 
 /** All Berlin question prompts, longest first, for footer-text → key lookup. */
@@ -242,8 +250,13 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
 
   // ── Adaptive drive: married, 2 applicant pensions, disability Nein ──────────
   // Select answers by question KEY (via prompt map): deterministic fixture.
+  // Pass 4 / D15: the applicant pension group is COUNT-DRIVEN — the two
+  // instances come from pension_count = '2', not from the add-another loop
+  // (which the engine no longer offers for this group). The spouse group
+  // keeps its classic loop and gets its instance via the prompt as before.
   const selectOverrides: Record<string, string> = {
     marital_status: 'verheiratet',
+    pension_count: '2',
     pension_type: 'Altersrente',
     spouse_pension_type: 'Altersrente',
     disability_card: 'Nein',
@@ -251,7 +264,6 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
     disablity_card_application: 'Nein', // live DB key (typo is historical, D8)
     spouse_disability_card_application: 'Nein',
   }
-  let pensionAdds = 0
   let stuckCount = 0
 
   for (let step = 1; step <= 300 && stuckCount < 5; step++) {
@@ -270,24 +282,25 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
     const footer = page.locator('[data-testid=answer-footer]').last()
     const footerText = (await footer.textContent({ timeout: 500 }).catch(() => '')) ?? ''
 
-    // Group prompt: add a 2nd applicant pension once, otherwise continue.
+    // Group prompt — only the CLASSIC groups still ask (spouse pension, bank,
+    // …); the applicant pension group is count-driven and never prompts. If
+    // the pension loop prompt EVER appears, the count-driven engine has
+    // regressed — fail loudly rather than click through it.
     const neinWeiter = page.getByRole('button', { name: 'Nein, weiter' })
     if (await neinWeiter.isVisible({ timeout: 250 }).catch(() => false)) {
-      const isPensionPrompt = footerText.includes(PENSION_LOOP_PROMPT)
-      if (isPensionPrompt && pensionAdds < 1) {
-        await page.getByRole('button', { name: 'Ja, hinzufügen' }).click()
-        pensionAdds++
-        console.log(`[step ${step}] pension group → Ja, hinzufügen (instance 2)`)
-      } else {
-        await neinWeiter.click()
-      }
+      expect(
+        footerText.includes(PENSION_LOOP_PROMPT),
+        'the applicant pension group must not show an add-another prompt (D15 count-driven)'
+      ).toBe(false)
+      await neinWeiter.click()
       await page.waitForTimeout(200)
-      await waitForIdle(page)
+      await waitForFooterSettled(page)
       stuckCount = 0
       continue
     }
 
-    // yes_no radios (hat_rente is Berlin's only yes_no) → Ja to open pensions.
+    // yes_no radios: Berlin has NONE since pass 4 retired hat_rente (it was
+    // the only one). Kept because the drive is generic; → Ja if one appears.
     const jaRadio = footer.locator('input[type=radio][value="Ja"]')
     if (await jaRadio.isVisible({ timeout: 250 }).catch(() => false)) {
       await jaRadio.click()

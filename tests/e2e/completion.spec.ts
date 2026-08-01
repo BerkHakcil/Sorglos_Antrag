@@ -80,11 +80,19 @@ async function login(page: Page) {
   await page.waitForURL(`${BASE}/case`, { timeout: 20_000 })
 }
 
-async function waitForIdle(page: Page, timeout = 15_000) {
-  await page.waitForFunction(
-    () => document.querySelectorAll<HTMLButtonElement>('button[disabled]').length === 0,
-    { timeout }
-  )
+/**
+ * Waits until the ANSWER FOOTER has no disabled control — the specific state
+ * every drive step needs before its next interaction (a pending save
+ * disables exactly the footer's buttons). Replaces waitForIdle, which
+ * counted button[disabled] across the WHOLE document: a global condition no
+ * assertion depended on — the same primitive family as the removed
+ * networkidle (53fdf73). Flagged in pass-3 backlog item 4; replaced in
+ * pass 4 after the stall recurrences during the Batch-1 spot-checks.
+ */
+async function waitForFooterSettled(page: Page, timeout = 15_000) {
+  await expect(page.locator('[data-testid=answer-footer] button[disabled]')).toHaveCount(0, {
+    timeout,
+  })
 }
 
 async function clickWeiter(page: Page) {
@@ -93,7 +101,7 @@ async function clickWeiter(page: Page) {
   await weiter.waitFor({ state: 'visible', timeout: 8_000 })
   await weiter.click()
   await page.waitForTimeout(200)
-  await waitForIdle(page)
+  await waitForFooterSettled(page)
 }
 
 async function answerCurrentQuestion(
@@ -131,7 +139,7 @@ async function answerCurrentQuestion(
   if (await neinWeiter.isVisible({ timeout: 500 }).catch(() => false)) {
     await neinWeiter.click()
     await page.waitForTimeout(200)
-    await waitForIdle(page)
+    await waitForFooterSettled(page)
     return 'group_prompt'
   }
 
@@ -191,7 +199,7 @@ async function answerCurrentQuestion(
     const skip = page.getByRole('button', { name: 'Weiß ich gerade nicht' })
     if (await skip.isVisible({ timeout: 500 }).catch(() => false)) {
       await skip.click()
-      await waitForIdle(page)
+      await waitForFooterSettled(page)
       return 'continue'
     }
   }
@@ -241,7 +249,7 @@ test('complete all Berlin questionnaire questions → DB flips to under_review +
   // ── 1. Select first care home ───────────────────────────────────────────────
   await page.locator('#care_home_id').selectOption({ index: 1 })
   await page.getByRole('button', { name: 'Pflegeheim bestätigen' }).click()
-  await waitForIdle(page)
+  await waitForFooterSettled(page)
   await page.screenshot({ path: 'test-results/02-care-home.png' })
 
   // ── 2. Enter PLZ 10115 → Berlin questionnaire ──────────────────────────────

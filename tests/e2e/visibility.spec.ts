@@ -1,17 +1,22 @@
 /**
- * Step B verification — visibility rule fixes.
+ * Visibility verification, live against the production questionnaire.
  *
- * Verifies two fixes live against the production questionnaire:
- *
- *  V1. rentenbetrag appears when hat_rente = "Ja"
- *      (the visibility rule had {"value": true} — a JS boolean — which never
- *      matched the stored string "Ja". Fixed by 20260701000001 migration.)
+ *  V1 (pass 4 / D15 — replaces the retired hat_rente/rentenbetrag pair this
+ *     spec was originally built on): the Berlin pension group is COUNT-DRIVEN.
+ *     Answering pension_count = "2" must render exactly TWO detail-group
+ *     instances (proven by two pension_type answers on distinct instances in
+ *     the DB) with NO add-another prompt for the group. Ground truth asserts:
+ *     pension_count is required with a NULL visibility rule, pension_amount's
+ *     old in_values gate is NULL, the retired pair carries active = false,
+ *     and the drive saved ZERO hat_rente answers (a retired question is
+ *     never asked).
+ *     The count question is detected STRUCTURALLY (a select whose option
+ *     values start "0","1","2",…), not by its German prompt — no copy
+ *     coupling.
  *
  *  V2. spouse_wohngeld_amount and spouse_wohngeld_id appear when
  *      spouse_wohngeld_yes_no = "Ja"
  *      (rules had self-references; fixed by 20260628000002 migration.)
- *
- * Also performs DB assertions on all three visibility rules as ground truth.
  */
 
 import { test, expect, type Page } from '@playwright/test'
@@ -32,11 +37,19 @@ const adminDb = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
 })
 
-async function waitForIdle(page: Page, timeout = 15_000) {
-  await page.waitForFunction(
-    () => document.querySelectorAll<HTMLButtonElement>('button[disabled]').length === 0,
-    { timeout }
-  )
+/**
+ * Waits until the ANSWER FOOTER has no disabled control — the specific state
+ * every drive step needs before its next interaction (a pending save
+ * disables exactly the footer's buttons). Replaces waitForIdle, which
+ * counted button[disabled] across the WHOLE document: a global condition no
+ * assertion depended on — the same primitive family as the removed
+ * networkidle (53fdf73). Flagged in pass-3 backlog item 4; replaced in
+ * pass 4 after the stall recurrences during the Batch-1 spot-checks.
+ */
+async function waitForFooterSettled(page: Page, timeout = 15_000) {
+  await expect(page.locator('[data-testid=answer-footer] button[disabled]')).toHaveCount(0, {
+    timeout,
+  })
 }
 
 async function clickWeiter(page: Page) {
@@ -45,7 +58,7 @@ async function clickWeiter(page: Page) {
   await weiter.waitFor({ state: 'visible', timeout: 8_000 })
   await weiter.click()
   await page.waitForTimeout(200)
-  await waitForIdle(page)
+  await waitForFooterSettled(page)
 }
 
 /** Returns all visible text in the current footer question area. */
@@ -73,7 +86,7 @@ test.afterEach(async () => {
   }
 })
 
-test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields appear after yes_no=Ja', async ({
+test('V1: pension_count=2 renders exactly two pension instances (D15)  |  V2: spouse_wohngeld fields appear after yes_no=Ja', async ({
   page,
 }) => {
   // ── Create fresh test user ──────────────────────────────────────────────────
@@ -129,7 +142,9 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
   // Strategy for V1 and V2: answer the special questions with "Ja" and let the
   // loop continue to completion. At the end, check the DB to confirm that
   // rentenbetrag and the wohngeld pair were actually saved (proof they appeared).
-  let v1HatRenteAnsweredJa = false
+  let v1CountSetTo2 = false
+  let v1PensionTypeSelects = 0
+  let v1PensionPromptSeen = false
   let v2WohngeldYesNoAnsweredJa = false
   let stuckCount = 0
 
@@ -152,36 +167,30 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
 
     const footer = page.locator('[data-testid=answer-footer]').last()
 
-    // Group prompt
+    // Group prompt (classic groups only — V1 asserts the count-driven pension
+    // group NEVER prompts; seeing its prompt is a D15 regression).
     const neinWeiter = page.getByRole('button', { name: 'Nein, weiter' })
     if (await neinWeiter.isVisible({ timeout: 300 }).catch(() => false)) {
+      const footerText = await getFooterText(page)
+      if (footerText.includes('Möchten Sie weitere Renten hinzufügen?')) {
+        v1PensionPromptSeen = true
+      }
       await neinWeiter.click()
       await page.waitForTimeout(200)
-      await waitForIdle(page)
+      await waitForFooterSettled(page)
       stuckCount = 0
       console.log(`[step ${step}] group_prompt → Nein, weiter`)
       continue
     }
 
-    // yes_no
+    // yes_no (generic: Berlin has none since the pass-4 retirement)
     const jaRadio = footer.locator('input[type=radio][value="Ja"]')
     const neinRadio = footer.locator('input[type=radio][value="Nein"]')
     if (await neinRadio.isVisible({ timeout: 300 }).catch(() => false)) {
       const footerText = await getFooterText(page)
-
-      // V1: Detect hat_rente by pension-specific text
-      const isHatRente = footerText.toLowerCase().includes('rente') && !v1HatRenteAnsweredJa
-      // V2: Detect spouse_wohngeld_yes_no by wohngeld text
       const isWohngeldYesNo =
         footerText.toLowerCase().includes('wohngeld') && !v2WohngeldYesNoAnsweredJa
-
-      if (isHatRente) {
-        console.log(`[step ${step}] hat_rente → Ja ("${footerText.substring(0, 80).trim()}")`)
-        await jaRadio.click()
-        await clickWeiter(page)
-        v1HatRenteAnsweredJa = true
-        await page.screenshot({ path: 'test-results/v1-after-hat-rente-ja.png' })
-      } else if (isWohngeldYesNo) {
+      if (isWohngeldYesNo) {
         console.log(`[step ${step}] spouse_wohngeld_yes_no → Ja`)
         await jaRadio.click()
         await clickWeiter(page)
@@ -195,7 +204,10 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
       continue
     }
 
-    // single_select — pick "verheiratet" if available (opens spouse section for V2)
+    // single_select — targeted picks, detected STRUCTURALLY where possible:
+    //  - the count question by its numeric option values (V1 → "2")
+    //  - marital_status by its "verheiratet" option (opens spouse for V2)
+    //  - pension_type by its "Altersrente" option (counts V1 instances)
     const sel = footer.locator('select')
     if (await sel.isVisible({ timeout: 300 }).catch(() => false)) {
       const options = await sel.evaluate((s: HTMLSelectElement) =>
@@ -203,15 +215,39 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
           .filter((o) => o.value !== '')
           .map((o) => ({ value: o.value, label: o.text.trim() }))
       )
+      const values = options.map((o) => o.value)
+      const isCountSelect = values.length >= 3 && values[0] === '0' && values[1] === '1'
+      // Pension-type-SHAPED select. ⚠ This cannot distinguish the applicant
+      // group from the spouse one — both carry the same 8 type values (the
+      // spouse variant never had "Keine Rente"; its follow-ups gate on
+      // not_empty). With marital=verheiratet the drive sees 2 applicant + 1
+      // spouse = 3 of these. The EXACT-two proof is the DB assert on the
+      // fixed applicant question id below; this counter only guards the
+      // lower bound and takes the screenshot.
+      const isPensionType = values.includes('Altersrente')
       const verheiratet = options.find((o) => o.label === 'verheiratet')
       const ledig = options.find((o) => o.label === 'ledig' || o.label === 'Ledig')
-      const chosen = verheiratet
-        ? verheiratet.value
-        : ledig
-          ? ledig.value
-          : (options[0]?.value ?? '')
+      let chosen: string
+      if (isCountSelect && !v1CountSetTo2) {
+        chosen = '2'
+        v1CountSetTo2 = true
+        console.log(`[step ${step}] pension_count → "2"`)
+      } else if (verheiratet) {
+        chosen = verheiratet.value
+        console.log(`[step ${step}] marital_status → "verheiratet"`)
+      } else if (ledig) {
+        chosen = ledig.value
+      } else {
+        chosen = options[0]?.value ?? ''
+      }
+      if (isPensionType) {
+        v1PensionTypeSelects++
+        console.log(`[step ${step}] pension_type select #${v1PensionTypeSelects}`)
+        if (v1PensionTypeSelects === 2) {
+          await page.screenshot({ path: 'test-results/v1-second-instance.png' })
+        }
+      }
       if (chosen) await sel.selectOption({ value: chosen })
-      if (verheiratet) console.log(`[step ${step}] marital_status → "verheiratet"`)
       await clickWeiter(page)
       stuckCount = 0
       continue
@@ -250,7 +286,7 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
       const skip = page.getByRole('button', { name: 'Weiß ich gerade nicht' })
       if (await skip.isVisible({ timeout: 300 }).catch(() => false)) {
         await skip.click()
-        await waitForIdle(page)
+        await waitForFooterSettled(page)
       } else {
         // Required multi_select with no skip — check first option and proceed
         await chk.click()
@@ -269,81 +305,95 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
 
   await page.screenshot({ path: 'test-results/v-final.png', fullPage: true })
 
-  // ── DB assertions: rules (ground truth) ─────────────────────────────────────
-  const [{ data: rentenbetragQ }, { data: wohngeldAmountQ }, { data: wohngeldIdQ }] =
-    await Promise.all([
-      adminDb.from('question').select('visibility_rule').eq('key', 'rentenbetrag').single(),
-      adminDb
-        .from('question')
-        .select('visibility_rule')
-        .eq('key', 'spouse_wohngeld_amount')
-        .single(),
-      adminDb.from('question').select('visibility_rule').eq('key', 'spouse_wohngeld_id').single(),
-    ])
-
-  // ── DB assertions: answers saved for this case ───────────────────────────────
-  // If rentenbetrag was visible (rule fixed) the loop would have answered it.
-  // Same for spouse_wohngeld_amount and spouse_wohngeld_id.
-  const [{ data: rentenbetragQRow }, { data: wohngeldAmountQRow }, { data: wohngeldIdQRow }] =
-    await Promise.all([
-      adminDb.from('question').select('id').eq('key', 'rentenbetrag').single(),
-      adminDb.from('question').select('id').eq('key', 'spouse_wohngeld_amount').single(),
-      adminDb.from('question').select('id').eq('key', 'spouse_wohngeld_id').single(),
-    ])
-
+  // ── DB assertions: ground truth for D15 + the V2 rules ──────────────────────
   const [
-    { count: rentenbetragAnswerCount },
-    { count: wohngeldAmountAnswerCount },
-    { count: wohngeldIdAnswerCount },
+    { data: countQ },
+    { data: amountQ },
+    { data: retiredPair },
+    { data: wohngeldAmountQ },
+    { data: wohngeldIdQ },
   ] = await Promise.all([
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (adminDb as any)
-      .from('answer')
-      .select('id', { count: 'exact', head: true })
-      .eq('case_id', caseId)
-      .eq('question_id', rentenbetragQRow!.id),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (adminDb as any)
-      .from('answer')
-      .select('id', { count: 'exact', head: true })
-      .eq('case_id', caseId)
-      .eq('question_id', wohngeldAmountQRow!.id),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (adminDb as any)
-      .from('answer')
-      .select('id', { count: 'exact', head: true })
-      .eq('case_id', caseId)
-      .eq('question_id', wohngeldIdQRow!.id),
+    adminDb
+      .from('question')
+      .select('id, is_required, visibility_rule')
+      .eq('key', 'pension_count')
+      .single(),
+    // Fixed Berlin id: 'pension_amount' exists in BOTH questionnaires, so a
+    // key-based .single() returns two rows → null (found by the first gate run).
+    adminDb
+      .from('question')
+      .select('visibility_rule')
+      .eq('id', '60000000-0000-0000-0000-00000000003a')
+      .single(),
+    adminDb.from('question').select('key, active').in('key', ['hat_rente', 'rentenbetrag']),
+    adminDb.from('question').select('visibility_rule').eq('key', 'spouse_wohngeld_amount').single(),
+    adminDb.from('question').select('visibility_rule').eq('key', 'spouse_wohngeld_id').single(),
   ])
 
-  const v1RentenbetragAnswered = (rentenbetragAnswerCount ?? 0) > 0
-  const v2WohngeldAmountAnswered = (wohngeldAmountAnswerCount ?? 0) > 0
-  const v2WohngeldIdAnswered = (wohngeldIdAnswerCount ?? 0) > 0
+  // Fixed Berlin ids — pension_type is also ambiguous across questionnaires.
+  const pensionTypeQRow = { id: '60000000-0000-0000-0000-000000000039' }
+  const { data: hatRenteQRow } = await adminDb
+    .from('question')
+    .select('id')
+    .eq('key', 'hat_rente')
+    .single()
 
-  console.log('\n══════════ STEP B VISIBILITY RESULTS ══════════')
-  console.log(`V1 rentenbetrag DB rule:       ${JSON.stringify(rentenbetragQ?.visibility_rule)}`)
-  console.log(`V1 hat_rente=Ja answered:      ${v1HatRenteAnsweredJa}`)
-  console.log(
-    `V1 rentenbetrag saved in DB:   ${v1RentenbetragAnswered} (count=${rentenbetragAnswerCount})`
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: countAnswer } = await (adminDb as any)
+    .from('answer')
+    .select('value')
+    .eq('case_id', caseId)
+    .eq('question_id', countQ!.id)
+    .maybeSingle()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: typeAnswers } = await (adminDb as any)
+    .from('answer')
+    .select('group_instance')
+    .eq('case_id', caseId)
+    .eq('question_id', pensionTypeQRow.id)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { count: hatRenteAnswers } = await (adminDb as any)
+    .from('answer')
+    .select('id', { count: 'exact', head: true })
+    .eq('case_id', caseId)
+    .eq('question_id', hatRenteQRow!.id)
+
+  const distinctInstances = new Set(
+    (typeAnswers ?? []).map((a: { group_instance: string }) => a.group_instance)
   )
-  console.log(`V2 wohngeld_amount DB rule:    ${JSON.stringify(wohngeldAmountQ?.visibility_rule)}`)
-  console.log(`V2 wohngeld_id DB rule:        ${JSON.stringify(wohngeldIdQ?.visibility_rule)}`)
+
+  console.log('\n══════════ VISIBILITY RESULTS ══════════')
+  console.log(`V1 pension_count set to 2:     ${v1CountSetTo2}`)
+  console.log(`V1 pension_type selects seen:  ${v1PensionTypeSelects}`)
+  console.log(`V1 distinct instances in DB:   ${distinctInstances.size}`)
+  console.log(`V1 pension prompt seen:        ${v1PensionPromptSeen} (must be false)`)
+  console.log(`V1 hat_rente answers saved:    ${hatRenteAnswers} (must be 0 — retired)`)
   console.log(`V2 spouse_wohngeld yes/no=Ja:  ${v2WohngeldYesNoAnsweredJa}`)
-  console.log(
-    `V2 wohngeld_amount saved in DB:${v2WohngeldAmountAnswered} (count=${wohngeldAmountAnswerCount})`
-  )
-  console.log(
-    `V2 wohngeld_id saved in DB:    ${v2WohngeldIdAnswered} (count=${wohngeldIdAnswerCount})`
-  )
-  console.log('════════════════════════════════════════════════\n')
+  console.log('══════════════════════════════════════════\n')
 
-  // DB: rentenbetrag visibility rule value must be the STRING "Ja" (not boolean true)
+  // Ground truth: the count question is required and unconditional; the old
+  // in_values gate on pension_amount is gone; the pair is retired.
+  expect(countQ?.is_required, 'pension_count must be required').toBe(true)
+  expect(countQ?.visibility_rule, 'pension_count must be unconditional').toBeNull()
+  expect(amountQ?.visibility_rule, 'pension_amount in_values gate must be NULL (D15)').toBeNull()
+  expect(retiredPair?.every((q) => q.active === false)).toBe(true)
+
+  // The drive: count set to 2 → exactly two instances rendered and answered,
+  // never an add-another prompt for the pension group.
+  expect(v1CountSetTo2, 'the count select must have been found and set to 2').toBe(true)
+  // ≥ 2: the counter also sees the spouse variant (same option shape); the
+  // exact-two proof is the DB assert below on the applicant question id.
   expect(
-    rentenbetragQ?.visibility_rule?.value,
-    'rentenbetrag visibility_rule.value must be string "Ja" not boolean true'
-  ).toBe('Ja')
+    v1PensionTypeSelects,
+    'at least two pension-type selects must have rendered'
+  ).toBeGreaterThanOrEqual(2)
+  expect(distinctInstances.size, 'exactly two pension instances must be saved in DB').toBe(2)
+  expect(countAnswer?.value, 'pension_count answer must be saved as "2"').toBe('2')
+  expect(v1PensionPromptSeen, 'the count-driven group must never show its prompt').toBe(false)
+  expect(hatRenteAnswers ?? 0, 'a retired question must never be asked or saved').toBe(0)
 
-  // DB: wohngeld rules must point to spouse_wohngeld_yes_no (not self-reference)
+  // V2 (unchanged): wohngeld rules point at spouse_wohngeld_yes_no, and the
+  // dependents were answered (proves they appeared after Ja).
   expect(
     wohngeldAmountQ?.visibility_rule?.question_key,
     'spouse_wohngeld_amount must reference spouse_wohngeld_yes_no'
@@ -353,22 +403,31 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
     'spouse_wohngeld_id must reference spouse_wohngeld_yes_no'
   ).toBe('spouse_wohngeld_yes_no')
 
-  // UI flow: hat_rente must have been reached and answered Ja (logged at step detection)
-  expect(v1HatRenteAnsweredJa, 'hat_rente question must have been found and answered Ja').toBe(true)
-  // Note: spouse_wohngeld_yes_no detection is best-effort (footer text may be transitioning);
-  // the authoritative proof is the DB answer count below.
-
-  // Answer saved in DB proves the question was visible to the loop and rendered
+  const [{ data: wohngeldAmountQRow }, { data: wohngeldIdQRow }] = await Promise.all([
+    adminDb.from('question').select('id').eq('key', 'spouse_wohngeld_amount').single(),
+    adminDb.from('question').select('id').eq('key', 'spouse_wohngeld_id').single(),
+  ])
+  const [{ count: wohngeldAmountAnswerCount }, { count: wohngeldIdAnswerCount }] =
+    await Promise.all([
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (adminDb as any)
+        .from('answer')
+        .select('id', { count: 'exact', head: true })
+        .eq('case_id', caseId)
+        .eq('question_id', wohngeldAmountQRow!.id),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (adminDb as any)
+        .from('answer')
+        .select('id', { count: 'exact', head: true })
+        .eq('case_id', caseId)
+        .eq('question_id', wohngeldIdQRow!.id),
+    ])
   expect(
-    v1RentenbetragAnswered,
-    'rentenbetrag answer must exist in DB (proves it was visible after hat_rente=Ja)'
-  ).toBe(true)
-  expect(
-    v2WohngeldAmountAnswered,
+    (wohngeldAmountAnswerCount ?? 0) > 0,
     'spouse_wohngeld_amount answer must exist in DB (proves it was visible after yes_no=Ja)'
   ).toBe(true)
   expect(
-    v2WohngeldIdAnswered,
+    (wohngeldIdAnswerCount ?? 0) > 0,
     'spouse_wohngeld_id answer must exist in DB (proves it was visible after yes_no=Ja)'
   ).toBe(true)
 

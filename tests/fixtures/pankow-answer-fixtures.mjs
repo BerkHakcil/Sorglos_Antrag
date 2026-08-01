@@ -12,7 +12,6 @@ export const F1 = {
   answers: {
     marital_status: 'verheiratet',
     disability_card: 'Nein',
-    hat_rente: 'Ja',
     bank_savings_account_yes_no: 'Ja',
     spouse_bank_savings_account_yes_no: 'Nein',
     wohngeld_yes_no: 'Ja',
@@ -38,7 +37,6 @@ export const F2 = {
   answers: {
     marital_status: 'ledig',
     disability_card: 'Nein',
-    hat_rente: 'Nein',
     bank_savings_account_yes_no: 'Nein',
     german_citizenship_yes_no: 'Ja',
   },

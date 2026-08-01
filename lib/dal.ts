@@ -83,19 +83,34 @@ export async function getCaseAnswers(caseId: string): Promise<{
 }> {
   const supabase = await createClient()
 
+  // created_at order makes repeatable-group instance order DETERMINISTIC
+  // (pass 4 / D15): deriveGroupData keeps instances in first-seen order, so
+  // the rows must arrive oldest-first — count-capping truncates from the END.
   const { data: answers, error } = await supabase
     .from('answer')
     .select('question_id, group_instance, value')
     .eq('case_id', caseId)
+    .order('created_at', { ascending: true })
 
   if (error) throw new Error('Antworten konnten nicht geladen werden')
 
   const rows = answers ?? []
   const qIds = [...new Set(rows.map((r) => r.question_id))]
 
+  // ⚠ active = true is LOAD-BEARING, not symmetry (pass 4 / D15): rows whose
+  // question is missing from this map are skipped below, so a RETIRED
+  // question's preserved answers (hat_rente / rentenbetrag) never enter
+  // answersRaw — and the stale-answer sweep in saveAnswerAction can only
+  // delete refs that appear in answersRaw. Filtering ONLY the loader would
+  // get those answers deleted on the user's next save. Design of record:
+  // docs/feedback/pass4_phase_a.md §A1.2.
   const keyMap: Record<string, string> = {}
   if (qIds.length > 0) {
-    const { data: qs } = await supabase.from('question').select('id, key').in('id', qIds)
+    const { data: qs } = await supabase
+      .from('question')
+      .select('id, key')
+      .in('id', qIds)
+      .eq('active', true)
     for (const q of qs ?? []) keyMap[q.id] = q.key
   }
 

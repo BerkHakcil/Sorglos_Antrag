@@ -22,6 +22,7 @@ import { mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { config } from 'dotenv'
 import { evaluateDocumentRules, countMissingSlots, periodSuffix } from '../lib/document-rules.ts'
+import { deriveGroupData } from '../lib/group-instances.ts'
 
 config({ path: '.env.local' })
 
@@ -73,7 +74,7 @@ const catIds = cats.map((c) => c.id)
 const [{ data: groups }, { data: questions }, { data: answers }] = await Promise.all([
   db
     .from('question_group')
-    .select('id, category_id, key, label_de, sort_order, is_repeatable')
+    .select('id, category_id, key, label_de, sort_order, is_repeatable, count_source_key')
     .in('category_id', catIds),
   db
     .from('question')
@@ -90,8 +91,11 @@ const [{ data: groups }, { data: questions }, { data: answers }] = await Promise
 const qById = Object.fromEntries(questions.map((q) => [q.id, q]))
 const groupById = Object.fromEntries((groups ?? []).map((g) => [g.id, g]))
 
-// answersMap (flat) + group instances/answers — mirrors deriveGroupData in
-// app/case/page.tsx (instance order = first appearance in created_at order).
+// RAW collection for answers.md — deliberately UNCAPPED and unfiltered
+// (pass 4 / D15): the ops export keeps showing preserved data the app no
+// longer renders — retired-question answers (hat_rente / rentenbetrag) AND
+// pension instances beyond a backfilled count (e.g. the locked Keine-Rente
+// case at count 0). Instance order = first appearance in created_at order.
 const answersMap = {}
 const groupInstances = {}
 const groupAnswers = {}
@@ -107,6 +111,41 @@ for (const a of answers) {
     answersMap[q.key] = a.value
   }
 }
+
+// CAPPED derivation for the document checklist — the shared helper (mode
+// 'export': no auto-fill, count-driven groups capped to N), so documents.md
+// shows exactly the slots the app shows. Site 4 of 4 (see
+// lib/group-instances.ts).
+const pseudoQuestionnaire = {
+  id: caseRow.questionnaire_id,
+  name: qn?.name ?? '',
+  categories: [
+    {
+      id: 'export',
+      key: 'export',
+      sort_order: 0,
+      label_de: '',
+      questions: questions.map((q) => {
+        const g = q.group_id ? groupById[q.group_id] : null
+        return {
+          ...q,
+          group_key: g?.key ?? null,
+          group_is_repeatable: g?.is_repeatable ?? null,
+          group_count_source_key: g?.count_source_key ?? null,
+        }
+      }),
+    },
+  ],
+}
+const capped = deriveGroupData(
+  pseudoQuestionnaire,
+  answers.map((a) => ({
+    question_id: a.question_id,
+    group_instance: a.group_instance,
+    value: a.value,
+  })),
+  'export'
+)
 
 function fmtValue(v) {
   if (v === null || v === undefined) return ''
@@ -198,8 +237,8 @@ if (caseRow.social_office_id) {
     const catalogById = Object.fromEntries(catalog.map((d) => [d.id, d]))
     slots = evaluateDocumentRules(rules, catalogById, {
       answers: answersMap,
-      groupInstances,
-      groupAnswers,
+      groupInstances: capped.groupInstances,
+      groupAnswers: capped.groupAnswers,
     })
     const missing = countMissingSlots(slots, uploads)
     docLines.push(

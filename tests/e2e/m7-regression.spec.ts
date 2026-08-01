@@ -55,11 +55,19 @@ test.afterEach(async () => {
   }
 })
 
-async function waitForIdle(page: Page, timeout = 15_000) {
-  await page.waitForFunction(
-    () => document.querySelectorAll<HTMLButtonElement>('button[disabled]').length === 0,
-    { timeout }
-  )
+/**
+ * Waits until the ANSWER FOOTER has no disabled control — the specific state
+ * every drive step needs before its next interaction (a pending save
+ * disables exactly the footer's buttons). Replaces waitForIdle, which
+ * counted button[disabled] across the WHOLE document: a global condition no
+ * assertion depended on — the same primitive family as the removed
+ * networkidle (53fdf73). Flagged in pass-3 backlog item 4; replaced in
+ * pass 4 after the stall recurrences during the Batch-1 spot-checks.
+ */
+async function waitForFooterSettled(page: Page, timeout = 15_000) {
+  await expect(page.locator('[data-testid=answer-footer] button[disabled]')).toHaveCount(0, {
+    timeout,
+  })
 }
 
 async function clickWeiter(page: Page) {
@@ -68,7 +76,7 @@ async function clickWeiter(page: Page) {
   await weiter.waitFor({ state: 'visible', timeout: 8_000 })
   await weiter.click()
   await page.waitForTimeout(200)
-  await waitForIdle(page)
+  await waitForFooterSettled(page)
 }
 
 async function makeUserAndLogin(page: Page, tag: string) {
@@ -131,7 +139,7 @@ async function answerStep(page: Page): Promise<'continue' | 'done' | 'stuck'> {
   if (await neinWeiter.isVisible({ timeout: 250 }).catch(() => false)) {
     await neinWeiter.click()
     await page.waitForTimeout(200)
-    await waitForIdle(page)
+    await waitForFooterSettled(page)
     return 'continue'
   }
   const neinRadio = footer.locator('input[type=radio][value="Nein"]')
@@ -290,9 +298,10 @@ test('R2: fallback — 66606 serves the Berlin questionnaire, answers persist', 
   const userId = await makeUserAndLogin(page, 'fallback')
   await setupCase(page, '66606')
 
-  // 53 required questions since the feedback pass (spouse leak gated −2,
+  // 52 since pass 4 / D15 (−hat_rente, −fresh pension_type auto-instance,
+  // +pension_count); before that 53 since the feedback pass (spouse leak gated −2,
   // Heiz-/Warmwasserkosten deleted −2).
-  await expect(page.getByText('von 53 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
+  await expect(page.getByText('von 52 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
   const { data: caseRow } = await adminDb
     .from('cases')
     .select('id, plz_resolution_status, questionnaire_id')
@@ -323,6 +332,6 @@ test('R2: fallback — 66606 serves the Berlin questionnaire, answers persist', 
     .eq('case_id', caseRow!.id)
   expect(count ?? 0, 'answers saved').toBeGreaterThanOrEqual(3)
   await page.reload()
-  await expect(page.getByText('von 53 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
+  await expect(page.getByText('von 52 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
   console.log(`[R2] fallback PLZ → Berlin, ${count} answers persisted — PASS`)
 })

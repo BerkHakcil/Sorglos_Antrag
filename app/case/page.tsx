@@ -5,16 +5,15 @@ import {
   getCaseAnswers,
   getStaticContent,
   getDocumentData,
-  type SavedAnswer,
   type StaticContent,
 } from '@/lib/dal'
 import { loadQuestionnaire } from '@/lib/questionnaire-engine'
 import { countMissingSlots, evaluateDocumentRules } from '@/lib/document-rules'
 import { docsPaneMode } from '@/lib/docs-pane'
+import { deriveGroupData } from '@/lib/group-instances'
 import { DocumentArea } from './document-area'
 import { CaseTabs } from './case-tabs'
 import { HelpSheet } from './help-sheet'
-import type { LoadedQuestionnaire } from '@/lib/questionnaire-types'
 import { de } from '@/lib/strings/de'
 import { CareHomeSelector } from './care-home-selector'
 import { PlzForm } from './plz-form'
@@ -203,7 +202,7 @@ async function CaseTabsSection({
       loadQuestionnaire(questionnaireId),
       getCaseAnswers(caseId),
     ])
-  const { groupInstances, groupAnswers } = deriveGroupData(questionnaire, answersRaw)
+  const { groupInstances, groupAnswers } = deriveGroupData(questionnaire, answersRaw, 'render')
 
   const slots =
     rules.length > 0
@@ -236,57 +235,7 @@ async function CaseTabsSection({
   return <CaseTabs chat={chat} documents={documents} missing={countMissingSlots(slots, uploads)} />
 }
 
-/**
- * Builds group instance state from the raw answer rows + questionnaire structure.
- *
- * For each repeatable group, collects existing instance IDs (from DB rows with
- * a non-'default' group_instance) and their saved answers.  If a group has no
- * existing instances yet, generates a stable first-instance UUID on the server
- * so the client hydrates without a mismatch.
- */
-function deriveGroupData(
-  questionnaire: LoadedQuestionnaire,
-  answersRaw: SavedAnswer[]
-): {
-  groupInstances: Record<string, string[]>
-  groupAnswers: Record<string, Record<string, unknown>>
-} {
-  // Map from question ID → { groupKey, questionKey } for repeatable-group questions
-  const qToGroup: Record<string, { groupKey: string; questionKey: string }> = {}
-  for (const cat of questionnaire.categories) {
-    for (const q of cat.questions) {
-      if (q.group_key && q.group_is_repeatable) {
-        qToGroup[q.id] = { groupKey: q.group_key, questionKey: q.key }
-      }
-    }
-  }
-
-  const groupInstances: Record<string, string[]> = {}
-  const groupAnswers: Record<string, Record<string, unknown>> = {}
-
-  for (const a of answersRaw) {
-    const info = qToGroup[a.question_id]
-    if (!info) continue
-    if (a.group_instance === 'default') continue
-
-    const { groupKey, questionKey } = info
-    if (!groupInstances[groupKey]) groupInstances[groupKey] = []
-    if (!groupInstances[groupKey].includes(a.group_instance)) {
-      groupInstances[groupKey].push(a.group_instance)
-    }
-    if (!groupAnswers[a.group_instance]) groupAnswers[a.group_instance] = {}
-    groupAnswers[a.group_instance][questionKey] = a.value
-  }
-
-  // Auto-create a first instance for every repeatable group that has none yet.
-  // Done server-side so the UUID is stable across SSR and client hydration.
-  for (const cat of questionnaire.categories) {
-    for (const q of cat.questions) {
-      if (q.group_is_repeatable && q.group_key && !groupInstances[q.group_key]) {
-        groupInstances[q.group_key] = [crypto.randomUUID()]
-      }
-    }
-  }
-
-  return { groupInstances, groupAnswers }
-}
+// deriveGroupData moved to lib/group-instances.ts (pass 4 / D15): count-driven
+// groups made ONE shared derivation mandatory — this site uses mode 'render'
+// (auto-create a first instance for classic groups so the UUID is stable
+// across SSR and client hydration; count-driven groups render exactly N).
