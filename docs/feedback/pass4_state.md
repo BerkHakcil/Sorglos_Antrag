@@ -202,13 +202,39 @@ synthetic) and deleted; the active completion fixture kept.
 
 ## Next step
 
-**⏸ STOP — the founder pushes the branch for the preview gate:**
+**Preview gate, first attempt (2026-08-01 ~13:00) — killed at the 15-min
+tripwire; the hang followed the CLIENT, not the code and not the server.**
+Branch pushed; preview `dpl_EMTvW1fKXebKX39etNwV9i7H6AbU`
+(`sorglos-antrag-9hbjbclr3-…`, commit `9b562c3`, readyState READY in 40 s).
+Suite against it: **completion.spec and visibility.spec completed** (final
+screenshots, no error contexts — the D1 testid anchors and the locked flow
+work end-to-end on the preview), feedback-pass L3/L4 hit save-stalls at
+the same drive step and **recovered**, transitive-T1 (420 s) and m7-R1
+(600 s) died on the stuck-"Speichern …" signature (m7 frozen at Essen
+`legal_guardian_yes_no` with a pending transition). **Decisive
+instrument — Vercel runtime logs for the preview deployment over the run
+window: 1537 requests, ALL 2xx/3xx, zero errors, zero server-side
+timeouts.** The server answered everything that arrived; the stalls sit
+between this machine's Chromium and the network. Corroborating: identical
+hangs against localhost (no WLAN involved), clean-main local A/B hangs,
+trivial node scripts on this box throw libuv teardown asserts today, and
+the SAME machine ran the E-7 preview gate green yesterday. Classification:
+**machine-side, today-specific, unattributed** — no product assert failed
+in any run today; every failure is a stalled save transition against a
+correctly rendered page. Leaked users from both killed runs swept
+per-user (2 + 2, all synthetic, fixture kept).
 
-1. Migrations are pushed + verified (done). Package sent per item 7 status.
-2. `git push origin pass4-batch1` → Vercel preview builds → I run the full
-   suite against the real preview (bypass secret; the measured ~3-min
-   serverless path, immune to the local-hang condition) + preview
-   walkthrough of the locked-state next-steps.
+## Next step
+
+**⏸ STOP — founder's machine call, then the gate re-runs:**
+
+1. The hang evidence points at this Windows machine's network/process
+   state today (WinNAT weirdness is already on record in operations §5).
+   **Recommended: reboot the machine** (or at minimum kill stray node
+   processes / toggle VPN-antivirus state), then say "retry".
+2. On "retry": re-seed the fixture, re-run the full suite against the
+   existing preview (`sorglos-antrag-9hbjbclr3-berk-solutions.vercel.app`
+   — still valid for `9b562c3`), expected ~3 min when the box is healthy.
 3. On green: merge `pass4-batch1` → `main`, founder pushes `main` (prod
    deploy), then the LIVE spot-checks per the batch brief: placeholder
    before PLZ, list after PLZ, Essen "(letzte 4 Monate)", **Pankow
