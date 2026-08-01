@@ -8,10 +8,12 @@
  * phone number.
  *
  * All visible German comes from static_content (contact.* rows): the name,
- * phone and email are Roman-approved data; the button word and card label are
- * PLACEHOLDER_DE pending his nod (roman_package_pass4.md §4). The avatar is
- * the "RP" initials circle until Roman's photo arrives — passing `photoSrc`
- * is the drop-in slot (D11: photo pending, not integrated).
+ * phone and email are Roman-approved data; the button word and card label
+ * were approved as proposed via roman_package_pass4.md §4 (Erman 2026-08-01,
+ * Roman review waived — final copy). Only the close button's sr-only
+ * "Schließen" label (de.ts) remains PLACEHOLDER_DE. The avatar is the "RP"
+ * initials circle until Roman's photo arrives — passing `photoSrc` is the
+ * drop-in slot (D11: photo pending, not integrated).
  *
  * base-ui Dialog provides focus trap, Escape and backdrop dismissal; the
  * popup renders as a bottom sheet on mobile and a right slide-over on sm+.

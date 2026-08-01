@@ -34,21 +34,26 @@ Die folgenden Entwürfe sind **mechanische Platzhalter** (in
 > **PLACEHOLDER_DE (Link zurück):** „Zu meinem Antrag"
 > **PLACEHOLDER_DE (Browser-Tab):** „Seite nicht gefunden – Hilfe zur Pflege"
 
-## Pass 4 / Batch 1+2 (2026-08-01) — PLACEHOLDER_DE, asked in `roman_package_pass4.md` §4
+## Pass 4 (2026-08-01) — ✅ RESOLVED: `roman_package_pass4.md` §1–§4 approved as proposed by Erman 2026-08-01; Roman review waived
 
-All shipped (or shipping) as marked placeholders so features don't wait on
-copy; every word is Roman's to replace via one-line migration.
+The former §4 placeholders are now **final copy** (live values verified
+byte-identical to the approved proposals — no migration was needed): the
+Hilfe button word, the „Ihr Ansprechpartner" card label, the „Nächste
+Schritte" heading, the count-decrease confirm dialog (de.ts) and the netto
+hint on `pension_amount`. Also final via the same approval: the three D5
+Berlin rewordings, the three D12 Essen partner intros, and the D6 section
+labels („Wohnung und Heim", „Einkommen", „Versicherung und Pflege",
+„Partner, Familie und Unterhalt"). If Roman later rewords any of these,
+each is a one-line copy migration.
 
-| where                                                              | key / home                                 | placeholder                                                                                                                                                               |
-| ------------------------------------------------------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Header button opening the contact sheet (D11)                      | `static_content` `contact.help_button`     | „Hilfe"                                                                                                                                                                   |
-| Contact-card label (D11)                                           | `static_content` `contact.card_label`      | „Ihr Ansprechpartner"                                                                                                                                                     |
-| Heading over the 3-step list, locked state (D2)                    | `static_content` `case.next_steps_heading` | „Nächste Schritte"                                                                                                                                                        |
-| Confirm dialog on pension_count decrease (D15, Batch 2)            | de.ts (client dialog)                      | Titel „Angaben löschen?" · Text „Sie haben die Anzahl der Renten verringert. Die Angaben zu den überzähligen Renten werden dabei gelöscht." · „Ja, löschen" / „Abbrechen" |
-| Netto hint under `pension_amount` (D15, Batch 2)                   | `question.help_de`                         | „Bitte geben Sie den Nettobetrag an."                                                                                                                                     |
-| Close button of the contact sheet — screen-reader label only (D11) | de.ts `case.help.closeLabel`               | „Schließen"                                                                                                                                                               |
+## Still open (PLACEHOLDER_DE or Roman-owned)
 
-Roman-approved verbatim (NOT placeholders, recorded for completeness): the
-D1 copy pair, the three D2 bullets, the D3 pre-PLZ placeholder
-(`docs.placeholder_needs_plz`), contact name/phone/email, the D10 suffix
-example wording.
+| item                                                       | home                                      | status                                                                        |
+| ---------------------------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------- |
+| Contact-sheet close label „Schließen" (screen-reader only) | de.ts `case.help.closeLabel`              | PLACEHOLDER_DE — ledgered after §4 was assembled, not covered by the approval |
+| Lade-Anzeige „Wird geladen …"                              | de.ts (E-7)                               | PLACEHOLDER_DE                                                                |
+| 404-Seite (Überschrift/Text/Link/Tab)                      | de.ts (E-7)                               | PLACEHOLDER_DE                                                                |
+| Tab-badge word „offen" (`· 4 offen`)                       | not shipped — we render the bare count    | Roman authorship pending (E-2 ledger)                                         |
+| Logo originals (SVG/hi-res)                                | `public/logo.jpg` stays                   | Roman delivery pending (D16)                                                  |
+| Ansprechpartner photo                                      | `HelpSheet` `photoSrc` drop-in prop ready | Roman delivery pending (D11)                                                  |
+| Auth email texts                                           | Supabase dashboard                        | owner-handled by Roman (D14)                                                  |

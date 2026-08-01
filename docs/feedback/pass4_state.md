@@ -7,13 +7,13 @@
 
 ## Phase status
 
-| Phase                                  | Status                                                                                  | Notes                                                                                                                                                                                                                                                                                                                                                   |
-| -------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A — read-only report + Roman Package 2 | ✅ DONE 2026-08-01 — approved same day (all 7 decisions, below)                         | `pass4_phase_a.md` (A1–A9 + appendix order table) + `roman_package_pass4.md`. §4 (new-German nod list) appended to the package per founder item 7 — **package ready to send**                                                                                                                                                                           |
-| Batch 1 (D1/D3/D4/D9/D10/D11/D2)       | ✅ **DONE 2026-08-01 — live on prod, all seven spot-checks green**                      | Migrations `20260801000001/2` pushed by founder + verified on prod (twice, incl. post-reboot). Code merged `51a8064`, deployed `dpl_GRFPKP55…`. Gate: cumulative green vs the immutable `9b562c3` preview (deviation recorded below). Live spot-checks: see the Batch-1 record                                                                          |
-| Batch 2 (pension, D15)                 | ✅ **DONE 2026-08-01 — live on prod, 12/12 live checks + real-case render check green** | Migrations applied + verified (414/412, pair retired, count-driven, backfills 2/1/0). Code merged `3a09bfc`, deployed `dpl_9ZRqoCM2…`. Gate: 12/13 preview run (zero stalls, 4.2 min) + the fixed V1 green vs the same `5a419f3` deployment (the sole failure was the rewritten spec's own ambiguous-key bug — test-side). Live evidence below          |
-| Batch 3 (D5/D6/D12)                    | 🔶 migrations written — **⏸ STOP: awaiting manual `supabase db push`**                  | **Provenance: Package §1–§4 approved by Erman 2026-08-01; Roman review waived.** Gate-1 verify: every §1/§2 target byte-matches live; §4 placeholders already live verbatim → **ledger-only, no migration**; Essen re-scanned clean. `20260801000005` (6 copy rows) + `20260801000006` (GENERATED reorder, 167 rows, dependency-verified). Record below |
-| Close-out                              | not started                                                                             |                                                                                                                                                                                                                                                                                                                                                         |
+| Phase                                  | Status                                                                                  | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| -------------------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A — read-only report + Roman Package 2 | ✅ DONE 2026-08-01 — approved same day (all 7 decisions, below)                         | `pass4_phase_a.md` (A1–A9 + appendix order table) + `roman_package_pass4.md`. §4 (new-German nod list) appended to the package per founder item 7 — **package ready to send**                                                                                                                                                                                                                                                                                                                                   |
+| Batch 1 (D1/D3/D4/D9/D10/D11/D2)       | ✅ **DONE 2026-08-01 — live on prod, all seven spot-checks green**                      | Migrations `20260801000001/2` pushed by founder + verified on prod (twice, incl. post-reboot). Code merged `51a8064`, deployed `dpl_GRFPKP55…`. Gate: cumulative green vs the immutable `9b562c3` preview (deviation recorded below). Live spot-checks: see the Batch-1 record                                                                                                                                                                                                                                  |
+| Batch 2 (pension, D15)                 | ✅ **DONE 2026-08-01 — live on prod, 12/12 live checks + real-case render check green** | Migrations applied + verified (414/412, pair retired, count-driven, backfills 2/1/0). Code merged `3a09bfc`, deployed `dpl_9ZRqoCM2…`. Gate: 12/13 preview run (zero stalls, 4.2 min) + the fixed V1 green vs the same `5a419f3` deployment (the sole failure was the rewritten spec's own ambiguous-key bug — test-side). Live evidence below                                                                                                                                                                  |
+| Batch 3 (D5/D6/D12)                    | ✅ **DONE 2026-08-01 — live on prod, suite green (cumulative), 8/8 live checks**        | Migrations `…000005/6` applied (all 6 NOTICEs incl. the final 167-key order assertion) + verified: copy verbatim, labels live, block heads exact. Suite vs prod: 12/13 (4.2 min) with L4's stall surfacing as a **15-second** footer assertion (the new primitive's payoff) and re-running green in 1.5 min. Live: A1–A4 new order + rewordings + boundary + pill; B1–B3 all three Essen partner intros verbatim (engine-seeded married case); C1 real case resumed on `district_of_birth` exactly as predicted |
+| Close-out                              | ✅ **DONE 2026-08-01 — PASS CLOSED**                                                    | Milestone-log entry with the D1–D16 disposition table; `german_copy_for_roman.md` final state (§1–§4 resolved, remaining-open table); provenance recorded everywhere: **approved by Erman 2026-08-01; Roman review waived**                                                                                                                                                                                                                                                                                     |
 
 ## Decisions received from the founder (2026-08-01) — Phase-A STOP closed
 
@@ -446,13 +446,38 @@ Every drive is decoupled: testid anchors, DB-loaded prompt maps,
 structural count-select detection, and the T1 matcher words
 (vertriebenen/spätaussiedler/familienstand) are all unchanged.
 
-## Next step
+## Batch 3 — post-push verification + live evidence (2026-08-01)
 
-**⏸ STOP — founder reviews + `supabase db push`** (two files:
-`20260801000005` + `20260801000006`). Expected NOTICEs: D5 applied → D12
-applied → reorder 167 questions → categories renumbered + labels →
-children group moved → final order verified. Then: no dependent code
-(the engine is order-agnostic — R8 trivially satisfied; zero anchors to
-update per the census), full suite against prod or a no-op branch
-preview per the standing gate, live verification (item 6), and the pass
-CLOSE-OUT (item 7) in the same session.
+Both migrations applied (all 6 NOTICEs, incl. `final order verified:
+167-key sequence matches the approved appendix`). Prod data-level: six
+copy rows verbatim; categories 0–6 with the three new labels; block heads
+exactly per the approved order (antragsteller→first_name,
+wohnsituation→in_facility_since, income→pension_count,
+wealth→bank_giro, expenditure→health_insurance, additional→costly_diet,
+spouse→spouse_last_name); emptied `einkommen`/`kinder` at 98/99.
+
+**Suite vs prod: 12 passed / 13 skipped / 1 failed (4.2 min).** The one
+failure — L4 — was the documented machine-stall class, and the replaced
+primitive did its job: a **15-second specific assertion** ("2 disabled
+footer buttons") instead of the former 600-second burn; **re-run green in
+1.5 min** (its identical-shape twin L3 passed first time). Cumulative
+green vs prod.
+
+**Live checks 8/8** (two throwaways, deleted): A1 the reworded "Wie
+lautet Ihr Vorname?" is the first question; A2 all three rewordings
+rendered verbatim; A3 the personal block hands over exactly to "Wann sind
+Sie in das Pflegeheim eingezogen?" (Wohnung-und-Heim head); A4 section
+pill present. B1–B3 the three Essen partner intros rendered verbatim on a
+married case seeded through the REAL engine loop (86 answers; the classic
+Essen pension group's add-another prompt legitimately interposed —
+count-driven is Berlin-only). C1 the real case `c8542a35` resumes on
+`district_of_birth`, matching the Real-Data report's prediction exactly.
+
+## PASS CLOSED 2026-08-01
+
+All four phases done in one day. Shipped: D1–D6, D9–D12, D15; resolved:
+D7, D8, D13; owner-handled: D14; open: D16 (logo originals) + the
+remaining-open table in `german_copy_for_roman.md` (Schließen aria-label,
+404/loading German, badge word "offen", Roman photo). Full record:
+`docs/milestone-log.md` (pass-4 entry with the D1–D16 disposition table).
+Everything else in this file is historical record.

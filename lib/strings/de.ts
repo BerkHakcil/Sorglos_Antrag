@@ -242,9 +242,9 @@ export const de = {
       },
 
       // Pass 4 / D15 — confirm-and-clear when a count-driven group's count is
-      // DECREASED below the number of filled instances (founder decision
-      // 2026-08-01). ⚠ ALL PLACEHOLDER_DE, on Roman's nod list
-      // (roman_package_pass4.md §4, german_copy_for_roman.md).
+      // DECREASED below the number of filled instances. Copy = the
+      // roman_package_pass4.md §4 proposal, approved as proposed by Erman
+      // 2026-08-01 (Roman review waived) — final, verbatim.
       countDecrease: {
         title: 'Angaben löschen?',
         body: 'Sie haben die Anzahl der Renten verringert. Die Angaben zu den überzähligen Renten werden dabei gelöscht.',

@@ -8,7 +8,7 @@
 
 ---
 
-## Current state snapshot (as of 2026-07-05)
+## Current state snapshot (as of 2026-08-01)
 
 Quick orientation for anyone picking this up cold:
 
@@ -19,9 +19,9 @@ Quick orientation for anyone picking this up cold:
 - **Deploy:** push to `main` on GitHub (`BerkHakcil/Sorglos_Antrag`) → Vercel auto-deploys prod. Vercel team `berk-solutions`, project `sorglos-antrag`.
 - **DB migrations:** dated SQL in `supabase/migrations/`, applied to prod with **`supabase db push`** (the CLI is linked; it records each version in `supabase_migrations.schema_migrations`). **Never** apply content via the Supabase dashboard/Studio (see reminders). DDL cannot be run from the Claude Code sandbox — the co-founder runs `db push` after reviewing each migration.
 - **Questionnaire is data-driven** (see `architecture.md` §3): categories → questions (some in repeatable `question_group`s) → `question_option`s; answers keyed `(case_id, question_id, group_instance)`.
-- **Current category flow order (Berlin)** (`category.sort_order`): `antragsteller` (0) → `wohnsituation` (1) → `einkommen` (2) → `kinder` (3) → `income` (4) → `expenditure` (5) → `wealth` (6) → `additional` (7) → `spouse` (8). Essen: `antragsteller → wohnsituation → kinder → income → expenditure → wealth → additional → spouse` (no `einkommen`; sections per the Essen master).
-- **Fresh-case required-question count (progress denominator):** Berlin **57**, Essen **50** (was 49 before content pass 3: −1 maintenance bulk, +1 maintenance select, +1 Ausland yes/no, children gate net ±0) for a single applicant before answering `marital_status`.
-- **Repeatable groups** (`question_group.is_repeatable = true`, all uncapped `max_count = NULL`): `children` (Kinder), `pension`, `other_income`, `bank_additional`, `additional_wealth`, plus the spouse mirrors `spouse_pension`, `spouse_other_income`. Since Tier 7 a group can carry a DB-authored loop-prompt override (`question_group.custom_prompt_de`); when NULL the UI falls back to the `"Möchten Sie eine weitere {group} hinzufügen?"` template.
+- **Current category flow order (Berlin, since pass 4 / D6)** (`category.sort_order`): `antragsteller` (0, Persönliches) → `wohnsituation` (1, **"Wohnung und Heim"**) → `income` (2, **"Einkommen"**) → `wealth` (3, Vermögen) → `expenditure` (4, **"Versicherung und Pflege"**) → `additional` (5) → `spouse` (6, **"Partner, Familie und Unterhalt"** — now also carries the child questions after the spouse ones). The emptied `einkommen` (holds only the two RETIRED questions) and `kinder` categories sit at sort 98/99. Essen unchanged: per the master.
+- **Fresh-case required-question count (progress denominator):** Berlin **52** (pass 4 / D15: −`hat_rente`, −auto-instance `pension_type`, +`pension_count`), Essen **49** (pass 4 / D4: `birth_name` optional) for a single applicant before answering `marital_status`.
+- **Repeatable groups** (`question_group.is_repeatable = true`, all uncapped `max_count = NULL`): `children`, `pension`, `other_income`, `bank_additional`, `additional_wealth`, plus the spouse mirrors `spouse_pension`, `spouse_other_income`. Since Tier 7 a group can carry a DB-authored loop-prompt override (`custom_prompt_de`). **Since pass 4 (D15) a group can instead be COUNT-DRIVEN via `question_group.count_source_key`:** it renders exactly N instances where N is the answer to that question, never shows the add-another prompt, and a count DECREASE below the filled instances runs confirm-and-clear (dialog in the UI; the stale-answer sweep deletes the excess rows). Today only the Berlin `pension` group (keyed on `pension_count`, options 0–8) is count-driven. Questions can be RETIRED via `question.active = false` (rows + answers preserved; the keyMap filter in `getCaseAnswers` shields preserved answers from the sweep) — today `hat_rente` and `rentenbetrag`.
 - **Verification tooling:** Playwright **MCP** works (needed `npx @playwright/mcp install-browser chrome-for-testing` once) and the **e2e runner** (`npx playwright test`, bundled Chromium). **Signup smoke check:** `npm run smoke:signup` proves the auth-email pipeline (signup → SMTP acceptance → cleanup); run pre-release and after any SMTP/Brevo change. Live structural checks use an adaptive-loop e2e spec driven against prod; throwaway test users are created via the admin API and deleted in `finally`. **Seed-drift guard:** `scripts/verify-baseline.mjs` diffs prod against a fresh local migration replay (`supabase db start` + `supabase db reset`, then run with `LOCAL_DATABASE_URL`) across **all** seeded tables — questionnaire content plus `care_home`, `social_office`, `postal_code_rule`, `questionnaire`, `static_content`. Run it after any `migration repair` backfill.
 
 ### Migrations added in this pass (all applied + tracked on prod)
@@ -47,6 +47,75 @@ Quick orientation for anyone picking this up cold:
 | `20260711000007_m5r2_storage_bucket.sql`                       | M5    | private case-documents bucket (15MB, 5 mime types) + storage.objects owner policies                                                                                       |
 
 (All 15 migrations that existed before Tier 4 were backfilled into `schema_migrations` — see Tier 2. The three Tier 4/5/6 migrations were applied via `supabase db push`, which tracks them automatically.)
+
+---
+
+## Content pass 4 (Roman's round-3 decisions) — ✅ PASS CLOSED 2026-08-01
+
+Sixteen locked decisions from Roman (D1–D16, 2026-07-31), executed in one
+day as four gated phases: read-only Phase A (impact designs + Roman
+Package 2), Batch 1 (copy/data layer + UI), Batch 2 (the D15 pension
+redesign — the largest engine change since the document layer), Batch 3
+(approved copy + the Berlin reorder). Six migrations
+`20260801000001`–`000006`, each founder-pushed with loud aborting
+assertions and verified on prod; code deployed via gated branch previews
+(`dpl_GRFPKP55…` Batch 1, `dpl_9ZRqoCM2…` Batch 2; Batch 3 was
+content-only). **Provenance:** D1–D16 verbatim per Roman; the Package-2
+proposals (§1 perspective, §2 partner intros, §3 section labels, §4
+micro-copy) **approved as proposed by Erman 2026-08-01; Roman review
+waived.** Reports/state: `docs/feedback/pass4_phase_a.md`,
+`pass4_state.md`, `roman_package_pass4.md`.
+
+**Disposition of D1–D16:**
+
+| #   | Decision                           | Disposition                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| --- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| D1  | Distinct terminal-state copy       | **shipped** B1 (`…000001`) — the E-6 identical-pair finding closed; three e2e text anchors moved to testids                                                                                                                                                                                                                                                                                                                                                        |
+| D2  | "Nächste Schritte" 3-step list     | **shipped** B1 — LOCKED state only (founder placement decision)                                                                                                                                                                                                                                                                                                                                                                                                    |
+| D3  | Documents tab from first login     | **shipped** B1 — pre-PLZ placeholder verbatim, badge only once a list exists (`lib/docs-pane.ts`)                                                                                                                                                                                                                                                                                                                                                                  |
+| D4  | Essen `birth_name` optional        | **shipped** B1 — Essen fresh denominator 50 → 49; B1 optional mechanics engine-level                                                                                                                                                                                                                                                                                                                                                                               |
+| D5  | Perspective rule ("Sie" = patient) | **shipped** B3 — 3 Berlin prompts to 2nd person (2 more retired via D15); Essen verified clean twice                                                                                                                                                                                                                                                                                                                                                               |
+| D6  | Berlin question order              | **shipped** B3 — GENERATED 167-row reorder, 7 blocks, 3 new labels, dependency-verified against live rules, per-case resume report; Essen report-only                                                                                                                                                                                                                                                                                                              |
+| D7  | Umlaut/ss document names           | resolved — signed off, no action                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| D8  | 13 Essen document names            | resolved — signed off as live                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| D9  | Folder mapping                     | **shipped** B1 (`…000002`) — **three** flips (DOC-0005, DOC-0030, + DOC-0042 surfaced by verification); partition 11/5/19/8; forward-only, zero files stranded                                                                                                                                                                                                                                                                                                     |
+| D10 | Bank-statement period              | **shipped** B1 — suffix from `office_document_rule.period_months` at render time; ⚠ premise corrected: PAN-005/006 also carry 4 → founder chose render-everywhere (Pankow shows it); rejected hint placeholder removed                                                                                                                                                                                                                                             |
+| D11 | Contact card                       | **shipped** B1 — header-Hilfe sheet, RP-initials avatar with `photoSrc` drop-in for the pending photo; a base-ui `data-closed` click-shield bug found in verification and fixed                                                                                                                                                                                                                                                                                    |
+| D12 | Partner section intros             | **shipped** B3 — three Essen spouse bulk intros now name the partner, mirroring the applicant wording                                                                                                                                                                                                                                                                                                                                                              |
+| D13 | Partner insurance Berlin           | resolved — explicitly NO change                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| D14 | Email texts                        | owner-handled — Roman edits directly via Supabase                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| D15 | Berlin pension redesign            | **shipped** B2 (`…000003/4`) — `pension_count` (0–8) count-drives the group via `question_group.count_source_key`; `hat_rente`/`rentenbetrag` retired via `question.active` with sweep-protected preserved answers; "Keine Rente" option removed; confirm-and-clear on decreases; strict-guarded backfills 2/1/0 with both locked cases held at 100 %; **zero doc-rule changes** (slots follow the shared capped derivation, `lib/group-instances.ts`, four sites) |
+| D16 | Logo                               | **open** — WhatsApp thumbnails unusable, not integrated; originals (SVG/hi-res) requested                                                                                                                                                                                                                                                                                                                                                                          |
+
+**Engine/architecture added this pass:** `question.active` (retire without
+deleting; loader + `getCaseAnswers` keyMap filters — the keyMap one shields
+preserved answers from the stale-answer sweep), `question_group.
+count_source_key` (data-driven count-driven groups), `lib/group-instances.ts`
+(the ONE instance derivation for page render, completion gate, client
+adjustments and case-export — modes `render`/`completion`/`export`),
+`lib/docs-pane.ts`, `periodSuffix` + the `docs.period_suffix` template,
+the header Hilfe sheet, the count-decrease confirm card. Berlin fresh
+denominator 53 → **52**; Essen 50 → **49**.
+
+**Harness work:** `waitForIdle` (global disabled-button count) replaced by
+footer-scoped `waitForFooterSettled` in all six specs — the pass-3 backlog
+item promoted after an unattributed MACHINE-SIDE stall class was isolated
+by A/B (clean-main build hung locally; Vercel lambda logs showed 1537
+requests all-2xx during a hanging run; cause recorded as unattributed,
+client-machine-side). Payoff proven same-day: a stall that previously
+burned 600 s surfaced as a 15-second specific assertion (L4), and re-ran
+green. Preview gates ran ~4 min with zero stalls otherwise.
+
+**Corrected records this pass:** pass-3 A9's "denominator 53 → 51" claim
+(rentenbetrag was never fresh-visible; the true post-D15 number is 52) and
+the pass-4 brief's "Pankow period NULL" premise (live PAN-005/006 carry 4
+— surfaced in Phase A, decided by the founder, spot-check reworded).
+
+**Open after this pass:** logo originals (D16), Roman's photo (drop-in
+prop ready), 404/loading German + the contact-sheet "Schließen" aria-label
+(PLACEHOLDER_DE), the `· n offen` badge word (Roman), email texts
+(owner-side). Roman may still review the waived Package-2 texts — any
+rewording is a one-line copy migration.
 
 ---
 
