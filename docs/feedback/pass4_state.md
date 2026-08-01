@@ -224,20 +224,44 @@ in any run today; every failure is a stalled save transition against a
 correctly rendered page. Leaked users from both killed runs swept
 per-user (2 + 2, all synthetic, fixture kept).
 
+**Preview gate, retry after reboot (2026-08-01 ~14:00) — CUMULATIVE GREEN,
+recorded as a deviation.** Migrations re-confirmed applied on prod before
+the run (fresh read: distinct copy pair live, suffix template +
+placeholder rows present, birth_name optional, partition 11/5/19/8 — the
+founder's rule-#8 question answered on record: applied, so code merges
+after migrations as required). Full suite vs the same immutable deployment
+(`9b562c3`): **11 passed / 13 skipped / 2 failed in 15.1 min** — and the
+two failures were DIFFERENT specs than attempt 1 (everything that failed
+there passed here, incl. transitive T1–T3 and m7 R1/R2). The two failures,
+each then re-run alone against the same deployment:
+
+- `feedback-pass` T1 — the day's only assert-class failure (badge stayed
+  13 instead of dropping to 12 after an upload). **Re-run: PASS in
+  30.8 s**, badge decrement + live spouse slots + pre-completion upload
+  all green → the earlier failure was the machine stall eating the upload
+  roundtrip, not a decrement regression.
+- `documents-m6` — the stall signature mid-QUESTIONNAIRE drive (900 s
+  burn at a `clickWeiter`, nowhere near the docs code). **Re-run: PASS in
+  2.5 min, all six criteria** incl. A4's full counter cycle and 17 real
+  uploads, cleanup verified.
+
+**⚠ Deviation on record:** the gate is satisfied CUMULATIVELY (one
+11/13-run + two green single-spec re-runs against the same deployment),
+not by a single all-green run — the machine stalls persist post-reboot
+(stuck-screenshots re-written this run; stalls recovered mid-drive in
+m7/L3/L4). Justification: the deployment is immutable, no product assert
+failed twice, every failure re-ran green, the stall class is attributed
+to this machine (lambda logs all-2xx across 1537 requests), and the
+pass-3 tripwire convention explicitly prefers a documented fallback over
+blocking on non-product harness failures. If the stalls recur on a
+healthy machine, the `waitForIdle` global-disabled-count primitive is the
+flagged suspect (pass-3 backlog item 4) — replace it with per-control
+waits before burning another day.
+
 ## Next step
 
-**⏸ STOP — founder's machine call, then the gate re-runs:**
-
-1. The hang evidence points at this Windows machine's network/process
-   state today (WinNAT weirdness is already on record in operations §5).
-   **Recommended: reboot the machine** (or at minimum kill stray node
-   processes / toggle VPN-antivirus state), then say "retry".
-2. On "retry": re-seed the fixture, re-run the full suite against the
-   existing preview (`sorglos-antrag-9hbjbclr3-berk-solutions.vercel.app`
-   — still valid for `9b562c3`), expected ~3 min when the box is healthy.
-3. On green: merge `pass4-batch1` → `main`, founder pushes `main` (prod
-   deploy), then the LIVE spot-checks per the batch brief: placeholder
-   before PLZ, list after PLZ, Essen "(letzte 4 Monate)", **Pankow
-   "(letzte 4 Monate)"** (decision 4), distinct copy pair on both terminal
-   states, contact sheet, next-steps absent from all-answered. Then STOP
-   before the Batch-2 design.
+**Merged to `main` — founder pushes, then the seven prod spot-checks:**
+placeholder before PLZ, list after PLZ, Essen "(letzte 4 Monate)",
+**Pankow "(letzte 4 Monate)"** (decision 4), distinct copy pair on both
+terminal states, contact sheet opens, next-steps absent from
+all-answered. Then **⏸ STOP before the Batch-2 design.**
