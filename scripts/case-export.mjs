@@ -21,7 +21,7 @@ import { createClient } from '@supabase/supabase-js'
 import { mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { config } from 'dotenv'
-import { evaluateDocumentRules, countMissingSlots } from '../lib/document-rules.ts'
+import { evaluateDocumentRules, countMissingSlots, periodSuffix } from '../lib/document-rules.ts'
 
 config({ path: '.env.local' })
 
@@ -176,18 +176,23 @@ const docLines = [`# Document checklist — case ${caseId}`, '']
 let slots = []
 let uploads = []
 if (caseRow.social_office_id) {
-  const [{ data: rules }, { data: catalog }, { data: uploadRows }] = await Promise.all([
-    // active = true only — retired rules (pass 3 item 5) emit no slot, matching
-    // the app. files/ below still exports EVERY upload row, so a file uploaded
-    // before a rule was retired is never lost to the team.
-    db
-      .from('office_document_rule')
-      .select('*')
-      .eq('social_office_id', caseRow.social_office_id)
-      .eq('active', true),
-    db.from('document_catalog').select('*'),
-    db.from('document_upload').select('*').eq('case_id', caseId).order('created_at'),
-  ])
+  const [{ data: rules }, { data: catalog }, { data: uploadRows }, { data: suffixRow }] =
+    await Promise.all([
+      // active = true only — retired rules (pass 3 item 5) emit no slot, matching
+      // the app. files/ below still exports EVERY upload row, so a file uploaded
+      // before a rule was retired is never lost to the team.
+      db
+        .from('office_document_rule')
+        .select('*')
+        .eq('social_office_id', caseRow.social_office_id)
+        .eq('active', true),
+      db.from('document_catalog').select('*'),
+      db.from('document_upload').select('*').eq('case_id', caseId).order('created_at'),
+      // D10 (pass 4): the same suffix template the checklist renders, so the
+      // team-facing documents.md shows the identical display name.
+      db.from('static_content').select('value_de').eq('key', 'docs.period_suffix').maybeSingle(),
+    ])
+  const suffixTemplate = suffixRow?.value_de ?? ''
   uploads = uploadRows ?? []
   if (rules?.length) {
     const catalogById = Object.fromEntries(catalog.map((d) => [d.id, d]))
@@ -206,8 +211,10 @@ if (caseRow.social_office_id) {
       const files = uploads.filter(
         (u) => u.rule_id === s.ruleId && u.instance_key === s.instanceKey
       )
+      // D10: period suffix on the displayed document name (checklist parity).
+      const sfx = periodSuffix(s.periodMonths, suffixTemplate)
       docLines.push(
-        `| ${s.subject} | ${s.nameDe} | ${s.instanceLabel ?? '—'} | ${files.length ? files.map((f) => f.original_filename).join(', ') : '**FEHLT**'} |`
+        `| ${s.subject} | ${s.nameDe}${sfx ? ` ${sfx}` : ''} | ${s.instanceLabel ?? '—'} | ${files.length ? files.map((f) => f.original_filename).join(', ') : '**FEHLT**'} |`
       )
     }
   } else {

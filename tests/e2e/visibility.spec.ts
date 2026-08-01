@@ -134,13 +134,15 @@ test('V1: rentenbetrag appears after hat_rente=Ja  |  V2: spouse_wohngeld fields
   let stuckCount = 0
 
   for (let step = 1; step <= 220 && stuckCount < 5; step++) {
-    // Terminal states
+    // Terminal states — testid anchors since pass 4 (D1 made the two states'
+    // German distinct; the old text matchers were copy-coupled and the locked
+    // one never matched any live copy at all).
     const done = await page
-      .getByText('Sie haben alle Fragen beantwortet', { exact: false })
+      .locator('[data-testid=all-answered]')
       .isVisible({ timeout: 300 })
       .catch(() => false)
     const locked = await page
-      .getByText('Angaben werden geprüft', { exact: false })
+      .locator('[data-testid=locked-banner]')
       .isVisible({ timeout: 300 })
       .catch(() => false)
     if (done || locked) {

@@ -10,8 +10,10 @@ import {
 } from '@/lib/dal'
 import { loadQuestionnaire } from '@/lib/questionnaire-engine'
 import { countMissingSlots, evaluateDocumentRules } from '@/lib/document-rules'
+import { docsPaneMode } from '@/lib/docs-pane'
 import { DocumentArea } from './document-area'
 import { CaseTabs } from './case-tabs'
+import { HelpSheet } from './help-sheet'
 import type { LoadedQuestionnaire } from '@/lib/questionnaire-types'
 import { de } from '@/lib/strings/de'
 import { CareHomeSelector } from './care-home-selector'
@@ -59,11 +61,23 @@ export default async function CasePage() {
               {content.brandTagline}
             </p>
           </div>
-          <form action={logoutAction} className="shrink-0">
-            <button type="submit" className={`${btnGhost} px-3 py-1.5 text-xs`}>
-              {s.logoutButton}
-            </button>
-          </form>
+          <div className="flex shrink-0 items-center gap-1">
+            {/* Pass 4 / D11: contact sheet, reachable from every state incl.
+                the pre-steps. Renders nothing while its content rows are
+                missing (static_content degrades to ''). */}
+            <HelpSheet
+              helpButton={content.contactHelpButton}
+              cardLabel={content.contactCardLabel}
+              name={content.contactName}
+              phone={content.contactPhone}
+              email={content.contactEmail}
+            />
+            <form action={logoutAction}>
+              <button type="submit" className={`${btnGhost} px-3 py-1.5 text-xs`}>
+                {s.logoutButton}
+              </button>
+            </form>
+          </div>
         </div>
       </header>
 
@@ -82,45 +96,61 @@ export default async function CasePage() {
           content={content}
         />
       ) : (
-        /* Pre-questionnaire: traditional scrollable card layout */
-        <div className="bg-muted/40 flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-2xl space-y-6 px-4 py-6">
-            {/* Case meta */}
-            <div className={`${card} p-6`}>
-              <h2 className="mb-3 font-semibold">{content.caseSubheading}</h2>
-              <dl className="divide-border divide-y text-sm">
-                <div className="flex justify-between py-2">
-                  <dt className="text-muted-foreground">{s.statusLabel}</dt>
-                  <dd>{s.statusLabels[caseData.status] ?? caseData.status}</dd>
+        /* Pre-questionnaire (D3, pass 4): the "Fragen | Dokumente" tabs exist
+           from FIRST LOGIN. The checklist cannot be computed before the PLZ
+           decides the office, so the Dokumente pane shows Roman's placeholder
+           instead of a list; no badge renders (CaseTabs hides it at 0). */
+        <CaseTabs
+          missing={0}
+          documents={
+            docsPaneMode(false, 0) === 'placeholder' ? (
+              <DocsPlaceholder
+                title={content.docsAreaTitle}
+                body={content.docsPlaceholderNeedsPlz}
+              />
+            ) : null
+          }
+          chat={
+            <div className="bg-muted/40 h-full overflow-y-auto">
+              <div className="mx-auto max-w-2xl space-y-6 px-4 py-6">
+                {/* Case meta */}
+                <div className={`${card} p-6`}>
+                  <h2 className="mb-3 font-semibold">{content.caseSubheading}</h2>
+                  <dl className="divide-border divide-y text-sm">
+                    <div className="flex justify-between py-2">
+                      <dt className="text-muted-foreground">{s.statusLabel}</dt>
+                      <dd>{s.statusLabels[caseData.status] ?? caseData.status}</dd>
+                    </div>
+                    {caseData.plz_before_move && (
+                      <div className="flex justify-between py-2">
+                        <dt className="text-muted-foreground">{s.plzLabel}</dt>
+                        <dd>{caseData.plz_before_move}</dd>
+                      </div>
+                    )}
+                    {/* unsupported-PLZ notice suppressed (CP3/D12): its copy promised a
+                        team follow-up, but such users now proceed normally in the Berlin
+                        questionnaire. Status stays 'unsupported' internally; new notice
+                        copy pending Roman review. */}
+                  </dl>
                 </div>
-                {caseData.plz_before_move && (
-                  <div className="flex justify-between py-2">
-                    <dt className="text-muted-foreground">{s.plzLabel}</dt>
-                    <dd>{caseData.plz_before_move}</dd>
+
+                {/* Step 1: Care-home selection */}
+                {!caseData.care_home_id && (
+                  <div className={`${card} p-6`}>
+                    <CareHomeSelectorSection />
                   </div>
                 )}
-                {/* unsupported-PLZ notice suppressed (CP3/D12): its copy promised a
-                    team follow-up, but such users now proceed normally in the Berlin
-                    questionnaire. Status stays 'unsupported' internally; new notice
-                    copy pending Roman review. */}
-              </dl>
+
+                {/* Step 2: PLZ entry */}
+                {caseData.care_home_id && caseData.plz_resolution_status === 'unclear' && (
+                  <div className={`${card} p-6`}>
+                    <PlzForm />
+                  </div>
+                )}
+              </div>
             </div>
-
-            {/* Step 1: Care-home selection */}
-            {!caseData.care_home_id && (
-              <div className={`${card} p-6`}>
-                <CareHomeSelectorSection />
-              </div>
-            )}
-
-            {/* Step 2: PLZ entry */}
-            {caseData.care_home_id && caseData.plz_resolution_status === 'unclear' && (
-              <div className={`${card} p-6`}>
-                <PlzForm />
-              </div>
-            )}
-          </div>
-        </div>
+          }
+        />
       )}
     </div>
   )
@@ -129,6 +159,20 @@ export default async function CasePage() {
 async function CareHomeSelectorSection() {
   const careHomes = await getCareHomes()
   return <CareHomeSelector careHomes={careHomes} />
+}
+
+/**
+ * D3 (pass 4): the Dokumente pane before the PLZ resolves an office. Title
+ * reuses the pane's existing DB-authored heading; the body is Roman's
+ * placeholder sentence, verbatim (static_content 'docs.placeholder_needs_plz').
+ */
+function DocsPlaceholder({ title, body }: { title: string; body: string }) {
+  return (
+    <section data-testid="docs-placeholder" className={`${card} p-6`}>
+      <h2 className="text-xl font-semibold">{title}</h2>
+      <p className="text-graphite-soft mt-2 text-sm leading-relaxed">{body}</p>
+    </section>
+  )
 }
 
 /**
@@ -169,6 +213,10 @@ async function CaseTabsSection({
           groupAnswers,
         })
       : []
+  // 'list' renders the checklist; 'none' (zero rules anywhere — safety branch)
+  // keeps the chat alone. 'placeholder' is unreachable here: this section only
+  // renders once the questionnaire exists (see docsPaneMode docs).
+  const paneMode = docsPaneMode(true, slots.length)
 
   const chat = (
     <ChatView
@@ -183,7 +231,7 @@ async function CaseTabsSection({
     />
   )
   const documents =
-    slots.length > 0 ? <DocumentArea slots={slots} uploads={uploads} content={content} /> : null
+    paneMode === 'list' ? <DocumentArea slots={slots} uploads={uploads} content={content} /> : null
 
   return <CaseTabs chat={chat} documents={documents} missing={countMissingSlots(slots, uploads)} />
 }

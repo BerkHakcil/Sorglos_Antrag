@@ -6,7 +6,8 @@
  *         asserted at the DB level: a completed case has answered every
  *         visible required question, so "no spouse-ish answer rows" proves
  *         "no spouse-ish question was shown".
- *  L3/L4  Essen ledig + verwitwet: same property (denominator 50). The
+ *  L3/L4  Essen ledig + verwitwet: same property (denominator 49 since
+ *         pass 4 / D4 made birth_name optional). The
  *         maintenance/Unterhalt block is answered with its none-option (the
  *         ex_partner_* questions are BY DESIGN reachable for any status when a
  *         real maintenance option is chosen — CP3 decision, not a leak).
@@ -327,12 +328,12 @@ test('L2: Berlin verwitwet — 53 questions, zero Partner prompts', async ({ pag
   await leakDrive(page, 'bwitwe', '13187', BERLIN, 'verwitwet', 53, [])
 })
 
-test('L3: Essen ledig — 50 questions, zero Partner prompts', async ({ page }) => {
-  await leakDrive(page, 'eledig', '45127', ESSEN, 'ledig', 50, ['maintenance_claims_status'])
+test('L3: Essen ledig — 49 questions, zero Partner prompts', async ({ page }) => {
+  await leakDrive(page, 'eledig', '45127', ESSEN, 'ledig', 49, ['maintenance_claims_status'])
 })
 
-test('L4: Essen verwitwet — 50 questions, zero Partner prompts', async ({ page }) => {
-  await leakDrive(page, 'ewitwe', '45127', ESSEN, 'verwitwet', 50, ['maintenance_claims_status'])
+test('L4: Essen verwitwet — 49 questions, zero Partner prompts', async ({ page }) => {
+  await leakDrive(page, 'ewitwe', '45127', ESSEN, 'verwitwet', 49, ['maintenance_claims_status'])
 })
 
 // ── T1: tabs from first login + live conditional slots + mobile badge ─────────

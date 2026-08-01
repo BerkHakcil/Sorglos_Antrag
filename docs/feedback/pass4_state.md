@@ -146,26 +146,72 @@ three D9 rows carry exactly the expected old values, partition 11/7/16/9;
 **11 uploads, all legacy UUID paths, 0 new-scheme** (flips strand nothing);
 period_months confirmed on exactly PAN-005/006/ESS-010/011 = 4.
 
-**Batch-1 code scope after push verification (queued):** D3 pre-steps
-wrapped in CaseTabs + placeholder pane; D10 suffix in
-`document-area.tsx:210` + `case-export.mjs:210` via the `docs.period_suffix`
-template (n≥2 only; a 1-month rule would need Roman wording first —
-documented, none exists); D11 header-Hilfe sheet with RP-initials avatar;
-D2 next-steps list on `EditLockedCard` only; e2e updates: the three
-`'Sie haben alle Fragen beantwortet'` anchors (completion :105/:320,
-visibility :139, transitive-visibility-fix :129) + Essen denominator 50→49
-(m7-regression :222, feedback-pass L3/L4); unit tests for the suffix
-renderer + docs-pane gating; full e2e; live spot-checks incl. **Pankow
-suffix** per decision 4.
+**Batch-1 code (written 2026-08-01, on branch `pass4-batch1`):** D3
+pre-steps wrapped in CaseTabs + `DocsPlaceholder` pane (gating pure helper
+`lib/docs-pane.ts`, unit-tested); D10 `periodSuffix` in
+`lib/document-rules.ts` (template `docs.period_suffix`, n≥2 only — a
+1-month rule would need Roman singular wording first) rendered in
+`document-area.tsx` + `case-export.mjs`; D11 `app/case/help-sheet.tsx`
+(base-ui Dialog, RP-initials avatar with `photoSrc` drop-in slot,
+`contact.*` content; close aria-label "Schließen" = new PLACEHOLDER_DE in
+de.ts, ledgered); D2 next-steps on `EditLockedCard` only; e2e: the three
+old text anchors → testids (completion/visibility/transitive), Essen
+denominators 50→49 (m7-regression, feedback-pass L3/L4); unit 205/205
+(195 + 7 periodSuffix + 3 docsPaneMode). Migration-history note: both `20260801…` files applied+tracked
+by the founder's push, verified on prod data-level (15/15 rows, partition
+11/5/19/8, birth_name optional).
+
+**⚠ Harness finding (2026-08-01) — local e2e gate not viable, cause
+unattributed.** Full-suite drives against a LOCAL `next start` (prod
+build, prod Supabase) hang mid-drive: a save transition never settles
+("Speichern …" stuck `[disabled]`), `waitForIdle` burns 15-s timeouts, the
+test dies at 600 s against a perfectly rendered page — the pass-3 L2
+signature, now recurring. Evidence chain: first seen with default workers
+(20-core machine → ~10 parallel drives), **recurred with `--workers=1`**,
+and **recurred on a CLEAN-MAIN build (A/B with the Batch-1 diff stashed)**
+— so it is NOT this batch's code. Single-drive probe on the same build:
+6 saves, 0.8–1.1 s each. While one hung render was live, the same server
+answered fresh requests in 60 ms and Supabase REST in 95–304 ms — the
+wedge is per-session (one browser session's `/case` hung deterministically
+until a fresh login; token-refresh suspected, NOT verified). Pass-3 local
+full-suite runs were green (E-0, `--workers=1`), so this is
+new-or-intermittent environment behavior on this machine. Recorded per the
+"not reproduced ≠ explained" standard; no primitive changed. **Gate
+re-routed to a Vercel preview** (the pass-3 measured-green path, bypass
+secret already configured).
+
+**Local verification that DID pass (Batch-1 build):** unit 205/205,
+typecheck/lint/format/encoding, production build; browser walkthrough on
+the local build — tabs + "Ihre Dokumente" placeholder pre-steps with NO
+badge, Hilfe sheet opens with card label/name/tel/mailto and closes
+cleanly, badge `· 11` appears after PLZ 13187, and the **Pankow checklist
+renders "Kontoauszüge – Girokonto (letzte 4 Monate)"** with every other
+slot suffix-free (decision 4 verified locally).
+
+**⚠ Defect found and fixed during the walkthrough:** base-ui Dialog keeps
+Backdrop+Popup mounted with `[data-closed]` after close — without styling
+that state, the invisible full-screen backdrop swallowed every click on
+the page (the closed sheet blocked the pre-step submit). Fix:
+`data-closed:hidden` on both (comment in help-sheet.tsx marks it
+load-bearing). Verified: closed state computes `display:none`, page
+clickable.
+
+**Prod hygiene:** killed-run sweep found only 2 leaked users (afterEach
+survived most kills); both verified individually (0 objects, 0/3 answers,
+synthetic) and deleted; the active completion fixture kept.
 
 ## Next step
 
-**⏸ STOP — two things for the founder:**
+**⏸ STOP — the founder pushes the branch for the preview gate:**
 
-1. `roman_package_pass4.md` is final (incl. §4) — **send it to Roman**.
-2. **Push the two Batch-1 migrations** (`supabase db push`). ⚠ Docker was
-   not running this session, so the pre-push local replay was skipped — the
-   migrations abort loudly on any mismatch; if you want the replay first,
-   start Docker Desktop and say so. After "pushed", I verify on prod, then
-   ship the dependent code, tests, and live spot-checks, then STOP before
-   the Batch-2 design.
+1. Migrations are pushed + verified (done). Package sent per item 7 status.
+2. `git push origin pass4-batch1` → Vercel preview builds → I run the full
+   suite against the real preview (bypass secret; the measured ~3-min
+   serverless path, immune to the local-hang condition) + preview
+   walkthrough of the locked-state next-steps.
+3. On green: merge `pass4-batch1` → `main`, founder pushes `main` (prod
+   deploy), then the LIVE spot-checks per the batch brief: placeholder
+   before PLZ, list after PLZ, Essen "(letzte 4 Monate)", **Pankow
+   "(letzte 4 Monate)"** (decision 4), distinct copy pair on both terminal
+   states, contact sheet, next-steps absent from all-answered. Then STOP
+   before the Batch-2 design.
