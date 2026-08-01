@@ -7,13 +7,13 @@
 
 ## Phase status
 
-| Phase                                  | Status                                                                 | Notes                                                                                                                                                                                                                                                                                           |
-| -------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A — read-only report + Roman Package 2 | ✅ DONE 2026-08-01 — approved same day (all 7 decisions, below)        | `pass4_phase_a.md` (A1–A9 + appendix order table) + `roman_package_pass4.md`. §4 (new-German nod list) appended to the package per founder item 7 — **package ready to send**                                                                                                                   |
-| Batch 1 (D1/D3/D4/D9/D10/D11/D2)       | 🔶 migrations written — **⏸ STOP: awaiting manual `supabase db push`** | `20260801000001_pass4_batch1_copy.sql` + `20260801000002_pass4_batch1_flags.sql`; R2 re-verified 2026-08-01 (zero drift since Phase A). ⚠ Docker daemon not running → local replay NOT performed pre-push; migrations carry loud aborting assertions. Code follows after prod verification (R8) |
-| Batch 2 (pension, D15)                 | not started                                                            | blocked on A1 design approval (count-decrease semantics + backfill)                                                                                                                                                                                                                             |
-| Batch 3 (D5/D6/D12)                    | not started                                                            | blocked on Roman's answers to Package 2                                                                                                                                                                                                                                                         |
-| Close-out                              | not started                                                            |                                                                                                                                                                                                                                                                                                 |
+| Phase                                  | Status                                                             | Notes                                                                                                                                                                                                                                                                          |
+| -------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A — read-only report + Roman Package 2 | ✅ DONE 2026-08-01 — approved same day (all 7 decisions, below)    | `pass4_phase_a.md` (A1–A9 + appendix order table) + `roman_package_pass4.md`. §4 (new-German nod list) appended to the package per founder item 7 — **package ready to send**                                                                                                  |
+| Batch 1 (D1/D3/D4/D9/D10/D11/D2)       | ✅ **DONE 2026-08-01 — live on prod, all seven spot-checks green** | Migrations `20260801000001/2` pushed by founder + verified on prod (twice, incl. post-reboot). Code merged `51a8064`, deployed `dpl_GRFPKP55…`. Gate: cumulative green vs the immutable `9b562c3` preview (deviation recorded below). Live spot-checks: see the Batch-1 record |
+| Batch 2 (pension, D15)                 | not started                                                        | blocked on A1 design approval (count-decrease semantics + backfill)                                                                                                                                                                                                            |
+| Batch 3 (D5/D6/D12)                    | not started                                                        | blocked on Roman's answers to Package 2                                                                                                                                                                                                                                        |
+| Close-out                              | not started                                                        |                                                                                                                                                                                                                                                                                |
 
 ## Decisions received from the founder (2026-08-01) — Phase-A STOP closed
 
@@ -258,10 +258,50 @@ healthy machine, the `waitForIdle` global-disabled-count primitive is the
 flagged suspect (pass-3 backlog item 4) — replace it with per-control
 waits before burning another day.
 
+**LIVE spot-checks on prod (2026-08-01, deployment `dpl_GRFPKP55…` =
+merge `51a8064`; three throwaway users + one drive user, all deleted):**
+
+1. ✅ Placeholder before PLZ — tabs at first login, D3 text **verbatim**
+   in the Dokumente pane, and NO badge (structural). One probe artifact
+   on record: the instant `isVisible` check fired before hydration and
+   read false, while the very next action clicked that tab successfully
+   and captured the placeholder — feature proven, check timing was wrong.
+2. ✅ List after PLZ 13187 — full checklist, numeric badge `11`.
+3. ✅ Essen 45127 — "Kontoauszüge … (letzte 4 Monate)" on the ESS
+   checklist.
+4. ✅ **Pankow 13187 — "Kontoauszüge – Girokonto (letzte 4 Monate)"**
+   (decision 4), and exactly ONE suffix occurrence on the fresh checklist
+   (no leakage onto non-bank slots).
+5. ✅ Distinct copy pair: the all-answered card was caught in-session
+   ("Alle Fragen beantwortet" + the new body), the locked card after
+   reload shows "Ihr Antrag wird geprüft" + "Sie müssen nichts weiter
+   tun…", old shared heading absent. A probe DB-read raced the final
+   save's commit and momentarily saw `in_progress` — disproven by the
+   locked banner itself, which only renders when the server sees
+   `under_review` (and by completion.spec's C2 on the same build).
+6. ✅ Contact sheet — opens from the header, carries "Ihr Ansprechpartner"
+   (CSS-uppercased — the probe's case-sensitive match flagged it, text
+   correct), RP avatar, Roman Pfeiffer, tel + mailto. Closes cleanly
+   (the `data-closed` fix held on prod).
+7. ✅ Next-steps ABSENT from the all-answered card, PRESENT on the locked
+   card with the heading and all three bullets verbatim.
+
+The machine-stall condition struck twice more during the checks (one save
+stall, one reload stall) and recovered within the tolerant waits — still
+machine-side, still on record.
+
+**Ledger updates shipped with Batch 1:** D7/D8/D13/D14 dispositions
+recorded; `german_copy_for_roman.md` — rejected D10 hint removed (§1),
+the 13 names marked signed off (§2), pass-4 PLACEHOLDER_DE table added
+(Hilfe/Ansprechpartner labels, Nächste-Schritte heading, Schließen
+aria-label, Batch-2 confirm dialog + netto hint).
+
 ## Next step
 
-**Merged to `main` — founder pushes, then the seven prod spot-checks:**
-placeholder before PLZ, list after PLZ, Essen "(letzte 4 Monate)",
-**Pankow "(letzte 4 Monate)"** (decision 4), distinct copy pair on both
-terminal states, contact sheet opens, next-steps absent from
-all-answered. Then **⏸ STOP before the Batch-2 design.**
+**⏸ STOP — Batch 1 closed. Next: the Batch-2 design round (D15 pension
+redesign per the approved A1 design + decisions 1–2: confirm-and-clear,
+backfill as tabled).** Its migrations get their own Real-Data report at
+execution time (any drift vs the Phase-A table stops the migration) and
+their own manual-push STOP. Note for the founder: local `main` carries
+the Batch-1 close-out docs commit — push whenever convenient; Roman's
+Package-2 answers gate Batch 3 only.
