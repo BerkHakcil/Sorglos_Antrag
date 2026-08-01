@@ -217,9 +217,14 @@ test('V1: pension_count=2 renders exactly two pension instances (D15)  |  V2: sp
       )
       const values = options.map((o) => o.value)
       const isCountSelect = values.length >= 3 && values[0] === '0' && values[1] === '1'
-      // Applicant pension_type only: the spouse variant still carries the
-      // "Keine Rente" option (D15 removed it from the applicant group alone).
-      const isPensionType = values.includes('Altersrente') && !values.includes('Keine Rente')
+      // Pension-type-SHAPED select. ⚠ This cannot distinguish the applicant
+      // group from the spouse one — both carry the same 8 type values (the
+      // spouse variant never had "Keine Rente"; its follow-ups gate on
+      // not_empty). With marital=verheiratet the drive sees 2 applicant + 1
+      // spouse = 3 of these. The EXACT-two proof is the DB assert on the
+      // fixed applicant question id below; this counter only guards the
+      // lower bound and takes the screenshot.
+      const isPensionType = values.includes('Altersrente')
       const verheiratet = options.find((o) => o.label === 'verheiratet')
       const ledig = options.find((o) => o.label === 'ledig' || o.label === 'Ledig')
       let chosen: string
@@ -313,16 +318,25 @@ test('V1: pension_count=2 renders exactly two pension instances (D15)  |  V2: sp
       .select('id, is_required, visibility_rule')
       .eq('key', 'pension_count')
       .single(),
-    adminDb.from('question').select('visibility_rule').eq('key', 'pension_amount').single(),
+    // Fixed Berlin id: 'pension_amount' exists in BOTH questionnaires, so a
+    // key-based .single() returns two rows → null (found by the first gate run).
+    adminDb
+      .from('question')
+      .select('visibility_rule')
+      .eq('id', '60000000-0000-0000-0000-00000000003a')
+      .single(),
     adminDb.from('question').select('key, active').in('key', ['hat_rente', 'rentenbetrag']),
     adminDb.from('question').select('visibility_rule').eq('key', 'spouse_wohngeld_amount').single(),
     adminDb.from('question').select('visibility_rule').eq('key', 'spouse_wohngeld_id').single(),
   ])
 
-  const [{ data: pensionTypeQRow }, { data: hatRenteQRow }] = await Promise.all([
-    adminDb.from('question').select('id').eq('key', 'pension_type').eq('active', true).single(),
-    adminDb.from('question').select('id').eq('key', 'hat_rente').single(),
-  ])
+  // Fixed Berlin ids — pension_type is also ambiguous across questionnaires.
+  const pensionTypeQRow = { id: '60000000-0000-0000-0000-000000000039' }
+  const { data: hatRenteQRow } = await adminDb
+    .from('question')
+    .select('id')
+    .eq('key', 'hat_rente')
+    .single()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: countAnswer } = await (adminDb as any)
@@ -336,7 +350,7 @@ test('V1: pension_count=2 renders exactly two pension instances (D15)  |  V2: sp
     .from('answer')
     .select('group_instance')
     .eq('case_id', caseId)
-    .eq('question_id', pensionTypeQRow!.id)
+    .eq('question_id', pensionTypeQRow.id)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { count: hatRenteAnswers } = await (adminDb as any)
     .from('answer')
@@ -367,7 +381,12 @@ test('V1: pension_count=2 renders exactly two pension instances (D15)  |  V2: sp
   // The drive: count set to 2 → exactly two instances rendered and answered,
   // never an add-another prompt for the pension group.
   expect(v1CountSetTo2, 'the count select must have been found and set to 2').toBe(true)
-  expect(v1PensionTypeSelects, 'exactly two pension_type instances must render').toBe(2)
+  // ≥ 2: the counter also sees the spouse variant (same option shape); the
+  // exact-two proof is the DB assert below on the applicant question id.
+  expect(
+    v1PensionTypeSelects,
+    'at least two pension-type selects must have rendered'
+  ).toBeGreaterThanOrEqual(2)
   expect(distinctInstances.size, 'exactly two pension instances must be saved in DB').toBe(2)
   expect(countAnswer?.value, 'pension_count answer must be saved as "2"').toBe('2')
   expect(v1PensionPromptSeen, 'the count-driven group must never show its prompt').toBe(false)
