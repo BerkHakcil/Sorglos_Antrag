@@ -5,7 +5,7 @@ Hallo Roman,
 danke für deine Entscheidungen vom 31.07. — sie sind alle angenommen und
 werden jetzt in Etappen umgesetzt (Texte, Dokumenten-Ordner,
 Kontoauszug-Zeitraum, Ansprechpartner-Karte, Renten-Umbau in Berlin).
-**Dieses Paket enthält nur die drei Punkte, zu denen wir deine Freigabe bzw.
+**Dieses Paket enthält die vier Punkte, zu denen wir deine Freigabe bzw.
 deinen Blick brauchen:**
 
 1. **§1 — Formulierungs-Regel („Sie" = die pflegebedürftige Person):** die
@@ -16,6 +16,10 @@ deinen Blick brauchen:**
 3. **§3 — Neue Fragen-Reihenfolge Berlin** nach deiner Block-Vorgabe →
    **nur zur Kenntnis** (plus eine kleine Frage zu den Abschnitts-
    Überschriften).
+4. **§4 — Ein paar neue Kleintexte** (Hilfe-Knopf, Ansprechpartner-Karte,
+   „Nächste Schritte", Sicherheitsabfrage bei den Renten, Netto-Hinweis) →
+   **bitte einmal abnicken oder umformulieren** — sie gehen zunächst als
+   markierte Platzhalter live, damit nichts blockiert.
 
 **Wichtig: Nichts aus §1 und §2 geht live, bevor du die Texte freigegeben
 hast.** Alle Vorschläge sind als Vorschläge markiert — jedes Wort ist deins.
@@ -331,6 +335,23 @@ heutigen Live-Reihenfolge, „—" = neue Frage):
 | 165 | 50     | `child_family_tie`                           | In welchem Verhältnis steht dieses Kind zu Ihnen? _(Gruppe ×N)_              |
 | 166 | 51     | `child_profession`                           | Welchen Beruf hat Ihr Kind? _(Gruppe ×N)_                                    |
 | 167 | 52     | `child_address`                              | Wie lautet die Wohnadresse Ihres Kindes? _(Gruppe ×N)_                       |
+
+---
+
+## §4 Neue Kleintexte — bitte einmal abnicken (oder umformulieren)
+
+Ein paar kurze Texte gibt es bisher gar nicht und sie stammen deshalb von
+uns (als Platzhalter markiert). Sie gehen zunächst so live, damit die neuen
+Funktionen nicht auf Texte warten müssen — **jede Änderung von dir ist
+danach eine Ein-Zeilen-Korrektur, kein Umbau.**
+
+| Wo erscheint der Text?                                                                                                                                   | Unser Platzhalter                                                                                                                                                                   |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Knopf oben im Kopfbereich der App — öffnet deine Kontaktkarte                                                                                            | „Hilfe"                                                                                                                                                                             |
+| Überschrift auf der Kontaktkarte (darunter: Roman Pfeiffer, 0159 0469 5761, roman.pfeiffer@sorglosantrag.de; bis dein Foto kommt, ein Kreis mit „RP")    | „Ihr Ansprechpartner"                                                                                                                                                               |
+| Überschrift über deinen drei Schritten auf der „Ihr Antrag wird geprüft"-Seite                                                                           | „Nächste Schritte"                                                                                                                                                                  |
+| Sicherheitsabfrage, wenn jemand die Anzahl der Renten nachträglich **verringert** (die Angaben zur überzähligen Rente werden dann gelöscht — dein Umbau) | Titel: „Angaben löschen?" — Text: „Sie haben die Anzahl der Renten verringert. Die Angaben zu den überzähligen Renten werden dabei gelöscht." — Knöpfe: „Ja, löschen" / „Abbrechen" |
+| Kleiner Hinweis unter „Wie hoch ist diese Rente oder Pension pro Monat?" (dein erlaubter Netto-Hinweis)                                                  | „Bitte geben Sie den Nettobetrag an."                                                                                                                                               |
 
 ---
 

@@ -7,15 +7,35 @@
 
 ## Phase status
 
-| Phase                                  | Status                                            | Notes                                                                                                                                       |
-| -------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| A — read-only report + Roman Package 2 | ✅ DONE 2026-08-01 — **⏸ STOP, awaiting founder** | `pass4_phase_a.md` (A1–A9 + appendix order table) + `roman_package_pass4.md` committed. No code, no migrations. Open decisions listed below |
-| Batch 1 (D1/D3/D4/D9/D10/D11/D2)       | not started                                       | blocked on Phase-A go + the D10 Pankow-suffix decision + D2/D11 placement decisions                                                         |
-| Batch 2 (pension, D15)                 | not started                                       | blocked on A1 design approval (count-decrease semantics + backfill)                                                                         |
-| Batch 3 (D5/D6/D12)                    | not started                                       | blocked on Roman's answers to Package 2                                                                                                     |
-| Close-out                              | not started                                       |                                                                                                                                             |
+| Phase                                  | Status                                                                 | Notes                                                                                                                                                                                                                                                                                           |
+| -------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A — read-only report + Roman Package 2 | ✅ DONE 2026-08-01 — approved same day (all 7 decisions, below)        | `pass4_phase_a.md` (A1–A9 + appendix order table) + `roman_package_pass4.md`. §4 (new-German nod list) appended to the package per founder item 7 — **package ready to send**                                                                                                                   |
+| Batch 1 (D1/D3/D4/D9/D10/D11/D2)       | 🔶 migrations written — **⏸ STOP: awaiting manual `supabase db push`** | `20260801000001_pass4_batch1_copy.sql` + `20260801000002_pass4_batch1_flags.sql`; R2 re-verified 2026-08-01 (zero drift since Phase A). ⚠ Docker daemon not running → local replay NOT performed pre-push; migrations carry loud aborting assertions. Code follows after prod verification (R8) |
+| Batch 2 (pension, D15)                 | not started                                                            | blocked on A1 design approval (count-decrease semantics + backfill)                                                                                                                                                                                                                             |
+| Batch 3 (D5/D6/D12)                    | not started                                                            | blocked on Roman's answers to Package 2                                                                                                                                                                                                                                                         |
+| Close-out                              | not started                                                            |                                                                                                                                                                                                                                                                                                 |
 
-## Decisions the founder owes at the Phase-A STOP
+## Decisions received from the founder (2026-08-01) — Phase-A STOP closed
+
+1. Count-decrease = **Option A confirm-and-clear**; dialog text PLACEHOLDER_DE.
+2. Backfill **approved as tabled** (instances where present, Ja→1/Nein→0;
+   locked Keine-Rente case → 0 with history-row disappearance accepted;
+   fixture → 1). Migration-time R2 re-verifies per case; **any drift since
+   Phase A stops the migration**.
+3. Berlin order **approved incl. all four judgment-call recommendations**
+   (funeral trio → Versicherung block, Partner before Kinder, costly_diet
+   before the family block, labels gate on Roman/Batch 3). Essen report-only.
+4. Pankow suffix: **render wherever `period_months` is non-NULL** — no
+   NULLing migration. Live verification must cover a Pankow checklist
+   explicitly (PAN-005/006 show "(letzte 4 Monate)").
+5. Next-steps: **locked state only**.
+6. Contact card: **header-Hilfe sheet** per mockup; trigger + micro-labels
+   PLACEHOLDER_DE.
+7. All new German consolidated into `roman_package_pass4.md` **§4**
+   (appended: confirm dialog, Hilfe/Ansprechpartner labels, Nächste-Schritte
+   heading, netto hint) — founder sends the package.
+
+## Original Phase-A STOP decision list (historical, all taken above)
 
 1. **Count-decrease semantics** (A1.3): Option A confirm-and-clear
    (recommended) vs Option B preserve+hide.
@@ -102,8 +122,50 @@ old PLACEHOLDER (german_copy_for_roman.md §1, the never-wired 4-month hint)
 **removed** · D16 logo stays open (originals pending; WhatsApp thumbnails
 unusable, not integrated).
 
+## Batch 1 record
+
+**Migrations (written 2026-08-01, pre-push):**
+
+- `20260801000001_pass4_batch1_copy.sql` — D1 four value-guarded UPDATEs
+  (pre-state guard asserts the byte-identical pair, post-check asserts the
+  new distinct values) + 11 new `static_content` rows (D3
+  `docs.placeholder_needs_plz`, D2 `case.next_steps_heading/_1/_2/_3`, D11
+  `contact.name/phone/email/card_label/help_button`, D10 template
+  `docs.period_suffix` = "(letzte {n} Monate)"), `ON CONFLICT DO NOTHING`
+  per the Essen-seed precedent.
+- `20260801000002_pass4_batch1_flags.sql` — D4 Essen `birth_name`
+  `is_required=false` (guarded, asserted 1 row) + D9 three
+  `storage_category` flips (DOC-0005 Insurance→Financial, DOC-0030 and
+  DOC-0042 Housing→Financial, each guarded+asserted) + full partition
+  assertion **Personal 11 / Housing 5 / Financial 19 / Insurance 8** (43).
+
+**R2 execution-time re-verification (2026-08-01, read-only, zero drift):**
+D1 four rows byte-identical as known; no key collisions for the 11 new rows;
+Essen `birth_name` still required with **0 answers / 0 Essen cases**; the
+three D9 rows carry exactly the expected old values, partition 11/7/16/9;
+**11 uploads, all legacy UUID paths, 0 new-scheme** (flips strand nothing);
+period_months confirmed on exactly PAN-005/006/ESS-010/011 = 4.
+
+**Batch-1 code scope after push verification (queued):** D3 pre-steps
+wrapped in CaseTabs + placeholder pane; D10 suffix in
+`document-area.tsx:210` + `case-export.mjs:210` via the `docs.period_suffix`
+template (n≥2 only; a 1-month rule would need Roman wording first —
+documented, none exists); D11 header-Hilfe sheet with RP-initials avatar;
+D2 next-steps list on `EditLockedCard` only; e2e updates: the three
+`'Sie haben alle Fragen beantwortet'` anchors (completion :105/:320,
+visibility :139, transitive-visibility-fix :129) + Essen denominator 50→49
+(m7-regression :222, feedback-pass L3/L4); unit tests for the suffix
+renderer + docs-pane gating; full e2e; live spot-checks incl. **Pankow
+suffix** per decision 4.
+
 ## Next step
 
-**⏸ STOP.** Founder reviews `pass4_phase_a.md`, takes the seven decisions
-above, sends `roman_package_pass4.md`, gives batch go-aheads. Batch 1 has no
-Roman dependency and can start on "go" once decisions 4–6 are taken.
+**⏸ STOP — two things for the founder:**
+
+1. `roman_package_pass4.md` is final (incl. §4) — **send it to Roman**.
+2. **Push the two Batch-1 migrations** (`supabase db push`). ⚠ Docker was
+   not running this session, so the pre-push local replay was skipped — the
+   migrations abort loudly on any mismatch; if you want the replay first,
+   start Docker Desktop and say so. After "pushed", I verify on prod, then
+   ship the dependent code, tests, and live spot-checks, then STOP before
+   the Batch-2 design.
