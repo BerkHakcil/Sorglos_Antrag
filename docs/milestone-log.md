@@ -50,10 +50,10 @@ Quick orientation for anyone picking this up cold:
 
 ---
 
-## Go-live blockers: legal links + fallback-list banner — ⚠ CODE COMPLETE 2026-08-09, ship blocked on TWO human actions
+## Go-live blockers: legal links + fallback-list banner — ✅ SHIPPED 2026-08-09, live-verified same day
 
-Two go-live items executed in one session; full state + resume protocol in
-`docs/feedback/golive_blockers_state.md` (read that first when resuming).
+Two go-live items executed and shipped in one session; full record in
+`docs/feedback/golive_blockers_state.md`.
 
 **1 — AGB & Datenschutz links (legally load-bearing).** The app's complete
 legal-link inventory is exactly the two signup consent links (previously
@@ -84,14 +84,29 @@ unchanged); F2/F3 green vs localhost, F1 failed exactly at the
 banner-visible assert pre-migration (designed degradation, on record).
 Branch `golive-fallback-banner` (superset).
 
-**⚠ Infra finding (blocker 1): the Vercel automation bypass secret did not
-survive the team transfer** to `sorglos-antrag` — the fresh preview 302s to
-SSO with the bypass header, and the API token cannot see the new team.
-Preview gates for both branches are blocked until the secret is regenerated
-in the new team's Deployment Protection settings and `.env.local` updated.
-Blocker 2 is the `supabase db push` for the banner row. Local verification
-completed instead: verify + unit 224/224 + prod build green, 4 e2e legs vs
-localhost, throwaways deleted, leak sweep 0.
+**Infra findings (both resolved same-day):** the Vercel automation bypass
+secret DIED in the team transfer to `sorglos-antrag` (fresh preview 302s to
+SSO with the header; the API token still only sees the old team — probe
+preview URLs by pattern instead) — founder regenerated it, verified working.
+The founder's first `db push` ran from `C:\Users\Berk` and showed the known
+wrong-directory signature (all 50 remote versions "missing"); the suggested
+`migration repair --status reverted` was NOT run; repo-root re-run applied
+cleanly. A third find: statically prerendered pages that call `redirect()`
+serve HTTP 200 + 1-second meta refresh, not a real redirect — fixed with
+next.config `redirects()` (307) in follow-up `c0667f8`.
+
+**Shipped + verified:** migration applied first (row byte-verified on prod),
+then `main` fast-forwarded `7fdb15c → beb631d` (+ `c0667f8`). Gate: full
+suite vs the branch preview **17 passed / 13 known-skipped in 3.9 min, zero
+failures, zero stalls** (first single-run all-green gate since the
+machine-stall class appeared). Live on prod: F1/F2/F3 + legal-links specs
+4/4; a DB-level drive proved 21682 → office `…0062` (Stade, rule-less) →
+BERLIN questionnaire + banner with the migrated German above 11 default
+slots; both /hzp/ targets 200; /agb + /datenschutz 307. Session throwaways
+all deleted; 8 PRE-EXISTING pass-3/4-era test leftovers flagged for a
+deliberate hygiene pass (one is the knowingly-kept `pw-vis-stale` fixture).
+Banner German stays PLACEHOLDER_DE pending Roman; no Impressum link exists
+anywhere in the app (flagged as an observation).
 
 ---
 

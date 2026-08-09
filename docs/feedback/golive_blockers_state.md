@@ -1,9 +1,52 @@
-# Go-live blockers — legal links + fallback-list banner — session state
+# Go-live blockers — legal links + fallback-list banner — ✅ SHIPPED 2026-08-09
 
-> Resume protocol: read this first. Code for BOTH items is complete and
-> locally verified on the two branches below. The session STOPPED on two
-> human actions (§ blockers). Do not redo the inventory or re-litigate the
-> design — pick up at § resume steps.
+> BOTH items are LIVE ON PROD and verified same-day. Everything below the
+> "shipped record" section is the historical mid-session state (the STOP on
+> two blockers, both since cleared); kept as the record of what happened.
+
+## Shipped record (2026-08-09)
+
+**Blockers cleared same-day:** (1) the founder regenerated the Vercel
+automation bypass secret in the NEW team's Deployment Protection settings
+(first `db push` attempt from `C:\Users\Berk` hit the known wrong-directory
+signature — the suggested `migration repair --status reverted` was NOT run;
+re-run from the repo root applied cleanly); (2) migration `20260809000001`
+applied — NOTICE fired, row verified byte-identical on prod read-only.
+R8 order held: migration first, code merge after.
+
+**Gate:** full suite vs the immutable `golive-fallback-banner` preview —
+**17 passed / 13 skipped (known auth block) in 3.9 min, zero failures, zero
+stalls** — the first single-run all-green gate since the machine-stall class
+appeared. Includes the new fallback-notice spec (positive 21682 banner leg
+green on the preview post-migration) and the legal-links assertions.
+
+**Merge:** `main` fast-forwarded `7fdb15c → beb631d` (both features + docs),
+prod deployed. Follow-up `c0667f8`: the statically prerendered /agb +
+/datenschutz redirect pages served HTTP 200 with a 1-second meta refresh —
+replaced by next.config `redirects()` for a real routing-layer 307 (targets
+still from `lib/legal-links.ts`).
+
+**Live on prod (all green):** committed specs re-run vs prod 4/4 (F1 21682
+banner + placeholder, F2 13187 no banner, F3 45127 no banner + suffix,
+legal-links exact hrefs); scratchpad drive proved 21682 resolves to office
+`…0062` (Stade, rule-less) yet carries the BERLIN questionnaire id in the DB,
+opens on "Wie lautet Ihr Vorname?", and renders the banner with the migrated
+German ABOVE 11 default slots; both /hzp/ targets fetch 200; /agb +
+/datenschutz 307 to them (3/3 consistent after edge propagation).
+
+**Hygiene:** every throwaway from this session deleted (spec afterEach +
+per-run checks); completion fixture freshly re-seeded and kept. ⚠ Pre-existing
+leftovers flagged, NOT deleted (verify-per-user rule): 4× old
+`pw-completion+17828…`, 2× `pw-vis+17829…`, `pw-vis-married+17855…`, and
+`pw-vis-stale+17855…` (the pass-4 resume-report TEST case `deb82390` —
+knowingly kept then). Decide + sweep deliberately in a hygiene pass.
+
+**Still with Roman:** banner text is PLACEHOLDER_DE (ledgered); no Impressum
+link exists anywhere in the app (observation, out of scope this session).
+
+---
+
+## Historical mid-session state below (blockers since cleared)
 
 **Session: 2026-08-09.** Branches (both pushed to origin = BerkHakcil):
 
@@ -11,7 +54,7 @@
 - `golive-fallback-banner` (`c937fad`, contains Task 1 too) — Task 2 code +
   migration `20260809000001_docs_fallback_notice.sql` + this docs commit.
 
-## ⚠ BLOCKERS (human actions, in order)
+## ⚠ BLOCKERS (human actions, in order — CLEARED 2026-08-09, see shipped record)
 
 1. **Vercel automation bypass secret is DEAD after the team transfer.**
    Verified 2026-08-09 on the fresh preview
