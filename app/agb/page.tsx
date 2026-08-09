@@ -1,18 +1,13 @@
-import Link from 'next/link'
-import { de } from '@/lib/strings/de'
+import { redirect } from 'next/navigation'
+import { LEGAL_URLS } from '@/lib/legal-links'
 
-const s = de.agb
-
-export const metadata = { title: s.pageTitle }
-
+/**
+ * The AGB live on the marketing site since go-live (lib/legal-links.ts).
+ * This route only exists for old bookmarks/deep links from the placeholder
+ * era — it must never serve the retired "wird in Kürze veröffentlicht" text
+ * while the real document is published. Temporary (307) on purpose: the
+ * external URL is owned outside this repo and may move.
+ */
 export default function AgbPage() {
-  return (
-    <main className="mx-auto max-w-2xl px-4 py-16">
-      <h1 className="mb-6 text-2xl font-semibold tracking-tight">{s.heading}</h1>
-      <p className="text-muted-foreground mb-8 text-sm leading-relaxed">{s.body}</p>
-      <Link href="/signup" className="text-sm underline underline-offset-4">
-        {s.backLink}
-      </Link>
-    </main>
-  )
+  redirect(LEGAL_URLS.agb)
 }

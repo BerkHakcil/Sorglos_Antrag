@@ -11,6 +11,7 @@ import deLabels from 'react-phone-number-input/locale/de.json'
 import 'react-phone-number-input/style.css'
 import { MailCheck } from 'lucide-react'
 import { ConsentInfoPopover } from '@/components/ui/consent-info-popover'
+import { LEGAL_URLS } from '@/lib/legal-links'
 import { cn } from '@/lib/utils'
 import { de } from '@/lib/strings/de'
 import { signupAction, type SignupInput, type SignupResultField } from './actions'
@@ -287,9 +288,14 @@ export function SignupForm() {
           />
           <span className="text-sm leading-snug">
             {s.consents.datenschutz.prefix}
-            <Link href="/datenschutz" className="underline underline-offset-2" target="_blank">
+            <a
+              href={LEGAL_URLS.datenschutz}
+              className="underline underline-offset-2"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {s.consents.datenschutz.linkText}
-            </Link>
+            </a>
             {s.consents.datenschutz.suffix}
           </span>
         </label>
@@ -299,9 +305,14 @@ export function SignupForm() {
           <input type="checkbox" className={`${controlTick} mt-0.5`} {...register('consent_agb')} />
           <span className="text-sm leading-snug">
             {s.consents.agb.prefix}
-            <Link href="/agb" className="underline underline-offset-2" target="_blank">
+            <a
+              href={LEGAL_URLS.agb}
+              className="underline underline-offset-2"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {s.consents.agb.linkText}
-            </Link>
+            </a>
             {s.consents.agb.suffix}
           </span>
         </label>

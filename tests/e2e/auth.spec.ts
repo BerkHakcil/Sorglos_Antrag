@@ -313,3 +313,35 @@ test.describe.serial('Auth flow', () => {
     await expect(page).toHaveURL(/\/login/)
   })
 })
+
+/**
+ * Go-live legal links — OUTSIDE the serial block above so it runs against
+ * prod too (the block is a known skip there: email confirmation is enabled).
+ * Needs no user: /signup renders the consent area unauthenticated.
+ *
+ * The URLs are deliberately hardcoded here rather than imported from
+ * lib/legal-links.ts — asserting the constant against itself would prove
+ * nothing. These are the exact addresses Roman published; both verified
+ * HTTP 200 at wiring time (2026-08-09).
+ */
+test.describe('Legal links (go-live)', () => {
+  test('signup renders external AGB + Datenschutz links with the exact URLs', async ({ page }) => {
+    await page.goto('/signup')
+
+    const datenschutz = page.locator('a[href="https://www.sorglosantrag.de/hzp/datenschutz"]')
+    await expect(datenschutz).toBeVisible()
+    await expect(datenschutz).toHaveAttribute('target', '_blank')
+    await expect(datenschutz).toHaveAttribute('rel', /noopener/)
+    await expect(datenschutz).toHaveAttribute('rel', /noreferrer/)
+
+    const agb = page.locator('a[href="https://www.sorglosantrag.de/hzp/agb"]')
+    await expect(agb).toBeVisible()
+    await expect(agb).toHaveAttribute('target', '_blank')
+    await expect(agb).toHaveAttribute('rel', /noopener/)
+    await expect(agb).toHaveAttribute('rel', /noreferrer/)
+
+    // Exactly one link each — no stale internal /agb or /datenschutz anchor
+    // may survive anywhere on the page.
+    await expect(page.locator('a[href="/agb"], a[href="/datenschutz"]')).toHaveCount(0)
+  })
+})
