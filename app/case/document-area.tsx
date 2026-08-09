@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { countMissingSlots, periodSuffix, type DocumentSlot } from '@/lib/document-rules'
 import type { UploadRow, StaticContent } from '@/lib/dal'
-import { Check, FileText } from 'lucide-react'
+import { Check, FileText, Info } from 'lucide-react'
 import {
   createUploadUrlAction,
   recordUploadAction,
@@ -67,9 +67,15 @@ type Props = {
     | 'docsAllUploaded'
     | 'docsPeriodSuffix'
   >
+  /**
+   * Non-null when the checklist came from the default-office fallback
+   * (lib/docs-pane.ts fallbackNoticeText) — the notice renders above the
+   * first document group. Null for own-office cases (Pankow, Essen).
+   */
+  fallbackNotice: string | null
 }
 
-export function DocumentArea({ slots, uploads, content }: Props) {
+export function DocumentArea({ slots, uploads, content, fallbackNotice }: Props) {
   const router = useRouter()
   const [busySlot, setBusySlot] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -171,6 +177,20 @@ export function DocumentArea({ slots, uploads, content }: Props) {
         </p>
         <p className="text-graphite-soft mt-1 text-sm leading-relaxed">{content.docsAreaIntro}</p>
       </div>
+      {fallbackNotice && (
+        /* Out-of-coverage notice (go-live): this case's checklist is the
+           default office's generic list, so say so before the user reads it.
+           Sage info panel by the semantic palette rule — informational, an
+           expected state, NOT a warning: no amber, no red (same treatment as
+           the signup/E-5 and reset-password panels). */
+        <div
+          data-testid="fallback-notice"
+          className="border-sage-soft/70 bg-sage-soft/40 flex items-start gap-3 rounded-xl border p-4"
+        >
+          <Info aria-hidden className="text-primary mt-0.5 size-5 shrink-0" />
+          <p className="text-foreground text-sm leading-relaxed">{fallbackNotice}</p>
+        </div>
+      )}
       {groups.map(({ heading, subject }) => {
         const list = slots.filter((s) => s.subject === subject)
         if (list.length === 0) return null

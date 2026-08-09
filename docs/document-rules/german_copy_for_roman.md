@@ -57,3 +57,18 @@ each is a one-line copy migration.
 | Logo originals (SVG/hi-res)                                | `public/logo.jpg` stays                   | Roman delivery pending (D16)                                                  |
 | Ansprechpartner photo                                      | `HelpSheet` `photoSrc` drop-in prop ready | Roman delivery pending (D11)                                                  |
 | Auth email texts                                           | Supabase dashboard                        | owner-handled by Roman (D14)                                                  |
+| Fallback-Listen-Hinweis (Banner über der Standard-Liste)   | static_content `docs.fallback_notice`     | PLACEHOLDER_DE — see the go-live section below                                |
+
+## Go-live (2026-08-09): Hinweis-Banner für die Standard-Dokumentenliste — PLACEHOLDER_DE (open)
+
+Fälle, deren Postleitzahl (noch) keine amtsspezifische Dokumentenliste hat,
+sehen ab jetzt die Standard-Liste **mit einem Hinweis darüber** (sage
+Info-Panel über der ersten Dokumentgruppe; Pankow- und Essen-Fälle sehen ihn
+nie). Text ist ein **mechanischer Platzhalter** (static_content
+`docs.fallback_notice`, Migration `20260809000001`) — jedes Wort ist deins;
+eine Umformulierung ist eine Ein-Zeilen-UPDATE-Migration.
+
+> **PLACEHOLDER_DE:** „Hinweis: Für Ihre Postleitzahl liegt uns noch keine
+> spezifische Dokumentenliste vor. Diese Übersicht zeigt die üblicherweise
+> benötigten Unterlagen — Ihr zuständiges Sozialamt kann zusätzliche oder
+> abweichende Dokumente verlangen."

@@ -9,7 +9,7 @@ import {
 } from '@/lib/dal'
 import { loadQuestionnaire } from '@/lib/questionnaire-engine'
 import { countMissingSlots, evaluateDocumentRules } from '@/lib/document-rules'
-import { docsPaneMode } from '@/lib/docs-pane'
+import { docsPaneMode, fallbackNoticeText } from '@/lib/docs-pane'
 import { deriveGroupData } from '@/lib/group-instances'
 import { DocumentArea } from './document-area'
 import { CaseTabs } from './case-tabs'
@@ -196,7 +196,7 @@ async function CaseTabsSection({
   socialOfficeId: string | null
   content: StaticContent
 }) {
-  const [{ rules, catalog, uploads }, questionnaire, { answersMap, answersRaw }] =
+  const [{ rules, rulesSource, catalog, uploads }, questionnaire, { answersMap, answersRaw }] =
     await Promise.all([
       getDocumentData(caseId, socialOfficeId),
       loadQuestionnaire(questionnaireId),
@@ -230,7 +230,16 @@ async function CaseTabsSection({
     />
   )
   const documents =
-    paneMode === 'list' ? <DocumentArea slots={slots} uploads={uploads} content={content} /> : null
+    paneMode === 'list' ? (
+      <DocumentArea
+        slots={slots}
+        uploads={uploads}
+        content={content}
+        // Go-live honesty banner: non-null exactly when this checklist is the
+        // default office's generic list, not the case's own office's rules.
+        fallbackNotice={fallbackNoticeText(rulesSource, paneMode, content.docsFallbackNotice)}
+      />
+    ) : null
 
   return <CaseTabs chat={chat} documents={documents} missing={countMissingSlots(slots, uploads)} />
 }

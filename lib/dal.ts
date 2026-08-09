@@ -165,6 +165,7 @@ export type StaticContent = {
   docsAllUploaded: string
   docsPlaceholderNeedsPlz: string
   docsPeriodSuffix: string
+  docsFallbackNotice: string
   nextStepsHeading: string
   nextSteps1: string
   nextSteps2: string
@@ -202,6 +203,7 @@ const STATIC_CONTENT_KEYS: Record<keyof StaticContent, string> = {
   docsAllUploaded: 'docs.all_uploaded',
   docsPlaceholderNeedsPlz: 'docs.placeholder_needs_plz',
   docsPeriodSuffix: 'docs.period_suffix',
+  docsFallbackNotice: 'docs.fallback_notice',
   nextStepsHeading: 'case.next_steps_heading',
   nextSteps1: 'case.next_steps_1',
   nextSteps2: 'case.next_steps_2',
@@ -259,9 +261,23 @@ export type UploadRow = {
 }
 
 /**
+ * Where a case's document rules came from — carried alongside the rules so the
+ * UI can be honest about a generic checklist (go-live fallback banner) without
+ * re-deriving the decision or issuing a second query:
+ *
+ *   'own'      — the case's resolved office has its own active rule set
+ *                (today: Pankow, Essen). Never shows the fallback notice.
+ *   'fallback' — the rules are the configured default office's (the case's
+ *                office has none, or the PLZ resolved no office at all).
+ *   'none'     — no rules from either source (safety branch: docsPaneMode
+ *                'none', no documents pane, so nothing to annotate).
+ */
+export type RulesSource = 'own' | 'fallback' | 'none'
+
+/**
  * Rules + catalog for the case's resolved office, and the case's uploads.
- * Returns null rules when the office has no document rules (D5: the document
- * area simply doesn't render — today only Pankow has rules).
+ * Returns empty rules when no office has document rules (D5: the document
+ * area simply doesn't render).
  */
 export async function getDocumentData(caseId: string, socialOfficeId: string | null) {
   await verifySession()
@@ -274,6 +290,7 @@ export async function getDocumentData(caseId: string, socialOfficeId: string | n
   // `active = false` rules are retired content (pass 3 item 5, PAN-011) — they
   // stay in the table so existing uploads keep their FK, but never emit a slot.
   let rules: unknown[] = []
+  let rulesSource: RulesSource = 'none'
   if (socialOfficeId) {
     const { data } = await sb
       .from('office_document_rule')
@@ -281,6 +298,7 @@ export async function getDocumentData(caseId: string, socialOfficeId: string | n
       .eq('social_office_id', socialOfficeId)
       .eq('active', true)
     rules = data ?? []
+    if (rules.length > 0) rulesSource = 'own'
   }
 
   // Default-office fallback: rule-less offices AND office-less (unsupported-PLZ)
@@ -301,6 +319,7 @@ export async function getDocumentData(caseId: string, socialOfficeId: string | n
         .eq('social_office_id', defaultOffice)
         .eq('active', true)
       rules = data ?? []
+      if (rules.length > 0) rulesSource = 'fallback'
     }
   }
 
@@ -312,6 +331,7 @@ export async function getDocumentData(caseId: string, socialOfficeId: string | n
   for (const c of catalog ?? []) catalogById[c.id] = c
   return {
     rules: (rules ?? []) as never[],
+    rulesSource,
     catalog: catalogById,
     uploads: (uploads ?? []) as UploadRow[],
   }

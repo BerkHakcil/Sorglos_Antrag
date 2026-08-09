@@ -21,3 +21,25 @@ export function docsPaneMode(hasQuestionnaire: boolean, slotCount: number): Docs
   if (!hasQuestionnaire) return 'placeholder'
   return slotCount > 0 ? 'list' : 'none'
 }
+
+/**
+ * Go-live fallback banner — pure, unit-tested. Returns the notice text to
+ * render above the checklist, or null for "no banner".
+ *
+ * The banner exists to be HONEST about a generic list: it renders exactly
+ * when the checklist came from the default-office fallback branch
+ * (dal.ts getDocumentData → rulesSource 'fallback'). A case whose own office
+ * has rules (Pankow, Essen) must NEVER see it, and it cannot exist without a
+ * rendered list ('list' mode only — the pre-PLZ placeholder state is
+ * unchanged). Empty text degrades to no banner, so the code is safe to
+ * deploy before the static_content row lands (CLAUDE.md rule #8's benign
+ * row-add case).
+ */
+export function fallbackNoticeText(
+  rulesSource: 'own' | 'fallback' | 'none',
+  mode: DocsPaneMode,
+  noticeDe: string
+): string | null {
+  if (rulesSource !== 'fallback' || mode !== 'list' || noticeDe === '') return null
+  return noticeDe
+}
