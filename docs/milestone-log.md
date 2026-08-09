@@ -50,6 +50,51 @@ Quick orientation for anyone picking this up cold:
 
 ---
 
+## Go-live blockers: legal links + fallback-list banner — ⚠ CODE COMPLETE 2026-08-09, ship blocked on TWO human actions
+
+Two go-live items executed in one session; full state + resume protocol in
+`docs/feedback/golive_blockers_state.md` (read that first when resuming).
+
+**1 — AGB & Datenschutz links (legally load-bearing).** The app's complete
+legal-link inventory is exactly the two signup consent links (previously
+internal `/agb`, `/datenschutz`) plus those two internal placeholder pages;
+no footers, no static_content rows, no other surfaces (and **no Impressum
+anywhere — flagged as an observation**). Both consent links now point at
+`https://www.sorglosantrag.de/hzp/agb` and `…/hzp/datenschutz` (constants in
+`lib/legal-links.ts`; external, `_blank`, `noopener noreferrer`; consent
+German byte-untouched), and the internal routes 307-redirect there so the
+retired "wird in Kürze veröffentlicht" placeholders can never render again.
+Pre-wiring check: both URLs HTTP 200, apex 308s to www. New non-skipped e2e
+(`auth.spec.ts` "Legal links (go-live)") asserts the exact hrefs — green vs
+localhost. Branch `golive-legal-links`.
+
+**2 — Out-of-coverage banner (decision: banner, not gate).** Cases served by
+the default-office fallback branch (`getDocumentData`) now render a sage
+info panel (`data-testid="fallback-notice"`, informational per the semantic
+palette rule) above the first document group, saying the list is the generic
+default. Mechanism: the existing query flow carries `rulesSource`
+(`own|fallback|none`) — no second query; pure gate `fallbackNoticeText`
+(5 unit tests) guarantees own-office cases (Pankow/Essen) and the pre-PLZ
+placeholder can never show it, and empty text (row not yet migrated)
+degrades to no banner. Text = static_content `docs.fallback_notice`
+(migration `20260809000001`, additive row, **awaits founder push**) —
+PLACEHOLDER_DE ledgered for Roman. New e2e `fallback-notice.spec.ts`
+(21682 banner / 13187 none / 45127 none + suffix guard / pre-PLZ
+unchanged); F2/F3 green vs localhost, F1 failed exactly at the
+banner-visible assert pre-migration (designed degradation, on record).
+Branch `golive-fallback-banner` (superset).
+
+**⚠ Infra finding (blocker 1): the Vercel automation bypass secret did not
+survive the team transfer** to `sorglos-antrag` — the fresh preview 302s to
+SSO with the bypass header, and the API token cannot see the new team.
+Preview gates for both branches are blocked until the secret is regenerated
+in the new team's Deployment Protection settings and `.env.local` updated.
+Blocker 2 is the `supabase db push` for the banner row. Local verification
+completed instead: verify + unit 224/224 + prod build green, 4 e2e legs vs
+localhost, throwaways deleted, leak sweep 0.
+
+---
+
 ## Content pass 4 (Roman's round-3 decisions) — ✅ PASS CLOSED 2026-08-01
 
 Sixteen locked decisions from Roman (D1–D16, 2026-07-31), executed in one
