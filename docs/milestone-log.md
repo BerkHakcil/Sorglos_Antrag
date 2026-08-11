@@ -50,6 +50,59 @@ Quick orientation for anyone picking this up cold:
 
 ---
 
+## Go-live follow-ups: fallback period suffix + mobile footer — ✅ SHIPPED 2026-08-11, live-verified same day
+
+Two field-driven fixes, code-only (no migration), branch `golive-followups`
+merged to `main` (`ed66a80`). Full record + resume context:
+`docs/feedback/golive_blockers_state.md` (follow-ups section).
+
+**1 — Fallback lists no longer claim a bank-statement period.** The
+"(letzte N Monate)" suffix is an office-specific claim
+(`office_document_rule.period_months`, Roman's D10 pattern; Pankow=4,
+Essen=4 stay). Default-office fallback checklists suppressed it via a new
+REQUIRED `fromFallbackRules` param on `periodSuffix` — same
+`rulesSource === 'fallback'` signal as the banner, zero extra queries;
+own-office rendering byte-unchanged (unit-pinned + F2/F3 e2e guards both
+suffixes). Sweep confirmed the only render sites are the checklist and
+`case-export.mjs` documents.md; period*months reaches no storage path or
+filename. **Bonus divergence found and fixed:** the export never
+replicated the fallback — fallback cases had a checklist in the app but
+"\_no rules*" in documents.md. The export now mirrors dal.ts, marks
+fallback exports with a note line, omits suffixes there (verified on prod
+data: fallback export 0 "letzte" + note; Pankow export keeps the suffix).
+
+**2 — Mobile: tall multiselects made the save buttons unreachable**
+(iPhone/Brave field report at the Essen 7-option income bulk). Verified
+mechanism — NOT vh/dvh (shell already h-dvh): the active card lives in the
+shrink-0 answer footer below the only scroller inside overflow-hidden
+ancestors; a tall option list pushed the button row past the viewport with
+no scroll able to reveal it (measured 703px bottom on 667px). Repro
+required a REALISTIC viewport: at 375×812 the card fits — real phones lose
+~150-190px to browser chrome, so the spec runs 375×667 (iPhone SE class).
+Fix: multiselect option list capped (`max-h-[35dvh]`, sm 45dvh) so buttons
+stay visible with zero scrolling, and the footer became a shrinkable flex
+item (`min-h-0 overflow-y-auto`, shrink-0 removed) — flexbox hands it
+exactly the remaining height, so ANY oversized card (locked card was the
+second exposure) scrolls internally instead of clipping. Desktop unchanged
+(caps never bind on current content). New `mobile-footer.spec.ts` drives a
+full Essen 45326 case at 375×667 asserting every multiselect (7/7/9 —
+9 = `wealth_bulk_topics`, the tallest in either questionnaire, found
+programmatically; Berlin max 3) and group prompt fully in-viewport, plus
+locked-card + docs-tab sanity. ⚠ Emulation approximates iOS — one
+real-device confirmation of the reported flow is queued for the founder
+(exact taps in the state file).
+
+**Gate + live:** preview **18 passed / 13 known-skipped, 4.9 min, zero
+stalls**; prod: mobile 45326 drive green (bulks 7/7/9 reachable through
+completion), F1 fallback banner + suffix-FREE Kontoauszüge, F2/F3 both
+own-office suffixes intact, export pair verified, leak sweep 0. One
+transient on record: the first prod run after the deploy flip failed 4/4
+at the FIRST login fill (machine-stall signature) and re-ran green
+immediately against the same deployment. Also fixed in passing: m7's stale
+"Essen has no rules" comment (Essen owns rules since `20260724000001`).
+
+---
+
 ## Go-live blockers: legal links + fallback-list banner — ✅ SHIPPED 2026-08-09, live-verified same day
 
 Two go-live items executed and shipped in one session; full record in

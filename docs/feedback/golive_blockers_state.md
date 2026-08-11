@@ -135,3 +135,59 @@ green.
    "(letzte 4 Monate)" NO banner; /signup → both legal links exact +
    fetch both targets 200; /agb + /datenschutz redirect externally.
 6. Update this file + the milestone-log entry from "pending" to verified.
+
+---
+
+# Follow-ups (2026-08-11) — ✅ SHIPPED: fallback suffix + mobile footer
+
+Branch `golive-followups` (commits `346bb08` suffix, `ed66a80` mobile),
+merged to `main` (`ed66a80`), prod-deployed and live-verified 2026-08-11.
+No migration this round (both fixes code-only).
+
+**1 — Fallback lists no longer make the period claim.** `periodSuffix`
+gained a REQUIRED `fromFallbackRules` param (suppress wholesale); the
+trigger reuses `rulesSource === 'fallback'` — the banner's exact signal,
+no second query, deliberately independent of the banner's text row. Sweep
+confirmed exactly two render sites (checklist + export documents.md);
+period*months touches nothing else user-facing (not storage paths, not
+filenames, not answers.md). BONUS FIND, fixed: `case-export.mjs` never
+replicated the default-office fallback — fallback-population cases had a
+checklist in the app but "\_no rules*" in documents.md. The export now
+mirrors dal.ts (own office → app_config default), marks fallback exports
+with a note line, and omits suffixes there. Verified on prod data: fallback
+export = 11 slots + note + 0 "letzte"; Pankow export keeps
+"Kontoauszüge (letzte 4 Monate)". Own-office rendering byte-unchanged
+(unit-pinned + F2/F3 e2e).
+
+**2 — Mobile: tall multiselects clipped the save buttons.** Verified
+mechanism (NOT vh-vs-dvh; shell already h-dvh): the active card renders in
+the shrink-0 answer footer below the only scroller inside overflow-hidden
+ancestors; a 7-option bulk pushed the Weiter row off-screen unreachably —
+measured 703px button bottom on a 667px viewport; iOS worst because its
+toolbar never collapses (document never scrolls), so dvh stays small.
+Fix: (a) multiselect option list `max-h-[35dvh] sm:45dvh` + overflow —
+buttons visible with ZERO scrolling; (b) footer `shrink-0` removed +
+`min-h-0 overflow-y-auto` — flexbox hands it exactly the remaining height,
+so ANY oversized card (locked card incl.) scrolls within the footer instead
+of clipping. Desktop renders unchanged (caps never bind on current
+content). New `mobile-footer.spec.ts`: full Essen 45326 drive at 375x667
+(iPhone SE class — 812 minus real browser chrome; at 812 the bug does NOT
+fire, measured), asserting every multiselect (7, 7, and the 9-option
+tallest, found programmatically) and group prompt fully in-viewport,
+locked card + docs tab sane.
+
+**Gate + live:** preview suite **18 passed / 13 known-skipped, 4.9 min,
+zero stalls**; prod: mobile 45326 drive green, F1 (banner + suffix-free
+Kontoauszüge) / F2 (Pankow suffix intact) / F3 (Essen suffix intact) green;
+export pair verified; leak sweep 0. One transient at deploy-flip: the first
+prod run failed 4/4 at the FIRST login fill (machine-stall class signature,
+all recovered on immediate re-run against the same deployment; on record).
+Stale m7 comment ("Essen has no rules") corrected per the verified-reason
+rule.
+
+**⚠ HUMAN FOLLOW-UP — real-device check (emulation approximates iOS):**
+on an iPhone (Brave or Safari), log in with a test account, PLZ 45326,
+answer until "Trifft eine dieser besonderen Einkommens- oder
+Rentensituationen auf Sie zu?" appears, tap "Nein, nichts davon", tap
+"Weiter" — the next question must appear with the button visible without
+any scrolling. If anything is still clipped, screenshot + report.
