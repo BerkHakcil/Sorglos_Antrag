@@ -258,7 +258,16 @@ function MultiSelectInput({
   }
 
   return (
-    <div className="space-y-1">
+    /* max-h + overflow: the option list is the only data-driven unbounded
+       height in the questionnaire (Essen bulks reach 9 options), and the
+       card renders inside the answer footer, which the h-dvh shell CLIPS
+       rather than scrolls — without a cap, a tall list pushes the
+       Weiter/skip buttons off-screen unreachably (measured 703px button
+       bottom on a 667px viewport, iPhone field report 2026-08-11). The cap
+       keeps the buttons visible WITHOUT scrolling: 35dvh leaves room for
+       card chrome + a 3-line prompt on a 667px phone; from sm up, 45dvh
+       never binds on current content, so desktop renders unchanged. */
+    <div className="max-h-[35dvh] space-y-1 overflow-y-auto overscroll-contain sm:max-h-[45dvh]">
       {options.map((o) => (
         <label
           key={o.id}

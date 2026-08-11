@@ -919,9 +919,19 @@ export function ChatView({
       {/* data-testid is the e2e anchor for this region. The suites previously
           targeted the CSS classes (`.shrink-0.border-t`), which couples them to
           styling — see docs/feedback/pass3_phase_e_plan.md §6. */}
+      {/* NOT shrink-0 (mobile field report, 2026-08-11): this slot sits below
+          the only scroller inside overflow-hidden ancestors, so content
+          taller than the viewport remainder used to CLIP unreachably —
+          measured 36px of the Weiter row cut off at a 667px viewport. As a
+          plain shrinkable flex item (history has basis 0 and case-header is
+          shrink-0, so flexbox gives this footer exactly the remaining
+          height) with its own overflow, any oversized card scrolls within
+          the footer instead of clipping. min-h-0 documents the intent; the
+          overflow already disables the min-content floor. Fits-anyway
+          content renders byte-identically. */}
       <div
         data-testid="answer-footer"
-        className="border-border/60 bg-background/95 shrink-0 border-t backdrop-blur"
+        className="border-border/60 bg-background/95 min-h-0 overflow-y-auto overscroll-contain border-t backdrop-blur"
       >
         <div className="mx-auto max-w-2xl px-4 py-4">
           {isLocked ? (
