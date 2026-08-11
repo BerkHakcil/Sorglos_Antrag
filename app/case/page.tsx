@@ -238,6 +238,9 @@ async function CaseTabsSection({
         // Go-live honesty banner: non-null exactly when this checklist is the
         // default office's generic list, not the case's own office's rules.
         fallbackNotice={fallbackNoticeText(rulesSource, paneMode, content.docsFallbackNotice)}
+        // Same signal, no text dependency: fallback lists also drop the
+        // per-office period suffix (a claim the default list cannot make).
+        fromFallbackRules={rulesSource === 'fallback'}
       />
     ) : null
 

@@ -118,19 +118,34 @@ test.describe('Out-of-coverage fallback notice', () => {
     })
     expect(noticePrecedesSlots).toBe(true)
 
+    // Suffix suppression (go-live follow-up): the fallback list carries the
+    // default office's bank slot but must NOT make its period claim — the
+    // Kontoauszüge slot renders WITHOUT "(letzte …)" while Pankow's own list
+    // keeps it (F2) and Essen's keeps it (F3).
+    const area = page.locator('[data-testid=document-area]')
+    await expect(area.getByText('Kontoauszüge').first()).toBeVisible()
+    await expect(area.getByText('(letzte')).toHaveCount(0)
+
     // Both viewports (the pane is one markup path; this guards regressions
     // that hide it responsively).
     await page.setViewportSize({ width: 375, height: 812 })
     await expect(notice).toBeVisible()
   })
 
-  test('F2: Pankow PLZ 13187 (own rules) → checklist, NO banner', async ({ page }) => {
+  test('F2: Pankow PLZ 13187 (own rules) → checklist with period suffix, NO banner', async ({
+    page,
+  }) => {
     await makeUserAndLogin(page, 'pankow')
     await completePreSteps(page, '13187')
     await openDocumentsTab(page)
 
     await expect(page.locator('[data-testid=doc-slot]').first()).toBeVisible()
     await expect(page.locator('[data-testid=fallback-notice]')).toHaveCount(0)
+    // D10 regression guard (Pankow side): own-office rendering is untouched
+    // by the fallback suppression — PAN-005/006 keep their 4-month suffix.
+    await expect(
+      page.locator('[data-testid=document-area]').getByText('(letzte 4 Monate)').first()
+    ).toBeVisible()
   })
 
   test('F3: Essen PLZ 45127 (own rules) → checklist with period suffix, NO banner', async ({

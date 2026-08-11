@@ -73,9 +73,22 @@ type Props = {
    * first document group. Null for own-office cases (Pankow, Essen).
    */
   fallbackNotice: string | null
+  /**
+   * True exactly when the slots came from the default-office fallback
+   * (dal.ts rulesSource 'fallback'). Deliberately separate from
+   * fallbackNotice: the notice additionally needs its static_content text,
+   * while suffix suppression must hold even if that row were missing.
+   */
+  fromFallbackRules: boolean
 }
 
-export function DocumentArea({ slots, uploads, content, fallbackNotice }: Props) {
+export function DocumentArea({
+  slots,
+  uploads,
+  content,
+  fallbackNotice,
+  fromFallbackRules,
+}: Props) {
   const router = useRouter()
   const [busySlot, setBusySlot] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -211,8 +224,14 @@ export function DocumentArea({ slots, uploads, content, fallbackNotice }: Props)
                 // D10 (pass 4): per-office bank-statement period as a display
                 // suffix, e.g. "Kontoauszüge – Girokonto (letzte 4 Monate)".
                 // NULL period renders unchanged; display-only (never in
-                // stored filenames — see periodSuffix docs).
-                const suffix = periodSuffix(slot.periodMonths, content.docsPeriodSuffix)
+                // stored filenames — see periodSuffix docs). Suppressed on
+                // fallback-served lists: the period is the default office's
+                // claim, not this case's office's.
+                const suffix = periodSuffix(
+                  slot.periodMonths,
+                  content.docsPeriodSuffix,
+                  fromFallbackRules
+                )
                 return (
                   <div
                     key={key}

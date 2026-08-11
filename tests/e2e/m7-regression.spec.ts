@@ -232,8 +232,11 @@ test('R1: Essen — 45127 loads Essen (49 questions), completes, default checkli
   // questions add 0 to the denominator (migration 20260801000002).
   await expect(page.getByText('von 49 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
 
-  // Feedback pass item 3: the Dokumente tab is present from FIRST LOGIN
-  // (Essen's office has no rules — the Pankow DEFAULT set applies).
+  // Feedback pass item 3: the Dokumente tab is present from FIRST LOGIN.
+  // (Stale-cause fix 2026-08-11: this comment used to claim "Essen's office
+  // has no rules — the Pankow DEFAULT set applies", which stopped being true
+  // when migration 20260724000001 seeded Essen's own rules; fallback-notice
+  // F3 proves 45127 serves Essen's OWN list with no fallback banner.)
   await expect(
     page.locator('[data-testid=tab-documents]'),
     'Dokumente tab present pre-completion (default rules)'

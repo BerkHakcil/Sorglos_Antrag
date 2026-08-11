@@ -238,8 +238,22 @@ export function instancesForBinding(
  * n = 1 renders NOTHING: the plural template would produce wrong German
  * ("letzte 1 Monate") and no rule carries 1 today — a future 1-month rule
  * must bring Roman-approved singular wording before it can render (R3).
+ *
+ * fromFallbackRules (go-live follow-up, 2026-08-11): the period is an
+ * OFFICE-SPECIFIC claim from that office's own master file. A checklist
+ * served by the default-office fallback (dal.ts rulesSource 'fallback' —
+ * the same signal that shows the fallback-notice banner) must not make it:
+ * the caregiver's actual Sozialamt never stated a period. Pass true there
+ * and the suffix is suppressed wholesale; own-office rendering (Pankow,
+ * Essen) is byte-unchanged. The parameter is required so every render site
+ * decides explicitly.
  */
-export function periodSuffix(periodMonths: number | null | undefined, template: string): string {
+export function periodSuffix(
+  periodMonths: number | null | undefined,
+  template: string,
+  fromFallbackRules: boolean
+): string {
+  if (fromFallbackRules) return ''
   if (periodMonths == null || periodMonths < 2 || !template) return ''
   return template.replace('{n}', String(periodMonths))
 }

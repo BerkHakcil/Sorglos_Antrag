@@ -214,26 +214,55 @@ for (const cat of cats) {
 const docLines = [`# Document checklist — case ${caseId}`, '']
 let slots = []
 let uploads = []
-if (caseRow.social_office_id) {
-  const [{ data: rules }, { data: catalog }, { data: uploadRows }, { data: suffixRow }] =
-    await Promise.all([
-      // active = true only — retired rules (pass 3 item 5) emit no slot, matching
-      // the app. files/ below still exports EVERY upload row, so a file uploaded
-      // before a rule was retired is never lost to the team.
-      db
-        .from('office_document_rule')
-        .select('*')
-        .eq('social_office_id', caseRow.social_office_id)
-        .eq('active', true),
-      db.from('document_catalog').select('*'),
-      db.from('document_upload').select('*').eq('case_id', caseId).order('created_at'),
-      // D10 (pass 4): the same suffix template the checklist renders, so the
-      // team-facing documents.md shows the identical display name.
-      db.from('static_content').select('value_de').eq('key', 'docs.period_suffix').maybeSingle(),
-    ])
+{
+  const [{ data: catalog }, { data: uploadRows }, { data: suffixRow }] = await Promise.all([
+    db.from('document_catalog').select('*'),
+    db.from('document_upload').select('*').eq('case_id', caseId).order('created_at'),
+    // D10 (pass 4): the same suffix template the checklist renders, so the
+    // team-facing documents.md shows the identical display name.
+    db.from('static_content').select('value_de').eq('key', 'docs.period_suffix').maybeSingle(),
+  ])
   const suffixTemplate = suffixRow?.value_de ?? ''
   uploads = uploadRows ?? []
-  if (rules?.length) {
+
+  // Rule resolution mirrors dal.ts getDocumentData (go-live follow-up,
+  // 2026-08-11 — previously the export skipped the fallback, so exactly the
+  // fallback-served cases got a checklist in the app but "_no rules_" here):
+  // the case's own office's active rules first; if none (rule-less office OR
+  // no office at all), the configured default office's set (app_config
+  // 'default_document_office_id'). active = true only — retired rules
+  // (pass 3 item 5) emit no slot, matching the app. files/ below still
+  // exports EVERY upload row, so a file uploaded before a rule was retired
+  // is never lost to the team.
+  let rules = []
+  let usedFallback = false
+  if (caseRow.social_office_id) {
+    const { data } = await db
+      .from('office_document_rule')
+      .select('*')
+      .eq('social_office_id', caseRow.social_office_id)
+      .eq('active', true)
+    rules = data ?? []
+  }
+  if (rules.length === 0) {
+    const { data: cfg } = await db
+      .from('app_config')
+      .select('value')
+      .eq('key', 'default_document_office_id')
+      .maybeSingle()
+    const defaultOffice = typeof cfg?.value === 'string' ? cfg.value : null
+    if (defaultOffice && defaultOffice !== caseRow.social_office_id) {
+      const { data } = await db
+        .from('office_document_rule')
+        .select('*')
+        .eq('social_office_id', defaultOffice)
+        .eq('active', true)
+      rules = data ?? []
+      if (rules.length > 0) usedFallback = true
+    }
+  }
+
+  if (rules.length) {
     const catalogById = Object.fromEntries(catalog.map((d) => [d.id, d]))
     slots = evaluateDocumentRules(rules, catalogById, {
       answers: answersMap,
@@ -241,6 +270,15 @@ if (caseRow.social_office_id) {
       groupAnswers: capped.groupAnswers,
     })
     const missing = countMissingSlots(slots, uploads)
+    if (usedFallback) {
+      docLines.push(
+        '_Default-office FALLBACK list — the case office has no rules of its own ' +
+          '(or no office resolved); this mirrors the checklist the app shows. ' +
+          'Period suffixes omitted: the period is an office-specific claim the ' +
+          'fallback list must not make._',
+        ''
+      )
+    }
     docLines.push(
       `Slots: ${slots.length} — with upload: ${slots.length - missing} — missing: **${missing}**`,
       ''
@@ -250,17 +288,18 @@ if (caseRow.social_office_id) {
       const files = uploads.filter(
         (u) => u.rule_id === s.ruleId && u.instance_key === s.instanceKey
       )
-      // D10: period suffix on the displayed document name (checklist parity).
-      const sfx = periodSuffix(s.periodMonths, suffixTemplate)
+      // D10: period suffix on the displayed document name (checklist parity);
+      // suppressed on fallback-served lists, same as the app.
+      const sfx = periodSuffix(s.periodMonths, suffixTemplate, usedFallback)
       docLines.push(
         `| ${s.subject} | ${s.nameDe}${sfx ? ` ${sfx}` : ''} | ${s.instanceLabel ?? '—'} | ${files.length ? files.map((f) => f.original_filename).join(', ') : '**FEHLT**'} |`
       )
     }
   } else {
-    docLines.push('_The resolved office has no document rules (no document area for this case)._')
+    docLines.push(
+      '_No document rules from the case office or the default office — no checklist (matches the app)._'
+    )
   }
-} else {
-  docLines.push('_No resolved social office — no document checklist._')
 }
 
 /**
