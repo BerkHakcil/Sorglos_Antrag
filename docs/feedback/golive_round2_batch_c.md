@@ -652,7 +652,7 @@ rulesSource fallback both sides.**
 - **12619 (Marzahn-Hellersdorf, non-Pankow Berlin):** case row records the
   NEW MH office id; `plz_resolution_status='resolved'`; Berlin default
   questionnaire via D12 (office has none); `status_event
-  social_office_resolved` carries the new office id; Dokumente pane renders
+social_office_resolved` carries the new office id; Dokumente pane renders
   the fallback checklist (11 slots) WITH the banner and WITHOUT any
   "(letzte 4 Monate)" suffix. Exactly the founder's intended
   "UX unchanged, bookkeeping corrected".
