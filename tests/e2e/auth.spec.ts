@@ -328,20 +328,27 @@ test.describe('Legal links (go-live)', () => {
   test('signup renders external AGB + Datenschutz links with the exact URLs', async ({ page }) => {
     await page.goto('/signup')
 
-    const datenschutz = page.locator('a[href="https://www.sorglosantrag.de/hzp/datenschutz"]')
-    await expect(datenschutz).toBeVisible()
-    await expect(datenschutz).toHaveAttribute('target', '_blank')
-    await expect(datenschutz).toHaveAttribute('rel', /noopener/)
-    await expect(datenschutz).toHaveAttribute('rel', /noreferrer/)
+    // Since the app-wide legal footer (mini round, 2026-08-13) each URL
+    // appears exactly TWICE on /signup — the consent line and the footer.
+    // Both instances must carry the external-link attributes; a strict
+    // single-element locator now correctly fails (that regression fired in
+    // the 2026-08-13 gate and produced this rewrite).
+    for (const href of [
+      'https://www.sorglosantrag.de/hzp/datenschutz',
+      'https://www.sorglosantrag.de/hzp/agb',
+    ]) {
+      const links = page.locator(`a[href="${href}"]`)
+      await expect(links).toHaveCount(2)
+      for (const link of await links.all()) {
+        await expect(link).toBeVisible()
+        await expect(link).toHaveAttribute('target', '_blank')
+        await expect(link).toHaveAttribute('rel', /noopener/)
+        await expect(link).toHaveAttribute('rel', /noreferrer/)
+      }
+    }
 
-    const agb = page.locator('a[href="https://www.sorglosantrag.de/hzp/agb"]')
-    await expect(agb).toBeVisible()
-    await expect(agb).toHaveAttribute('target', '_blank')
-    await expect(agb).toHaveAttribute('rel', /noopener/)
-    await expect(agb).toHaveAttribute('rel', /noreferrer/)
-
-    // Exactly one link each — no stale internal /agb or /datenschutz anchor
-    // may survive anywhere on the page.
+    // No stale internal /agb or /datenschutz anchor may survive anywhere on
+    // the page.
     await expect(page.locator('a[href="/agb"], a[href="/datenschutz"]')).toHaveCount(0)
   })
 })
