@@ -10,4 +10,7 @@
 export const LEGAL_URLS = {
   agb: 'https://www.sorglosantrag.de/hzp/agb',
   datenschutz: 'https://www.sorglosantrag.de/hzp/datenschutz',
+  // Impressum lives under /hzp/ like the other two — the bare /impressum
+  // returns 404 on the marketing site (probed 2026-08-13; /hzp/impressum 200).
+  impressum: 'https://www.sorglosantrag.de/hzp/impressum',
 } as const

@@ -20,6 +20,7 @@ import { PlzForm } from './plz-form'
 import { ChatView } from './chat-view'
 import { logoutAction } from './actions'
 import { btnGhost, card } from '@/components/ui/styles'
+import { LegalFooter } from '@/components/legal-footer'
 
 export const metadata = { title: de.case.pageTitle }
 
@@ -47,14 +48,17 @@ export default async function CasePage() {
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
             {/* Logo lockup (icon + "Sorglos Antrag" wordmark) — replaces the brand
-                name text, which the image already contains. Tagline kept alongside. */}
+                name text, which the image already contains. Tagline kept alongside.
+                Roman's SVG (mini round 2026-08-13); unoptimized: the Next image
+                optimizer refuses SVG, the file is served as-is. */}
             <Image
-              src="/logo.jpg"
+              src="/logo.svg"
               alt={sb.name}
-              width={1052}
-              height={262}
+              width={172}
+              height={28}
               priority
-              className="h-9 w-auto shrink-0 rounded-md"
+              unoptimized
+              className="h-9 w-auto shrink-0"
             />
             <p className="text-graphite-soft min-w-0 truncate text-[11px] leading-tight">
               {content.brandTagline}
@@ -151,6 +155,10 @@ export default async function CasePage() {
           }
         />
       )}
+      {/* Mini round 2026-08-13: legal footer INSIDE the h-dvh column as a
+          shrink-0 row — the chat area (with its own answer footer) ends above
+          it, so the two can never overlap on any viewport. */}
+      <LegalFooter />
     </div>
   )
 }

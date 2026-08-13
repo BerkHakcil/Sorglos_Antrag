@@ -134,6 +134,15 @@ export const de = {
     },
   },
 
+  // App-wide legal footer (post-Batch-C mini round). The three labels are the
+  // founder's own wording from the brief ("Impressum · Datenschutz · AGB") —
+  // standard legal page names, not creative copy; no PLACEHOLDER_DE.
+  footer: {
+    impressum: 'Impressum',
+    datenschutz: 'Datenschutz',
+    agb: 'AGB',
+  },
+
   agb: {
     pageTitle: 'AGB – Hilfe zur Pflege',
     heading: 'Allgemeine Geschäftsbedingungen',
