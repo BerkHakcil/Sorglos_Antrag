@@ -50,6 +50,54 @@ Quick orientation for anyone picking this up cold:
 
 ---
 
+## Post-Batch-C mini round: legal footer + SVG logo — ✅ SHIPPED 2026-08-13, live-verified same day
+
+Two founder items, code-only (no migration), branch `golive-footer-logo`,
+ff-merged `7393360 → 5cd2811`.
+
+**Legal footer:** `components/legal-footer.tsx` — Impressum · Datenschutz ·
+AGB on every screen (auth shell with `mt-auto`; case screen as a shrink-0
+row INSIDE the h-dvh shell, structurally below the chat column so it can
+never overlap the answer footer). All three are external `/hzp/` pages on
+the marketing site, `_blank` + `noopener noreferrer`; each URL probed
+HTTP 200 before shipping AND live from prod after (bare `/impressum` is 404
+— `/hzp/impressum` is the page; `lib/legal-links.ts` gained the constant).
+Labels are the founder's wording from the brief (de.ts `footer.*`, no
+PLACEHOLDER_DE).
+
+**Logo + favicons:** Roman's SVG lockup (from the landing site, verified
+rendering: house-check icon + wordmark, brand petrol #245B5A) replaces
+`logo.jpg` in the case header and auth shell — heights unchanged
+(h-9/h-10), `unoptimized` (Next's optimizer refuses SVG). Favicons via
+Next app-icon conventions: `app/icon.svg` (square icon extracted from the
+lockup), `app/apple-icon.png` (180px on cream), `app/favicon.ico` (32px
+PNG-ICO replacing the 25 KB Next default). `public/logo.jpg` retained
+(unreferenced) as the historical asset.
+
+**Gate (branch preview, immutable deployment `f6a720f`):** 20 passed / 13
+known-skipped / 2 failed (4.1 min) — **mobile-footer M1 PASSED with the new
+footer present** (the no-collision re-proof). Failure 1: auth.spec
+legal-links strict-mode collision — each URL now legitimately appears twice
+on /signup (consent + footer); spec rewritten to assert both instances with
+full attributes, **re-run green vs the same deployment**. Failure 2:
+completion.spec fixture single-use (pre-existing: the fixture case has been
+`under_review` since the round-2 live checks; the spec aborts at its status
+pre-check, touching no UI) — **deliberately deferred: the fixture must NOT
+be re-seeded until Batch-C push 2 lands** (C1's exact-set assert pins case
+`461038b0`); completion re-runs in the post-push-2 pass.
+
+**Live on prod (`5cd2811`):** legal-footer F1+F2 green vs prod (5.0 s);
+all three legal URLs 200 from prod; `logo.svg` / `icon.svg` / `favicon.ico`
+/ `apple-icon.png` all 200 with correct content types; visual spot-checks
+at 1280×800 and 375×667 (login + case screens) delivered to the founder.
+Leak sweep: exactly the 5 known users, zero debris.
+
+**Open:** mini-round item 3 (text de-flagging + item-2 copy migration)
+BLOCKED — the founder's brief contained an unfilled "[PASTE YOUR ANSWER]"
+placeholder where the waiver scope should be; nothing was de-flagged.
+
+---
+
 ## Go-live review round 2 (Roman's six items) — ✅ SHIPPED 2026-08-13, live-verified same day
 
 Six items from Roman's post-launch review, run as Phase-1 read-only triage →
