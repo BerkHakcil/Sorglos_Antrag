@@ -629,3 +629,40 @@ Then push 2 (C1+C2), post-push: rico/berk/fixture office ids moved, audit
 rows present, rico's render STILL byte-identical from the MH office, city
 office inactive with zero references. Close-out: milestone log, state file,
 ClickUp two-liner, ledger refresh (all queued per the founder brief).
+
+## VI.5 Push 1 applied + verified (2026-08-13 evening) — ALL GREEN
+
+**Founder push:** one `supabase db push`, all 5 NOTICEs fired exactly as
+designed (Part A 11 offices → pre-asserts → B1 21 twin-guarded deletes →
+B2 169 repointed → end state 0/21/169/8159).
+
+**Post-push data checks (`postpush-batch-c.mjs`, read-only) — ALL PASS:**
+388 offices; all 11 new rows active with exact official names; city office
+still active (C2 pending); 8159 rules; city 0; Pankow 21 prio-20; all 11
+per-district counts exact, all prio 1; LIVE resolver: 12687→MH, 10245→FK,
+10115→Mitte, 13187/13189→Pankow, 10247/13051→Pankow (policy), 45127 Essen /
+21682 Stade / 12529 Dahme-Spreewald untouched; 4 cases with 3 still on the
+city office (C1 pending); doc rules untouched (105, Pankow+Essen only);
+app_config default still Pankow. **Rico BYTE-IDENTITY re-proven pre- vs
+post-push over live data: 17 slots byte-identical, missing 0=0,
+rulesSource fallback both sides.**
+
+**Live UI drives (`live-batch-c.mjs`, two throwaways, deleted) — ALL PASS:**
+
+- **12619 (Marzahn-Hellersdorf, non-Pankow Berlin):** case row records the
+  NEW MH office id; `plz_resolution_status='resolved'`; Berlin default
+  questionnaire via D12 (office has none); `status_event
+  social_office_resolved` carries the new office id; Dokumente pane renders
+  the fallback checklist (11 slots) WITH the banner and WITHOUT any
+  "(letzte 4 Monate)" suffix. Exactly the founder's intended
+  "UX unchanged, bookkeeping corrected".
+- **13187 (Pankow):** unchanged — own-office list (11 slots), NO banner,
+  suffix PRESENT exactly once (Girokonto), case on the Pankow office.
+- Leak sweep: zero `pw-batchc` users remain.
+
+**Push 2 materialized:** `20260813000005_batch_c_case_backfill_city_deactivation.sql`
+(C1 exact-set-guarded backfill ×3 with `status_event` audit rows, C2
+deactivation with zero-reference + questionnaire-anchor asserts, one file,
+C2 after C1). In `supabase/migrations` now — correct, since push 1 is
+applied and live-verified; the founder's next `db push` applies exactly
+this file. STOP is with the founder.
