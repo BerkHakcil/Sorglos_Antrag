@@ -12,6 +12,7 @@
 import type { Question, QuestionOption } from '@/lib/questionnaire-types'
 import { de } from '@/lib/strings/de'
 import { control, controlFull, controlTick } from '@/components/ui/styles'
+import { DATE_MIN, dateMaxFor } from '@/lib/date-bounds'
 
 const s = de.case.questionnaire
 const sc = de.case.chat
@@ -121,18 +122,18 @@ function AmountInput({ question, value, onChange, onSubmit }: InputProps) {
   )
 }
 
-// App-wide sane date bounds: the native picker blocks out-of-range years
-// (e.g. the observed "12.12.22000" typo); the server re-checks in
-// validateAnswerValue, so these are UX, not the security boundary.
-const DATE_MIN = '1900-01-01'
-const DATE_MAX = `${new Date().getFullYear() + 1}-12-31`
-
+// App-wide sane date bounds (lib/date-bounds.ts — shared with the server
+// check in validateAnswerValue, so client and server cannot diverge): the
+// native picker blocks out-of-range years (e.g. the observed "12.12.22000"
+// typo). Future-oriented keys (expiries, due dates) reach today+10y; all
+// other date fields keep the pass-2 default. UX layer, not the security
+// boundary — the server re-checks.
 function DateInput({ question, value, onChange, onSubmit }: InputProps) {
   return (
     <input
       type="date"
       min={DATE_MIN}
-      max={DATE_MAX}
+      max={dateMaxFor(question.key)}
       disabled={!onChange}
       value={typeof value === 'string' ? value : ''}
       onChange={(e) => onChange?.(e.target.value)}

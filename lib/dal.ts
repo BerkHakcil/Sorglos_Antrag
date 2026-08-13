@@ -148,6 +148,10 @@ export type StaticContent = {
   allAnsweredMessage: string
   lockedHeading: string
   lockedBody: string
+  lockedDocsHeading: string
+  lockedDocsBody: string
+  lockedDocsButton: string
+  nextStepsUpload: string
   docsAreaTitle: string
   docsAreaIntro: string
   docsStatusMissing: string
@@ -186,6 +190,13 @@ const STATIC_CONTENT_KEYS: Record<keyof StaticContent, string> = {
   allAnsweredMessage: 'case.all_answered_message',
   lockedHeading: 'case.locked_heading',
   lockedBody: 'case.locked_body',
+  // Item 3 (go-live round 2): docs-aware locked-card variant. All four are
+  // PLACEHOLDER_DE pending Roman; ''-degradation keeps today's card until the
+  // rows exist (the variant condition requires non-empty heading+body).
+  lockedDocsHeading: 'case.locked_docs_heading',
+  lockedDocsBody: 'case.locked_docs_body',
+  lockedDocsButton: 'case.locked_docs_button',
+  nextStepsUpload: 'case.next_steps_upload',
   docsAreaTitle: 'docs.area_title',
   docsAreaIntro: 'docs.area_intro',
   docsStatusMissing: 'docs.status_missing',

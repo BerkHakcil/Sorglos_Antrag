@@ -15,7 +15,8 @@ import { saveAnswerAction, deleteGroupInstanceAction } from './actions'
 import { capInstances, parseCount } from '@/lib/group-instances'
 import { Check, Clock } from 'lucide-react'
 import { de } from '@/lib/strings/de'
-import { btnCopper, btnOutline, card } from '@/components/ui/styles'
+import { btnCopper, btnOutline, btnPetrol, card } from '@/components/ui/styles'
+import { useCaseTabSwitch } from '@/components/case-tab-context'
 
 const s = de.case.chat
 const sc = de.case
@@ -30,6 +31,9 @@ type Props = {
   caseStatus: string
   caseId: string
   plzBeforeMove: string | null
+  /** Live missing-documents count (same number as the tab badge) — drives the
+      locked card's docs-aware variant (item 3, go-live round 2). */
+  missingDocs: number
   content: {
     caseSubheading: string
     patientBannerTitle: string
@@ -38,6 +42,10 @@ type Props = {
     allAnsweredMessage: string
     lockedHeading: string
     lockedBody: string
+    lockedDocsHeading: string
+    lockedDocsBody: string
+    lockedDocsButton: string
+    nextStepsUpload: string
     nextStepsHeading: string
     nextSteps1: string
     nextSteps2: string
@@ -344,7 +352,26 @@ function CountDecreaseConfirmCard({
   )
 }
 
-function AllAnsweredCard({ heading, message }: { heading: string; message: string }) {
+function AllAnsweredCard({
+  heading,
+  message,
+  missingDocs,
+  docsButtonLabel,
+}: {
+  heading: string
+  message: string
+  missingDocs: number
+  docsButtonLabel: string
+}) {
+  /* Item 3 (go-live round 2): when documents are still missing, this
+     transient card carries the same "Zu den Dokumenten" push as the locked
+     card (it shows first, for the seconds before router.refresh swaps in the
+     locked state — a user who walks away has still seen it). Additive only:
+     heading/message stay untouched (the existing German already instructs
+     uploading), and at missing==0 or absent button text the card renders
+     byte-identically to before. Note the count is the PREVIOUS server
+     render's value during those seconds — transient and self-healing. */
+  const switchTab = useCaseTabSwitch()
   return (
     /* E-6: the ACHIEVEMENT state, on the mockup's /fertig pattern — petrol
        check medallion, petrol heading, centred. Petrol is the palette's
@@ -366,6 +393,16 @@ function AllAnsweredCard({ heading, message }: { heading: string; message: strin
       </span>
       <p className="text-primary mt-5 text-xl font-medium">{heading}</p>
       <p className="text-foreground mt-3 max-w-md text-base leading-relaxed">{message}</p>
+      {missingDocs > 0 && docsButtonLabel !== '' && switchTab && (
+        <button
+          type="button"
+          data-testid="all-answered-docs-button"
+          className={`${btnPetrol} mt-5`}
+          onClick={() => switchTab('documents')}
+        >
+          {docsButtonLabel}
+        </button>
+      )}
     </div>
   )
 }
@@ -375,12 +412,36 @@ function EditLockedCard({
   body,
   nextStepsHeading,
   nextSteps,
+  missingDocs,
+  docsHeading,
+  docsBody,
+  docsButtonLabel,
+  nextStepsUpload,
 }: {
   heading: string
   body: string
   nextStepsHeading: string
   nextSteps: string[]
+  missingDocs: number
+  docsHeading: string
+  docsBody: string
+  docsButtonLabel: string
+  nextStepsUpload: string
 }) {
+  /* Item 3 (go-live round 2): docs-aware variant. While documents are still
+     missing, "Sie müssen nichts weiter tun" is false — the variant swaps
+     heading/body, adds the petrol "Zu den Dokumenten" button (tab switch via
+     context; hidden when no provider or no button text — an empty petrol
+     button must never render), and prefixes the upload step to the
+     Nächste-Schritte list. missing == 0 OR content rows not yet seeded ('' by
+     design) → today's card byte-identical; that ''-guard is the rollout
+     contract with migration 20260813000002. Copy + UI conditionality ONLY —
+     status, lock, and flow are untouched. */
+  const switchTab = useCaseTabSwitch()
+  const docsVariant = missingDocs > 0 && docsHeading !== '' && docsBody !== ''
+  const effectiveHeading = docsVariant ? docsHeading : heading
+  const effectiveBody = docsVariant ? docsBody : body
+  const effectiveSteps = docsVariant ? [nextStepsUpload, ...nextSteps].filter(Boolean) : nextSteps
   return (
     /* E-6: the PENDING state, and deliberately NOT a celebration.
        It shares the /fertig layout so the two read as one family, but its
@@ -394,16 +455,30 @@ function EditLockedCard({
        register for "you are done; someone else now has to act". */
     <div
       data-testid="locked-banner"
+      data-docs-missing={missingDocs}
       className={`${card} flex flex-col items-center p-6 text-center`}
     >
+      {/* Medallion stays the neutral clock in BOTH variants (E-6 semantic
+          rule): being under review is not a warning, even with documents
+          outstanding — the heading/body/button carry the docs message. */}
       <span
         aria-hidden
         className="bg-cream-deep text-graphite-soft grid size-14 place-items-center rounded-full"
       >
         <Clock className="size-7" />
       </span>
-      <p className="text-foreground mt-5 text-xl font-medium">{heading}</p>
-      <p className="text-graphite-soft mt-3 max-w-md text-base leading-relaxed">{body}</p>
+      <p className="text-foreground mt-5 text-xl font-medium">{effectiveHeading}</p>
+      <p className="text-graphite-soft mt-3 max-w-md text-base leading-relaxed">{effectiveBody}</p>
+      {docsVariant && docsButtonLabel !== '' && switchTab && (
+        <button
+          type="button"
+          data-testid="locked-docs-button"
+          className={`${btnPetrol} mt-5`}
+          onClick={() => switchTab('documents')}
+        >
+          {docsButtonLabel}
+        </button>
+      )}
       {/* Pass 4 / D2: Roman's three steps — LOCKED state only by decision
           (2026-08-01): in the all-answered state documents may still be
           missing, so "Antrag zur Unterschrift" would over-promise there.
@@ -411,13 +486,13 @@ function EditLockedCard({
           review is not a celebration, so the number medallions are
           cream-deep/graphite (5.21:1), not petrol. Renders nothing while the
           content rows are absent ('' by design). */}
-      {nextSteps.length > 0 && (
+      {effectiveSteps.length > 0 && (
         <div data-testid="next-steps" className="mt-6 w-full max-w-md text-left">
           {nextStepsHeading && (
             <p className="text-foreground text-sm font-semibold">{nextStepsHeading}</p>
           )}
           <ol className="mt-3 space-y-2">
-            {nextSteps.map((step, i) => (
+            {effectiveSteps.map((step, i) => (
               <li key={i} className="flex items-start gap-3">
                 <span
                   aria-hidden
@@ -445,6 +520,7 @@ export function ChatView({
   caseStatus,
   caseId,
   plzBeforeMove,
+  missingDocs,
   content,
 }: Props) {
   const [answersMap, setAnswersMap] = useState<Record<string, unknown>>(initialAnswersMap)
@@ -942,6 +1018,11 @@ export function ChatView({
               nextSteps={[content.nextSteps1, content.nextSteps2, content.nextSteps3].filter(
                 Boolean
               )}
+              missingDocs={missingDocs}
+              docsHeading={content.lockedDocsHeading}
+              docsBody={content.lockedDocsBody}
+              docsButtonLabel={content.lockedDocsButton}
+              nextStepsUpload={content.nextStepsUpload}
             />
           ) : showGroupPrompt && nav.groupPrompt ? (
             <GroupPromptCard
@@ -976,6 +1057,8 @@ export function ChatView({
             <AllAnsweredCard
               heading={content.allAnsweredHeading}
               message={content.allAnsweredMessage}
+              missingDocs={missingDocs}
+              docsButtonLabel={content.lockedDocsButton}
             />
           ) : null}
         </div>

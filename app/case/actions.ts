@@ -7,6 +7,7 @@ import { de } from '@/lib/strings/de'
 import { loadQuestionnaire } from '@/lib/questionnaire-engine'
 import { buildNav, findStaleAnswerRefs } from '@/lib/questionnaire-nav'
 import { deriveGroupData } from '@/lib/group-instances'
+import { DATE_MIN, dateMaxFor, isValidIsoDate } from '@/lib/date-bounds'
 
 const PLZ_RE = /^\d{5}$/
 
@@ -156,7 +157,7 @@ export async function saveAnswerAction(input: SaveAnswerInput): Promise<SaveAnsw
 
   const { data: qRow } = await supabase
     .from('question')
-    .select('id, answer_type, is_required, validation, category_id')
+    .select('id, key, answer_type, is_required, validation, category_id')
     .eq('id', input.questionId)
     .single()
 
@@ -176,7 +177,8 @@ export async function saveAnswerAction(input: SaveAnswerInput): Promise<SaveAnsw
     qRow.answer_type,
     qRow.is_required,
     qRow.validation as Record<string, unknown> | null,
-    input.value
+    input.value,
+    qRow.key
   )
   if (validErr) return { ok: false, error: validErr }
 
@@ -320,7 +322,8 @@ function validateAnswerValue(
   answerType: string,
   isRequired: boolean,
   validation: Record<string, unknown> | null,
-  value: unknown
+  value: unknown,
+  questionKey: string
 ): string | null {
   const v = de.case.chat.validationErrors
 
@@ -360,11 +363,13 @@ function validateAnswerValue(
 
     case 'date': {
       if (typeof value !== 'string') return v.invalidDate
-      const d = new Date(value)
-      if (isNaN(d.getTime())) return v.invalidDate
-      // App-wide bounds (mirrors the DateInput min/max): rejects typos like year 22000.
-      const year = d.getFullYear()
-      if (year < 1900 || year > new Date().getFullYear() + 1) return v.invalidDate
+      // Real ISO calendar date only (format + rollover check — 2026-02-30 is
+      // rejected, not silently rolled to March), then app-wide bounds
+      // mirroring the DateInput min/max: rejects typos like year 22000;
+      // future-oriented keys (expiries, due dates) get today+10y, everything
+      // else the pass-2 default bound — see lib/date-bounds.ts.
+      if (!isValidIsoDate(value)) return v.invalidDate
+      if (value < DATE_MIN || value > dateMaxFor(questionKey)) return v.invalidDate
       return null
     }
 

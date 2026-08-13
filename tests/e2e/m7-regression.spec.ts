@@ -9,8 +9,9 @@
  *      single-path drive completes it, and the Dokumente tab carries the
  *      Pankow-DEFAULT checklist — an upload succeeds there.
  *  R2  Fallback: an unmapped PLZ (66606) silently serves the Berlin
- *      questionnaire (denominator 53 since the feedback pass), answers persist
- *      across reload, and the Dokumente tab is present.
+ *      questionnaire (denominator 53 since go-live round 2 item 1 made
+ *      power_of_attorney required — it was 52 between pass 4 / D15 and that
+ *      flip), answers persist across reload, and the Dokumente tab is present.
  *
  * The Pankow leg (signup→questionnaire→completion→uploads→counter) is
  * tests/e2e/documents-m6.spec.ts — run both for the full M7 regression.
@@ -301,10 +302,12 @@ test('R2: fallback — 66606 serves the Berlin questionnaire, answers persist', 
   const userId = await makeUserAndLogin(page, 'fallback')
   await setupCase(page, '66606')
 
-  // 52 since pass 4 / D15 (−hat_rente, −fresh pension_type auto-instance,
-  // +pension_count); before that 53 since the feedback pass (spouse leak gated −2,
-  // Heiz-/Warmwasserkosten deleted −2).
-  await expect(page.getByText('von 52 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
+  // 53 since go-live round 2 item 1 (power_of_attorney required, +1); 52
+  // between pass 4 / D15 (−hat_rente, −fresh pension_type auto-instance,
+  // +pension_count) and that flip; 53 before D15 for a different reason
+  // (feedback-pass composition) — the number is a coincidence, the causes are
+  // not.
+  await expect(page.getByText('von 53 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
   const { data: caseRow } = await adminDb
     .from('cases')
     .select('id, plz_resolution_status, questionnaire_id')
@@ -335,6 +338,6 @@ test('R2: fallback — 66606 serves the Berlin questionnaire, answers persist', 
     .eq('case_id', caseRow!.id)
   expect(count ?? 0, 'answers saved').toBeGreaterThanOrEqual(3)
   await page.reload()
-  await expect(page.getByText('von 52 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
+  await expect(page.getByText('von 53 Fragen', { exact: false })).toBeVisible({ timeout: 10_000 })
   console.log(`[R2] fallback PLZ → Berlin, ${count} answers persisted — PASS`)
 })

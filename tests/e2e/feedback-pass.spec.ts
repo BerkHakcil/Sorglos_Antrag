@@ -1,8 +1,9 @@
 /**
  * Feedback-pass verification (items 1 + 2 + 3), driven live on prod.
  *
- *  L1/L2  Berlin ledig + verwitwet full drives: fresh denominator 52 since
- *         pass 4 / D15 (retired pair, count-driven pensions), case
+ *  L1/L2  Berlin ledig + verwitwet full drives: fresh denominator 53 since
+ *         go-live round 2 item 1 (power_of_attorney required; before that 52
+ *         since pass 4 / D15 — retired pair, count-driven pensions), case
  *         completes, and ZERO spouse/Partner questions were ever asked —
  *         asserted at the DB level: a completed case has answered every
  *         visible required question, so "no spouse-ish answer rows" proves
@@ -329,12 +330,12 @@ async function leakDrive(
 
 test.setTimeout(600_000)
 
-test('L1: Berlin ledig — 52 questions, zero Partner prompts', async ({ page }) => {
-  await leakDrive(page, 'bledig', '13187', BERLIN, 'ledig', 52, [])
+test('L1: Berlin ledig — 53 questions, zero Partner prompts', async ({ page }) => {
+  await leakDrive(page, 'bledig', '13187', BERLIN, 'ledig', 53, [])
 })
 
-test('L2: Berlin verwitwet — 52 questions, zero Partner prompts', async ({ page }) => {
-  await leakDrive(page, 'bwitwe', '13187', BERLIN, 'verwitwet', 52, [])
+test('L2: Berlin verwitwet — 53 questions, zero Partner prompts', async ({ page }) => {
+  await leakDrive(page, 'bwitwe', '13187', BERLIN, 'verwitwet', 53, [])
 })
 
 test('L3: Essen ledig — 49 questions, zero Partner prompts', async ({ page }) => {

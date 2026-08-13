@@ -722,3 +722,92 @@ describe('buildNav — optional questions complete on saved empty row (B1)', () 
     expect(nav.nextQuestion).toBeNull()
   })
 })
+
+// ─── Unbefristet gate chain (item 6, go-live round 2) ─────────────────────────
+// Migration 20260813000003: a required Ja/Nein gate ("Ist der Ausweis
+// unbefristet gültig?") sits where the expiry question used to be; the expiry
+// is re-gated onto gate="Nein". Fixtures mirror the shipped rules exactly
+// (card → gate {value:"Ja"} → expiry {value:"Nein" on the gate}).
+
+describe('unbefristet gate chain (item 6)', () => {
+  const gated = makeQuestionnaire([
+    { key: 'disability_card', is_required: true },
+    {
+      key: 'disability_card_unlimited',
+      is_required: true,
+      sort_order: 1,
+      visibility_rule: { question_key: 'disability_card', value: 'Ja' },
+    },
+    {
+      key: 'disability_card_expiry',
+      is_required: true,
+      sort_order: 2,
+      answer_type: 'date',
+      visibility_rule: { question_key: 'disability_card_unlimited', value: 'Nein' },
+    },
+  ])
+
+  it('card "Ja" surfaces the gate as required; expiry stays hidden while the gate is open', () => {
+    const nav = buildNav(gated, { disability_card: 'Ja' })
+    const keys = nav.flatVisible.map((q) => q.key)
+    expect(keys).toContain('disability_card_unlimited')
+    expect(keys).not.toContain('disability_card_expiry')
+    expect(nav.totalRequired).toBe(2) // card + gate; expiry not yet counted
+    expect(nav.nextQuestion?.key).toBe('disability_card_unlimited')
+  })
+
+  it('gate "Nein" (befristet) makes the expiry visible and required', () => {
+    const nav = buildNav(gated, { disability_card: 'Ja', disability_card_unlimited: 'Nein' })
+    expect(nav.flatVisible.map((q) => q.key)).toContain('disability_card_expiry')
+    expect(nav.totalRequired).toBe(3)
+    expect(nav.nextQuestion?.key).toBe('disability_card_expiry')
+  })
+
+  it('gate "Ja" (unbefristet) skips the expiry and the flow completes', () => {
+    const nav = buildNav(gated, { disability_card: 'Ja', disability_card_unlimited: 'Ja' })
+    expect(nav.flatVisible.map((q) => q.key)).not.toContain('disability_card_expiry')
+    expect(nav.totalRequired).toBe(2)
+    expect(nav.allRequiredAnswered).toBe(true)
+  })
+
+  it('flipping the gate to "Ja" flags a lingering expiry answer for the sweep', () => {
+    const nav = buildNav(gated, {
+      disability_card: 'Ja',
+      disability_card_unlimited: 'Ja',
+      disability_card_expiry: '2027-08-11',
+    })
+    const answersRaw = [
+      { question_id: 'q0', question_key: 'disability_card', group_instance: 'default' },
+      { question_id: 'q1', question_key: 'disability_card_unlimited', group_instance: 'default' },
+      { question_id: 'q2', question_key: 'disability_card_expiry', group_instance: 'default' },
+    ]
+    const stale = findStaleAnswerRefs(nav.flatVisible, answersRaw)
+    expect(stale.map((s) => s.question_key)).toEqual(['disability_card_expiry'])
+  })
+
+  it('card "Nein" hides gate AND expiry transitively, even with stale gate/expiry answers', () => {
+    const nav = buildNav(gated, {
+      disability_card: 'Nein',
+      disability_card_unlimited: 'Nein',
+      disability_card_expiry: '2027-08-11',
+    })
+    const keys = nav.flatVisible.map((q) => q.key)
+    expect(keys).not.toContain('disability_card_unlimited')
+    expect(keys).not.toContain('disability_card_expiry')
+    expect(nav.totalRequired).toBe(1)
+    expect(nav.allRequiredAnswered).toBe(true)
+  })
+
+  it('backfilled locked shape: card Ja + gate Nein + expiry answered = 100%', () => {
+    // rico's post-migration state: all three answered, nothing hidden.
+    const nav = buildNav(gated, {
+      disability_card: 'Ja',
+      disability_card_unlimited: 'Nein',
+      disability_card_expiry: '2027-08-11',
+    })
+    expect(nav.totalRequired).toBe(3)
+    expect(nav.answeredRequired).toBe(3)
+    expect(nav.allRequiredAnswered).toBe(true)
+    expect(nav.flatVisible.map((q) => q.key)).toContain('disability_card_expiry')
+  })
+})

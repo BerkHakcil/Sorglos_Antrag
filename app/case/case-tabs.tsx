@@ -13,6 +13,7 @@
 import { useState, type ReactNode } from 'react'
 import { de } from '@/lib/strings/de'
 import { focusRing } from '@/components/ui/styles'
+import { CaseTabSwitchContext } from '@/components/case-tab-context'
 
 const t = de.case.tabs
 
@@ -43,31 +44,36 @@ export function CaseTabs({
     }`
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="border-border/60 bg-background/95 shrink-0 border-b backdrop-blur">
-        <div className="mx-auto flex max-w-2xl px-4" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'questions'}
-            data-testid="tab-questions"
-            className={tabClass(tab === 'questions')}
-            onClick={() => setTab('questions')}
-          >
-            {t.questions}
-            <span aria-hidden className={underlineClass(tab === 'questions')} />
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'documents'}
-            data-testid="tab-documents"
-            className={tabClass(tab === 'documents')}
-            onClick={() => setTab('documents')}
-          >
-            {t.documents}
-            {missing > 0 && (
-              /* E-2: the mockup writes this as "· 4 offen" in soft graphite
+    /* Item 3 (go-live round 2): the provider lets pane content switch tabs —
+       the locked card's "Zu den Dokumenten" button lives inside the chat
+       pane. The no-documents branch above returns WITHOUT the provider, so
+       consumers see null there and hide their trigger (no pane to switch to). */
+    <CaseTabSwitchContext.Provider value={setTab}>
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="border-border/60 bg-background/95 shrink-0 border-b backdrop-blur">
+          <div className="mx-auto flex max-w-2xl px-4" role="tablist">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'questions'}
+              data-testid="tab-questions"
+              className={tabClass(tab === 'questions')}
+              onClick={() => setTab('questions')}
+            >
+              {t.questions}
+              <span aria-hidden className={underlineClass(tab === 'questions')} />
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'documents'}
+              data-testid="tab-documents"
+              className={tabClass(tab === 'documents')}
+              onClick={() => setTab('documents')}
+            >
+              {t.documents}
+              {missing > 0 && (
+                /* E-2: the mockup writes this as "· 4 offen" in soft graphite
                  rather than a filled pill.
                  Two deliberate deviations:
                  1. The separator is its own aria-hidden span OUTSIDE the
@@ -77,19 +83,20 @@ export function CaseTabs({
                  2. The mockup's trailing word "offen" is NEW German copy and
                     would need Roman's authorship (R3), so it is not added —
                     the bare count is what we already ship. */
-              <span className="text-graphite-soft/80 text-sm font-normal">
-                <span aria-hidden>· </span>
-                <span data-testid="docs-tab-badge">{missing}</span>
-              </span>
-            )}
-            <span aria-hidden className={underlineClass(tab === 'documents')} />
-          </button>
+                <span className="text-graphite-soft/80 text-sm font-normal">
+                  <span aria-hidden>· </span>
+                  <span data-testid="docs-tab-badge">{missing}</span>
+                </span>
+              )}
+              <span aria-hidden className={underlineClass(tab === 'documents')} />
+            </button>
+          </div>
+        </div>
+        <div className={tab === 'questions' ? 'flex-1 overflow-hidden' : 'hidden'}>{chat}</div>
+        <div className={tab === 'documents' ? 'bg-muted/40 flex-1 overflow-y-auto' : 'hidden'}>
+          <div className="mx-auto max-w-2xl px-4 py-4">{documents}</div>
         </div>
       </div>
-      <div className={tab === 'questions' ? 'flex-1 overflow-hidden' : 'hidden'}>{chat}</div>
-      <div className={tab === 'documents' ? 'bg-muted/40 flex-1 overflow-y-auto' : 'hidden'}>
-        <div className="mx-auto max-w-2xl px-4 py-4">{documents}</div>
-      </div>
-    </div>
+    </CaseTabSwitchContext.Provider>
   )
 }

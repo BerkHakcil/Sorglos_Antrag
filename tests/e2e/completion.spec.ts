@@ -41,6 +41,7 @@ import { test, expect, type Page } from '@playwright/test'
 import { readFileSync } from 'fs'
 import { createClient } from '@supabase/supabase-js'
 import { config } from 'dotenv'
+import { purgeCasePrefix } from './storage-cleanup'
 
 config({ path: '.env.local' })
 
@@ -69,6 +70,27 @@ const CREDS = (() => {
     throw new Error('Run node scripts/create-test-user.mjs first')
   }
 })()
+
+// C7 uploads ~a dozen files into the fixture case's storage prefix; the
+// fixture's auth user survives the run (single-use, re-seeded next time), so
+// without this purge every run would orphan those objects in the live bucket
+// (review-pass finding, 2026-08-13). The DB upload rows go too — the fixture
+// case outlives the run, and rows pointing at purged storage objects would
+// dangle until the next re-seed. Runs even on failure; mirrors
+// feedback-pass.spec's pattern.
+test.afterAll(async () => {
+  await purgeCasePrefix(adminDb, CREDS.caseId).catch((e) =>
+    console.error('[cleanup] purgeCasePrefix FAILED - storage may be leaked:', e?.message)
+  )
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (adminDb as any)
+    .from('document_upload')
+    .delete()
+    .eq('case_id', CREDS.caseId)
+    .then(({ error }: { error: { message: string } | null }) => {
+      if (error) console.error('[cleanup] upload-row delete FAILED:', error.message)
+    })
+})
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -367,6 +389,93 @@ test('complete all Berlin questionnaire questions → DB flips to under_review +
   // ── C5 ───────────────────────────────────────────────────────────────────────
   console.log(`[C5] criterion5Pass=${criterion5Pass} (captured=${criterion5Captured})`)
 
+  // ── C6: docs-aware locked-card VARIANT (item 3, go-live round 2) ─────────────
+  // The drive uploads nothing, so the locked case has missing > 0 and must show
+  // the variant: variant heading/body (content-compared against the DB rows —
+  // PLACEHOLDER_DE German is never hardcoded here), the petrol
+  // "Zu den Dokumenten" button, and 4 next steps (upload step prefixed).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: scRows } = await (adminDb as any)
+    .from('static_content')
+    .select('key, value_de')
+    .in('key', [
+      'case.locked_heading',
+      'case.locked_docs_heading',
+      'case.locked_docs_button',
+      'case.next_steps_upload',
+    ])
+  const sc: Record<string, string> = {}
+  for (const r of (scRows ?? []) as { key: string; value_de: string }[]) sc[r.key] = r.value_de
+  expect(
+    sc['case.locked_docs_heading'],
+    'variant content rows must exist (migration 20260813000002)'
+  ).toBeTruthy()
+
+  await page.reload()
+  const lockedCard = page.locator('[data-testid=locked-banner]')
+  await expect(lockedCard).toBeVisible({ timeout: 20_000 })
+  const missingAttr = await lockedCard.getAttribute('data-docs-missing')
+  console.log(`[C6] data-docs-missing=${missingAttr}`)
+  expect(Number(missingAttr), 'locked with zero uploads must report missing > 0').toBeGreaterThan(0)
+  await expect(lockedCard).toContainText(sc['case.locked_docs_heading'])
+  const docsBtn = page.locator('[data-testid=locked-docs-button]')
+  await expect(docsBtn).toBeVisible()
+  await expect(docsBtn).toHaveText(sc['case.locked_docs_button'])
+  await expect(page.locator('[data-testid=next-steps] li')).toHaveCount(4)
+  await expect(page.locator('[data-testid=next-steps] li').first()).toContainText(
+    sc['case.next_steps_upload']
+  )
+
+  // Button switches to the Dokumente tab (context-based setTab).
+  await docsBtn.click()
+  await expect(page.locator('[data-testid=tab-documents]')).toHaveAttribute('aria-selected', 'true')
+  await expect(page.locator('[data-testid=missing-docs-counter]')).toBeVisible({ timeout: 10_000 })
+  console.log('[C6] variant + tab switch PASS')
+
+  // ── C7: 0 missing → today's approved card, byte-identical ────────────────────
+  // Upload one file into every missing slot (uploads stay allowed while locked
+  // by design), then the card must drop the variant: original heading, no
+  // button, exactly the 3 original next steps.
+  const PDF_BYTES = Buffer.from(
+    '%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 200]>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF'
+  )
+  for (let round = 0; round < 40; round++) {
+    const missingSlot = page
+      .locator('[data-testid=doc-slot]')
+      .filter({ has: page.getByText('Fehlt', { exact: true }) })
+      .first()
+    const anyMissing = await missingSlot.isVisible({ timeout: 1_000 }).catch(() => false)
+    if (!anyMissing) break
+    const before = await page
+      .locator('[data-testid=doc-slot]')
+      .filter({ has: page.getByText('Fehlt', { exact: true }) })
+      .count()
+    await missingSlot.locator('input[type=file]').setInputFiles({
+      name: `c7-fill-${round}.pdf`,
+      mimeType: 'application/pdf',
+      buffer: PDF_BYTES,
+    })
+    await expect(async () => {
+      const now = await page
+        .locator('[data-testid=doc-slot]')
+        .filter({ has: page.getByText('Fehlt', { exact: true }) })
+        .count()
+      expect(now).toBeLessThan(before)
+    }).toPass({ timeout: 20_000 })
+  }
+  await expect(
+    page.locator('[data-testid=doc-slot]').filter({ has: page.getByText('Fehlt', { exact: true }) })
+  ).toHaveCount(0)
+
+  await page.reload()
+  const lockedCard0 = page.locator('[data-testid=locked-banner]')
+  await expect(lockedCard0).toBeVisible({ timeout: 20_000 })
+  await expect(lockedCard0).toHaveAttribute('data-docs-missing', '0')
+  await expect(lockedCard0).toContainText(sc['case.locked_heading'])
+  await expect(page.locator('[data-testid=locked-docs-button]')).toHaveCount(0)
+  await expect(page.locator('[data-testid=next-steps] li')).toHaveCount(3)
+  console.log('[C7] zero-missing approved card PASS')
+
   // ── Summary ──────────────────────────────────────────────────────────────────
   console.log('\n═══════ STEP A RESULTS ═══════')
   console.log(`C1 Completion/locked UI:     ${c1 ? 'PASS' : 'FAIL'}`)
@@ -374,6 +483,8 @@ test('complete all Berlin questionnaire questions → DB flips to under_review +
   console.log(`C3 status_event row exists:  ${c3 ? 'PASS' : 'FAIL'}`)
   console.log(`C4 Edits locked (0 btns):    ${c4 ? 'PASS' : 'FAIL'}`)
   console.log(`C5 No cat header reshow:     ${criterion5Pass ? 'PASS' : 'FAIL'}`)
+  console.log('C6 Docs-variant + tab switch: asserted inline')
+  console.log('C7 Zero-missing approved card: asserted inline')
   console.log('══════════════════════════════\n')
 
   expect(completed, 'Adaptive loop must reach completion or locked state').toBe(true)

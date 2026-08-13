@@ -217,6 +217,12 @@ async function CaseTabsSection({
   // renders once the questionnaire exists (see docsPaneMode docs).
   const paneMode = docsPaneMode(true, slots.length)
 
+  // Item 3 (go-live round 2): the locked card is docs-aware — the same
+  // missing count the tab badge shows also drives the card variant. Freshness
+  // is free: upload/delete already router.refresh(), re-running this server
+  // component and re-feeding both consumers.
+  const missingDocs = countMissingSlots(slots, uploads)
+
   const chat = (
     <ChatView
       questionnaire={questionnaire}
@@ -227,6 +233,7 @@ async function CaseTabsSection({
       caseId={caseId}
       plzBeforeMove={plzBeforeMove}
       content={content}
+      missingDocs={missingDocs}
     />
   )
   const documents =
@@ -244,7 +251,7 @@ async function CaseTabsSection({
       />
     ) : null
 
-  return <CaseTabs chat={chat} documents={documents} missing={countMissingSlots(slots, uploads)} />
+  return <CaseTabs chat={chat} documents={documents} missing={missingDocs} />
 }
 
 // deriveGroupData moved to lib/group-instances.ts (pass 4 / D15): count-driven
