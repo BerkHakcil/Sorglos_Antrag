@@ -48,16 +48,19 @@ each is a one-line copy migration.
 
 ## Still open (PLACEHOLDER_DE or Roman-owned)
 
-| item                                                       | home                                      | status                                                                        |
-| ---------------------------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------- |
-| Contact-sheet close label „Schließen" (screen-reader only) | de.ts `case.help.closeLabel`              | PLACEHOLDER_DE — ledgered after §4 was assembled, not covered by the approval |
-| Lade-Anzeige „Wird geladen …"                              | de.ts (E-7)                               | PLACEHOLDER_DE                                                                |
-| 404-Seite (Überschrift/Text/Link/Tab)                      | de.ts (E-7)                               | PLACEHOLDER_DE                                                                |
-| Tab-badge word „offen" (`· 4 offen`)                       | not shipped — we render the bare count    | Roman authorship pending (E-2 ledger)                                         |
-| Logo originals (SVG/hi-res)                                | `public/logo.jpg` stays                   | Roman delivery pending (D16)                                                  |
-| Ansprechpartner photo                                      | `HelpSheet` `photoSrc` drop-in prop ready | Roman delivery pending (D11)                                                  |
-| Auth email texts                                           | Supabase dashboard                        | owner-handled by Roman (D14)                                                  |
-| Fallback-Listen-Hinweis (Banner über der Standard-Liste)   | static_content `docs.fallback_notice`     | PLACEHOLDER_DE — see the go-live section below                                |
+| item                                                       | home                                                                                                                       | status                                                                          |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Contact-sheet close label „Schließen" (screen-reader only) | de.ts `case.help.closeLabel`                                                                                               | PLACEHOLDER_DE — ledgered after §4 was assembled, not covered by the approval   |
+| Lade-Anzeige „Wird geladen …"                              | de.ts (E-7)                                                                                                                | PLACEHOLDER_DE                                                                  |
+| 404-Seite (Überschrift/Text/Link/Tab)                      | de.ts (E-7)                                                                                                                | PLACEHOLDER_DE                                                                  |
+| Tab-badge word „offen" (`· 4 offen`)                       | not shipped — we render the bare count                                                                                     | Roman authorship pending (E-2 ledger)                                           |
+| Logo originals (SVG/hi-res)                                | `public/logo.jpg` stays                                                                                                    | Roman delivery pending (D16)                                                    |
+| Ansprechpartner photo                                      | `HelpSheet` `photoSrc` drop-in prop ready                                                                                  | Roman delivery pending (D11)                                                    |
+| Auth email texts                                           | Supabase dashboard                                                                                                         | owner-handled by Roman (D14)                                                    |
+| Fallback-Listen-Hinweis (Banner über der Standard-Liste)   | static_content `docs.fallback_notice`                                                                                      | PLACEHOLDER_DE — see the go-live section below                                  |
+| Locked-Card Dokumente-Variante (4 Texte)                   | static_content `case.locked_docs_heading` / `case.locked_docs_body` / `case.locked_docs_button` + `case.next_steps_upload` | PLACEHOLDER_DE — round-2 section below (item 3)                                 |
+| Unbefristet-Gate (2 Fragen ×2 Fragebögen)                  | question `disability_card_unlimited` / `spouse_…` prompt_de                                                                | PLACEHOLDER_DE — round-2 section below (item 6)                                 |
+| Vertriebenen-Behörden-Frage Klarstellung                   | question `special_origin_rights_issued_by` (+ Partner)                                                                     | PROPOSAL for Roman — round-2 section below (item 2), no change without his word |
 
 ## Go-live (2026-08-09): Hinweis-Banner für die Standard-Dokumentenliste — PLACEHOLDER_DE (open)
 
@@ -72,3 +75,36 @@ eine Umformulierung ist eine Ein-Zeilen-UPDATE-Migration.
 > spezifische Dokumentenliste vor. Diese Übersicht zeigt die üblicherweise
 > benötigten Unterlagen — Ihr zuständiges Sozialamt kann zusätzliche oder
 > abweichende Dokumente verlangen."
+
+## Go-live round 2 (2026-08-13) — PLACEHOLDER_DE (open)
+
+Volltext der Vorschläge + Kontext im Paket `docs/feedback/roman_package_round2.md`
+(eine Nachricht, versandfertig). Jedes Wort ist deins; jede Umformulierung ist
+eine Ein-Zeilen-UPDATE-Migration.
+
+**Item 3 — Locked-Card, wenn noch Unterlagen fehlen** (static_content,
+Migration `20260813000002`):
+
+> **PLACEHOLDER_DE (Überschrift, `case.locked_docs_heading`):** „Es fehlen noch Unterlagen"
+> **PLACEHOLDER_DE (Text, `case.locked_docs_body`):** „Sie haben alle Fragen beantwortet — vielen Dank. Damit wir Ihren Antrag prüfen können, laden Sie bitte noch die fehlenden Unterlagen hoch."
+> **PLACEHOLDER_DE (Button, `case.locked_docs_button`):** „Zu den Dokumenten"
+> **PLACEHOLDER_DE (Schritt 1 der Nächste-Schritte-Liste, `case.next_steps_upload`):** „Sie laden die noch fehlenden Unterlagen hoch."
+
+**Item 6 — Unbefristet-Gate vor der Ablaufdatum-Frage** (question rows,
+Migration `20260813000003`; Berlin + Essen, Antragsteller + Partner):
+
+> **PLACEHOLDER_DE (Antragsteller):** „Ist der Ausweis unbefristet gültig?"
+> **PLACEHOLDER_DE (Partner):** „Ist der Ausweis Ihres Partners unbefristet gültig?"
+> Offene Stilfrage an Roman: Die Essener Nachbarfragen sagen durchgehend
+> „Schwerbehindertenausweis oder Feststellungsbescheid" — sollen die Essener
+> Gate-Fragen das Wort „Ausweis" entsprechend ausschreiben?
+
+**Item 2 — Klarstellung „Welche Behörde hat den Ausweis ausgestellt?"**
+(NUR Vorschlag — Romans eigener cp3-Text; ohne seine Freigabe ändert sich
+nichts):
+
+> **Vorschlag (Antragsteller):** „Welche Behörde hat den Vertriebenen- oder Spätaussiedlerausweis ausgestellt?"
+> **Vorschlag (Partner):** „Welche Behörde hat den Vertriebenen- oder Spätaussiedlerausweis Ihres Partners ausgestellt?"
+> Optional für Symmetrie: die beiden „Wann wurde der Ausweis ausgestellt?"-Fragen analog.
+> Alternative: Prompts unverändert lassen, stattdessen je eine help_de-Zeile
+> ergänzen, die den Ausweis benennt (beide help_de sind heute NULL).
