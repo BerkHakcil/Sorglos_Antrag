@@ -20,7 +20,7 @@ Quick orientation for anyone picking this up cold:
 - **DB migrations:** dated SQL in `supabase/migrations/`, applied to prod with **`supabase db push`** (the CLI is linked; it records each version in `supabase_migrations.schema_migrations`). **Never** apply content via the Supabase dashboard/Studio (see reminders). DDL cannot be run from the Claude Code sandbox — the co-founder runs `db push` after reviewing each migration.
 - **Questionnaire is data-driven** (see `architecture.md` §3): categories → questions (some in repeatable `question_group`s) → `question_option`s; answers keyed `(case_id, question_id, group_instance)`.
 - **Current category flow order (Berlin, since pass 4 / D6)** (`category.sort_order`): `antragsteller` (0, Persönliches) → `wohnsituation` (1, **"Wohnung und Heim"**) → `income` (2, **"Einkommen"**) → `wealth` (3, Vermögen) → `expenditure` (4, **"Versicherung und Pflege"**) → `additional` (5) → `spouse` (6, **"Partner, Familie und Unterhalt"** — now also carries the child questions after the spouse ones). The emptied `einkommen` (holds only the two RETIRED questions) and `kinder` categories sit at sort 98/99. Essen unchanged: per the master.
-- **Fresh-case required-question count (progress denominator):** Berlin **52** (pass 4 / D15: −`hat_rente`, −auto-instance `pension_type`, +`pension_count`), Essen **49** (pass 4 / D4: `birth_name` optional) for a single applicant before answering `marital_status`.
+- **Fresh-case required-question count (progress denominator):** Berlin **53** (go-live round 2 item 1 made `power_of_attorney` required, +1 on the pass-4/D15 base of 52), Essen **49** (pass 4 / D4: `birth_name` optional) for a single applicant before answering `marital_status`. The four disability "unbefristet" gates (round 2 item 6) are fresh-hidden and change no fresh denominator.
 - **Repeatable groups** (`question_group.is_repeatable = true`, all uncapped `max_count = NULL`): `children`, `pension`, `other_income`, `bank_additional`, `additional_wealth`, plus the spouse mirrors `spouse_pension`, `spouse_other_income`. Since Tier 7 a group can carry a DB-authored loop-prompt override (`custom_prompt_de`). **Since pass 4 (D15) a group can instead be COUNT-DRIVEN via `question_group.count_source_key`:** it renders exactly N instances where N is the answer to that question, never shows the add-another prompt, and a count DECREASE below the filled instances runs confirm-and-clear (dialog in the UI; the stale-answer sweep deletes the excess rows). Today only the Berlin `pension` group (keyed on `pension_count`, options 0–8) is count-driven. Questions can be RETIRED via `question.active = false` (rows + answers preserved; the keyMap filter in `getCaseAnswers` shields preserved answers from the sweep) — today `hat_rente` and `rentenbetrag`.
 - **Verification tooling:** Playwright **MCP** works (needed `npx @playwright/mcp install-browser chrome-for-testing` once) and the **e2e runner** (`npx playwright test`, bundled Chromium). **Signup smoke check:** `npm run smoke:signup` proves the auth-email pipeline (signup → SMTP acceptance → cleanup); run pre-release and after any SMTP/Brevo change. Live structural checks use an adaptive-loop e2e spec driven against prod; throwaway test users are created via the admin API and deleted in `finally`. **Seed-drift guard:** `scripts/verify-baseline.mjs` diffs prod against a fresh local migration replay (`supabase db start` + `supabase db reset`, then run with `LOCAL_DATABASE_URL`) across **all** seeded tables — questionnaire content plus `care_home`, `social_office`, `postal_code_rule`, `questionnaire`, `static_content`. Run it after any `migration repair` backfill.
 
@@ -47,6 +47,114 @@ Quick orientation for anyone picking this up cold:
 | `20260711000007_m5r2_storage_bucket.sql`                       | M5    | private case-documents bucket (15MB, 5 mime types) + storage.objects owner policies                                                                                       |
 
 (All 15 migrations that existed before Tier 4 were backfilled into `schema_migrations` — see Tier 2. The three Tier 4/5/6 migrations were applied via `supabase db push`, which tracks them automatically.)
+
+---
+
+## Go-live review round 2 (Roman's six items) — ✅ SHIPPED 2026-08-13, live-verified same day
+
+Six items from Roman's post-launch review, run as Phase-1 read-only triage →
+founder batch GOs → Batches A+B → gate → prod → live checks, in one day.
+Full record: `docs/feedback/golive_round2.md` (triage, every claim
+adversarially re-verified), `golive_round2_state.md` (execution),
+`golive_round2_batch_c.md` (Batch C, STOP), `roman_package_round2.md`
+(send-ready German). Branch `golive-round2`, merged fast-forward
+`4f21de8 → 9920888` (feat `f246d55` + docs `9920888`).
+
+**Phase-1 premise corrections (all founder-accepted):** the Sterbeurkunde
+rule PAN-025 EXISTS and provably works (the real widowed customer had the
+slot and uploaded against it; Roman's repro failed because his test case had
+`marital_status` unanswered — the evaluator fails closed); the only gap is
+Essen, where the canonical master tags DOC-0016 "Pankow"-only → **item 4
+shipped as a question to Roman, no migration**. All three prod cases are
+served doc rules via the app_config default FALLBACK (their offices — incl.
+city-level "Sozialamt Berlin" — hold zero rules). The Behörde "duplicate"
+(item 2) is the Vertriebenen-/Spätaussiedlerausweis issuer — verdict B,
+wording proposal to Roman, no deletion.
+
+**Shipped (migrations `20260813000001..3`, pushed by the founder, every
+NOTICE fired):**
+
+1. **Item 1** — Berlin `power_of_attorney` → `is_required=true` with an
+   execution-time abort guard (any locked case lacking a non-empty answer
+   stops the push for a named decision; none existed). Fresh denominator
+   **52 → 53**; e2e anchors + `docs/uat-m7.md` re-caused per the
+   verified-reason rule (married 92 simulation-verified). Essen already
+   required (assert-only).
+2. **Item 5** — `lib/date-bounds.ts`: 14 future-oriented keys (ID/disability
+   expiries, rent-paid-until, Kündigungs- and due dates) accept **today +
+   10 years**; all past-oriented fields keep the pass-2 bound
+   („Geburtsdaten bleiben bewusst vergangenheitsbeschränkt" — the
+   interpretation is in the Roman package). Client `DateInput` and the
+   server validator consume the same module; the server date check is now
+   day-granular with a real-calendar-date guard (`isValidIsoDate` — rejects
+   2026-02-30-class inputs). Code-only by deliberate decision (rule-1
+   tension recorded in the report; pass-2 precedent of code-owned bounds).
+3. **Item 3** — docs-aware locked card: `missing > 0` → variant heading/body
+   (static*content `case.locked_docs*\*`, PLACEHOLDER_DE), petrol
+„Zu den Dokumenten" button switching tabs via the new
+`CaseTabSwitchContext` (CaseTabs' state stays local; consumers no-op
+without a provider), and the Nächste-Schritte list prefixed with an
+upload step (`case.next_steps_upload`); `missing == 0`OR unseeded rows →
+today's card **byte-identical** (the ''-guard is the rollout contract).
+The transient all-answered card carries the same button.`missingDocs`is
+threaded from the existing`countMissingSlots` in page.tsx — no new query.
+4. **Item 6** — „unbefristet"-gate: four new required Ja/Nein questions
+   (`disability_card_unlimited` + spouse mirror, both questionnaires,
+   PLACEHOLDER_DE) inserted at the expiry questions' exact positions (sort
+   shifts asserted 8/54/8/88); the four expiry questions re-gated to
+   gate="Nein". **Additive backfill** (pass-4 precedent): every
+   expiry-holder got gate="Nein" — the real locked case would otherwise have
+   dropped to 75/76 with its expiry bubble vanishing from history. Batch end
+   state for that case: **77/77 = 100%** (item 1 +1/+1, item 6 +1/+1) —
+   the per-item arithmetic trap was caught by the adversarial review before
+   the push. Data-only, zero code. ⚠ Sequencing rule (in the migration
+   header): this migration had to run BEFORE any ops correction of the
+   case's expiry dates — its named drift assert pins "2027-08-11".
+
+**Batch C (PLZ reconciliation) — READ-ONLY STOP, decisions D-1..D-8 with the
+founder.** Census + official geodata (Geoportal Berlin PLZ polygons × ALKIS
+Bezirksgrenzen): 190 city-level rules (169 live, 21 shadowed by Pankow's
+prio-20 set), the mapped Pankow 21 = the full directory Pankow set (nothing
+missing — the "13189 unmapped" premise was false; it routes to Pankow),
+10119/10247/10249/13051 are minority-Pankow codes kept DELIBERATELY per
+Roman's recorded "when in doubt, include" policy. The 11 other district
+offices do not exist; `cases.social_office_id` is frozen at PLZ entry (sole
+writer actions.ts, unreachable post-submit) so a remap alone affects only
+future cases; and the real case would CORRECTLY keep the fallback banner
+post-remap (PLZ 12687 = 100% Marzahn-Hellersdorf, rule-less). Draft
+migration is TEXT in the report only.
+
+**Quality passes:** 6 finder + 6 verifier agents on the triage (items 1/4/6
+CONFIRMED, 2/3/5 corrected — all folded in); 3-lens adversarial diff review
+with per-finding refutation (7 real findings fixed pre-commit, incl. the
+77/77 composition and a completion-spec storage-orphan leak; 1 refuted).
+
+**Gate (branch preview, immutable deployment):** 18 passed / 13
+known-skipped / 2 failed in 3.3 min; both failures were the documented
+machine-stall class (2 footer buttons stuck [disabled], correctly failed in
+15 s by the pass-4 primitive; pages rendered fine) and both re-ran green
+alone vs the same deployment (mobile-footer 1.3 min, visibility 3.6 min) —
+cumulative green, deviation on record.
+
+**Live on prod (deployment = merge `9920888`):** post-push data-level check
+20/20 (flip live, 4 content rows, 4 gates at exact sorts/rules, re-gates,
+backfill row, expiry untouched, **the real locked case recomputes to 77/77
+with the expiry visible**); disability-gate G1–G4 + date-bounds PASS
+(53 s — gate on Ja, unbefristet skips expiry, Nein requires it, 2031
+accepted, flip-back sweep deletes the row); scripted Betreuer check ALL PASS
+(no Optional badge, empty Weiter refused with „Dieses Feld ist
+erforderlich.", Nein saves and advances); completion C1–C7 PASS (1.7 min —
+docs-variant card + tab-switch button on the missing>0 leg, byte-identical
+approved card at 0 missing). Hygiene: leak sweep clean (5 users = 3 real +
+kept fixture + the June verif leftover, both on record), fixture storage
+purged to 0 by the new afterAll, zero debris.
+
+**Open with Roman (package sent by the founder):** the Essen-Sterbeurkunde
+question (blocking a possible ESS-056), the item-3 card texts + item-6 gate
+texts (live as PLACEHOLDER_DE), the item-2 wording proposal, and the
+customer-facing re-confirmation of the twin "2027-08-11" expiry dates
+(evidence they were capped artifacts — ops corrects AFTER telling us, per
+the sequencing rule).
 
 ---
 
