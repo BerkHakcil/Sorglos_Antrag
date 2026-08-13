@@ -22,10 +22,22 @@ him to ping us before correcting.
 | Founder migration push       | ✅ DONE 2026-08-13                          | One `supabase db push`, every NOTICE fired as designed; post-push data-level check **20/20** incl. rico recompute **77/77** with the expiry visible                                                                                                                                                                                                      |
 | Preview gate                 | ✅ DONE 2026-08-13 — cumulative green       | 18 passed / 13 known-skipped / 2 failed in 3.3 min; both failures = documented machine-stall class, re-ran green alone vs the SAME deployment (1.3 / 3.6 min)                                                                                                                                                                                            |
 | Merge + live verification    | ✅ DONE 2026-08-13 — **ROUND CLOSED**       | ff-merge `4f21de8 → 9920888`, prod deployed. Live: disability-gate G1–G4 + date-bounds PASS (53 s); scripted Betreuer check ALL PASS (empty Weiter refused); completion C1–C7 PASS (1.7 min: docs-variant + tab switch + 0-missing byte-identical). Leak sweep clean; fixture storage purged to 0; zero debris. Full record: milestone-log round-2 entry |
-| Batch C (PLZ reconciliation) | ⛔ STOP — with the founder                  | `golive_round2_batch_c.md`, decisions D-1..D-8; draft migration is TEXT in the report, NOT in supabase/migrations                                                                                                                                                                                                                                        |
+| Batch C (PLZ reconciliation) | ⛔ STOP — awaiting founder push 1 (A/B)     | All 8 GOs received 2026-08-13 evening (D-7 = founder premise error, report framing wins: rico stays banner+suppressed-suffix, live check rewritten to byte-identical). Migration `20260813000004` written + execution-time re-verified (census ALL PASS; rico drift on record: missing 3→0, he uploaded everything). C1+C2 = push 2, TEXT ONLY in the report §VI.3 until A/B is live-verified. Roman package points 6+7 added |
 | Roman round-trip             | ⛔ with Roman                               | `roman_package_round2.md` (founder sends); item-4 Essen answer gates a possible ESS-056; item-3/6 texts live as PLACEHOLDER_DE; expiry-date re-confirmation ask incl. tell-us-first rule                                                                                                                                                                 |
 
-## Founder push list (in this order, one `supabase db push`)
+## Founder push list — Batch C push 1 (2026-08-13, one `supabase db push`)
+
+`20260813000004_batch_c_berlin_district_remap.sql` — Parts A/B. Expected
+NOTICEs, in order: Part A applied (11 district offices, official names) →
+Part B pre-asserts passed (190 city prio-1 single-PLZ, 21 Pankow prio-20) →
+B1 applied (21 shadowed duplicates deleted, each twin-guarded, 169 remain) →
+B2 applied (169 repointed, ids preserved, priority 1) → Batch C Parts A/B
+complete (0 city rules, 21 Pankow + 169 district, 8159 total). ABORTS
+in-transaction on any count/twin mismatch — nothing applied partially.
+After live verification: push 2 = C1+C2 (case backfill + city-office
+deactivation), materialized only then (report §VI.3).
+
+## Founder push list — round-2 items 1–6 (DONE 2026-08-13, historical)
 
 1. `20260813000001_berlin_power_of_attorney_required.sql` — item 1. Expect
    NOTICEs: locked-case guard passed → flip applied (52→53) → Essen verified.

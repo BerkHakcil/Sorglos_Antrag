@@ -88,4 +88,46 @@ sie korrigiert werden müssen, machen wir das auf Ops-Seite (der Fall ist
 gesperrt). **Wichtig für uns: erst kurz Bescheid geben, dann korrigieren** —
 eine unserer Prüfungen ist auf den heutigen Wert geeicht.
 
+---
+
+Und zwei Punkte von unserer Seite (nicht aus deiner Review):
+
+**6) Berliner Bezirksämter — interne PLZ-Zuordnung korrigiert; 11 Amtsnamen zum Bestätigen.**
+Bislang zeigten alle Berliner Postleitzahlen außerhalb deiner Pankow-Liste
+intern auf einen Sammel-Eintrag „Sozialamt Berlin". Jetzt bekommt jede
+Berliner PLZ ihr tatsächliches Bezirksamt (nach offizieller Gebietszuordnung;
+bei PLZs über Bezirksgrenzen hinweg entscheidet der flächengrößte Anteil).
+**Für die Nutzer ändert sich nichts Sichtbares:** Solange ein Bezirk kein
+eigenes Regelwerk hat, sehen sie weiter die allgemeine Liste mit dem Hinweis
+darüber — nur die interne Zuständigkeit stimmt jetzt. Die 11 neuen Ämter
+tragen die offiziellen Bezeichnungen (Quelle: berlin.de) — **bitte einmal
+drüberschauen, bestätigen oder korrigieren:**
+
+1. Bezirksamt Mitte von Berlin – Amt für Soziales
+2. Bezirksamt Friedrichshain-Kreuzberg von Berlin – Amt für Soziales
+3. Bezirksamt Charlottenburg-Wilmersdorf von Berlin – Amt für Soziales
+4. Bezirksamt Spandau von Berlin – Amt für Soziales
+5. Bezirksamt Steglitz-Zehlendorf von Berlin – Amt für Soziales
+6. Bezirksamt Tempelhof-Schöneberg von Berlin – Amt für Soziales
+7. Bezirksamt Neukölln von Berlin – Amt für Soziales
+8. Bezirksamt Treptow-Köpenick von Berlin – Amt für Soziales
+9. Bezirksamt Marzahn-Hellersdorf von Berlin – Amt für Soziales
+10. Bezirksamt Lichtenberg von Berlin – Amt für Soziales
+11. Bezirksamt Reinickendorf von Berlin – Amt für Soziales
+
+(Pankow bleibt im System unverändert „Sozialamt Berlin-Pankow".)
+
+**Dazu eine Randnotiz, keine Frage — nur damit du es weißt:** Die vier
+Grenz-PLZs **10119, 10247, 10249, 13051** bleiben wie im Juli von dir
+entschieden bei Pankow („im Zweifel dazunehmen"). Der Kontext hat sich seither
+leicht geändert: Damals hätten diese Nutzer ohne die Zuordnung ohnehin die
+Pankow-Liste gesehen — als wäre es ihre eigene, einen Hinweis gab es noch
+nicht. Heute wäre die Alternative dieselbe Liste, aber ehrlich als allgemeine
+Liste mit dem Hinweisbanner gekennzeichnet. Wenn dir das inzwischen lieber
+ist, ist die Umstellung ein Einzeiler — deine Entscheidung, keine Eile.
+
+**7) Ops-Hinweis:** rico ist Marzahn-Hellersdorf — seine Checkliste ist
+bewusst die allgemeine; beim Einreichen seines Antrags MH-Anforderungen einmal
+manuell gegenprüfen.
+
 Danke dir!

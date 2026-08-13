@@ -61,6 +61,8 @@ each is a one-line copy migration.
 | Locked-Card Dokumente-Variante (4 Texte)                   | static_content `case.locked_docs_heading` / `case.locked_docs_body` / `case.locked_docs_button` + `case.next_steps_upload` | PLACEHOLDER_DE — round-2 section below (item 3)                                 |
 | Unbefristet-Gate (2 Fragen ×2 Fragebögen)                  | question `disability_card_unlimited` / `spouse_…` prompt_de                                                                | PLACEHOLDER_DE — round-2 section below (item 6)                                 |
 | Vertriebenen-Behörden-Frage Klarstellung                   | question `special_origin_rights_issued_by` (+ Partner)                                                                     | PROPOSAL for Roman — round-2 section below (item 2), no change without his word |
+| Berliner Bezirksamts-Namen (11 Ämter)                      | `social_office` rows, Migration `20260813000004`                                                                           | OFFICIAL designations seeded (berlin.de) — confirm-or-correct, round-2 package point 6; render user-facing nowhere (sole consumer: ops case-export) |
+| Marzahn-Hellersdorf Regelwerk (eigene Dokumentenliste)     | `office_document_rule` (does not exist yet)                                                                                | BACKLOG — first real customer lives there (PLZ 12687); natural next office once Roman confirms demand. Until then his checklist is deliberately the fallback set + banner (Batch C, D-7) |
 
 ## Go-live (2026-08-09): Hinweis-Banner für die Standard-Dokumentenliste — PLACEHOLDER_DE (open)
 
@@ -108,3 +110,13 @@ nichts):
 > Optional für Symmetrie: die beiden „Wann wurde der Ausweis ausgestellt?"-Fragen analog.
 > Alternative: Prompts unverändert lassen, stattdessen je eine help_de-Zeile
 > ergänzen, die den Ausweis benennt (beide help_de sind heute NULL).
+
+**Batch C — Berliner Bezirksamts-Namen** (`social_office` rows, Migration
+`20260813000004`): Die 11 neuen Ämter tragen die **offiziellen Bezeichnungen**
+(„Bezirksamt <X> von Berlin – Amt für Soziales"; Quelle: Senatsverwaltung,
+berlin.de „Zuständige Ämter" — im Migration-Header zitiert). KEINE
+Platzhalter — amtliche Namen per Founder-Entscheid D-1; Roman bestätigt oder
+korrigiert (Paket Punkt 6). Die Namen erscheinen nirgends nutzerseitig
+(einziger Renderer: Ops-Export `scripts/case-export.mjs`). Dazu im Paket:
+die D-3-Randnotiz (vier Grenz-PLZs bleiben bei Pankow, geänderter Kontext
+seit Juli) und der Ops-Hinweis zu rico/Marzahn-Hellersdorf (Punkt 7).

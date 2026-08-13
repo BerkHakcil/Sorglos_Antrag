@@ -486,3 +486,146 @@ COMMIT;
 - **D-8 (flag, no action):** 15537/15566/15569 stay on Sozialamt Oder-Spree (near-zero-area Berlin slivers; defensible, on record).
 
 Verification provenance: every count above re-computed this session from `dump_plz_rules.json` / `dump_docrules.json` / `dump_cases.json` / `dump_config.json` in `C:\Users\Berk\AppData\Local\Temp\claude\C--Users-Berk-Desktop-hilfe-zur-pflege\88a923c1-be6a-46a6-9676-c65c3b46d6ed\scratchpad` (partition check: 169 district + 21 shadowed = 190, zero dupes/missing/extras) and from repo files `lib/dal.ts` (L310–334), `app/case/actions.ts` (L52–128, sole `social_office_id` writer at L90, `DEFAULT_QUESTIONNAIRE_ID` L50), `app/case/page.tsx`. Geometry: official Geoportal Berlin PLZ polygons × ALKIS Bezirksgrenzen, scripts + full shares in the scratchpad (`plz_district.js`, `plz_district_result.json`).
+
+---
+
+# VI. Execution record (2026-08-13 evening — GOs received)
+
+**All eight decisions GO (founder, 2026-08-13).** D-7 resolved as premise
+error on the founder's side: 12687 is Marzahn-Hellersdorf, the report's
+framing wins — rico correctly keeps banner + suppressed suffix; the live
+check is rewritten to BYTE-IDENTICAL before/after. D-1 addendum: office
+names = OFFICIAL designations ("Bezirksamt <X> von Berlin – Amt für
+Soziales", source cited in the migration header), full list to Roman as
+confirm-or-correct. D-4 addendum: per-row twin-guard before each of the 21
+deletes. D-5 addendum: backfill ALL city-office cases, with `status_event`
+audit rows; C1 ships as push 2 after A/B is live-verified. D-6: C1+C2 may
+ride one push, C2's assert running after C1.
+
+## VI.1 What shipped this session (push 1, awaiting founder)
+
+`supabase/migrations/20260813000004_batch_c_berlin_district_remap.sql` —
+Parts A/B exactly per the approved design: 11 offices (official names,
+id block 0002..0012), 21 per-row twin-guarded deletes (D-4), 169 guarded
+UPDATEs (D-2/D-3 partition unchanged), end-state asserts (0 city rules,
+21 Pankow prio-20 untouched, 169 district rules, 8159 total). Data-only,
+zero dependent code (R8 trivially satisfied).
+
+**Execution-time re-verification (fresh prod dumps 2026-08-13 evening,
+`census-batch-c.mjs` — ALL CHECKS PASS):** all §I counts re-confirmed
+byte-for-byte (8180/190/21/partition/id-range-free/377 offices/doc-rule
+census/app_config); Berlin default questionnaire re-confirmed anchored to
+the city office and active (the C2 DELETE-forbidden anchor); in-memory
+migration simulation re-ran the resolver over the post-state: 12687→MH,
+10245→FK, 10115→Mitte, 13187/13189→Pankow, 10247/13051 stay Pankow,
+45127 Essen / 21682 Stade / 12529 Dahme-Spreewald / 14467 Potsdam
+untouched. A second adversarial pass (`xcheck-migration.mjs`) parsed the
+migration SQL itself and compared every PLZ list, office id, name, and
+asserted count against the prod-verified partition — symmetric copy errors
+between lists are the one failure mode count-asserts cannot catch; zero
+found. `npm run verify` green (incl. encoding guard over the umlaut names).
+
+## VI.2 Drift on record (execution-time R2, does not block)
+
+1. **Rico uploaded everything.** The §III/§IV "missing 3 (PAN-016/017/018)"
+   premise is stale as of this evening: 19 uploads now cover all 17 slots →
+   **missing = 0**, PAN-016/017/018 among the uploads. Legitimate user
+   activity; nothing in the migration reads uploads. The identity proof was
+   re-run at missing=0: slot set BYTE-IDENTICAL and missing count identical
+   (0=0) under city office vs MH office. Live-check consequence: his locked
+   card shows the STANDARD variant (not the docs variant), banner PRESENT,
+   suffix SUPPRESSED — the byte-identical requirement is unchanged.
+2. **A 4th case exists** (§I.4 said 3): `461038b0`,
+   `pw-completion+…@hzp-test.invalid`, PLZ 10115, city office, under_review —
+   the KEPT completion fixture from the round-2 close (on record there).
+   TEST case. D-5's "backfill ALL cases currently on the city office"
+   therefore covers **3 cases**: rico → MH `…-0010`, berk → FK `…-0003`,
+   fixture → Mitte `…-0002`. A completion.spec re-seed between pushes would
+   replace the fixture case (post-A/B it resolves 10115 → Mitte on its own);
+   C1's exact-set assert would then abort for a trivial re-derive.
+3. Roman's own case (`adf1ad79`, St. Wendel) now holds 1 upload (PAN-001,
+   2026-08-12) — out of remap scope, recorded for completeness.
+
+## VI.3 Push 2 — C1+C2 final draft (TEXT ONLY until A/B is live-verified)
+
+One migration, C2's asserts after C1 (founder D-6). To be materialized as
+`2026XXXXXXXXXX_batch_c_case_backfill_city_deactivation.sql` only after the
+A/B live verification passes, with the case census re-derived at that time:
+
+```sql
+BEGIN;
+-- C1 (D-5): backfill ALL cases parked on the city-level office.
+-- Zero user-visible effect (both sides rule-less -> identical fallback
+-- chain; re-proven at execution time). status_event audit rows document the
+-- administrative write (append-only log; table takes free-form event_type).
+DO $$
+DECLARE
+  n integer;
+  city constant uuid := '10000000-0000-0000-0000-000000000001';
+BEGIN
+  -- exact-set pre-assert: exactly these 3 cases, else ABORT for re-derive
+  SELECT count(*) INTO n FROM public.cases WHERE social_office_id = city;
+  IF n <> 3 THEN RAISE EXCEPTION 'expected 3 city-office cases, found %', n; END IF;
+
+  UPDATE public.cases SET social_office_id = '11000000-0000-0000-0000-000000000010'
+   WHERE id = '52e364f1-e27e-4e79-b455-55d658e1be95'
+     AND plz_before_move = '12687' AND social_office_id = city;      -- rico -> MH
+  GET DIAGNOSTICS n = ROW_COUNT;
+  IF n <> 1 THEN RAISE EXCEPTION 'rico backfill matched % rows', n; END IF;
+  INSERT INTO public.status_event (case_id, event_type, payload) VALUES
+    ('52e364f1-e27e-4e79-b455-55d658e1be95', 'social_office_backfilled',
+     jsonb_build_object('from', city, 'to', '11000000-0000-0000-0000-000000000010',
+       'plz', '12687', 'migration', 'batch_c_c1',
+       'note', 'administrative remap, display-identical (fallback both sides), case locked'));
+
+  -- berk -> FK …-0003 (10245) and fixture 461038b0 -> Mitte …-0002 (10115):
+  -- same shape — id+plz+office-guarded UPDATE, 1-row assert, audit row each
+  -- (fixture id re-derived at materialization time in case of re-seed).
+  [...]
+
+  SELECT count(*) INTO n FROM public.cases WHERE social_office_id = city;
+  IF n <> 0 THEN RAISE EXCEPTION 'C1 end-state: % cases still on city office', n; END IF;
+  RAISE NOTICE 'C1 applied: 3 cases backfilled, 0 remain on the city office';
+END $$;
+
+-- C2 (D-6): deactivate the city-level row — AFTER C1, asserts not assumed.
+-- NEVER DELETE: cases.social_office_id history may reference it and the
+-- Berlin default questionnaire 30000000-…-0001 FKs to it (verified active).
+-- social_office.is_active is checked nowhere in app code — hygiene only.
+DO $$
+DECLARE
+  n integer;
+  city constant uuid := '10000000-0000-0000-0000-000000000001';
+BEGIN
+  SELECT count(*) INTO n FROM public.postal_code_rule WHERE social_office_id = city;
+  IF n <> 0 THEN RAISE EXCEPTION 'C2 blocked: % PLZ rules still reference the city office', n; END IF;
+  SELECT count(*) INTO n FROM public.cases WHERE social_office_id = city;
+  IF n <> 0 THEN RAISE EXCEPTION 'C2 blocked: % cases still reference the city office', n; END IF;
+  UPDATE public.social_office SET is_active = false
+   WHERE id = city AND is_active = true;
+  GET DIAGNOSTICS n = ROW_COUNT;
+  IF n <> 1 THEN RAISE EXCEPTION 'C2: deactivation matched % rows', n; END IF;
+  RAISE NOTICE 'C2 applied: city-level office deactivated (row preserved for FK anchors)';
+END $$;
+COMMIT;
+```
+
+## VI.4 Live verification plan (rewritten per D-7 GO + drift)
+
+After push 1 + data-level checks:
+
+1. **rico BYTE-IDENTICAL** (read-only render check, zero writes): banner
+   PRESENT, "(letzte 4 Monate)" suffix SUPPRESSED, slot set (17) and
+   missing count (**0** — drift on record) identical to the pre-push
+   computation; locked card = STANDARD variant.
+2. Fresh throwaway, non-Pankow Berlin PLZ: case row records the NEW
+   district office id; checklist = fallback + banner (UX unchanged,
+   bookkeeping corrected).
+3. 13187 throwaway: Pankow own list, NO banner, suffix PRESENT — unchanged.
+4. 45127 Essen + 21682 Stade: untouched.
+5. Throwaways deleted, leak sweep zero debris.
+
+Then push 2 (C1+C2), post-push: rico/berk/fixture office ids moved, audit
+rows present, rico's render STILL byte-identical from the MH office, city
+office inactive with zero references. Close-out: milestone log, state file,
+ClickUp two-liner, ledger refresh (all queued per the founder brief).
