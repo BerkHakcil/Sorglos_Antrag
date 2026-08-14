@@ -166,6 +166,7 @@ function AnsweredBubble({
   onRemoveInstance,
   isEditing,
   locked,
+  deferred = false,
 }: {
   question: NavQuestion
   prevQuestion?: NavQuestion
@@ -173,6 +174,8 @@ function AnsweredBubble({
   onRemoveInstance: (groupKey: string, instanceId: string) => void
   isEditing: boolean
   locked: boolean
+  /** R2-7: rendered as a deferred question — prompt shown, no answer yet. */
+  deferred?: boolean
 }) {
   const isNewInstance =
     question.instanceId !== null &&
@@ -241,25 +244,40 @@ function AnsweredBubble({
         <div className="bg-cream-deep text-foreground max-w-[85%] self-start rounded-2xl rounded-bl-md px-4 py-3 text-[15px] leading-relaxed sm:max-w-[75%]">
           {question.prompt_de}
         </div>
-        {/* User side — the saved answer */}
-        <div className="flex max-w-[85%] flex-col items-end gap-1 self-end sm:max-w-[75%]">
+        {/* User side — the saved answer, or R2-7's deferred marker.
+            The marker is deliberately NOT a bubble: an answered question has a
+            filled petrol bubble, a deferred one has none, so the two states
+            differ in SHAPE and not only in colour (WCAG 1.4.1). No amber and no
+            red either — deferring is an expected step, not a warning (the
+            semantic palette rule). graphite-soft on the card measures 6.26:1. */}
+        {deferred ? (
           <div
-            className={`bg-primary rounded-2xl rounded-br-md px-4 py-3 text-[15px] leading-relaxed text-white shadow-sm ${
-              isEditing ? 'ring-primary ring-2 ring-offset-2' : ''
-            }`}
+            data-testid="deferred-marker"
+            className="text-graphite-soft flex max-w-[85%] items-center gap-1.5 self-end pr-1 text-xs italic sm:max-w-[75%]"
           >
-            {displayValue}
+            <Clock aria-hidden className="size-3.5 shrink-0 not-italic" />
+            <span>{s.skipButton}</span>
           </div>
-          {!locked && (
-            <button
-              type="button"
-              onClick={() => onEdit(question)}
-              className="text-graphite-soft hover:text-primary inline-flex min-h-11 items-center pr-1 text-xs underline underline-offset-2"
+        ) : (
+          <div className="flex max-w-[85%] flex-col items-end gap-1 self-end sm:max-w-[75%]">
+            <div
+              className={`bg-primary rounded-2xl rounded-br-md px-4 py-3 text-[15px] leading-relaxed text-white shadow-sm ${
+                isEditing ? 'ring-primary ring-2 ring-offset-2' : ''
+              }`}
             >
-              {s.editButton}
-            </button>
-          )}
-        </div>
+              {displayValue}
+            </div>
+            {!locked && (
+              <button
+                type="button"
+                onClick={() => onEdit(question)}
+                className="text-graphite-soft hover:text-primary inline-flex min-h-11 items-center pr-1 text-xs underline underline-offset-2"
+              >
+                {s.editButton}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </>
   )
@@ -679,6 +697,26 @@ export function ChatView({
   const answeredQuestions = nav.flatVisible.filter((q) => q.isAnswered)
   const answeredCount = answeredQuestions.length
 
+  /* R2-7: the transcript also shows what the user DEFERRED, so "Später
+     beantworten" leaves a trace instead of the question silently vanishing
+     until the end of the run.
+
+     DISPLAY ONLY. skippedIds stays exactly the session-scoped client Set it
+     was, handleSkip is untouched, and `isAnswered` is unchanged — a skipped
+     question is still unanswered, still re-asked once the queue empties, and
+     still counts against the progress denominator. Nothing here feeds
+     buildNav.
+
+     The active question is excluded: while it is being re-asked it already
+     owns the answer footer, and showing a "deferred" marker for the very
+     question on screen would contradict it. */
+  const transcript = nav.flatVisible.filter(
+    (q) =>
+      q.isAnswered ||
+      (skippedIds.has(draftKey(q.id, q.instanceId)) &&
+        !(activeQ && activeQ.id === q.id && activeQ.instanceId === q.instanceId))
+  )
+
   // Scroll history to bottom whenever a new answer lands
   useEffect(() => {
     const el = historyRef.current
@@ -1036,18 +1074,19 @@ export function ChatView({
             </div>
           )}
 
-          {/* Answered Q&A history — bubble exchange (E-3) */}
-          {answeredQuestions.length > 0 && (
+          {/* Answered + deferred history — bubble exchange (E-3, R2-7) */}
+          {transcript.length > 0 && (
             <div className="flex flex-col gap-2">
-              {answeredQuestions.map((q, i) => (
+              {transcript.map((q, i) => (
                 <AnsweredBubble
                   key={q.instanceId ? `${q.id}:${q.instanceId}` : q.id}
                   question={q}
-                  prevQuestion={answeredQuestions[i - 1]}
+                  prevQuestion={transcript[i - 1]}
                   onEdit={startEditing}
                   onRemoveInstance={handleDeleteInstance}
                   isEditing={editingId === q.id && editingInstanceId === q.instanceId}
                   locked={isLocked}
+                  deferred={!q.isAnswered}
                 />
               ))}
             </div>
