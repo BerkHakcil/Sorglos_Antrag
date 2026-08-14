@@ -236,7 +236,10 @@ export function DocumentArea({
                   <div
                     key={key}
                     data-testid="doc-slot"
-                    className={`p-4 transition-colors ${done ? 'bg-sage-soft/30' : ''}`}
+                    /* R2-4: the mockup's row proportions — roomier padding and
+                       a larger type scale than the E-4 first pass, which was
+                       drawn before the rows had a card of their own. */
+                    className={`px-5 py-5 transition-colors sm:px-6 sm:py-6 ${done ? 'bg-sage-soft/30' : ''}`}
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex min-w-0 items-center gap-3">
@@ -245,20 +248,20 @@ export function DocumentArea({
                             icon would only repeat it to a screen reader. */}
                         <span
                           aria-hidden
-                          className={`flex size-9 shrink-0 items-center justify-center rounded-full ${
+                          className={`flex size-10 shrink-0 items-center justify-center rounded-full ${
                             done ? 'bg-primary text-white' : 'bg-cream-deep text-graphite-soft'
                           }`}
                         >
-                          {done ? <Check className="size-4" /> : <FileText className="size-4" />}
+                          {done ? <Check className="size-5" /> : <FileText className="size-5" />}
                         </span>
                         <div className="min-w-0">
-                          <p className="text-sm font-medium">
+                          <p className="text-base font-medium sm:text-lg">
                             {slot.nameDe}
                             {slot.instanceLabel ? ` – ${slot.instanceLabel}` : ''}
                             {suffix ? ` ${suffix}` : ''}
                           </p>
                           <p
-                            className={`text-xs ${done ? 'text-primary' : 'text-graphite-soft'}`}
+                            className={`mt-0.5 text-sm ${done ? 'text-primary font-medium' : 'text-graphite-soft'}`}
                             data-testid="slot-status"
                           >
                             {files.length === 0
@@ -285,7 +288,7 @@ export function DocumentArea({
                           type="button"
                           disabled={busySlot === key}
                           onClick={() => inputs.current[key]?.click()}
-                          className={`${btnOutline} min-h-11 px-4 text-xs`}
+                          className={`${btnOutline} min-h-11 px-4 text-sm`}
                         >
                           {content.docsUploadButton}
                         </button>

@@ -236,7 +236,7 @@ try {
   await shoot(page, '03-chat-locked')
 
   // The documents checklist as it appears while the case is locked.
-  await page.getByTestId('tab-documents').click()
+  await page.locator('[data-testid=tab-documents]:visible').click()
   await page.locator('[data-testid=document-area]').waitFor({ state: 'visible', timeout: 30_000 })
   await shoot(page, '05-docs-locked')
 

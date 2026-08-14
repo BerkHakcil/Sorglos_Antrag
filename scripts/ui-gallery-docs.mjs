@@ -128,7 +128,7 @@ try {
   await page.getByRole('button', { name: 'Postleitzahl bestätigen' }).click()
   await page.locator('[data-testid=answer-footer]').waitFor({ state: 'visible', timeout: 30_000 })
 
-  await page.getByTestId('tab-documents').click()
+  await page.locator('[data-testid=tab-documents]:visible').click()
   await page.locator('[data-testid=document-area]').waitFor({ state: 'visible', timeout: 30_000 })
   const total = await page.locator('[data-testid=doc-slot]').count()
   console.log(`   [docs] ${total} slots on a fresh Berlin case`)

@@ -285,12 +285,12 @@ try {
 
   results.push(await auditScreen(page, 'questionnaire (with history)'))
 
-  await page.getByTestId('tab-documents').click()
+  await page.locator('[data-testid=tab-documents]:visible').click()
   await page.locator('[data-testid=document-area]').waitFor({ state: 'visible', timeout: 30_000 })
   results.push(await auditScreen(page, 'documents'))
 
   // Drive to completion for the terminal states.
-  await page.getByTestId('tab-questions').click()
+  await page.locator('[data-testid=tab-questions]:visible').click()
   let state = 'ok'
   for (let i = 0; i < 200 && state === 'ok'; i++) state = await answerOne(page)
   console.log(`\n   [drive] questionnaire ended in state: ${state}`)
