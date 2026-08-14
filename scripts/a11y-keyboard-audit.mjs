@@ -295,9 +295,24 @@ try {
   for (let i = 0; i < 200 && state === 'ok'; i++) state = await answerOne(page)
   console.log(`\n   [drive] questionnaire ended in state: ${state}`)
   if (state === 'done' || state === 'locked') {
-    await page.reload()
-    await page.locator('[data-testid=locked-banner]').waitFor({ state: 'visible', timeout: 30_000 })
-    results.push(await auditScreen(page, 'completion / locked'))
+    /* 'done' fires on the TRANSIENT all-answered card, which renders in the
+       seconds before the server flips the case to under_review and
+       router.refresh swaps in the locked card. A single reload can therefore
+       land before the flip; retry rather than report a false audit gap. */
+    let lockedSeen = false
+    for (let attempt = 1; attempt <= 3 && !lockedSeen; attempt++) {
+      await page.reload()
+      lockedSeen = await page
+        .locator('[data-testid=locked-banner]')
+        .isVisible({ timeout: 15_000 })
+        .catch(() => false)
+      if (!lockedSeen) await page.waitForTimeout(3_000)
+    }
+    if (!lockedSeen) {
+      console.log('   ⚠ locked state never appeared after 3 reloads — not audited')
+    } else {
+      results.push(await auditScreen(page, 'completion / locked'))
+    }
   } else {
     console.log('   ⚠ completion state NOT audited — drive got stuck')
   }

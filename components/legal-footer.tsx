@@ -44,7 +44,12 @@ export function LegalFooter({ variant = 'bar' }: { variant?: 'bar' | 'sidebar' }
               href={link.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-foreground hover:underline"
+              /* R2-6 sweep: the audit measured these at 14px high — under
+                 WCAG 2.5.8's 24x24 minimum. The visual size stays (this row
+                 lives inside the viewport-locked shell, where a 44px bar would
+                 cost the chat real height); the HIT AREA is padded out to 24px
+                 instead, which is what 2.5.8 actually asks for. */
+              className="hover:text-foreground inline-flex min-h-6 items-center hover:underline"
             >
               {link.label}
             </a>
