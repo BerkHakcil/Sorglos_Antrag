@@ -233,7 +233,15 @@ function AnsweredBubble({
           layout to flex — the click simply waited out its timeout against a
           page that rendered perfectly. Same lesson as E-0's `.shrink-0.border-t`;
           this one was missed by that census. */}
-      <div data-testid="answered-bubble" className="flex flex-col gap-2">
+      {/* R2-7: a DEFERRED entry gets its own testid. `answered-bubble` means
+          "this question has an answer" to every spec that reads it (they
+          filter by prompt, then click Bearbeiten — which a deferred entry does
+          not have). Reusing the tag for an unanswered entry would quietly
+          break that meaning. */}
+      <div
+        data-testid={deferred ? 'deferred-bubble' : 'answered-bubble'}
+        className="flex flex-col gap-2"
+      >
         {/* Assistant side — the question.
             R2-3: cream-deep, NOT the mockup's white. The transcript now sits on
             a white card, and the mockup puts white bubbles on it — separation
