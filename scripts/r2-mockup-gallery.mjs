@@ -98,10 +98,7 @@ async function run(vp) {
   const finish = [
     ['Wie lautet die IBAN', () => answerText(page, 'DE12 3456 7890 1234 5678 90')],
     ['monatliche Rente', () => answerText(page, '1.250,00')],
-    [
-      'weitere monatliche',
-      () => page.getByRole('button', { name: 'Nein', exact: true }).click(),
-    ],
+    ['weitere monatliche', () => page.getByRole('button', { name: 'Nein', exact: true }).click()],
     ['Ersparnisse', () => answerText(page, '4.800,00')],
     ['Immobilie', () => page.getByRole('button', { name: 'Nein', exact: true }).click()],
   ]

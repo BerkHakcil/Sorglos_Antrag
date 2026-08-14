@@ -73,11 +73,16 @@ async function waitForFooterSettled(page: Page, timeout = 15_000) {
   })
 }
 
-async function clickWeiter(page: Page) {
+/**
+ * R2-0 (UI round 2): selects the save CTA by `save-answer` testid, not by its
+ * accessible name. The label changes to "Antwort speichern" in R2-3 (D4);
+ * anchoring on the testid keeps this helper correct across that rename.
+ */
+async function clickSave(page: Page) {
   await page.waitForTimeout(150)
-  const weiter = page.getByRole('button', { name: 'Weiter' })
-  await weiter.waitFor({ state: 'visible', timeout: 8_000 })
-  await weiter.click()
+  const save = page.getByTestId('save-answer')
+  await save.waitFor({ state: 'visible', timeout: 8_000 })
+  await save.click()
   await page.waitForTimeout(200)
   await waitForFooterSettled(page)
 }
@@ -187,7 +192,7 @@ test.describe('Mobile answer-footer reachability', () => {
       const boxCount = await checkboxes.count()
       if (boxCount > 0) {
         multiselectSizes.push(boxCount)
-        await expectFullyInViewport(page, page.getByRole('button', { name: 'Weiter' }))
+        await expectFullyInViewport(page, page.getByTestId('save-answer'))
         // ⚠ COPY-COUPLED BY DESIGN (transitive-visibility precedent): the
         // exclusive none-option value "Nein, nichts davon" is Roman's data
         // (validation.exclusive_value). A rewording breaks this selector —
@@ -199,7 +204,7 @@ test.describe('Mobile answer-footer reachability', () => {
         } else {
           await checkboxes.last().click()
         }
-        await clickWeiter(page)
+        await clickSave(page)
         continue
       }
 
@@ -207,7 +212,7 @@ test.describe('Mobile answer-footer reachability', () => {
       const neinRadio = footer.locator('input[type=radio][value="Nein"]')
       if (await neinRadio.isVisible({ timeout: 250 }).catch(() => false)) {
         await neinRadio.click()
-        await clickWeiter(page)
+        await clickSave(page)
         continue
       }
       const sel = footer.locator('select')
@@ -219,31 +224,31 @@ test.describe('Mobile answer-footer reachability', () => {
         )
         const chosen = options.includes('Nein') ? 'Nein' : (options[0] ?? '')
         if (chosen) await sel.selectOption({ value: chosen })
-        await clickWeiter(page)
+        await clickSave(page)
         continue
       }
       const dateIn = footer.locator('input[type=date]')
       if (await dateIn.isVisible({ timeout: 250 }).catch(() => false)) {
         await dateIn.fill('1960-06-15')
-        await clickWeiter(page)
+        await clickSave(page)
         continue
       }
       const monthIn = footer.locator('input[type=month]')
       if (await monthIn.isVisible({ timeout: 250 }).catch(() => false)) {
         await monthIn.fill('2020-05')
-        await clickWeiter(page)
+        await clickSave(page)
         continue
       }
       const numIn = footer.locator('input[type=number]')
       if (await numIn.isVisible({ timeout: 250 }).catch(() => false)) {
         await numIn.fill('100')
-        await clickWeiter(page)
+        await clickSave(page)
         continue
       }
       const textarea = footer.locator('textarea')
       if (await textarea.isVisible({ timeout: 250 }).catch(() => false)) {
         await textarea.fill('Keine weiteren Angaben')
-        await clickWeiter(page)
+        await clickSave(page)
         continue
       }
       const textIn = footer.locator('input[type=text]').first()
@@ -259,7 +264,7 @@ test.describe('Mobile answer-footer reachability', () => {
                 ? 'test@example.org'
                 : 'Müller'
         await textIn.fill(value)
-        await clickWeiter(page)
+        await clickSave(page)
         continue
       }
       // Nothing matched — usually a transient render state (e.g. the locked
@@ -297,7 +302,7 @@ test.describe('Mobile answer-footer reachability', () => {
     }
 
     // Documents tab at mobile: tab button reachable, checklist renders.
-    const docsTab = page.locator('[data-testid=tab-documents]')
+    const docsTab = page.locator('[data-testid=tab-documents]:visible')
     await expectFullyInViewport(page, docsTab)
     await docsTab.click()
     await expect(page.locator('[data-testid=document-area]')).toBeVisible({ timeout: 15_000 })

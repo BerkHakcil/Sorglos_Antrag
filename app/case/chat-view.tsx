@@ -272,7 +272,19 @@ function CurrentQuestionCard({
       )}
 
       <div className="flex flex-wrap items-center gap-3">
-        <button type="button" disabled={saving} onClick={onSave} className={btnCopper}>
+        {/* R2-0 (UI round 2): the save CTA carries a testid because its LABEL
+            is about to change ("Weiter" → "Antwort speichern", D4). 13 spec and
+            script sites selected it by accessible name; anchoring them here
+            first means the rename in R2-3 touches no test. Same lesson as
+            E-0's `.shrink-0.border-t` — structure and specs never move in one
+            commit. */}
+        <button
+          type="button"
+          data-testid="save-answer"
+          disabled={saving}
+          onClick={onSave}
+          className={btnCopper}
+        >
           {saving ? s.savingButton : isEditMode ? s.editSaveButton : s.nextButton}
         </button>
 

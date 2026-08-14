@@ -37,7 +37,7 @@ const LINKS = [
 ]
 
 async function expectFooterLinks(page: Page) {
-  const footer = page.locator('[data-testid=legal-footer]')
+  const footer = page.locator('[data-testid=legal-footer]:visible')
   await expect(footer).toBeVisible()
   for (const { label, href } of LINKS) {
     const link = footer.locator(`a[href="${href}"]`)
@@ -106,8 +106,12 @@ test.describe('Legal footer + SVG logo', () => {
     await page.waitForURL(`${BASE}/case`, { timeout: 20_000 })
 
     await expectFooterLinks(page)
-    // SVG logo also swapped in the case header.
-    await expect(page.locator('header img[src="/logo.svg"]')).toBeVisible()
+    // SVG logo also swapped in the case shell. R2-0 (UI round 2): located by
+    // `brand-logo` testid + :visible rather than `header img[...]`, because
+    // R2-1 moves the brand mark into the desktop sidebar and hides the top
+    // header at lg — this assertion is about the logo being present in the
+    // case shell, not about which element wraps it.
+    await expect(page.locator('[data-testid=brand-logo]:visible')).toBeVisible()
 
     // The footer sits inside the viewport-locked shell: fully visible with
     // the document unscrolled (desktop and mobile widths).
@@ -117,7 +121,7 @@ test.describe('Legal footer + SVG logo', () => {
     ]) {
       await page.setViewportSize(viewport)
       await page.waitForTimeout(300)
-      const box = await page.locator('[data-testid=legal-footer]').boundingBox()
+      const box = await page.locator('[data-testid=legal-footer]:visible').boundingBox()
       expect(box, 'footer must render').not.toBeNull()
       expect(
         box!.y + box!.height,

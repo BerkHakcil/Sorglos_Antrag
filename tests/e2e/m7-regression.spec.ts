@@ -71,11 +71,16 @@ async function waitForFooterSettled(page: Page, timeout = 15_000) {
   })
 }
 
-async function clickWeiter(page: Page) {
+/**
+ * R2-0 (UI round 2): selects the save CTA by `save-answer` testid, not by its
+ * accessible name. The label changes to "Antwort speichern" in R2-3 (D4);
+ * anchoring on the testid keeps this helper correct across that rename.
+ */
+async function clickSave(page: Page) {
   await page.waitForTimeout(150)
-  const weiter = page.getByRole('button', { name: 'Weiter' })
-  await weiter.waitFor({ state: 'visible', timeout: 8_000 })
-  await weiter.click()
+  const save = page.getByTestId('save-answer')
+  await save.waitFor({ state: 'visible', timeout: 8_000 })
+  await save.click()
   await page.waitForTimeout(200)
   await waitForFooterSettled(page)
 }
@@ -146,7 +151,7 @@ async function answerStep(page: Page): Promise<'continue' | 'done' | 'stuck'> {
   const neinRadio = footer.locator('input[type=radio][value="Nein"]')
   if (await neinRadio.isVisible({ timeout: 250 }).catch(() => false)) {
     await neinRadio.click()
-    await clickWeiter(page)
+    await clickSave(page)
     return 'continue'
   }
   const sel = footer.locator('select')
@@ -158,31 +163,31 @@ async function answerStep(page: Page): Promise<'continue' | 'done' | 'stuck'> {
     )
     const chosen = options.includes('Nein') ? 'Nein' : (options[0] ?? '')
     if (chosen) await sel.selectOption({ value: chosen })
-    await clickWeiter(page)
+    await clickSave(page)
     return 'continue'
   }
   const dateIn = footer.locator('input[type=date]')
   if (await dateIn.isVisible({ timeout: 250 }).catch(() => false)) {
     await dateIn.fill('1960-06-15')
-    await clickWeiter(page)
+    await clickSave(page)
     return 'continue'
   }
   const monthIn = footer.locator('input[type=month]')
   if (await monthIn.isVisible({ timeout: 250 }).catch(() => false)) {
     await monthIn.fill('2020-05')
-    await clickWeiter(page)
+    await clickSave(page)
     return 'continue'
   }
   const numIn = footer.locator('input[type=number]')
   if (await numIn.isVisible({ timeout: 250 }).catch(() => false)) {
     await numIn.fill('100')
-    await clickWeiter(page)
+    await clickSave(page)
     return 'continue'
   }
   const textarea = footer.locator('textarea')
   if (await textarea.isVisible({ timeout: 250 }).catch(() => false)) {
     await textarea.fill('Keine weiteren Angaben')
-    await clickWeiter(page)
+    await clickSave(page)
     return 'continue'
   }
   const textIn = footer.locator('input[type=text]').first()
@@ -197,13 +202,13 @@ async function answerStep(page: Page): Promise<'continue' | 'done' | 'stuck'> {
             ? 'test@example.org'
             : 'Müller'
     await textIn.fill(value)
-    await clickWeiter(page)
+    await clickSave(page)
     return 'continue'
   }
   const chk = footer.locator('input[type=checkbox]').first()
   if (await chk.isVisible({ timeout: 250 }).catch(() => false)) {
     await chk.click()
-    await clickWeiter(page)
+    await clickSave(page)
     return 'continue'
   }
   return 'stuck'
@@ -239,7 +244,7 @@ test('R1: Essen — 45127 loads Essen (49 questions), completes, default checkli
   // when migration 20260724000001 seeded Essen's own rules; fallback-notice
   // F3 proves 45127 serves Essen's OWN list with no fallback banner.)
   await expect(
-    page.locator('[data-testid=tab-documents]'),
+    page.locator('[data-testid=tab-documents]:visible'),
     'Dokumente tab present pre-completion (default rules)'
   ).toBeVisible({ timeout: 10_000 })
 
@@ -265,7 +270,7 @@ test('R1: Essen — 45127 loads Essen (49 questions), completes, default checkli
 
   // Open the Dokumente tab: the Pankow-default checklist renders and accepts
   // an upload (the flipped D5 assert).
-  await page.locator('[data-testid=tab-documents]').click()
+  await page.locator('[data-testid=tab-documents]:visible').click()
   await expect(page.locator('[data-testid=document-area]')).toBeVisible({ timeout: 10_000 })
   const slotCount = await page.locator('[data-testid=doc-slot]').count()
   expect(slotCount, 'default checklist has slots for the Essen case').toBeGreaterThan(0)
@@ -326,7 +331,7 @@ test('R2: fallback — 66606 serves the Berlin questionnaire, answers persist', 
 
   // Feedback pass item 3: fallback-routed cases also get the default checklist.
   await expect(
-    page.locator('[data-testid=tab-documents]'),
+    page.locator('[data-testid=tab-documents]:visible'),
     'Dokumente tab present for the fallback case'
   ).toBeVisible({ timeout: 10_000 })
 

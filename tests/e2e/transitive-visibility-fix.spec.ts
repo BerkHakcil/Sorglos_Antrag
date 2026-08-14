@@ -99,11 +99,16 @@ async function waitForFooterSettled(page: Page, timeout = 15_000) {
   })
 }
 
-async function clickWeiter(page: Page) {
+/**
+ * R2-0 (UI round 2): selects the save CTA by `save-answer` testid, not by its
+ * accessible name. The label changes to "Antwort speichern" in R2-3 (D4);
+ * anchoring on the testid keeps this helper correct across that rename.
+ */
+async function clickSave(page: Page) {
   await page.waitForTimeout(150)
-  const weiter = page.getByRole('button', { name: 'Weiter' })
-  await weiter.waitFor({ state: 'visible', timeout: 8_000 })
-  await weiter.click()
+  const save = page.getByTestId('save-answer')
+  await save.waitFor({ state: 'visible', timeout: 8_000 })
+  await save.click()
   await page.waitForTimeout(200)
   await waitForFooterSettled(page)
 }
@@ -160,7 +165,7 @@ async function driveQuestionnaire(page: Page, opts: { maritalChoice: string; rev
     const neinRadio = footer.locator('input[type=radio][value="Nein"]')
     if (await neinRadio.isVisible({ timeout: 300 }).catch(() => false)) {
       await neinRadio.click()
-      await clickWeiter(page)
+      await clickSave(page)
       stuck = 0
       continue
     }
@@ -198,7 +203,7 @@ async function driveQuestionnaire(page: Page, opts: { maritalChoice: string; rev
         chosen = options.find((o) => o.label === 'Nein')?.value ?? options[0].value
       }
       await sel.selectOption({ value: chosen })
-      await clickWeiter(page)
+      await clickSave(page)
       stuck = 0
       continue
     }
@@ -206,21 +211,21 @@ async function driveQuestionnaire(page: Page, opts: { maritalChoice: string; rev
     const dateIn = footer.locator('input[type=date]')
     if (await dateIn.isVisible({ timeout: 300 }).catch(() => false)) {
       await dateIn.fill('1960-06-15')
-      await clickWeiter(page)
+      await clickSave(page)
       stuck = 0
       continue
     }
     const numIn = footer.locator('input[type=number]')
     if (await numIn.isVisible({ timeout: 300 }).catch(() => false)) {
       await numIn.fill('100')
-      await clickWeiter(page)
+      await clickSave(page)
       stuck = 0
       continue
     }
     const textIn = footer.locator('input[type=text]').first()
     if (await textIn.isVisible({ timeout: 300 }).catch(() => false)) {
       await textIn.fill('Müller')
-      await clickWeiter(page)
+      await clickSave(page)
       stuck = 0
       continue
     }
@@ -232,7 +237,7 @@ async function driveQuestionnaire(page: Page, opts: { maritalChoice: string; rev
         await waitForFooterSettled(page)
       } else {
         await chk.click()
-        await clickWeiter(page)
+        await clickSave(page)
       }
       stuck = 0
       continue

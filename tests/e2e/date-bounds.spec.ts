@@ -94,11 +94,16 @@ async function waitForFooterSettled(page: Page, timeout = 15_000) {
   })
 }
 
-async function clickWeiter(page: Page) {
+/**
+ * R2-0 (UI round 2): selects the save CTA by `save-answer` testid, not by its
+ * accessible name. The label changes to "Antwort speichern" in R2-3 (D4);
+ * anchoring on the testid keeps this helper correct across that rename.
+ */
+async function clickSave(page: Page) {
   await page.waitForTimeout(150)
-  const weiter = page.getByRole('button', { name: 'Weiter' })
-  await weiter.waitFor({ state: 'visible', timeout: 8_000 })
-  await weiter.click()
+  const save = page.getByTestId('save-answer')
+  await save.waitFor({ state: 'visible', timeout: 8_000 })
+  await save.click()
   await page.waitForTimeout(200)
   await waitForFooterSettled(page)
 }
@@ -133,25 +138,25 @@ async function driveTo(page: Page, targetFragment: string, maxSteps = 30) {
         options.find((o) => o.label === 'Nein')?.value ??
         options[0].value
       await sel.selectOption({ value: chosen })
-      await clickWeiter(page)
+      await clickSave(page)
       continue
     }
     const neinRadio = footer.locator('input[type=radio][value="Nein"]')
     if (await neinRadio.isVisible({ timeout: 300 }).catch(() => false)) {
       await neinRadio.click()
-      await clickWeiter(page)
+      await clickSave(page)
       continue
     }
     const dateIn = footer.locator('input[type=date]')
     if (await dateIn.isVisible({ timeout: 300 }).catch(() => false)) {
       await dateIn.fill('1960-06-15')
-      await clickWeiter(page)
+      await clickSave(page)
       continue
     }
     const textIn = footer.locator('input[type=text]').first()
     if (await textIn.isVisible({ timeout: 300 }).catch(() => false)) {
       await textIn.fill('Müller')
-      await clickWeiter(page)
+      await clickSave(page)
       continue
     }
     throw new Error(`driveTo(${targetFragment}): unhandled input at step ${step}: ${text}`)
@@ -179,7 +184,7 @@ test('D1+D2: past-only birth date rejects 2031 (server), expiry accepts 2031', a
   // Server rejection: fill() bypasses the native max, so the submit reaches
   // validateAnswerValue and must come back with the German error.
   await birthInput.fill('2031-01-01')
-  await page.getByRole('button', { name: 'Weiter' }).click()
+  await page.getByTestId('save-answer').click()
   await expect(page.locator('[data-testid=answer-footer]').last()).toContainText(
     'Ungültiges Datum.',
     { timeout: 10_000 }
@@ -189,7 +194,7 @@ test('D1+D2: past-only birth date rejects 2031 (server), expiry accepts 2031', a
 
   // Valid past date advances.
   await birthInput.fill('1960-06-15')
-  await clickWeiter(page)
+  await clickSave(page)
 
   // ── D2: id_expiry_date ("Bis wann ist Ihr Personaldokument gültig?") ───────
   await driveTo(page, 'personaldokument gültig')
@@ -201,7 +206,7 @@ test('D1+D2: past-only birth date rejects 2031 (server), expiry accepts 2031', a
   await expect(expiryInput).toHaveAttribute('max', tenYears.toISOString().slice(0, 10))
 
   await expiryInput.fill('2031-05-01')
-  await clickWeiter(page)
+  await clickSave(page)
 
   // The 2031 expiry LANDED: no error, drive moved on, and the DB holds it.
   const { data: q } = await adminDb

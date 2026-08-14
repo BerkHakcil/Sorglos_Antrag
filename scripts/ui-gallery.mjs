@@ -142,7 +142,7 @@ try {
       const input = footer.locator('input[type=text]').first()
       if (await input.isVisible({ timeout: 1200 }).catch(() => false)) {
         await input.fill(value)
-        await page.getByRole('button', { name: 'Weiter', exact: true }).click()
+        await page.getByTestId('save-answer').click()
         await page.waitForTimeout(1600)
         return true
       }

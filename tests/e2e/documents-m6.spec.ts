@@ -96,11 +96,16 @@ async function waitForFooterSettled(page: Page, timeout = 15_000) {
   })
 }
 
-async function clickWeiter(page: Page) {
+/**
+ * R2-0 (UI round 2): selects the save CTA by `save-answer` testid, not by its
+ * accessible name. The label changes to "Antwort speichern" in R2-3 (D4);
+ * anchoring on the testid keeps this helper correct across that rename.
+ */
+async function clickSave(page: Page) {
   await page.waitForTimeout(150)
-  const weiter = page.getByRole('button', { name: 'Weiter' })
-  await weiter.waitFor({ state: 'visible', timeout: 8_000 })
-  await weiter.click()
+  const save = page.getByTestId('save-answer')
+  await save.waitFor({ state: 'visible', timeout: 8_000 })
+  await save.click()
   await page.waitForTimeout(200)
   await waitForFooterSettled(page)
 }
@@ -141,7 +146,7 @@ async function readSlots(page: Page) {
 
 /** Open the Dokumente tab (feedback pass item 2 — the area lives in a tab). */
 async function openDocumentsTab(page: Page) {
-  const tab = page.locator('[data-testid=tab-documents]')
+  const tab = page.locator('[data-testid=tab-documents]:visible')
   await tab.waitFor({ state: 'visible', timeout: 10_000 })
   await tab.click()
   await page.waitForTimeout(300)
@@ -304,7 +309,7 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
     const jaRadio = footer.locator('input[type=radio][value="Ja"]')
     if (await jaRadio.isVisible({ timeout: 250 }).catch(() => false)) {
       await jaRadio.click()
-      await clickWeiter(page)
+      await clickSave(page)
       console.log(`[step ${step}] yes_no → Ja ("${footerText.substring(0, 60).trim()}")`)
       stuckCount = 0
       continue
@@ -328,7 +333,7 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
             : (options[0] ?? '')
       if (chosen) await sel.selectOption({ value: chosen })
       if (wanted) console.log(`[step ${step}] ${key} → "${chosen}"`)
-      await clickWeiter(page)
+      await clickSave(page)
       stuckCount = 0
       continue
     }
@@ -337,7 +342,7 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
     const dateIn = footer.locator('input[type=date]')
     if (await dateIn.isVisible({ timeout: 250 }).catch(() => false)) {
       await dateIn.fill('1960-06-15')
-      await clickWeiter(page)
+      await clickSave(page)
       stuckCount = 0
       continue
     }
@@ -346,7 +351,7 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
     const numIn = footer.locator('input[type=number]')
     if (await numIn.isVisible({ timeout: 250 }).catch(() => false)) {
       await numIn.fill('100')
-      await clickWeiter(page)
+      await clickSave(page)
       stuckCount = 0
       continue
     }
@@ -362,7 +367,7 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
             ? 'test@example.org'
             : 'Müller'
       await textIn.fill(value)
-      await clickWeiter(page)
+      await clickSave(page)
       stuckCount = 0
       continue
     }
@@ -371,7 +376,7 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
     const chk = footer.locator('input[type=checkbox]').first()
     if (await chk.isVisible({ timeout: 250 }).catch(() => false)) {
       await chk.click()
-      await clickWeiter(page)
+      await clickSave(page)
       console.log(`[step ${step}] multi_select → first option`)
       stuckCount = 0
       continue

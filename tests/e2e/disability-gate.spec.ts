@@ -107,6 +107,21 @@ async function clickButton(page: Page, name: string) {
   await waitForFooterSettled(page)
 }
 
+/**
+ * R2-0 (UI round 2): the save CTA by testid, since its label becomes
+ * "Antwort speichern" in R2-3 (D4). `clickButton` stays for
+ * "Änderung speichern" — that label does NOT change, and waiting on it is
+ * this spec's implicit proof that edit mode was entered.
+ */
+async function clickSave(page: Page) {
+  await page.waitForTimeout(150)
+  const save = page.getByTestId('save-answer')
+  await save.waitFor({ state: 'visible', timeout: 8_000 })
+  await save.click()
+  await page.waitForTimeout(200)
+  await waitForFooterSettled(page)
+}
+
 async function footerText(page: Page): Promise<string> {
   const footer = page.locator('[data-testid=answer-footer]').last()
   return (await footer.textContent({ timeout: 500 }).catch(() => '')) ?? ''
@@ -143,25 +158,25 @@ async function driveTo(page: Page, target: string, maxSteps = 30) {
         options.find((o) => o.label === 'Nein')?.value ??
         options[0].value
       await sel.selectOption({ value: chosen })
-      await clickButton(page, 'Weiter')
+      await clickSave(page)
       continue
     }
     const neinRadio = footer.locator('input[type=radio][value="Nein"]')
     if (await neinRadio.isVisible({ timeout: 300 }).catch(() => false)) {
       await neinRadio.click()
-      await clickButton(page, 'Weiter')
+      await clickSave(page)
       continue
     }
     const dateIn = footer.locator('input[type=date]')
     if (await dateIn.isVisible({ timeout: 300 }).catch(() => false)) {
       await dateIn.fill('1960-06-15')
-      await clickButton(page, 'Weiter')
+      await clickSave(page)
       continue
     }
     const textIn = footer.locator('input[type=text]').first()
     if (await textIn.isVisible({ timeout: 300 }).catch(() => false)) {
       await textIn.fill('Müller')
-      await clickButton(page, 'Weiter')
+      await clickSave(page)
       continue
     }
     throw new Error(`driveTo(${target}): unhandled input at step ${step}: ${text}`)
@@ -208,7 +223,7 @@ test('G1-G4: gate shows on Ja, skips expiry on unbefristet, requires it on Nein,
   // ── G1: card "Ja" → the gate question appears next ──────────────────────────
   await driveTo(page, 'schwerbehindertenausweis')
   await selectInFooter(page, 'Ja')
-  await clickButton(page, 'Weiter')
+  await clickSave(page)
   await expect(page.locator('[data-testid=answer-footer]').last()).toContainText(gatePrompt, {
     timeout: 10_000,
   })
@@ -216,7 +231,7 @@ test('G1-G4: gate shows on Ja, skips expiry on unbefristet, requires it on Nein,
 
   // ── G2: gate "Ja" (unbefristet) → expiry skipped, Merkzeichen next ──────────
   await selectInFooter(page, 'Ja')
-  await clickButton(page, 'Weiter')
+  await clickSave(page)
   await expect(page.locator('[data-testid=answer-footer]').last()).toContainText('Merkzeichen', {
     timeout: 10_000,
   })
@@ -230,7 +245,7 @@ test('G1-G4: gate shows on Ja, skips expiry on unbefristet, requires it on Nein,
     .locator('input[type=checkbox]')
     .first()
   await chk.click()
-  await clickButton(page, 'Weiter')
+  await clickSave(page)
 
   // ── G3: edit the gate to "Nein" → expiry surfaces as required ───────────────
   const gateBubble = page
@@ -249,7 +264,7 @@ test('G1-G4: gate shows on Ja, skips expiry on unbefristet, requires it on Nein,
   )
   const dateIn = page.locator('[data-testid=answer-footer]').last().locator('input[type=date]')
   await dateIn.fill('2031-03-01') // also exercises the item-5 widened expiry bound
-  await clickButton(page, 'Weiter')
+  await clickSave(page)
   await expect.poll(async () => expiryAnswerCount(caseId), { timeout: 10_000 }).toBe(1)
   console.log('[G3] gate=Nein → expiry required, 2031 date saved')
 

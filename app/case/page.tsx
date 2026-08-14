@@ -54,6 +54,7 @@ export default async function CasePage() {
             <Image
               src="/logo.svg"
               alt={sb.name}
+              data-testid="brand-logo"
               width={172}
               height={28}
               priority

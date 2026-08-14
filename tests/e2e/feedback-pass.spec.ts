@@ -78,11 +78,16 @@ async function waitForFooterSettled(page: Page, timeout = 15_000) {
   })
 }
 
-async function clickWeiter(page: Page) {
+/**
+ * R2-0 (UI round 2): selects the save CTA by `save-answer` testid, not by its
+ * accessible name. The label changes to "Antwort speichern" in R2-3 (D4);
+ * anchoring on the testid keeps this helper correct across that rename.
+ */
+async function clickSave(page: Page) {
   await page.waitForTimeout(150)
-  const weiter = page.getByRole('button', { name: 'Weiter' })
-  await weiter.waitFor({ state: 'visible', timeout: 8_000 })
-  await weiter.click()
+  const save = page.getByTestId('save-answer')
+  await save.waitFor({ state: 'visible', timeout: 8_000 })
+  await save.click()
   await page.waitForTimeout(200)
   await waitForFooterSettled(page)
 }
@@ -174,7 +179,7 @@ async function answerStep(
   const neinRadio = footer.locator('input[type=radio][value="Nein"]')
   if (await neinRadio.isVisible({ timeout: 250 }).catch(() => false)) {
     await neinRadio.click()
-    await clickWeiter(page)
+    await clickSave(page)
     return 'continue'
   }
   const sel = footer.locator('select')
@@ -194,7 +199,7 @@ async function answerStep(
           : (options[0] ?? '')
     if (chosen) await sel.selectOption({ value: chosen })
     if (wanted) console.log(`  [override] ${key} → "${chosen}"`)
-    await clickWeiter(page)
+    await clickSave(page)
     return 'continue'
   }
   for (const [selector, fill] of [
@@ -205,14 +210,14 @@ async function answerStep(
     const el = footer.locator(selector)
     if (await el.isVisible({ timeout: 250 }).catch(() => false)) {
       await el.fill(fill)
-      await clickWeiter(page)
+      await clickSave(page)
       return 'continue'
     }
   }
   const textarea = footer.locator('textarea')
   if (await textarea.isVisible({ timeout: 250 }).catch(() => false)) {
     await textarea.fill('Keine weiteren Angaben')
-    await clickWeiter(page)
+    await clickSave(page)
     return 'continue'
   }
   const textIn = footer.locator('input[type=text]').first()
@@ -227,13 +232,13 @@ async function answerStep(
             ? 'test@example.org'
             : 'Müller'
     await textIn.fill(value)
-    await clickWeiter(page)
+    await clickSave(page)
     return 'continue'
   }
   const chk = footer.locator('input[type=checkbox]').first()
   if (await chk.isVisible({ timeout: 250 }).catch(() => false)) {
     await chk.click()
-    await clickWeiter(page)
+    await clickSave(page)
     return 'continue'
   }
   return 'stuck'
@@ -359,13 +364,13 @@ test('T1: Dokumente tab from first login, live spouse slots on marital save, pre
   cleanupCaseId = caseRow!.id
 
   // Tab + badge visible BEFORE any answer; mandatory slots present.
-  await expect(page.locator('[data-testid=tab-documents]')).toBeVisible({ timeout: 10_000 })
-  const badge = page.locator('[data-testid=docs-tab-badge]')
+  await expect(page.locator('[data-testid=tab-documents]:visible')).toBeVisible({ timeout: 10_000 })
+  const badge = page.locator('[data-testid=docs-tab-badge]:visible')
   await expect(badge, 'badge visible from first login').toBeVisible()
   const initialMissing = Number(await badge.textContent())
   expect(initialMissing, 'mandatory slots counted before any answer').toBeGreaterThan(0)
 
-  await page.locator('[data-testid=tab-documents]').click()
+  await page.locator('[data-testid=tab-documents]:visible').click()
   await expect(page.locator('[data-testid=document-area]')).toBeVisible()
   await expect(
     page.getByText('Personaldokument').first(),
@@ -377,7 +382,7 @@ test('T1: Dokumente tab from first login, live spouse slots on marital save, pre
   ).toHaveCount(0)
 
   // Drive the chat until marital_status=verheiratet is saved.
-  await page.locator('[data-testid=tab-questions]').click()
+  await page.locator('[data-testid=tab-questions]:visible').click()
   const maritalQ = qs.find((q) => q.key === 'marital_status')!
   for (let step = 1; step <= 25; step++) {
     const { count } = await adminDb
@@ -393,7 +398,7 @@ test('T1: Dokumente tab from first login, live spouse slots on marital save, pre
   await expect
     .poll(async () => Number(await badge.textContent().catch(() => '0')), { timeout: 20_000 })
     .toBeGreaterThan(initialMissing)
-  await page.locator('[data-testid=tab-documents]').click()
+  await page.locator('[data-testid=tab-documents]:visible').click()
   await expect(
     page.getByText('Unterlagen Ihres Partners'),
     'spouse slots appeared LIVE mid-questionnaire'

@@ -88,7 +88,7 @@ async function completePreSteps(page: Page, plz: string) {
 }
 
 async function openDocumentsTab(page: Page) {
-  await page.locator('[data-testid=tab-documents]').click()
+  await page.locator('[data-testid=tab-documents]:visible').click()
   await expect(page.locator('[data-testid=document-area]')).toBeVisible({ timeout: 15_000 })
 }
 
@@ -99,11 +99,11 @@ test.describe('Out-of-coverage fallback notice', () => {
     await makeUserAndLogin(page, 'stade')
 
     // Pre-PLZ state unchanged: placeholder pane, NO banner anywhere.
-    await page.locator('[data-testid=tab-documents]').click()
+    await page.locator('[data-testid=tab-documents]:visible').click()
     await expect(page.locator('[data-testid=docs-placeholder]')).toBeVisible({ timeout: 15_000 })
     await expect(page.locator('[data-testid=fallback-notice]')).toHaveCount(0)
 
-    await page.locator('[data-testid=tab-questions]').click()
+    await page.locator('[data-testid=tab-questions]:visible').click()
     await completePreSteps(page, '21682')
     await openDocumentsTab(page)
 

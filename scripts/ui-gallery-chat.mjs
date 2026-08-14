@@ -132,7 +132,7 @@ async function answerOne(page) {
     return 'ok'
   }
 
-  const weiter = page.getByRole('button', { name: 'Weiter' })
+  const weiter = page.getByTestId('save-answer')
   const radio = footer.locator('input[type=radio][value="Nein"]')
   if (await radio.isVisible({ timeout: 300 }).catch(() => false)) {
     await radio.click()
