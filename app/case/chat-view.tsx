@@ -29,6 +29,10 @@ type Props = {
   initialGroupInstances: Record<string, string[]>
   initialGroupAnswers: Record<string, Record<string, unknown>>
   caseStatus: string
+  /** R2-2: mobile-only copies of the shell header (below lg the pinned block
+      is hidden — it would eat the answer footer's height; see case-tabs). */
+  headerTitle: string
+  headerIntro: string
   /** Live missing-documents count (same number as the tab badge) — drives the
       locked card's docs-aware variant (item 3, go-live round 2). */
   missingDocs: number
@@ -551,6 +555,8 @@ export function ChatView({
   initialGroupInstances,
   initialGroupAnswers,
   caseStatus,
+  headerTitle,
+  headerIntro,
   missingDocs,
   content,
 }: Props) {
@@ -962,10 +968,21 @@ export function ChatView({
       {/* ── Scrollable middle: answered history ─────────────── */}
       <div ref={historyRef} data-testid="chat-history" className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-2xl space-y-4 px-4 py-4">
-          {/* R2-2 (F2): the mobile copy of the patient notice is gone too. Both
-              copies existed because the banner was a block competing with the
-              chat for pinned height; as the header's intro line the same
-              sentence is shown once, at both sizes, above the fold. */}
+          {/* Mobile copy of the shell header (title + intro). It renders HERE,
+              inside the scroller, for the same reason the patient banner it
+              replaces did: anything above the scroller is fixed height, and on
+              a 667px viewport that height is taken from the answer footer until
+              its buttons fall off screen. Desktop pins the copy in the shell. */}
+          {(headerTitle || headerIntro) && (
+            <div className="lg:hidden">
+              {headerTitle && (
+                <h1 className="text-foreground text-xl font-bold tracking-tight">{headerTitle}</h1>
+              )}
+              {headerIntro && (
+                <p className="text-graphite-soft mt-2 text-sm leading-relaxed">{headerIntro}</p>
+              )}
+            </div>
+          )}
 
           {/* Answered Q&A history — bubble exchange (E-3) */}
           {answeredQuestions.length > 0 && (

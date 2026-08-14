@@ -166,8 +166,9 @@ test.describe('Mobile answer-footer reachability', () => {
     let stuck = 0
 
     for (let step = 1; step <= 300; step++) {
+      /* R2-2 (F1): locked banner, not the removed "In Prüfung" chip. */
       const locked = await page
-        .getByText('In Prüfung', { exact: false })
+        .locator('[data-testid=locked-banner]')
         .isVisible({ timeout: 200 })
         .catch(() => false)
       if (locked) break
@@ -287,7 +288,7 @@ test.describe('Mobile answer-footer reachability', () => {
     // LAST next-steps bullet must be reachable (footer-internal scrolling is
     // fine and intended — scrollIntoViewIfNeeded uses it; the page body must
     // still not scroll).
-    await expect(page.getByText('In Prüfung', { exact: false }).first()).toBeVisible({
+    await expect(page.locator('[data-testid=locked-banner]')).toBeVisible({
       timeout: 15_000,
     })
     const lockedFooter = page.locator('[data-testid=answer-footer]')

@@ -129,11 +129,12 @@ async function setupCase(page: Page, plz: string) {
 }
 
 /** Generic adaptive answer step. Returns 'done' once the case is completed —
- *  signaled by the "In Prüfung" status chip (the locked-banner copy is
- *  DB-authored static_content since FP2 and not a stable anchor). */
+ *  signaled by the locked banner. R2-2 (F1) removed the "In Prüfung" status
+ *  chip along with the header meta row it lived in; the banner's TESTID is the
+ *  stable anchor (its copy is DB-authored and still is not). */
 async function answerStep(page: Page): Promise<'continue' | 'done' | 'stuck'> {
   const locked = await page
-    .getByText('In Prüfung', { exact: false })
+    .locator('[data-testid=locked-banner]')
     .isVisible({ timeout: 200 })
     .catch(() => false)
   if (locked) return 'done'
@@ -260,7 +261,7 @@ test('R1: Essen — 45127 loads Essen (49 questions), completes, default checkli
   }
 
   await page.reload()
-  await expect(page.getByText('In Prüfung', { exact: false })).toBeVisible({ timeout: 15_000 })
+  await expect(page.locator('[data-testid=locked-banner]')).toBeVisible({ timeout: 15_000 })
   const { data: after } = await adminDb
     .from('cases')
     .select('status')

@@ -272,15 +272,16 @@ test('M6: slots (A1-A3), counter (A4), liveness (A5), independence (A6)', async 
   let stuckCount = 0
 
   for (let step = 1; step <= 300 && stuckCount < 5; step++) {
-    // Completion signal: the "In Prüfung" status chip (the area now lives in
-    // the hidden Dokumente tab pane since the feedback pass, and the locked
-    // banner copy is DB-authored — neither is a stable anchor).
+    /* R2-2 (F1): the completion signal is the locked banner, not the
+       "In Prüfung" status chip — F1 removed the header meta row that was the
+       chip's only render site, so this probe could never fire again. The
+       testid is stable where the chip's DB-authored copy was not. */
     const done = await page
-      .getByText('In Prüfung', { exact: false })
+      .locator('[data-testid=locked-banner]')
       .isVisible({ timeout: 200 })
       .catch(() => false)
     if (done) {
-      console.log(`[step ${step}] In Prüfung — questionnaire complete`)
+      console.log(`[step ${step}] locked banner — questionnaire complete`)
       break
     }
 

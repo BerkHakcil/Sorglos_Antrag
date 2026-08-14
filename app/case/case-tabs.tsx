@@ -174,11 +174,19 @@ export function CaseTabs({
      uploads into the same number, so showing it above the Unterlagen tab would
      claim a completeness we do not measure. */
   const intro = tab === 'documents' && documents ? introDocuments : introQuestions
-  /* No border here on purpose: the Angaben pane's own band (title -> intro ->
-     progress) sits directly beneath, and two stacked rules read as two
-     separate chrome regions where the mockup has one. */
+  /* PINNED COPY — DESKTOP ONLY (`hidden lg:block`). This block is fixed height
+     above the panes, and on mobile that height comes straight out of the
+     answer footer's share of an h-dvh column: the first attempt put the save
+     button 702px down a 667px viewport and mobile-footer.spec caught it — the
+     2026-08-11 field bug, re-created. Below lg the same title and intro render
+     INSIDE each pane's scroller instead (see the `mobileHeader` copies), which
+     is exactly how the patient banner it replaces always behaved.
+
+     No border on purpose: the Angaben pane's own band (progress) sits directly
+     beneath, and two stacked rules read as two chrome regions where the mockup
+     has one. */
   const header = (headerTitle || intro) && (
-    <div className="bg-background/95 shrink-0 backdrop-blur">
+    <div className="bg-background/95 hidden shrink-0 backdrop-blur lg:block">
       <div className="mx-auto max-w-2xl px-4 pt-4 pb-3 lg:text-center">
         {headerTitle && (
           <h1 className="text-foreground text-xl font-bold tracking-tight sm:text-2xl">
@@ -229,7 +237,25 @@ export function CaseTabs({
           </div>
           {documents && (
             <div className={tab === 'documents' ? 'bg-muted/40 flex-1 overflow-y-auto' : 'hidden'}>
-              <div className="mx-auto max-w-2xl px-4 py-4">{documents}</div>
+              <div className="mx-auto max-w-2xl px-4 py-4">
+                {/* Mobile copy of the shell header — inside the scroller, so it
+                    costs the pane no fixed height (see the pinned copy above). */}
+                {(headerTitle || introDocuments) && (
+                  <div className="mb-4 lg:hidden">
+                    {headerTitle && (
+                      <h1 className="text-foreground text-xl font-bold tracking-tight">
+                        {headerTitle}
+                      </h1>
+                    )}
+                    {introDocuments && (
+                      <p className="text-graphite-soft mt-2 text-sm leading-relaxed">
+                        {introDocuments}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {documents}
+              </div>
             </div>
           )}
         </div>

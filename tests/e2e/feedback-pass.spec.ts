@@ -160,8 +160,10 @@ async function answerStep(
   promptMap: { prompt: string; key: string }[],
   overrides: Record<string, string>
 ): Promise<'continue' | 'done' | 'stuck'> {
+  /* R2-2 (F1): locked banner instead of the "In Prüfung" chip — F1 removed
+     the header meta row the chip lived in, so that probe can never fire. */
   const locked = await page
-    .getByText('In Prüfung', { exact: false })
+    .locator('[data-testid=locked-banner]')
     .isVisible({ timeout: 200 })
     .catch(() => false)
   if (locked) return 'done'

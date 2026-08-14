@@ -318,6 +318,8 @@ async function CaseTabsSection({
       initialGroupInstances={groupInstances}
       initialGroupAnswers={groupAnswers}
       caseStatus={caseStatus}
+      headerTitle={headerTitle}
+      headerIntro={content.patientBannerBody}
       content={content}
       missingDocs={missingDocs}
     />
