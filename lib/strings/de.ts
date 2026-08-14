@@ -213,8 +213,12 @@ export const de = {
     // Tab switcher (feedback pass item 2). Trivial UI words — pending-Roman
     // pro forma.
     tabs: {
-      questions: 'Fragen',
-      documents: 'Dokumente',
+      // R2-1 (UI round 2, D4): the mockup's nav wording. Approved by Erman
+      // 2026-08-14, Roman review waived. The docs.* pane rows deliberately
+      // keep Roman's "Dokumente" vocabulary (F5) — the mismatch is on the
+      // ledger for him to harmonize if he ever cares.
+      questions: 'Angaben',
+      documents: 'Unterlagen',
       // E-2 badge word ("· 4 offen") — approved by Erman 2026-08-13, Roman
       // review waived (item-3 waiver).
       badgeOpenWord: 'offen',

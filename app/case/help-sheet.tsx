@@ -33,6 +33,9 @@ type Props = {
   email: string
   /** Drop-in slot for Roman's photo (public/ path) — initials render until then. */
   photoSrc?: string
+  /** R2-1: the trigger sits in the top bar on mobile and in the sidebar foot
+   *  on desktop, at different type scales. Only the trigger chrome varies. */
+  triggerClassName?: string
 }
 
 /** "Roman Pfeiffer" → "RP" (first letter of the first two words). */
@@ -45,7 +48,15 @@ function initialsOf(name: string): string {
     .join('')
 }
 
-export function HelpSheet({ helpButton, cardLabel, name, phone, email, photoSrc }: Props) {
+export function HelpSheet({
+  helpButton,
+  cardLabel,
+  name,
+  phone,
+  email,
+  photoSrc,
+  triggerClassName,
+}: Props) {
   // Missing static_content rows degrade to '' by design — without the button
   // word there is nothing to render a trigger with, so the feature waits for
   // its content instead of showing an empty button.
@@ -53,7 +64,9 @@ export function HelpSheet({ helpButton, cardLabel, name, phone, email, photoSrc 
 
   return (
     <Dialog.Root>
-      <Dialog.Trigger className={`${btnGhost} px-3 py-1.5 text-xs`}>{helpButton}</Dialog.Trigger>
+      <Dialog.Trigger className={triggerClassName ?? `${btnGhost} px-3 py-1.5 text-xs`}>
+        {helpButton}
+      </Dialog.Trigger>
       <Dialog.Portal>
         {/* data-closed:hidden is LOAD-BEARING, not styling: base-ui stamps
             [data-closed] on close but keeps both elements mounted — without

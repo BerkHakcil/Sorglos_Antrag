@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import type { ReactNode } from 'react'
 import {
   getCase,
   getCareHomes,
@@ -19,7 +20,7 @@ import { CareHomeSelector } from './care-home-selector'
 import { PlzForm } from './plz-form'
 import { ChatView } from './chat-view'
 import { logoutAction } from './actions'
-import { btnGhost, card } from '@/components/ui/styles'
+import { btnGhost, card, focusRing } from '@/components/ui/styles'
 import { LegalFooter } from '@/components/legal-footer'
 
 export const metadata = { title: de.case.pageTitle }
@@ -27,10 +28,65 @@ export const metadata = { title: de.case.pageTitle }
 const s = de.case
 const sb = de.brand
 
+/**
+ * R2-1: the sidebar's foot links (Hilfe, Abmelden). The mockup renders them as
+ * plain graphite-soft text at base size — bigger and chrome-less compared with
+ * the top bar's ghost buttons. min-h-11 keeps the 44px touch floor from the
+ * E-7 audit; graphite-soft on the sage sidebar measures 5.09:1.
+ */
+const sidebarLinkClass = `text-graphite-soft hover:text-foreground inline-flex min-h-11 items-center rounded-sm text-base font-medium transition-colors ${focusRing}`
+
 export default async function CasePage() {
   const caseData = await getCase()
   const content = await getStaticContent()
   const hasQuestionnaire = !!caseData.questionnaire_id
+
+  /* ── Sidebar chrome (R2-1) ───────────────────────────────────────────────
+     Rendered here, on the server, and passed into CaseTabs: the logout form
+     posts to a Server Action, and the brand mark/legal links have no reason to
+     ship to the client. CaseTabs owns only the placement and the nav. */
+  const sidebarTop = (
+    <div className="flex flex-col gap-1.5">
+      <Image
+        src="/logo.svg"
+        alt={sb.name}
+        data-testid="brand-logo"
+        width={172}
+        height={28}
+        priority
+        unoptimized
+        className="h-8 w-auto"
+      />
+      {/* Petrol on the sage sidebar measures 5.5:1 — the mockup's own
+          treatment, and the tagline is an existing DB row (brand.tagline),
+          not new German. */}
+      <p className="text-primary text-sm leading-tight font-medium">{content.brandTagline}</p>
+    </div>
+  )
+
+  const sidebarBottom = (
+    <div className="flex flex-col gap-5 pt-8">
+      <div className="flex items-center gap-5">
+        <HelpSheet
+          helpButton={content.contactHelpButton}
+          cardLabel={content.contactCardLabel}
+          name={content.contactName}
+          phone={content.contactPhone}
+          email={content.contactEmail}
+          triggerClassName={sidebarLinkClass}
+        />
+        <form action={logoutAction}>
+          <button type="submit" className={sidebarLinkClass}>
+            {s.logoutButton}
+          </button>
+        </form>
+      </div>
+      {/* D6 extrapolation: the mockup specifies no legal links, so on desktop
+          they join the sidebar foot rather than keeping a full-width bar that
+          would cut across the new layout. */}
+      <LegalFooter variant="sidebar" />
+    </div>
+  )
 
   return (
     <div className="bg-background flex h-dvh flex-col overflow-hidden">
@@ -40,11 +96,14 @@ export default async function CasePage() {
           headings, so the page title is exposed here for assistive tech only.
           Reuses the already-authored de.case.pageTitle: no new German. */}
       <h1 className="sr-only">{s.pageTitle}</h1>
-      {/* ── Brand header — always pinned at top ─────────────── */}
-      {/* E-2: the mockup's AppHeader sits on the page background with a soft
+      {/* ── Brand header — pinned at top BELOW lg only ───────
+          E-2: the mockup's AppHeader sits on the page background with a soft
           rule, not on a white slab — the white card surface is reserved for
-          content. */}
-      <header className="border-border/60 bg-background/95 shrink-0 border-b backdrop-blur">
+          content.
+          R2-1: from lg every member of this bar has a home in the sidebar
+          (logo + tagline at its head, Hilfe/Abmelden at its foot), so the bar
+          itself is hidden rather than duplicated. */}
+      <header className="border-border/60 bg-background/95 shrink-0 border-b backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
             {/* Logo lockup (icon + "Sorglos Antrag" wordmark) — replaces the brand
@@ -87,7 +146,7 @@ export default async function CasePage() {
 
       {/* ── Content ──────────────────────────────────────────── */}
       {hasQuestionnaire ? (
-        /* Questionnaire active: "Fragen | Dokumente" tabs from first login
+        /* Questionnaire active: "Angaben | Unterlagen" tabs from first login
            (feedback pass item 2). The document checklist is live from the
            start — slots recompute from current answers on every server render
            (D5's completion gate superseded by founder decision). */
@@ -98,14 +157,18 @@ export default async function CasePage() {
           plzBeforeMove={caseData.plz_before_move ?? null}
           socialOfficeId={caseData.social_office_id ?? null}
           content={content}
+          sidebarTop={sidebarTop}
+          sidebarBottom={sidebarBottom}
         />
       ) : (
-        /* Pre-questionnaire (D3, pass 4): the "Fragen | Dokumente" tabs exist
+        /* Pre-questionnaire (D3, pass 4): the "Angaben | Unterlagen" tabs exist
            from FIRST LOGIN. The checklist cannot be computed before the PLZ
-           decides the office, so the Dokumente pane shows Roman's placeholder
+           decides the office, so the Unterlagen pane shows Roman's placeholder
            instead of a list; no badge renders (CaseTabs hides it at 0). */
         <CaseTabs
           missing={0}
+          sidebarTop={sidebarTop}
+          sidebarBottom={sidebarBottom}
           documents={
             docsPaneMode(false, 0) === 'placeholder' ? (
               <DocsPlaceholder
@@ -158,8 +221,12 @@ export default async function CasePage() {
       )}
       {/* Mini round 2026-08-13: legal footer INSIDE the h-dvh column as a
           shrink-0 row — the chat area (with its own answer footer) ends above
-          it, so the two can never overlap on any viewport. */}
-      <LegalFooter />
+          it, so the two can never overlap on any viewport.
+          R2-1: below lg only. From lg the sidebar foot carries the links, and
+          two visible copies would be a duplicate landmark. */}
+      <div className="shrink-0 lg:hidden">
+        <LegalFooter />
+      </div>
     </div>
   )
 }
@@ -197,6 +264,8 @@ async function CaseTabsSection({
   plzBeforeMove,
   socialOfficeId,
   content,
+  sidebarTop,
+  sidebarBottom,
 }: {
   caseId: string
   questionnaireId: string
@@ -204,6 +273,8 @@ async function CaseTabsSection({
   plzBeforeMove: string | null
   socialOfficeId: string | null
   content: StaticContent
+  sidebarTop: ReactNode
+  sidebarBottom: ReactNode
 }) {
   const [{ rules, rulesSource, catalog, uploads }, questionnaire, { answersMap, answersRaw }] =
     await Promise.all([
@@ -260,7 +331,15 @@ async function CaseTabsSection({
       />
     ) : null
 
-  return <CaseTabs chat={chat} documents={documents} missing={missingDocs} />
+  return (
+    <CaseTabs
+      chat={chat}
+      documents={documents}
+      missing={missingDocs}
+      sidebarTop={sidebarTop}
+      sidebarBottom={sidebarBottom}
+    />
+  )
 }
 
 // deriveGroupData moved to lib/group-instances.ts (pass 4 / D15): count-driven

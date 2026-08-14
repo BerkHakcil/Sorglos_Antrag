@@ -6,10 +6,11 @@
  * pane, which page.tsx — a Server Component — slots into CaseTabs, so a plain
  * callback prop cannot reach it).
  *
- * CaseTabs provides its setTab; consumers get null when no provider exists —
- * i.e. the no-documents safety branch, where chat renders WITHOUT CaseTabs
- * (case-tabs.tsx) and there is no Dokumente pane to switch to. Callers must
- * hide their trigger on null.
+ * CaseTabs provides its setTab; consumers get null in the no-documents safety
+ * branch, where there is no Unterlagen pane to switch to. Callers must hide
+ * their trigger on null. (R2-1: that branch now stays inside the provider and
+ * passes null explicitly, so the shell — sidebar included — renders in every
+ * branch; before, it returned early without a provider.)
  */
 
 import { createContext, useContext } from 'react'
