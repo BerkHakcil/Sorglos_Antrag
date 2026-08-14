@@ -82,6 +82,17 @@ try {
     })
     const page = await ctx.newPage()
     const shot = async (name) => {
+      // Next's dev-mode indicator floats over the bottom-left corner and would
+      // photograph as if it were part of the design. It does not exist in a
+      // production build, so hiding it makes a local-build gallery comparable
+      // with one captured against a deployment; against a deployment the
+      // selectors simply match nothing.
+      await page
+        .addStyleTag({
+          content:
+            'nextjs-portal,[data-nextjs-toast],[data-nextjs-dev-tools-button]{display:none!important}',
+        })
+        .catch(() => {})
       const file = join(OUT, `${name}-${vp.tag}.png`)
       await page.screenshot({ path: file, fullPage: false })
       shots.push(file)
@@ -136,13 +147,29 @@ try {
     await page.waitForTimeout(400)
     await shot('05-fragen-fresh')
 
+    /**
+     * The save CTA. R2-0 gave it a `save-answer` testid; BEFORE galleries are
+     * captured against builds that predate it (prod = main), where the only
+     * handle is the German label — which R2-3 then renames. Preferring the
+     * testid and falling back to the old label lets one script photograph both
+     * sides of the round. Delete the fallback once UI round 2 is on main.
+     */
+    const clickSave = async () => {
+      const byTestId = page.getByTestId('save-answer')
+      if (await byTestId.isVisible({ timeout: 1500 }).catch(() => false)) {
+        await byTestId.click()
+        return
+      }
+      await page.getByRole('button', { name: 'Weiter', exact: true }).click()
+    }
+
     // 6. questionnaire with history — answer three questions with synthetic data
     const answerText = async (value) => {
       const footer = page.locator('[data-testid=answer-footer]').last()
       const input = footer.locator('input[type=text]').first()
       if (await input.isVisible({ timeout: 1200 }).catch(() => false)) {
         await input.fill(value)
-        await page.getByTestId('save-answer').click()
+        await clickSave()
         await page.waitForTimeout(1600)
         return true
       }
@@ -154,7 +181,7 @@ try {
     await shot('06-fragen-history')
 
     // 7. documents tab
-    await page.getByRole('tab', { name: 'Dokumente' }).click()
+    await page.locator('[data-testid=tab-documents]:visible').click()
     await page.waitForTimeout(1000)
     await shot('07-dokumente')
 

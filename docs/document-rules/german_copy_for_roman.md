@@ -82,6 +82,43 @@ later rewording by Roman is a one-line UPDATE migration / de.ts edit:
   is withdrawn, no data touched. (The `20260813000003` sequencing rule is
   moot since that migration is long applied.)
 
+## 2026-08-14 — UI round 2 (Sidebar-Design): mockup-adopted wording, waived
+
+Provenance for every row below: **"approved by Erman 2026-08-14, Roman review
+waived"** (founder decision D4). These are **final copy, not PLACEHOLDER_DE** —
+each is lifted verbatim from Roman's own Lovable mockup, so the wording is
+already his in origin. A later rewording is a one-line copy migration (DB rows)
+or a `de.ts` edit, as usual.
+
+| #   | German                                                                                                            | Lands in                                       | Replaces                                   | Sub-phase |
+| --- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------ | --------- |
+| 1   | `Angaben`                                                                                                         | `de.ts` `case.tabs.questions`                  | „Fragen"                                   | R2-1      |
+| 2   | `Unterlagen`                                                                                                      | `de.ts` `case.tabs.documents`                  | „Dokumente"                                | R2-1      |
+| 3   | `Antrag für {first_name} {last_name}`                                                                             | `static_content` `case.header_title_pattern`   | additive; fallback stays `case.subheading` | R2-2      |
+| 4   | `Laden Sie die Unterlagen hoch, die Ihnen bereits vorliegen. Wir prüfen alles und melden uns, falls etwas fehlt.` | `static_content` `case.header_intro_documents` | additive                                   | R2-2      |
+| 5   | `Ihre Angaben werden automatisch gespeichert. Sie können jederzeit pausieren.`                                    | `static_content` `case.autosave_notice`        | additive                                   | R2-3      |
+| 6   | `Antwort speichern`                                                                                               | `de.ts` `case.chat.nextButton`                 | „Weiter"                                   | R2-3      |
+| 7   | `Später beantworten`                                                                                              | `de.ts` `case.chat.skipButton`                 | „Weiß ich gerade nicht"                    | R2-3      |
+
+Rows 3–5 ship in migration `20260814000001_ui_round2_header_content.sql`.
+
+**Deliberately NOT changed** (the waiver covers adopted strings, not
+replacements of Roman's authored content):
+
+- The **Angaben** intro line reuses his existing `case.patient_banner_body`
+  verbatim instead of the mockup's near-identical sentence (F2). His grammar
+  wins; no row added.
+- The mockup's second Unterlagen sentence „Vor der Einreichung fragen wir Sie
+  immer nach Ihrer Freigabe." is **not adopted** (F3) — it promises an approval
+  step the product does not have.
+- „Datei hochladen" stays (F4) — accurate, and his row.
+- ⚠ **Vocabulary mismatch, on the record (F5):** the navigation now says
+  **„Unterlagen"** while the pane's own rows keep **„Dokumente"** („Ihre
+  Dokumente", „Es fehlen noch {n} Dokumente.", „Alle erforderlichen Dokumente
+  sind hochgeladen.", the locked-card docs texts). Founder decision: leave as
+  is for now. Harmonizing is one content migration over ~8 `static_content`
+  rows whenever Roman cares.
+
 ## Still open (the whole list)
 
 | item                                                   | home                                           | status                                                                                                                                                                                   |

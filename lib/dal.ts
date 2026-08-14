@@ -179,6 +179,9 @@ export type StaticContent = {
   contactEmail: string
   contactCardLabel: string
   contactHelpButton: string
+  headerTitlePattern: string
+  headerIntroDocuments: string
+  autosaveNotice: string
 }
 
 const STATIC_CONTENT_KEYS: Record<keyof StaticContent, string> = {
@@ -225,6 +228,13 @@ const STATIC_CONTENT_KEYS: Record<keyof StaticContent, string> = {
   contactEmail: 'contact.email',
   contactCardLabel: 'contact.card_label',
   contactHelpButton: 'contact.help_button',
+  // UI round 2 (R2-2/R2-3). Mockup-adopted copy under the 2026-08-14 waiver;
+  // migration 20260814000001. Missing rows degrade to '' like every other key,
+  // so the header falls back to case.subheading and the autosave hint simply
+  // does not render.
+  headerTitlePattern: 'case.header_title_pattern',
+  headerIntroDocuments: 'case.header_intro_documents',
+  autosaveNotice: 'case.autosave_notice',
 }
 
 /**

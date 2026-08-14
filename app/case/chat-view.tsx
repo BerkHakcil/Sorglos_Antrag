@@ -29,15 +29,12 @@ type Props = {
   initialGroupInstances: Record<string, string[]>
   initialGroupAnswers: Record<string, Record<string, unknown>>
   caseStatus: string
-  caseId: string
-  plzBeforeMove: string | null
   /** Live missing-documents count (same number as the tab badge) — drives the
       locked card's docs-aware variant (item 3, go-live round 2). */
   missingDocs: number
   content: {
-    caseSubheading: string
-    patientBannerTitle: string
-    patientBannerBody: string
+    // R2-2: caseSubheading / patientBanner* moved OUT — the shell renders the
+    // title and the intro line now (F1/F2), so this view no longer reads them.
     allAnsweredHeading: string
     allAnsweredMessage: string
     lockedHeading: string
@@ -101,25 +98,49 @@ function ProgressBar({ nav }: { nav: NavState }) {
      part of chat-view E-2 touches; bubbles, history and the answer footer
      belong to E-3. role/aria added here because the old markup conveyed
      progress purely visually. */
+  /* R2-2: the mockup's treatment — a petrol %-chip that FLOATS above the fill
+     edge, with a ring marker riding the same edge, instead of a chip parked in
+     the corner. The "{n} von {m} Fragen beantwortet" label stays (the mockup
+     shows a bare percentage): the denominator is real information a percentage
+     hides, and four spec sites read it.
+
+     The marker is DECORATIVE and must not read as a slider. It carries no
+     role and no tabindex, is aria-hidden along with the chip (the track's
+     aria-valuenow already states the value), and takes pointer-events-none so
+     it cannot be grabbed. role="slider" would advertise an interaction that
+     does not exist — the user cannot drag their progress. */
   return (
     <div className="space-y-1.5">
-      <div className="text-graphite-soft flex items-center justify-between text-xs">
-        <span>{label}</span>
-        <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-[11px] font-semibold">
-          {nav.progressPercent}%
-        </span>
-      </div>
-      <div
-        className="bg-sage-soft/60 h-1.5 overflow-hidden rounded-full"
-        role="progressbar"
-        aria-valuenow={nav.progressPercent}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label={label}
-      >
+      <p className="text-graphite-soft text-xs">{label}</p>
+      {/* pt-6 reserves the row the floating chip occupies, so it never
+          overlaps the label above it. */}
+      <div className="relative pt-6">
         <div
-          className="bg-primary h-full rounded-full transition-all duration-500 ease-out"
-          style={{ width: `${nav.progressPercent}%` }}
+          className="bg-sage-soft/60 h-1.5 overflow-hidden rounded-full"
+          role="progressbar"
+          aria-valuenow={nav.progressPercent}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={label}
+        >
+          <div
+            className="bg-primary h-full rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${nav.progressPercent}%` }}
+          />
+        </div>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute top-0 -translate-x-1/2 transition-all duration-500 ease-out"
+          style={{ left: `${nav.progressPercent}%` }}
+        >
+          <span className="bg-primary rounded-md px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm">
+            {nav.progressPercent}%
+          </span>
+        </div>
+        <div
+          aria-hidden
+          className="border-primary bg-background pointer-events-none absolute size-3 -translate-x-1/2 rounded-full border-2 transition-all duration-500 ease-out"
+          style={{ left: `${nav.progressPercent}%`, top: 'calc(1.5rem - 0.1875rem)' }}
         />
       </div>
     </div>
@@ -530,8 +551,6 @@ export function ChatView({
   initialGroupInstances,
   initialGroupAnswers,
   caseStatus,
-  caseId,
-  plzBeforeMove,
   missingDocs,
   content,
 }: Props) {
@@ -599,27 +618,10 @@ export function ChatView({
 
   const isLocked = caseStatus === 'under_review'
 
-  // ── Live status label derived from nav + caseStatus ────────────────────────
-  const derivedStatusLabel: string =
-    caseStatus === 'under_review'
-      ? (sc.statusLabels['under_review'] ?? caseStatus)
-      : nav.allRequiredAnswered
-        ? (sc.statusLabels['completed'] ?? caseStatus)
-        : (sc.statusLabels['in_progress'] ?? caseStatus)
-
-  /* E-6: the live status label was the last off-palette colour left in this
-     screen — Tailwind's green-600 for "complete" and blue-600 for "under
-     review", neither of which exists in the brand palette. Mapped onto the
-     same semantics as the two terminal cards: petrol for the positive
-     "everything answered", neutral graphite-soft for the informational
-     "under review". Same reasoning as the cards — under review is neither a
-     success nor a warning. */
-  const statusClass =
-    caseStatus === 'under_review'
-      ? 'text-graphite-soft'
-      : nav.allRequiredAnswered
-        ? 'text-primary font-medium'
-        : 'text-graphite-soft'
+  /* R2-2 (F1): the live status label and its colour class are gone with the
+     header meta row they fed. The state they described is still communicated,
+     but at the moment it matters and in full sentences — the all-answered card
+     and the locked card — rather than as a permanent word in the chrome. */
 
   // ── Resolve the currently active question ──────────────────────────────────
   const editingQ = editingId
@@ -943,46 +945,27 @@ export function ChatView({
         className="border-border/60 bg-background/95 shrink-0 border-b backdrop-blur"
       >
         <div className="mx-auto max-w-2xl space-y-2 px-4 pt-3 pb-3">
-          {/* Subheader: title + case meta + live status */}
-          <div className="space-y-1">
-            <h2 className="text-sm font-semibold">{content.caseSubheading}</h2>
-            <div className="text-graphite-soft flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
-              <span className="font-mono">{`${caseId.slice(0, 8)}…`}</span>
-              {plzBeforeMove && <span>PLZ {plzBeforeMove}</span>}
-              <span className={statusClass}>{derivedStatusLabel}</span>
-            </div>
-          </div>
+          {/* R2-2 (F1): the case-id / PLZ / status meta row is gone. The id
+              snippet served ops (which has scripts/case-export.mjs), the PLZ is
+              confirmed in the pre-step, and the status is stated by the
+              locked / all-answered cards at the moment it matters. The
+              mockup's header carries the title and the progress, nothing else.
+              R2-2 (F2): the sage patient banner is gone from BOTH its copies —
+              its text is now the header's intro line, where the mockup puts it,
+              so it is said once instead of twice. The row it occupied here is
+              what made room for the title. */}
           {/* Progress bar */}
           {nav.totalRequired > 0 && <ProgressBar nav={nav} />}
-
-          {/* Patient notice (desktop) — pinned in the sticky header so it stays
-              visible while the chat scrolls beneath. On mobile it is hidden here
-              and instead shown once at the top of the scroll (below), to keep the
-              pinned header short enough to leave a usable chat area. */}
-          {/* E-3: sage hint bubble, per the mockup's HintBubble. The amber
-              alert palette read as a warning; this is orienting guidance. */}
-          <div className="border-sage-soft/70 bg-sage-soft/40 hidden rounded-xl border p-3 sm:block">
-            <p className="text-foreground text-sm font-semibold">{content.patientBannerTitle}</p>
-            <p className="text-graphite-soft mt-1 text-sm leading-relaxed">
-              {content.patientBannerBody}
-            </p>
-          </div>
         </div>
       </div>
 
-      {/* ── Scrollable middle: (mobile) patient notice + answered history ─ */}
+      {/* ── Scrollable middle: answered history ─────────────── */}
       <div ref={historyRef} data-testid="chat-history" className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-2xl space-y-4 px-4 py-4">
-          {/* Patient notice (mobile only) — not pinned; shown once at the top of
-              the scroll so it's seen, then scrolls away as the chat grows. Desktop
-              shows it pinned in the header instead. */}
-          {/* E-3: sage hint-bubble treatment, matching the desktop copy above. */}
-          <div className="border-sage-soft/70 bg-sage-soft/40 rounded-xl border p-3 sm:hidden">
-            <p className="text-foreground text-sm font-semibold">{content.patientBannerTitle}</p>
-            <p className="text-graphite-soft mt-1 text-sm leading-relaxed">
-              {content.patientBannerBody}
-            </p>
-          </div>
+          {/* R2-2 (F2): the mobile copy of the patient notice is gone too. Both
+              copies existed because the banner was a block competing with the
+              chat for pinned height; as the header's intro line the same
+              sentence is shown once, at both sizes, above the fold. */}
 
           {/* Answered Q&A history — bubble exchange (E-3) */}
           {answeredQuestions.length > 0 && (

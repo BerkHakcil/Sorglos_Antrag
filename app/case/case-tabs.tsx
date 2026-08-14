@@ -70,6 +70,9 @@ export function CaseTabs({
   missing,
   sidebarTop,
   sidebarBottom,
+  headerTitle,
+  introQuestions,
+  introDocuments,
 }: {
   chat: ReactNode
   documents: ReactNode | null
@@ -78,6 +81,11 @@ export function CaseTabs({
   sidebarTop?: ReactNode
   /** Hilfe / Abmelden / legal links, server-rendered (sidebar foot). */
   sidebarBottom?: ReactNode
+  /** R2-2 (D3): "Antrag für {Vorname} {Nachname}", or the standing fallback. */
+  headerTitle?: string
+  /** Intro line under the title, per pane (R2-2). '' hides it. */
+  introQuestions?: string
+  introDocuments?: string
 }) {
   const [tab, setTab] = useState<TabKey>('questions')
 
@@ -130,7 +138,10 @@ export function CaseTabs({
                   className={pillClass(active)}
                   onClick={() => setTab(key)}
                 >
-                  <span>
+                  {/* inline-flex + gap: the mobile tab gets this spacing from
+                      the button's own flex row, but here label and badge share
+                      one inline box, which would render "Unterlagen· 3 offen". */}
+                  <span className="inline-flex items-baseline gap-1.5">
                     {label}
                     {key === 'documents' && (
                       <DocsBadge missing={missing} tone={active ? 'onCopper' : 'muted'} />
@@ -151,11 +162,44 @@ export function CaseTabs({
      the locked card's "Zu den Dokumenten" button lives inside the chat pane.
      The no-documents branch passes null so consumers hide their trigger
      (there is no pane to switch to). */
+  /* R2-2 (D3): title + intro sit in the SHELL, above both panes, as in the
+     mockup — one heading for the case rather than a per-pane subheading. The
+     intro switches with the tab because the two panes ask for different things.
+     Both strings are DB-authored and '' -degrade, so a missing row renders
+     nothing rather than an empty line.
+
+     The progress bar deliberately stays inside the Angaben pane instead of
+     joining this block: its percentage is derived from ChatView's live client
+     state, and it counts QUESTIONS only — the mockup's bar folds document
+     uploads into the same number, so showing it above the Unterlagen tab would
+     claim a completeness we do not measure. */
+  const intro = tab === 'documents' && documents ? introDocuments : introQuestions
+  /* No border here on purpose: the Angaben pane's own band (title -> intro ->
+     progress) sits directly beneath, and two stacked rules read as two
+     separate chrome regions where the mockup has one. */
+  const header = (headerTitle || intro) && (
+    <div className="bg-background/95 shrink-0 backdrop-blur">
+      <div className="mx-auto max-w-2xl px-4 pt-4 pb-3 lg:text-center">
+        {headerTitle && (
+          <h1 className="text-foreground text-xl font-bold tracking-tight sm:text-2xl">
+            {headerTitle}
+          </h1>
+        )}
+        {intro && (
+          <p className="text-graphite-soft mt-2 text-sm leading-relaxed lg:mx-auto lg:max-w-md">
+            {intro}
+          </p>
+        )}
+      </div>
+    </div>
+  )
+
   return (
     <CaseTabSwitchContext.Provider value={documents ? setTab : null}>
       <div className="flex flex-1 overflow-hidden">
         {sidebar}
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+          {header}
           {documents && (
             <div className="border-border/60 bg-background/95 shrink-0 border-b backdrop-blur lg:hidden">
               <div className="mx-auto flex max-w-2xl px-4" role="tablist">

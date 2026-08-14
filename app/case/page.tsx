@@ -22,6 +22,7 @@ import { ChatView } from './chat-view'
 import { logoutAction } from './actions'
 import { btnGhost, card, focusRing } from '@/components/ui/styles'
 import { LegalFooter } from '@/components/legal-footer'
+import { caseHeaderTitle } from '@/lib/case-header'
 
 export const metadata = { title: de.case.pageTitle }
 
@@ -154,7 +155,6 @@ export default async function CasePage() {
           caseId={caseData.id}
           questionnaireId={caseData.questionnaire_id!}
           caseStatus={caseData.status}
-          plzBeforeMove={caseData.plz_before_move ?? null}
           socialOfficeId={caseData.social_office_id ?? null}
           content={content}
           sidebarTop={sidebarTop}
@@ -169,6 +169,10 @@ export default async function CasePage() {
           missing={0}
           sidebarTop={sidebarTop}
           sidebarBottom={sidebarBottom}
+          /* Pre-steps: no answers exist yet, so the header shows the standing
+             fallback. The patient intro is deliberately absent here — the
+             questions it describes have not started. */
+          headerTitle={content.caseSubheading}
           documents={
             docsPaneMode(false, 0) === 'placeholder' ? (
               <DocsPlaceholder
@@ -261,7 +265,6 @@ async function CaseTabsSection({
   caseId,
   questionnaireId,
   caseStatus,
-  plzBeforeMove,
   socialOfficeId,
   content,
   sidebarTop,
@@ -270,7 +273,6 @@ async function CaseTabsSection({
   caseId: string
   questionnaireId: string
   caseStatus: string
-  plzBeforeMove: string | null
   socialOfficeId: string | null
   content: StaticContent
   sidebarTop: ReactNode
@@ -303,6 +305,12 @@ async function CaseTabsSection({
   // component and re-feeding both consumers.
   const missingDocs = countMissingSlots(slots, uploads)
 
+  const headerTitle = caseHeaderTitle(
+    answersMap,
+    content.headerTitlePattern,
+    content.caseSubheading
+  )
+
   const chat = (
     <ChatView
       questionnaire={questionnaire}
@@ -310,8 +318,6 @@ async function CaseTabsSection({
       initialGroupInstances={groupInstances}
       initialGroupAnswers={groupAnswers}
       caseStatus={caseStatus}
-      caseId={caseId}
-      plzBeforeMove={plzBeforeMove}
       content={content}
       missingDocs={missingDocs}
     />
@@ -338,6 +344,13 @@ async function CaseTabsSection({
       missing={missingDocs}
       sidebarTop={sidebarTop}
       sidebarBottom={sidebarBottom}
+      headerTitle={headerTitle}
+      /* F2: the Angaben intro is Roman's EXISTING patient-banner body, reused
+         verbatim rather than adopting the mockup's near-identical sentence —
+         his grammar wins and no row is added. It used to render as a separate
+         sage banner below; saying it once, here, is the whole point. */
+      introQuestions={content.patientBannerBody}
+      introDocuments={content.headerIntroDocuments}
     />
   )
 }
