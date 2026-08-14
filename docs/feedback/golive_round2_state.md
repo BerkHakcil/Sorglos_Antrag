@@ -25,7 +25,7 @@ him to ping us before correcting.
 | Batch C (PLZ reconciliation) | ✅ **CLOSED 2026-08-13** — both pushes live-verified | Push 1: all 5 NOTICEs, data checks ALL PASS, live drives ALL PASS. Push 2: backfills rico→MH / berk→FK / fixture→Mitte each with its `status_event` audit row, city office inactive, zero references, rico uploads intact (19). Deferred completion leg: fixture re-seeded (new case resolved 10115→Mitte via the NEW rules, proving the remap end-to-end) and completion.spec PASSED vs prod (1.5 min). Milestone entry written |
 | Roman round-trip             | ✅ **CLOSED 2026-08-13** — all answers received      | Item 1 → ESS-056 shipped (`20260813000007`); item 2 → applied as proposed (`20260813000006`); all texts approved via the founder's blanket waiver ("approved by Erman 2026-08-13, Roman review waived"); Klaus dates: leave as is, ask withdrawn; photo: later, non-blocking. Dispositions in the ledger + package header                                                                                                        |
 
-## Founder push list — waiver round (2026-08-13, one `supabase db push`, CURRENT)
+## Founder push list — waiver round (2026-08-13, ✅ DONE — applied + live-verified same day; milestone-log entry is the record)
 
 1. `20260813000006_item2_behoerde_clarification.sql` — the two Behörde
    prompts → Vertriebenen-/Spätaussiedlerausweis wording (applicant +

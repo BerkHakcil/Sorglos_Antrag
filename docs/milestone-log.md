@@ -50,6 +50,54 @@ Quick orientation for anyone picking this up cold:
 
 ---
 
+## Waiver round: item-3 blanket approval + ESS-056 — ✅ SHIPPED 2026-08-13, live-verified same day
+
+The founder's consolidated GO (item-3 waiver "approve all" + Roman's
+answers), branch `waiver-ess056`, ff-merged `866054a → 42dd10b`; migrations
+`20260813000006` (item-2 Behörde clarification, applicant + spouse) and
+`20260813000007` (ESS-056) pushed by the founder in one `db push`, every
+NOTICE as designed.
+
+**De-flagging:** every open PLACEHOLDER_DE resolved as FINAL COPY with
+provenance "approved by Erman 2026-08-13, Roman review waived" — completion
+card, unbefristet gates (Essen style question closed as-is), fallback
+banner, 404/loading, Schließen label, the 11 office names, and the badge
+word **„offen"** which now ships („· 4 offen"; sibling span keeps the
+specs' `Number(textContent)` reads intact — zero e2e anchor changes needed
+anywhere, incl. the item-2 rewording). Ledger rewritten: the only open
+items are the Ansprechpartner photo (Roman sends later), Roman-owned auth
+emails, and the Marzahn-Hellersdorf-ruleset backlog. Klaus-dates
+re-confirmation ask withdrawn (Roman: leave as is).
+
+**ESS-056:** Essen requires the partner's death certificate for widowed
+applicants (Roman approved, round-2 item 4). INSERT-only, PAN-025's shape,
+char-for-char apply-time guard on Essen's `verwitwet` option value.
+Workbook deviation on record: the canonical master tags DOC-0016
+Pankow-only — approved override noted in `essen_document_rules.json`
+(rule + meta) per the seeded-vs-file audit convention. Unit 249/249 incl.
+a minus-the-rule byte-identity regression and the untouched Pankow golden
+gate.
+
+**Gate (branch preview):** deviation on record — the first full-suite run
+launched against a still-BUILDING deployment (Vercel's placeholder returns
+HTTP 200; the readiness poll lacked the content check that run). The 11
+affected specs re-ran vs the same finished deployment: 12/13 green
+(1.8 min); documents-m6 failed once with the documented machine-stall
+signature and re-ran solo green (2.9 min) — cumulative green. The
+completion fixture was consumed by the Batch-C prod verification and
+re-seeded before the re-run.
+
+**Live on prod (post-push, three throwaways + one re-run throwaway, all
+deleted, sweep clean):** Essen 45127 widowed → „Sterbeurkunde Partner"
+slot PRESENT and the badge reads „· 8 offen"; Essen ledig → slot ABSENT
+(fail-closed); Pankow 13187 widowed → PAN-025 slot unchanged, NO banner;
+the reworded Behörde prompt renders VERBATIM (drive re-run after a
+test-side flow-order correction: Berlin `marital_status` sits at sort 7,
+BEFORE the Vertriebenen gate chain at 13–15 — the first probe stopped too
+early; product was correct throughout). Migration data checks 6/6.
+
+---
+
 ## Batch C: Berlin PLZ district remap — ✅ CLOSED 2026-08-13, both pushes live-verified
 
 The go-live-round-2 STOP item, executed after per-decision founder GOs on
