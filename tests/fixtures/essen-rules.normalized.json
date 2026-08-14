@@ -1415,6 +1415,20 @@
           }
         ]
       }
+    },
+    {
+      "id": "ESS-056",
+      "social_office_id": "10000000-0000-0000-0000-000000000162",
+      "document_id": "DOC-0016",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_note": "one slot for applicant",
+      "period_months": null,
+      "condition": {
+        "field": "marital_status",
+        "operator": "equals",
+        "value": "verwitwet"
+      }
     }
   ],
   "catalog": {

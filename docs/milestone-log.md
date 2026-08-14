@@ -50,6 +50,43 @@ Quick orientation for anyone picking this up cold:
 
 ---
 
+## Batch C: Berlin PLZ district remap — ✅ CLOSED 2026-08-13, both pushes live-verified
+
+The go-live-round-2 STOP item, executed after per-decision founder GOs on
+D-1..D-8 (full decision log + execution record:
+`docs/feedback/golive_round2_batch_c.md` §V–§VI).
+
+**What shipped (migrations `20260813000004` + `20260813000005`, data-only,
+zero dependent code):** the 11 missing Berlin district offices created
+(`11000000-…-0002..0012`, OFFICIAL designations "Bezirksamt <X> von Berlin
+– Amt für Soziales", source cited in the migration header; names render
+user-facing nowhere — sole consumer is the ops case-export); the 21
+city-level rules shadowed by Pankow's prio-20 set deleted (each guarded by
+its twin, D-4); the remaining 169 repointed to their primary district
+(largest-area-share, official Geoportal/ALKIS geometry; the 4
+minority-Pankow codes stay on Pankow per Roman's July policy, D-3); then
+push 2: ALL 3 city-office cases backfilled (rico→Marzahn-Hellersdorf,
+berk→Friedrichshain-Kreuzberg, completion-fixture→Mitte) each with a
+`status_event` audit row, and the city office row deactivated (NEVER
+deleted — the D12 default questionnaire FKs to it; `is_active` is unread
+by app code).
+
+**Verification chain:** pre-write census vs fresh dumps + in-memory
+migration simulation + adversarial SQL cross-check (symmetric copy errors);
+push-1 data checks ALL PASS + live drives (12619 throwaway → NEW MH office
+id recorded, fallback checklist + banner, NO suffix — the intended "UX
+unchanged, bookkeeping corrected"; 13187 → Pankow own list unchanged);
+push-2 checks ALL PASS; rico's slot set proven BYTE-IDENTICAL at every
+stage (17 slots, missing 0 — drift on record: he uploaded everything
+between the morning report and execution). The re-seeded completion
+fixture resolved 10115 → **Mitte** through the new rules and
+completion.spec passed C1–C7 against prod — the remap proven end-to-end.
+D-7 expectation reset on record: the remap changes NO checklist anywhere;
+a Marzahn-Hellersdorf rule set is the real future fix (ledger BACKLOG —
+first real customer lives there).
+
+---
+
 ## Post-Batch-C mini round: legal footer + SVG logo — ✅ SHIPPED 2026-08-13, live-verified same day
 
 Two founder items, code-only (no migration), branch `golive-footer-logo`,
@@ -84,7 +121,9 @@ completion.spec fixture single-use (pre-existing: the fixture case has been
 `under_review` since the round-2 live checks; the spec aborts at its status
 pre-check, touching no UI) — **deliberately deferred: the fixture must NOT
 be re-seeded until Batch-C push 2 lands** (C1's exact-set assert pins case
-`461038b0`); completion re-runs in the post-push-2 pass.
+`461038b0`); completion re-runs in the post-push-2 pass. (Done 2026-08-13 same day:
+fixture re-seeded after push 2, completion.spec PASSED vs prod, 1.5 min —
+the gate is now fully green, no deviation left open.)
 
 **Live on prod (`5cd2811`):** legal-footer F1+F2 green vs prod (5.0 s);
 all three legal URLs 200 from prod; `logo.svg` / `icon.svg` / `favicon.ico`

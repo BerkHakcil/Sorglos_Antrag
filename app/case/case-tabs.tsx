@@ -73,19 +73,19 @@ export function CaseTabs({
             >
               {t.documents}
               {missing > 0 && (
-                /* E-2: the mockup writes this as "· 4 offen" in soft graphite
-                 rather than a filled pill.
-                 Two deliberate deviations:
-                 1. The separator is its own aria-hidden span OUTSIDE the
-                    testid element. `feedback-pass.spec.ts` reads this badge
-                    with Number(textContent), so folding "·" into the tagged
-                    element would yield NaN and fail the count assertion.
-                 2. The mockup's trailing word "offen" is NEW German copy and
-                    would need Roman's authorship (R3), so it is not added —
-                    the bare count is what we already ship. */
+                /* E-2: the mockup's "· 4 offen" in soft graphite rather than
+                 a filled pill. The separator AND the word "offen" live in
+                 their own spans OUTSIDE the testid element on purpose:
+                 `feedback-pass.spec.ts` reads this badge with
+                 Number(textContent), so folding either into the tagged
+                 element would yield NaN and fail the count assertion.
+                 The word "offen" shipped with the 2026-08-13 waiver
+                 (approved by Erman, Roman review waived) — it was withheld
+                 as unauthored German until then. */
                 <span className="text-graphite-soft/80 text-sm font-normal">
                   <span aria-hidden>· </span>
                   <span data-testid="docs-tab-badge">{missing}</span>
+                  <span> {t.badgeOpenWord}</span>
                 </span>
               )}
               <span aria-hidden className={underlineClass(tab === 'documents')} />

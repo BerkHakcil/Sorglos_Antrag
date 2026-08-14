@@ -46,23 +46,50 @@ labels („Wohnung und Heim", „Einkommen", „Versicherung und Pflege",
 „Partner, Familie und Unterhalt"). If Roman later rewords any of these,
 each is a one-line copy migration.
 
-## Still open (PLACEHOLDER_DE or Roman-owned)
+## 2026-08-13 — item-3 waiver: EVERY open placeholder approved
 
-| item                                                       | home                                                                                                                       | status                                                                                                                                                                                       |
-| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Contact-sheet close label „Schließen" (screen-reader only) | de.ts `case.help.closeLabel`                                                                                               | PLACEHOLDER_DE — ledgered after §4 was assembled, not covered by the approval                                                                                                                |
-| Lade-Anzeige „Wird geladen …"                              | de.ts (E-7)                                                                                                                | PLACEHOLDER_DE                                                                                                                                                                               |
-| 404-Seite (Überschrift/Text/Link/Tab)                      | de.ts (E-7)                                                                                                                | PLACEHOLDER_DE                                                                                                                                                                               |
-| Tab-badge word „offen" (`· 4 offen`)                       | not shipped — we render the bare count                                                                                     | Roman authorship pending (E-2 ledger)                                                                                                                                                        |
-| Logo originals (SVG/hi-res)                                | `public/logo.svg` live (mini round 2026-08-13)                                                                             | ✅ RESOLVED for the app: SVG lockup sourced from the landing site per founder instruction, favicons generated from its icon. D16 print-grade originals remain Roman's to send if ever needed |
-| Ansprechpartner photo                                      | `HelpSheet` `photoSrc` drop-in prop ready                                                                                  | Roman delivery pending (D11)                                                                                                                                                                 |
-| Auth email texts                                           | Supabase dashboard                                                                                                         | owner-handled by Roman (D14)                                                                                                                                                                 |
-| Fallback-Listen-Hinweis (Banner über der Standard-Liste)   | static_content `docs.fallback_notice`                                                                                      | PLACEHOLDER_DE — see the go-live section below                                                                                                                                               |
-| Locked-Card Dokumente-Variante (4 Texte)                   | static_content `case.locked_docs_heading` / `case.locked_docs_body` / `case.locked_docs_button` + `case.next_steps_upload` | PLACEHOLDER_DE — round-2 section below (item 3)                                                                                                                                              |
-| Unbefristet-Gate (2 Fragen ×2 Fragebögen)                  | question `disability_card_unlimited` / `spouse_…` prompt_de                                                                | PLACEHOLDER_DE — round-2 section below (item 6)                                                                                                                                              |
-| Vertriebenen-Behörden-Frage Klarstellung                   | question `special_origin_rights_issued_by` (+ Partner)                                                                     | PROPOSAL for Roman — round-2 section below (item 2), no change without his word                                                                                                              |
-| Berliner Bezirksamts-Namen (11 Ämter)                      | `social_office` rows, Migration `20260813000004`                                                                           | OFFICIAL designations seeded (berlin.de) — confirm-or-correct, round-2 package point 6; render user-facing nowhere (sole consumer: ops case-export)                                          |
-| Marzahn-Hellersdorf Regelwerk (eigene Dokumentenliste)     | `office_document_rule` (does not exist yet)                                                                                | BACKLOG — first real customer lives there (PLZ 12687); natural next office once Roman confirms demand. Until then his checklist is deliberately the fallback set + banner (Batch C, D-7)     |
+**Provenance of record: approved by Erman 2026-08-13, Roman review waived**
+("approve all", incl. the 11 official Berlin office names and the item-2
+wording clarification). Resolved as FINAL COPY at their live values — any
+later rewording by Roman is a one-line UPDATE migration / de.ts edit:
+
+- Contact-sheet close label „Schließen" (de.ts `case.help.closeLabel`)
+- Lade-Anzeige „Wird geladen …" + the 404-Seite set (de.ts, E-7)
+- Tab-badge word „offen" — **now SHIPPED** as „· 4 offen" (case-tabs.tsx +
+  de.ts `case.tabs.badgeOpenWord`; had been withheld as unauthored German)
+- Fallback-Listen-Hinweis (static_content `docs.fallback_notice`)
+- Locked-Card Dokumente-Variante, all 4 texts (static*content
+  `case.locked_docs*\*`+`case.next_steps_upload`)
+- Unbefristet-Gate, both prompts × both questionnaires (the package's open
+  Essen style question — „Schwerbehindertenausweis oder
+  Feststellungsbescheid" ausschreiben? — is closed by the waiver: texts
+  stay as live)
+- Vertriebenen-Behörden-Frage — **APPLIED** as proposed incl. spouse
+  mirror, migration `20260813000006` (the optional „Wann…" symmetry
+  deliberately not taken)
+- Berliner Bezirksamts-Namen (11 Ämter, migration `20260813000004`)
+
+**Also decided 2026-08-13 (Roman's answers to the round-2 package):**
+
+- **ESS-056 shipped** (item 1): Essen requires the Sterbeurkunde des
+  Partners for widowed applicants — migration `20260813000007`, DOC-0016,
+  condition `marital_status = verwitwet`. ⚠ Workbook deviation on record:
+  the canonical master tags DOC-0016 „Pankow"-only — approved override,
+  noted in `essen_document_rules.json` (rule entry + meta); the workbook
+  update itself is Roman's.
+- **Klaus-Schinzel dates CLOSED** (item 5 follow-up): Roman says leave the
+  twin „2027-08-11" values as they are — the customer re-confirmation ask
+  is withdrawn, no data touched. (The `20260813000003` sequencing rule is
+  moot since that migration is long applied.)
+
+## Still open (the whole list)
+
+| item                                                   | home                                           | status                                                                                                                                                                                   |
+| ------------------------------------------------------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ansprechpartner photo                                  | `HelpSheet` `photoSrc` drop-in prop ready      | Roman will send later (his word, 2026-08-13) — non-blocking, initials avatar renders meanwhile (D11)                                                                                     |
+| Auth email texts                                       | Supabase dashboard                             | owner-handled by Roman (D14), non-blocking                                                                                                                                               |
+| Marzahn-Hellersdorf Regelwerk (eigene Dokumentenliste) | `office_document_rule` (does not exist yet)    | BACKLOG — first real customer lives there (PLZ 12687); natural next office once Roman confirms demand. Until then his checklist is deliberately the fallback set + banner (Batch C, D-7) |
+| Logo print-grade originals                             | `public/logo.svg` live (mini round 2026-08-13) | app-side ✅ RESOLVED; hi-res originals remain Roman's to send if ever needed (D16)                                                                                                       |
 
 ## Go-live (2026-08-09): Hinweis-Banner für die Standard-Dokumentenliste — PLACEHOLDER_DE (open)
 

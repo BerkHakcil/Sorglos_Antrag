@@ -215,11 +215,14 @@ export const de = {
     tabs: {
       questions: 'Fragen',
       documents: 'Dokumente',
+      // E-2 badge word ("· 4 offen") — approved by Erman 2026-08-13, Roman
+      // review waived (item-3 waiver).
+      badgeOpenWord: 'offen',
     },
 
     // Pass 4 / D11 — the Hilfe contact sheet. Visible strings come from
     // static_content (contact.*); only the close button's screen-reader
-    // label lives here. PLACEHOLDER_DE, logged in german_copy_for_roman.md.
+    // label lives here. Approved by Erman 2026-08-13, Roman review waived.
     help: {
       closeLabel: 'Schließen',
     },
@@ -284,21 +287,17 @@ export const de = {
       },
     },
   },
-  // ── E-7 additions — ⚠ ALL PLACEHOLDER_DE, logged for Roman in
-  // docs/document-rules/german_copy_for_roman.md. Mechanical drafts so the
-  // states exist at all; every word is his to replace.
+  // ── E-7 additions — FINAL COPY: approved by Erman 2026-08-13, Roman
+  // review waived (item-3 waiver). Ledgered in german_copy_for_roman.md;
+  // any later rewording by Roman is a one-line de.ts edit.
   loading: {
-    // PLACEHOLDER_DE — sr-only text on the route-loading spinner
+    // sr-only text on the route-loading spinner
     label: 'Wird geladen …',
   },
   notFound: {
-    // PLACEHOLDER_DE
     pageTitle: 'Seite nicht gefunden – Hilfe zur Pflege',
-    // PLACEHOLDER_DE
     heading: 'Seite nicht gefunden',
-    // PLACEHOLDER_DE
     body: 'Diese Seite gibt es nicht oder sie wurde verschoben.',
-    // PLACEHOLDER_DE
     backLink: 'Zu meinem Antrag',
   },
 } as const

@@ -190,9 +190,10 @@ const STATIC_CONTENT_KEYS: Record<keyof StaticContent, string> = {
   allAnsweredMessage: 'case.all_answered_message',
   lockedHeading: 'case.locked_heading',
   lockedBody: 'case.locked_body',
-  // Item 3 (go-live round 2): docs-aware locked-card variant. All four are
-  // PLACEHOLDER_DE pending Roman; ''-degradation keeps today's card until the
-  // rows exist (the variant condition requires non-empty heading+body).
+  // Item 3 (go-live round 2): docs-aware locked-card variant. All four texts
+  // are FINAL (approved by Erman 2026-08-13, Roman review waived);
+  // ''-degradation stays as the structural rollout contract (the variant
+  // condition requires non-empty heading+body).
   lockedDocsHeading: 'case.locked_docs_heading',
   lockedDocsBody: 'case.locked_docs_body',
   lockedDocsButton: 'case.locked_docs_button',

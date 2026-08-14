@@ -5,6 +5,17 @@
 > UPDATE-Migration. Kontext für uns (nicht Teil der Nachricht):
 > `docs/feedback/golive_round2.md`.
 
+> **ANSWERS RECEIVED 2026-08-13 (via the founder) — package closed:**
+> item 1 Essen-Sterbeurkunde: **JA** → `ESS-056` (migration
+> `20260813000007`); item 2 wording: **approved as proposed** incl. spouse
+> mirror → migration `20260813000006` (optional „Wann…" symmetry not
+> taken); items 3+4 texts + all other placeholders: **approved via the
+> founder's blanket waiver** ("approved by Erman 2026-08-13, Roman review
+> waived"); item 5 / Klaus dates: **leave as is** — re-confirmation ask
+> withdrawn, no data touched; point 6 office names: covered by the waiver;
+> point 7 ops note: acknowledged. Photo: Roman sends later (non-blocking).
+> Dispositions ledgered in `german_copy_for_roman.md`.
+
 ---
 
 Hallo Roman, fünf Punkte aus deiner Review-Runde — vier davon sind gebaut und

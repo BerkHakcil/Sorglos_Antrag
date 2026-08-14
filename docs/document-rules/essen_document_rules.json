@@ -3,10 +3,11 @@
     "source_file": "essen_document_rules_cto_master.xlsx",
     "social_office": "Essen",
     "document_catalog_count": 43,
-    "essen_rule_count": 55,
+    "essen_rule_count": 56,
     "bank_statement_period_months": 4,
     "bank_statement_period_anchor": "application_date",
-    "removed_key_item": "Hausratversicherung"
+    "removed_key_item": "Hausratversicherung",
+    "post_master_additions": "ESS-056 (2026-08-13, Roman-approved override of DOC-0016 Pankow-only tag)"
   },
   "document_catalog": [
     {
@@ -2066,6 +2067,24 @@
             ]
           }
         ]
+      }
+    },
+    {
+      "rule_id": "ESS-056",
+      "social_office_id": "essen",
+      "social_office_name": "Essen",
+      "document_id": "DOC-0016",
+      "requirement_type": "conditional",
+      "subject": "person_1",
+      "instance_rule": "one slot for applicant",
+      "period_months": null,
+      "human_condition": "Required if the applicant is widowed (death certificate of the deceased partner).",
+      "source_question_keys": "marital_status",
+      "cto_notes": "APPROVED OVERRIDE (Roman, 2026-08-13; round-2 item 4): the canonical master tags DOC-0016 used_for_offices=Pankow only - Essen now requires it too. Workbook update is Romans; this entry records the deviation per the seeded-vs-file audit convention. Shipped as migration 20260813000007.",
+      "condition": {
+        "field": "marital_status",
+        "operator": "equals",
+        "value": "verwitwet"
       }
     }
   ],

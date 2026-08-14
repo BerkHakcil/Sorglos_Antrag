@@ -371,3 +371,42 @@ describe('minimal single applicant (one pension, one giro account)', () => {
     ])
   })
 })
+
+// ── ESS-056: widowed → Sterbeurkunde Partner (Roman approved 2026-08-13, ─────
+// round-2 item 4; the master's DOC-0016 Pankow-only tag is an approved
+// override, see docs/document-rules/essen_document_rules.json)
+
+describe('ESS-056 — Essen widowed applicants get the death-certificate slot', () => {
+  it('widowed applicant gets exactly ONE Sterbeurkunde Partner slot (person_1)', () => {
+    const slots = ofRule(evalEssen({ answers: { marital_status: 'verwitwet' } }), 'ESS-056')
+    expect(slots).toHaveLength(1)
+    expect(slots[0].subject).toBe('person_1')
+    expect(slots[0].nameDe).toBe('Sterbeurkunde Partner')
+    expect(slots[0].instanceKey).toBe('default')
+  })
+
+  it('does not fire for non-widowed or unanswered (fail-closed, PAN-025 semantics)', () => {
+    for (const v of ['ledig', 'geschieden', 'getrennt lebend', ...PARTNER_VALUES]) {
+      expect(ofRule(evalEssen({ answers: { marital_status: v } }), 'ESS-056')).toHaveLength(0)
+    }
+    expect(ofRule(evalEssen({}), 'ESS-056')).toHaveLength(0)
+  })
+
+  it('adding ESS-056 changes NOTHING else — outputs minus ESS-056 byte-identical to the pre-rule set', () => {
+    const withoutRule = essenRules.filter((r) => r.id !== 'ESS-056')
+    for (const answers of [
+      {},
+      { marital_status: 'verwitwet' },
+      { marital_status: 'verheiratet' },
+      { marital_status: 'ledig' },
+    ]) {
+      const before = evaluateDocumentRules(withoutRule, essenCatalog as never, {
+        answers,
+        groupInstances: {},
+        groupAnswers: {},
+      })
+      const after = evalEssen({ answers }).filter((s) => s.ruleId !== 'ESS-056')
+      expect(JSON.stringify(after)).toBe(JSON.stringify(before))
+    }
+  })
+})
