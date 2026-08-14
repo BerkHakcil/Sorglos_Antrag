@@ -288,7 +288,7 @@ test('V1: pension_count=2 renders exactly two pension instances (D15)  |  V2: sp
     // multi_select — skip if button available, else check first box and continue
     const chk = footer.locator('input[type=checkbox]').first()
     if (await chk.isVisible({ timeout: 300 }).catch(() => false)) {
-      const skip = page.getByRole('button', { name: 'Weiß ich gerade nicht' })
+      const skip = page.getByTestId('skip-answer')
       if (await skip.isVisible({ timeout: 300 }).catch(() => false)) {
         await skip.click()
         await waitForFooterSettled(page)

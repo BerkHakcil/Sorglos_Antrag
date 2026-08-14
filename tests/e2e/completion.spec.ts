@@ -223,7 +223,7 @@ async function answerCurrentQuestion(
   // ── 8. multi_select – skip ────────────────────────────────────────────────
   const chk = footer.locator('input[type=checkbox]').first()
   if (await chk.isVisible({ timeout: 500 }).catch(() => false)) {
-    const skip = page.getByRole('button', { name: 'Weiß ich gerade nicht' })
+    const skip = page.getByTestId('skip-answer')
     if (await skip.isVisible({ timeout: 500 }).catch(() => false)) {
       await skip.click()
       await waitForFooterSettled(page)

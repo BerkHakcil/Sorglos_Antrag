@@ -215,7 +215,7 @@ async function answerOne(page) {
       else if (await text.isVisible({ timeout: 300 }).catch(() => false))
         await text.fill('Musterfrau')
       else if (await check.isVisible({ timeout: 300 }).catch(() => false)) {
-        const skip = page.getByRole('button', { name: 'Weiß ich gerade nicht' })
+        const skip = page.getByTestId('skip-answer')
         if (await skip.isVisible({ timeout: 300 }).catch(() => false)) {
           await skip.click()
           await page.waitForTimeout(400)

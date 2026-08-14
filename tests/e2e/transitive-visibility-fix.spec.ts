@@ -231,7 +231,7 @@ async function driveQuestionnaire(page: Page, opts: { maritalChoice: string; rev
     }
     const chk = footer.locator('input[type=checkbox]').first()
     if (await chk.isVisible({ timeout: 300 }).catch(() => false)) {
-      const skip = page.getByRole('button', { name: 'Weiß ich gerade nicht' })
+      const skip = page.getByTestId('skip-answer')
       if (await skip.isVisible({ timeout: 300 }).catch(() => false)) {
         await skip.click()
         await waitForFooterSettled(page)

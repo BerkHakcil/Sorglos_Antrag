@@ -233,8 +233,11 @@ export const de = {
 
     chat: {
       stepLabel: 'Schritt 3: Fragebogen ausfüllen',
-      nextButton: 'Weiter',
-      skipButton: 'Weiß ich gerade nicht',
+      // R2-3 (UI round 2, D4): the mockup's wording. Approved by Erman
+      // 2026-08-14, Roman review waived. Both selectors were moved onto
+      // testids in R2-0 precisely so this rename touches no test.
+      nextButton: 'Antwort speichern',
+      skipButton: 'Später beantworten',
       savingButton: 'Speichern …',
       editButton: 'Bearbeiten',
       editSaveButton: 'Änderung speichern',

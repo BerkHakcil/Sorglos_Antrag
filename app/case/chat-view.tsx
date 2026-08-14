@@ -13,9 +13,16 @@ import {
 import { QuestionRenderer } from '@/components/ui/questionnaire/question-renderer'
 import { saveAnswerAction, deleteGroupInstanceAction } from './actions'
 import { capInstances, parseCount } from '@/lib/group-instances'
-import { Check, Clock } from 'lucide-react'
+import { Check, Clock, Info } from 'lucide-react'
 import { de } from '@/lib/strings/de'
-import { btnCopper, btnOutline, btnPetrol, card } from '@/components/ui/styles'
+import {
+  btnCopper,
+  btnOutline,
+  btnPetrol,
+  card,
+  linkPetrol,
+  linkStandalone,
+} from '@/components/ui/styles'
 import { useCaseTabSwitch } from '@/components/case-tab-context'
 
 const s = de.case.chat
@@ -39,6 +46,7 @@ type Props = {
   content: {
     // R2-2: caseSubheading / patientBanner* moved OUT — the shell renders the
     // title and the intro line now (F1/F2), so this view no longer reads them.
+    autosaveNotice: string
     allAnsweredHeading: string
     allAnsweredMessage: string
     lockedHeading: string
@@ -223,8 +231,14 @@ function AnsweredBubble({
           page that rendered perfectly. Same lesson as E-0's `.shrink-0.border-t`;
           this one was missed by that census. */}
       <div data-testid="answered-bubble" className="flex flex-col gap-2">
-        {/* Assistant side — the question */}
-        <div className="bg-card text-foreground max-w-[85%] self-start rounded-2xl rounded-bl-md px-4 py-3 text-[15px] leading-relaxed shadow-sm sm:max-w-[75%]">
+        {/* Assistant side — the question.
+            R2-3: cream-deep, NOT the mockup's white. The transcript now sits on
+            a white card, and the mockup puts white bubbles on it — separation
+            by shadow alone, measured 1.00:1, which the founder rejected. At
+            cream-deep the bubble reads as its own shape against the card
+            (1.20:1) while the prompt text keeps 11.21:1. The user's petrol
+            bubble opposite is 7.72:1, so the two sides stay unmistakable. */}
+        <div className="bg-cream-deep text-foreground max-w-[85%] self-start rounded-2xl rounded-bl-md px-4 py-3 text-[15px] leading-relaxed sm:max-w-[75%]">
           {question.prompt_de}
         </div>
         {/* User side — the saved answer */}
@@ -320,7 +334,21 @@ function CurrentQuestionCard({
         )}
 
         {onSkip && !isEditMode && !isReask && (
-          <button type="button" disabled={saving} onClick={onSkip} className={btnOutline}>
+          /* R2-3: the skip control takes the mockup's treatment — an
+             underlined ghost link rather than a second outlined button, so the
+             copper CTA is visibly the primary action. `linkStandalone` keeps
+             the 44px touch floor from the E-7 audit (WCAG 2.5.8): this link
+             stands alone, it is not inside a sentence.
+             The testid exists for the same reason the CTA's does — the label
+             renames with it. R2-0's census covered only the save CTA and
+             missed these 5 sites; they are repointed in this commit. */
+          <button
+            type="button"
+            data-testid="skip-answer"
+            disabled={saving}
+            onClick={onSkip}
+            className={`${linkPetrol} ${linkStandalone} text-graphite-soft hover:text-foreground text-sm font-medium disabled:pointer-events-none disabled:opacity-50`}
+          >
             {s.skipButton}
           </button>
         )}
@@ -966,8 +994,19 @@ export function ChatView({
       </div>
 
       {/* ── Scrollable middle: answered history ─────────────── */}
-      <div ref={historyRef} data-testid="chat-history" className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-2xl space-y-4 px-4 py-4">
+      {/* R2-3: the mockup wraps the transcript in one white card. We take the
+          LOOK, never its geometry: there the card is a single
+          max-h-[calc(100vh-320px)] scroller with the active input INSIDE it,
+          which is the shape that clipped the save buttons on real phones. Here
+          the frame is painted on the existing flex chain — history keeps its
+          own scroller, the answer footer stays a separate shrinkable row — so
+          nothing about the reachability guarantee changes. */}
+      <div className="min-h-0 flex-1 overflow-hidden px-4 pt-4 pb-2">
+        <div
+          ref={historyRef}
+          data-testid="chat-history"
+          className={`${card} mx-auto h-full max-w-2xl space-y-4 overflow-y-auto px-4 py-4`}
+        >
           {/* Mobile copy of the shell header (title + intro). It renders HERE,
               inside the scroller, for the same reason the patient banner it
               replaces did: anything above the scroller is fixed height, and on
@@ -981,6 +1020,19 @@ export function ChatView({
               {headerIntro && (
                 <p className="text-graphite-soft mt-2 text-sm leading-relaxed">{headerIntro}</p>
               )}
+            </div>
+          )}
+
+          {/* R2-3: the mockup's autosave reassurance, as a sage hint bubble at
+              the head of the transcript. Static on purpose — the mockup hides
+              it once the user scrolls, which is demo behaviour that would make
+              the one piece of "you can stop any time" reassurance vanish for a
+              caregiver who scrolls before reading it. Renders nothing while the
+              content row is absent ('' by design). */}
+          {content.autosaveNotice && (
+            <div className="border-sage-soft/70 bg-sage-soft/40 mx-auto flex w-full max-w-[92%] items-start gap-2 rounded-xl border px-3 py-2 sm:max-w-[85%]">
+              <Info aria-hidden className="text-primary/70 mt-0.5 size-4 shrink-0" />
+              <p className="text-graphite-soft text-sm leading-relaxed">{content.autosaveNotice}</p>
             </div>
           )}
 
