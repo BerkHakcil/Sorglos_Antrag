@@ -101,6 +101,11 @@ or a `de.ts` edit, as usual.
 | 7   | `Später beantworten`                                                                                              | `de.ts` `case.chat.skipButton`                 | „Weiß ich gerade nicht"                    | R2-3      |
 
 Rows 3–5 ship in migration `20260814000001_ui_round2_header_content.sql`.
+**✅ ALL SEVEN LIVE on prod since 2026-08-14** (migration pushed and verified
+5/5; renames deployed with the round). Row 8 below is R2-7's marker, which
+needed **no new string at all** — it reuses row 7.
+
+| 8 | `Später beantworten` (marker for a deferred question in the transcript) | reuses row 7's `de.ts` string | additive, display-only | R2-7 |
 
 **Deliberately NOT changed** (the waiver covers adopted strings, not
 replacements of Roman's authored content):
@@ -112,6 +117,9 @@ replacements of Roman's authored content):
   immer nach Ihrer Freigabe." is **not adopted** (F3) — it promises an approval
   step the product does not have.
 - „Datei hochladen" stays (F4) — accurate, and his row.
+- **E-8 closed 2026-08-14:** the pill chips, the „Antwort geändert" flash and
+  the Stift-statt-„Bearbeiten" affordance are **dropped permanently** — no
+  German is needed for any of them. They revive only if Roman asks.
 - ⚠ **Vocabulary mismatch, on the record (F5):** the navigation now says
   **„Unterlagen"** while the pane's own rows keep **„Dokumente"** („Ihre
   Dokumente", „Es fehlen noch {n} Dokumente.", „Alle erforderlichen Dokumente

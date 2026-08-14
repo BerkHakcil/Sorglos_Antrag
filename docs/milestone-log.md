@@ -50,6 +50,89 @@ Quick orientation for anyone picking this up cold:
 
 ---
 
+## UI round 2: full mockup adoption (sidebar layout) — ✅ SHIPPED 2026-08-14, live-verified in two checkpoints
+
+The founder's decision to adopt Roman's Lovable mockup **in full**, including
+the desktop sidebar — deliberately reversing the pass-3 E-1 "no sidebar" call.
+Run as Phase-1 read-only report → compressed continuous build on `ui-round2`
+with two founder checkpoints. Full record: `docs/feedback/ui_round2_phase1.md`
+(the delta report) and `ui_round2_state.md` (execution + process items).
+Roman's one-link before/after: `docs/feedback/ui-gallery/UI-RUNDE-2.md`.
+
+**Shipped (one migration, `20260814000001`, three `static_content` rows):**
+
+- **Desktop sidebar at `lg` (1024px)** — brand mark + tagline, the
+  Angaben/Unterlagen nav as copper-filled active pills, Hilfe/Abmelden and the
+  legal links at the foot. The top brand bar is hidden there rather than
+  duplicated. **Below `lg` the layout is untouched** by design (founder D2).
+- **Header names the care recipient** — "Antrag für {Vorname} {Nachname}" from
+  the `first_name`/`last_name` answers, falling back to the standing
+  `case.subheading` row (whose value already IS the intended fallback). Logic
+  in `lib/case-header.ts` with 6 unit tests, because the branch that matters
+  most — content row absent → fall back, never "Antrag für " — cannot be
+  photographed.
+- **Mockup progress treatment** — floating petrol %-chip and ring marker. The
+  marker is decorative: `aria-hidden`, `pointer-events-none`, no role.
+  Explicitly NOT `role=slider`, which would advertise dragging your own
+  progress. The "{n} von {m} Fragen beantwortet" label stays.
+- **Chat card** — the transcript in the mockup's white rounded card, with
+  cream-deep assistant bubbles (the mockup's white-on-white measured 1.00:1
+  and was rejected). Autosave notice as a sage hint at the head of the
+  transcript.
+- **Copy (D4 waiver, "approved by Erman 2026-08-14, Roman review waived")** —
+  Fragen→**Angaben**, Dokumente→**Unterlagen**, Weiter→**Antwort speichern**,
+  "Weiß ich gerade nicht"→**Später beantworten**.
+- **F1/F2** — the case-id/PLZ/status meta row removed, and the sage patient
+  banner retired into the header intro so its sentence is said once, not
+  twice (reusing Roman's existing `case.patient_banner_body` verbatim).
+- **Unterlagen** rows at the mockup's proportions; **R2-7** deferred-question
+  marker (display-only; `skippedIds` stays session-scoped and the
+  answered/unanswered contract is untouched).
+- **a11y sweep** — legal-footer links padded to WCAG 2.5.8's 24px hit area (a
+  **pre-existing** 14px miss; the footer shipped after the E-7 audit). The
+  `· n offen` badge also lost its `/80` opacity, fixing a pre-existing 3.72:1
+  AA miss found by the Phase-1 in-engine pass.
+
+**E-8 closed, not deferred again:** the skipped marker shipped; **pill chips,
+the "Antwort geändert" flash and the Ändern-affordance change are dropped
+permanently** (chips are a native-control swap over ~21 anchors that would add
+a variable-height control family to the mobile footer region — which has
+broken twice this quarter). They revive only if Roman asks.
+
+**Gates.** Checkpoint 1: preview 22 passed / 13 known-skipped / 0 failed in
+5.2 min, then **prod verification 22/22**. Checkpoint 2: preview cumulative
+green (4 machine-stall failures, all cleared on re-run against the same
+deployment), then **prod verification 15/15** with contrast measured live in
+the browser. R2-7: preview 22/0/13 in 4.9 min.
+
+**Two real regressions the gates caught**, both worth remembering:
+
+1. **The mobile answer-footer bug was re-created.** The new title/intro block
+   sat above the panes as a fixed-height row; on an `h-dvh` column that height
+   comes out of the answer footer, and the save button measured **702px inside
+   a 667px viewport**. Now desktop-only, with the same content inside each
+   pane's scroller below `lg`. `mobile-footer.spec` has caught this class
+   **twice from different causes** — recorded as a standing design constraint.
+2. **F1 removed the only render site of the "In Prüfung" chip**, which six
+   specs read. Only two were hard asserts; the other four were soft completion
+   probes that would have silently never fired again. All six repointed onto
+   `[data-testid=locked-banner]`.
+
+**Process items recorded** (details in `ui_round2_state.md`): anchor-fragile
+doc edits silently no-op after a Prettier pass — always re-read to confirm;
+a hardening sweep must enumerate every locator form and the whole
+label-coupled family, not the instance that motivated it; fixed-height mobile
+chrome is a reachability risk by construction; and stall clustering with
+session load makes a **dedicated Supabase test project** a backlog item (it
+would also unblock `auth.spec`'s 13 annotated skips).
+
+**Deviation on record, founder-accepted:** the progress bar stays in the
+Angaben pane rather than moving to the shell. Ours counts questions only,
+while the mockup's folds uploads into the same number — showing it above the
+Unterlagen tab would claim a completeness we do not measure.
+
+---
+
 ## Waiver round: item-3 blanket approval + ESS-056 — ✅ SHIPPED 2026-08-13, live-verified same day
 
 The founder's consolidated GO (item-3 waiver "approve all" + Roman's

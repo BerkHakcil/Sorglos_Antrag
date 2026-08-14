@@ -509,7 +509,34 @@ existed to produce one. Defect closed as _verified-no-exposure_.
 The four items below survive the pass. Everything else in this file is
 historical record.
 
-### 1. E-8 ticket — behaviour-adjacent restyle extras (DEFERRED ENTIRELY)
+### 1. E-8 ticket — ✅ CLOSED 2026-08-14 (three dropped, one shipped)
+
+**Founder decision at the end of UI round 2.** The ticket is closed, not
+deferred again:
+
+- **SHIPPED as R2-7:** the skipped-question marker. Deferred questions now
+  keep their prompt in the transcript with an italic clock + "Später
+  beantworten". Display-only — `skippedIds` stays session-scoped client
+  state, `handleSkip` and the answered/unanswered contract are untouched.
+  Verified: skipping wrote no answer row and still advanced.
+- **DROPPED PERMANENTLY — pill chips.** A native-control swap: `<input
+type=radio>` and `<select>` disappear, one click submits instead of
+  select-then-save, and radio keyboard/AT semantics must be rebuilt by hand.
+  ~21 e2e anchors target those controls. Decisive factor: **the mobile
+  answer-footer geometry has broken twice this quarter** (the 2026-08-11
+  field report and again in R2-2), and chips would add a fresh
+  variable-height control family to exactly that region.
+- **DROPPED PERMANENTLY — the "Antwort geändert" flash.** New transient UI
+  and a new German string, for feedback the transcript already gives: the
+  edited answer visibly changes in place.
+- **DROPPED PERMANENTLY — the Ändern-affordance change** (pencil icon + sent
+  check). It moves the edit entry point and its discoverability for no
+  functional gain; "Bearbeiten" under the answer works and is tested.
+
+All three revive **only if Roman explicitly asks**. The historical scope
+notes are kept below for that case.
+
+### 1a. Historical scope (pre-closure)
 
 The restyle is **complete at E-7** by founder decision. E-8's scope, if it
 ever revives: **pill chips** replacing the yes/no radios and

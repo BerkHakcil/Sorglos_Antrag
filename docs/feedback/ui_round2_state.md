@@ -60,7 +60,10 @@ build. Recorded per sub-phase below.
 | R2-5 auth alignment           | ✅ **NO-OP, verified**         | E-5 already built the mockup's AuthShell 1:1 (card, padding, heading scale, copper CTA, footer row). Checked against the fresh mockup capture; recording a no-op beats inventing churn                                                                                                                                                                                                                                      |
 | R2-6 sweep                    | ✅ `33d50b4`                   | Legal-footer links padded to WCAG 2.5.8's 24px hit area (**pre-existing** 14px miss — the footer shipped after the E-7 audit); a11y script no longer dies on the all-answered→locked race; focus order and indicators clean at 375px                                                                                                                                                                                        |
 | **Checkpoint-2 preview gate** | ✅ **cumulative green**        | Full run 18 passed / 4 failed / 13 skipped (4.8 min); **all 4 failures were the identical machine-stall signature** (`answer-footer button[disabled]` stuck at 2 — a hung save), never an assertion. Re-runs vs the SAME deployment: L3/L4/T3 green (9 passed, 2.4 min), R1 green solo (2 passed, 1.5 min). **Cumulative 22 passed / 13 skipped / 0 failed.** mobile-footer M1 green in the main run (multiselects 4/7/7/9) |
-| **Checkpoint 2**              | ⏸ **STOP — awaiting founder**  | eyeball the gallery → merge word. E-8 (R2-7..R2-10) individually gated after                                                                                                                                                                                                                                                                                                                                                |
+| **Checkpoint 2**              | ✅ **MERGED + LIVE-VERIFIED**  | ff-merge `a05de06 → ed5ea0a`; **prod verification 15/15**, contrast measured live in the browser (`ui-gallery/R2-6-PROD-verified/`)                                                                                                                                                                                                                                                                                         |
+| R2-7 deferred marker          | ✅ `1556006`                   | Preview: **22 passed / 13 skipped / 0 failed, 4.9 min**, single run. Local behaviour checks 11/11 incl. the contract proof (skip wrote no answer row, 1 → 1)                                                                                                                                                                                                                                                                |
+| **E-8**                       | ✅ **CLOSED**                  | marker shipped; chips + flash + Ändern-affordance **dropped permanently** (reasoning in `pass3_state.md` §1)                                                                                                                                                                                                                                                                                                                |
+| **ROUND**                     | ✅ **CLOSED 2026-08-14**       | Roman one-link before/after: `ui-gallery/UI-RUNDE-2.md`. Milestone entry written; ledger updated                                                                                                                                                                                                                                                                                                                            |
 
 ### Note on the Checkpoint-2 stall cluster
 
@@ -214,3 +217,64 @@ convenience.
      not — a completeness claim we cannot make. The bar therefore lives with the
      questions it counts. Also recorded in the Roman gallery README so it does
      not read as an oversight.
+
+---
+
+## Process items recorded at close (2026-08-14)
+
+These are rules, not anecdotes. Each cost real time this round.
+
+### 1. Anchor-fragile doc edits silently no-op
+
+Exact-match string edits against formatted docs **fail silently** — Prettier
+reformats Markdown table column widths, so an anchor captured before a format
+pass no longer matches, and `str.replace` returns the input unchanged without
+error. This round the phase table read "Checkpoint 1 pending" for hours after
+it had shipped, and two later edits stacked on top of the same miss.
+
+**Rule: after any state-file or table edit, re-read the file and confirm the
+change is present.** An edit that reports success but changed nothing is a
+false record — worse than no edit, because it is trusted.
+
+### 2. A hardening sweep must enumerate ALL locator forms
+
+R2-0 hardened the save CTA and missed anchors of its own class **twice**:
+five sites on the skip label (only the save button was considered), then four
+more in the `getByTestId(...)` form (only the
+`page.locator('[data-testid=…]')` string form had been rewritten). Each
+surfaced later as a break rather than as a plan.
+
+**Rule: a hardening sweep enumerates every locator form —
+`getByRole`+name, `getByText`, `getByTestId`, raw CSS/`page.locator` — AND
+every label-coupled control in the same family, not just the one that
+motivated the sweep.** Grep for the family, not the instance.
+
+### 3. Mobile geometry: fixed-height blocks are a reachability risk BY CONSTRUCTION
+
+The case screen is an `h-dvh` flex column whose answer footer takes the
+remaining height. **Anything fixed-height added above the scroller is taken
+out of the footer's share**, and past some content height the save button
+leaves the viewport with no scroll gesture able to reach it.
+
+`mobile-footer.spec` has now caught this **twice, from different causes**: the
+original field report (2026-08-11, a tall multiselect) and R2-2 (a new
+title/intro block). This is a standing DESIGN CONSTRAINT, not merely a test:
+
+**Rule: new persistent chrome on the case screen goes INSIDE a scroller on
+mobile, or is desktop-only. If it must be fixed-height above the fold below
+`lg`, it needs a measured mobile-footer run before it is considered done.**
+
+### 4. Stall clustering vs load — BACKLOG: dedicated test project
+
+Observation, no action now. Preview-suite stalls clustered with session load:
+R2-3's run had zero, Checkpoint 2's had four, all the same hung-save signature
+(`answer-footer button[disabled]` stuck at 2), none an assertion. This session
+created and deleted **~50 throwaway accounts against the single prod Supabase
+project**, and every drive step is a server-action round-trip to it.
+
+**Backlog ticket:** stand up a dedicated Supabase test project for e2e (also
+unblocks `auth.spec`'s 13 annotated skips, which need a
+confirmation-disabled project). Cost: a second project plus seed replay.
+Trigger: if stall clusters keep growing, or when e2e moves into CI. Until
+then the machine-stall convention (solo re-run vs the same deployment,
+cumulative green) is the mitigation.
