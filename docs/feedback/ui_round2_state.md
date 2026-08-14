@@ -80,6 +80,37 @@ UI rather than an empty scaffold. Migration-first is still the order used.
 - Disabled-CTA alternative, white-on-white bubbles rejected, chat-card look
   without the inline-input geometry — all as proposed in Phase 1.
 
+## ⚠ `visibility.spec` — NOT cleared, and the local fallback is why
+
+Honest status: **this spec passed twice and failed four times on byte-identical
+code**, and I could not get it to a clean re-run. It is the only spec in that
+state; everything else is green.
+
+Every failure is the same signature and never an assertion: a test timeout with
+`[data-testid=answer-footer] button[disabled]` stuck at 2 — the save and skip
+buttons, i.e. a save action that never returned. It fails at a DIFFERENT point
+each time (step 108, step 0, a `select` save near line 256), which is what rules
+out a deterministic product bug.
+
+What passed on that same build argues strongly for environment over product:
+`completion.spec` drove a full Berlin questionnaire to `under_review` (C1–C7),
+`documents-m6` A1–A6, `feedback-pass` L1–L4 + T1, `m7-regression` R1+R2 (a full
+Essen drive), `mobile-footer` M1, `transitive-visibility` T1–T3 — several
+hundred successful saves through the same code path. `visibility.spec` is the
+longest and most save-dense drive in the suite (100+ steps incl. group
+instances), so it is the first to break when saves get slow.
+
+**Root cause is the fallback itself.** A local dev server round-trips every
+save to prod Supabase in the EU and re-renders server-side unoptimised; the
+suite takes **30–50 minutes** locally against **3–5 minutes** on a preview,
+where the production build runs on Vercel EU next to the database. The runs
+also degraded measurably as the session went on (`feedback-pass` 7.9 → 10.2 →
+14.0 min), and a fresh dev server did not recover it.
+
+**Consequence for the round:** the local fallback is not a dependable gate for
+R2-3…R2-6. Restoring the preview bypass secret is now a prerequisite, not a
+convenience.
+
 ## Deviations on record
 
 1. **Preview gate replaced by the local identical build** for R2-1 onward
@@ -94,7 +125,25 @@ UI rather than an empty scaffold. Migration-first is still the order used.
    hidden at lg) and `scripts/ui-gallery.mjs`'s
    `getByRole('tab', { name: 'Dokumente' })`. Both repointed onto testids; the
    Phase-1 blast-radius table was otherwise accurate.
-4. **Progress bar stays inside the Angaben pane** rather than moving to the
+4. **The R2-2 gate caught two real regressions** (`0a48bca` → fixed in
+   `d2f8cae`), both worth remembering:
+   - **The mobile answer-footer bug was re-created.** The new title/intro
+     block sat above the panes as a fixed-height row; on an `h-dvh` column
+     that height is taken from the answer footer, and `mobile-footer.spec`
+     measured the save control at **702px in a 667px viewport**. The pinned
+     block is now desktop-only, with the same title and intro rendered inside
+     each pane's scroller below `lg` — which is precisely how the patient
+     banner they replace always behaved. **The guard did its job; keep running
+     it every sub-phase.**
+   - **F1 removed the only render site of the "In Prüfung" status chip**, and
+     six spec sites read it. Only two were hard asserts; the other four were
+     soft completion probes that would have gone on silently never firing —
+     a drive loop losing its termination signal without failing. All six now
+     read `[data-testid=locked-banner]`. **Process note:** the Phase-1 census
+     marked those green, correctly at the time — the F1 ruling came later and
+     invalidated it. A founder ruling that deletes UI must trigger a re-run of
+     the census rows that mention it.
+5. **Progress bar stays inside the Angaben pane** rather than moving to the
    shell as in the mockup. Two reasons: the percentage is derived from
    ChatView's live client state (lifting it would mean lifting the whole
    questionnaire nav), and our progress counts _questions only_ — the mockup's
