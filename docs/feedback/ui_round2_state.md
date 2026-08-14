@@ -79,6 +79,29 @@ is absent. `ON CONFLICT DO NOTHING`, config table, zero user rows.
 UI rather than an empty scaffold. Migration-first is still the order used.
 **Must be pushed before the Checkpoint-1 merge to prod.**
 
+## Checkpoint-1 prod verification (2026-08-14) — 22/22
+
+One throwaway account, deleted; synthetic data only. Screenshots:
+`docs/feedback/ui-gallery/R2-2-PROD-verified/`.
+
+| Founder's ask                                          | Result                                                                                       |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| Meta row (case id / PLZ / status) GONE from the header | ✅ all three absent from `[data-testid=case-header]`                                         |
+| Personalized title on a case with the name answered    | ✅ "Antrag für Maria Musterfrau"                                                             |
+| Clean fallback on a case without                       | ✅ "Mein Hilfe zur Pflege Antrag"; no empty "Antrag für" ever rendered                       |
+| Floating % chip + ring marker at 0%                    | ✅ chip reads "0%", marker present, `aria-hidden` with no role                               |
+| …and mid-progress                                      | ✅ chip reads "4%"; the "n von m Fragen beantwortet" label retained                          |
+| Sidebar at ≥1024px                                     | ✅ sidebar visible, top brand bar hidden, legal links and badge in the sidebar               |
+| Mobile byte-identical below lg                         | ✅ sidebar hidden, top bar + tab row + bottom legal footer all present                       |
+| Mobile save button reachable on a real drive           | ✅ bottom at **600px of 667**, body unscrolled, and a real date answer saved (bubbles 3 → 4) |
+
+⚠ **Two of these checks failed on the first pass because the CHECK was wrong,
+not the product** — worth recording so the same traps are not re-dug: the chip
+regex used `0%` against header text that concatenates to
+`"…beantwortet0%"` (no word boundary between `t` and `0`), and the mobile
+drive looked for `input[type=text]` when the next Berlin question is a DATE.
+Both corrected; the product was right both times.
+
 ## Decisions applied this round
 
 - **F1** case-id / PLZ / status row dropped from the case header (R2-2).
