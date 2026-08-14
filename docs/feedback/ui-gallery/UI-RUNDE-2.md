@@ -14,15 +14,15 @@ Die **Mobilansicht ist bewusst unverändert** geblieben.
 
 ## Die Bilder, Schritt für Schritt
 
-| Schritt | Was sich geändert hat | Vorher | Nachher |
-| --- | --- | --- | --- |
-| Referenz | Dein Entwurf, alle Bildschirme | — | [Entwurf](R2-mockup-reference) |
-| R2-1 | Seitenleiste, Navigation „Angaben/Unterlagen" | [vorher](R2-1-shell-BEFORE) | [nachher](R2-1-shell-AFTER) |
-| R2-2 | Überschrift „Antrag für …", Fortschrittsbalken | [vorher](R2-1-shell-BEFORE) | [nachher](R2-2-header-AFTER) · [live](R2-2-PROD-verified) |
-| R2-3 | Chat-Karte, „Antwort speichern", Auto-Speichern-Hinweis | [vorher](R2-1-shell-BEFORE) | [nachher](R2-3-chat-AFTER) |
-| R2-4 | Unterlagen-Liste in den Maßen des Entwurfs | [vorher](R2-1-shell-BEFORE) | [nachher](R2-4-docs-AFTER) |
-| R2-6 | Feinschliff (Bedienbarkeit) · live geprüft | — | [live](R2-6-PROD-verified) |
-| R2-7 | Übersprungene Fragen sichtbar | — | [nachher](R2-7-deferred-AFTER) |
+| Schritt  | Was sich geändert hat                                   | Vorher                      | Nachher                                                   |
+| -------- | ------------------------------------------------------- | --------------------------- | --------------------------------------------------------- |
+| Referenz | Dein Entwurf, alle Bildschirme                          | —                           | [Entwurf](R2-mockup-reference)                            |
+| R2-1     | Seitenleiste, Navigation „Angaben/Unterlagen"           | [vorher](R2-1-shell-BEFORE) | [nachher](R2-1-shell-AFTER)                               |
+| R2-2     | Überschrift „Antrag für …", Fortschrittsbalken          | [vorher](R2-1-shell-BEFORE) | [nachher](R2-2-header-AFTER) · [live](R2-2-PROD-verified) |
+| R2-3     | Chat-Karte, „Antwort speichern", Auto-Speichern-Hinweis | [vorher](R2-1-shell-BEFORE) | [nachher](R2-3-chat-AFTER)                                |
+| R2-4     | Unterlagen-Liste in den Maßen des Entwurfs              | [vorher](R2-1-shell-BEFORE) | [nachher](R2-4-docs-AFTER)                                |
+| R2-6     | Feinschliff (Bedienbarkeit) · live geprüft              | —                           | [live](R2-6-PROD-verified)                                |
+| R2-7     | Übersprungene Fragen sichtbar                           | —                           | [nachher](R2-7-deferred-AFTER)                            |
 
 ## Was du beim Durchsehen wissen solltest
 
