@@ -7,7 +7,21 @@
 > **Checkpoint 2 (after R2-6)**. E-8 items (R2-7..R2-10) stay individually
 > gated after Checkpoint 2 and are droppable one by one.
 
-## ⚠ BLOCKER FOR THE FOUNDER — preview gate unavailable
+## ✅ RESOLVED 2026-08-14 — preview gate restored
+
+The founder regenerated the Protection Bypass secret; `.env.local` updated.
+Verified: bare request 302s, bypass request 200s, and the served CSS carries
+the `lg:w-72` / `xl:w-80` sidebar utilities — i.e. the BRANCH build, not main.
+(Probe note: with `x-vercel-set-bypass-cookie` the first response is a 307
+cookie handshake — curl needs `-L` plus a cookie jar or it looks like a
+failure. Playwright handles this itself.)
+
+**The preview run settles the `visibility.spec` question below: 22 passed /
+13 skipped / 0 failed in 5.2 min, single run, no re-runs, visibility green
+first try.** Same commit that failed it four times locally. Environmental,
+as diagnosed — 5.2 min on preview against 30–50 min locally.
+
+### Historical record — the blocker as it stood
 
 **`VERCEL_AUTOMATION_BYPASS_SECRET` no longer works.** Branch previews 302 to
 `vercel.com/sso-api` **with the bypass header set** — verified on both
@@ -80,11 +94,14 @@ UI rather than an empty scaffold. Migration-first is still the order used.
 - Disabled-CTA alternative, white-on-white bubbles rejected, chat-card look
   without the inline-input geometry — all as proposed in Phase 1.
 
-## ⚠ `visibility.spec` — NOT cleared, and the local fallback is why
+## `visibility.spec` — CLEARED on the preview (historical detail below)
 
-Honest status: **this spec passed twice and failed four times on byte-identical
-code**, and I could not get it to a clean re-run. It is the only spec in that
-state; everything else is green.
+**Resolved:** green on the first preview run (5.2 min suite). The diagnosis
+below held — it was the local fallback, not the product.
+
+Historical status while the fallback was the only gate: **this spec passed
+twice and failed four times on byte-identical code**, and I could not get it to
+a clean local re-run. It was the only spec in that state.
 
 Every failure is the same signature and never an assertion: a test timeout with
 `[data-testid=answer-footer] button[disabled]` stuck at 2 — the save and skip
@@ -144,8 +161,16 @@ convenience.
      invalidated it. A founder ruling that deletes UI must trigger a re-run of
      the census rows that mention it.
 5. **Progress bar stays inside the Angaben pane** rather than moving to the
-   shell as in the mockup. Two reasons: the percentage is derived from
-   ChatView's live client state (lifting it would mean lifting the whole
-   questionnaire nav), and our progress counts _questions only_ — the mockup's
-   bar folds in document uploads, so showing it above the Unterlagen tab would
-   state a completeness we do not measure.
+   shell as in the mockup. **DEVIATION ACCEPTED by the founder, 2026-08-14** —
+   deliberate, not an oversight.
+
+   Two reasons. The percentage is derived from ChatView's live client state, so
+   lifting the bar into the shell would mean lifting the whole questionnaire
+   nav. More importantly, **the two bars do not measure the same thing**: ours
+   is answered-required-questions ÷ applicable-required-questions, while the
+   mockup's folds document uploads into the same number (`0.5 + uploaded/total
+   - 0.5`in`unterlagen.tsx`). Rendering our questions-only number above the
+     Unterlagen tab would tell a user their documents were counted when they are
+     not — a completeness claim we cannot make. The bar therefore lives with the
+     questions it counts. Also recorded in the Roman gallery README so it does
+     not read as an oversight.
