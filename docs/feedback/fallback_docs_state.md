@@ -1,10 +1,9 @@
-# Fallback document list fix — session state
+# Fallback document list fix — session state — ✅ CLOSED 2026-08-26
 
-> Resume protocol: read this file first, then the Phase-1 report
-> (`fallback_docs_phase1.md`). Gated phases, founder approval at the gate.
-> Phase 1 was read-only and created exactly two repo files: that report and
-> this one (plus one cross-note line in `m8_admin_state.md`, per the brief).
-> Branch: none yet — nothing has been built.
+> **The fix is SHIPPED and live-verified** (milestone-log entry of
+> 2026-08-26 carries the evidence). This file is the historical record;
+> nothing here is open. Resume protocol for readers: this file, then the
+> Phase-1 report (`fallback_docs_phase1.md`).
 
 ## ✅ GATE 1 APPROVED (founder, 2026-08-26) — Phase 2 in execution
 
@@ -30,12 +29,12 @@ Decisions of record:
 
 ## Phase status
 
-| Phase                       | Status                                                                   | Gate                                                                                                                                                                                                                                                  |
-| --------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Phase 1 discovery + impact  | ✅ DONE 2026-08-25 — READ-ONLY                                           | `fallback_docs_phase1.md`. 6 readers → 4 adversarial verifiers + completeness critic; load-bearing claims re-read by hand; impact numbers from a read-only prod scan mirroring the app derivation, doubly corroborated against the documentary record |
-| **Gate 1**                  | ✅ **APPROVED 2026-08-26**                                               | Decisions above; report §2 carries the Line-A note                                                                                                                                                                                                    |
-| Phase 2 migration + code    | ✅ PACKAGE READY 2026-08-26 on `fix/fallback-doclist` (commit `6b26571`) | Migration written, NEVER pushed; all runnable checks green (see execution record below)                                                                                                                                                               |
-| **Gate 2 (migration push)** | ⏳ **AWAITING FOUNDER**                                                  | Runbook below: review package → push migration → verify (POST mode) → merge branch → prod checks; no merge to main before the push                                                                                                                    |
+| Phase                       | Status                                                                   | Gate                                                                                                                                                                                                                                                                                                                                         |
+| --------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phase 1 discovery + impact  | ✅ DONE 2026-08-25 — READ-ONLY                                           | `fallback_docs_phase1.md`. 6 readers → 4 adversarial verifiers + completeness critic; load-bearing claims re-read by hand; impact numbers from a read-only prod scan mirroring the app derivation, doubly corroborated against the documentary record                                                                                        |
+| **Gate 1**                  | ✅ **APPROVED 2026-08-26**                                               | Decisions above; report §2 carries the Line-A note                                                                                                                                                                                                                                                                                           |
+| Phase 2 migration + code    | ✅ PACKAGE READY 2026-08-26 on `fix/fallback-doclist` (commit `6b26571`) | Migration written, NEVER pushed; all runnable checks green (see execution record below)                                                                                                                                                                                                                                                      |
+| **Gate 2 (migration push)** | ✅ **CLOSED 2026-08-26**                                                 | Founder pushed migration `20260826000001` + ran POST verification (ALL PASS, 0 warnings; independently re-run identical); branch fast-forward merged to `main` (`c013233`) and deployed; prod e2e F1/F2/F3 3/3 (trio absent on fallback, own-office suffix intact, no banner anywhere); milestone entry flipped to SHIPPED with the evidence |
 
 ## Phase 2 execution record (2026-08-26)
 
