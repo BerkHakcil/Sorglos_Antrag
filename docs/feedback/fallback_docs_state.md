@@ -30,12 +30,72 @@ Decisions of record:
 
 ## Phase status
 
-| Phase                       | Status                                   | Gate                                                                                                                                                                                                                                                  |
-| --------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Phase 1 discovery + impact  | ✅ DONE 2026-08-25 — READ-ONLY           | `fallback_docs_phase1.md`. 6 readers → 4 adversarial verifiers + completeness critic; load-bearing claims re-read by hand; impact numbers from a read-only prod scan mirroring the app derivation, doubly corroborated against the documentary record |
-| **Gate 1**                  | ✅ **APPROVED 2026-08-26**               | Decisions above; report §2 carries the Line-A note                                                                                                                                                                                                    |
-| Phase 2 migration + code    | 🔨 in progress on `fix/fallback-doclist` | Migration file only, never pushed; live verification script (**GET-only**, like the Phase-1 scan) asserts every §4 Line-A number; then dependent code                                                                                                 |
-| **Gate 2 (migration push)** | ⛔ next                                  | Founder reviews the package, pushes the migration, runs the verification script; no merge to main before that                                                                                                                                         |
+| Phase                       | Status                                                                   | Gate                                                                                                                                                                                                                                                  |
+| --------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phase 1 discovery + impact  | ✅ DONE 2026-08-25 — READ-ONLY                                           | `fallback_docs_phase1.md`. 6 readers → 4 adversarial verifiers + completeness critic; load-bearing claims re-read by hand; impact numbers from a read-only prod scan mirroring the app derivation, doubly corroborated against the documentary record |
+| **Gate 1**                  | ✅ **APPROVED 2026-08-26**                                               | Decisions above; report §2 carries the Line-A note                                                                                                                                                                                                    |
+| Phase 2 migration + code    | ✅ PACKAGE READY 2026-08-26 on `fix/fallback-doclist` (commit `6b26571`) | Migration written, NEVER pushed; all runnable checks green (see execution record below)                                                                                                                                                               |
+| **Gate 2 (migration push)** | ⏳ **AWAITING FOUNDER**                                                  | Runbook below: review package → push migration → verify (POST mode) → merge branch → prod checks; no merge to main before the push                                                                                                                    |
+
+## Phase 2 execution record (2026-08-26)
+
+**Branch `fix/fallback-doclist`, one package commit; nothing merged, nothing
+pushed to any remote, no DB write of any kind.**
+
+What ran green locally:
+
+- `npx vitest run` — **279/279** (13 files; new: `rules-source.test.ts`
+  ladder + fail-open matrix incl. the executable benign-deploy-ordering
+  proof, `fallback-doclist.test.ts` Line-A purge gate: migration/fixture
+  lockstep, subtraction golden byte-diff vs the committed
+  `default-golden-slots.json` AND vs pankow-golden minus excluded rules,
+  fresh list 11→8, hide-but-retain, classifyUploads).
+- `npm run verify` — typecheck, eslint (0 errors; 1 pre-existing warning in
+  untouched `chat-view.tsx`), `format:check`, `check:encoding` all green.
+- `node scripts/verify-fallback-doclist.mjs` — **PRE mode ALL PASS against
+  live prod** (GET-only): the Phase-1 baseline still holds exactly (no case
+  drifted since 2026-08-25), `docs.fallback_notice` row untouched, and both
+  own-office rule sets (Pankow 49, Essen 56) resolve byte-identically with
+  and without the exclusion list — through the same `lib/rules-source.ts`
+  the app now runs.
+
+**Cannot run now (pending, with owner):**
+
+- **e2e** (incl. the flipped F1) — needs the branch pushed + a Vercel
+  preview + a valid `VERCEL_AUTOMATION_BYPASS_SECRET` (M8 Q11 still open);
+  runs under the established throwaway-user protocol at the preview gate.
+- **verify-baseline.mjs local replay** — founder-run (`supabase db start` +
+  `reset`); expect the exclusion row as "extra in local" until the push
+  (normal pending-migration state, not drift).
+- **POST-mode verification** — after the founder's `supabase db push`.
+- **`git push origin main`** — Step 0's push was **blocked by the session's
+  permission classifier** (push-to-main deploys prod). Commits `bcd333b`
+  (Phase-1 docs, Gate 1 approved) and `41d65bc` (prettier chore on those
+  docs — required or CI's blocking format:check fails on the next main
+  push) are LOCAL on `main`; the founder runs the push.
+
+## Gate 2 runbook (founder)
+
+1. `git push origin main` (the two local docs commits; docs-only deploy).
+2. Review the package: `git diff main fix/fallback-doclist` — especially
+   `supabase/migrations/20260826000001_fallback_excluded_rule_ids.sql`.
+3. Optional but recommended: push the branch → Vercel preview → e2e gate
+   (`npx playwright test` with the preview URL), bypass-secret permitting.
+4. **Push the migration** (repo root): `supabase db push`. Guards abort on
+   any mismatch (ids must be active rules of the default office; a
+   pre-existing conflicting row fails loudly).
+5. `node scripts/verify-fallback-doclist.mjs` **from the branch checkout**
+   (it uses the branch's `lib/`) — must print POST mode, ALL CHECKS PASSED:
+   per-case Line-A numbers (52e364f1 stays missing 0 with its 3 files
+   not_required; 78293a6c 18/5 with 1; Essen 13/7 untouched), config row
+   exact, own-office byte-identity.
+6. Merge `fix/fallback-doclist` → `main`, push (prod deploy: banner gone,
+   purged list live). Either order relative to step 4 is proven safe
+   (fail-open row-add), but migration-first makes the user-visible change a
+   single step at the code deploy.
+7. Post-deploy: re-run the verify script + `fallback-notice.spec.ts` against
+   prod; append the verification numbers to the milestone-log entry and flip
+   it from GATED to SHIPPED; close this state file.
 
 ## The findings that shaped the plan
 
