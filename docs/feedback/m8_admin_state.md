@@ -93,7 +93,7 @@ blocking; Phase 2 cannot start until they are answered.
 - **Cross-note (2026-08-25, fallback-docs fix Phase 1):** the fallback
   document-list fix (`fallback_docs_state.md` / `fallback_docs_phase1.md`)
   exercises the same rules layer and the same two ladder copies (`lib/dal.ts`
-  + `scripts/case-export.mjs`) as M8 Phase 4. **Whichever lands second
+  and `scripts/case-export.mjs`) as M8 Phase 4. **Whichever lands second
   re-baselines the case-view equivalence fixtures** — both Phase-4 locked
   baseline cases (`52e364f1`, `461038b0`) are fallback-served, so their
   export output changes when that fix's purge lands (fewer slots, changed

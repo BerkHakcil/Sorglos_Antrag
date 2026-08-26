@@ -49,9 +49,9 @@ Fallback-case uploads therefore carry **Pankow's real rule ids** (`PAN-###`) in
 
 **Consequence:** the brief's literal mechanism — "introduce a new default rule
 set and point the fallback resolver at it" — implemented as a new office with a
-purged *copy* of the rules under new ids would detach **every** existing
+purged _copy_ of the rules under new ids would detach **every** existing
 fallback upload from its slot, not just the dropped ones. The complete case
-`52e364f1` (19 uploads, missing 0) would flip to *every slot missing*. Any
+`52e364f1` (19 uploads, missing 0) would flip to _every slot missing_. Any
 mechanism must preserve upload binding for the **kept** requirements. §3
 presents three additive shapes that satisfy the brief's intent (Pankow/Essen
 untouched, nothing deleted or edited in the served set) and recommends the one
@@ -61,7 +61,7 @@ that keeps all bindings with zero writes to user rows.
 
 The three suspected entries are **confirmed office-specific** by every source
 the repo has (§1.3): `docs/known-limitations.md:39-40` names exactly
-*Mobilitätsnachweis, Nachweis Bedarfsanzeige, polizeiliche Anmeldung im Heim*
+_Mobilitätsnachweis, Nachweis Bedarfsanzeige, polizeiliche Anmeldung im Heim_
 as the accepted over-collection, and Roman's canonical master
 (`docs/document-rules/essen_document_rules.json`) tags their catalog docs
 `"used_for_offices": "Pankow"`. **But the same master tags five always-mandatory
@@ -77,12 +77,12 @@ founder's decision, per the brief.
 
 Since Batch C (`20260813000004`), **every Berlin case except Pankow-routed PLZs
 is fallback-served** — the 11 Berlin district offices were created with zero
-rules *by design*, and `docs/milestone-log.md:709` records the standing
+rules _by design_, and `docs/milestone-log.md:709` records the standing
 rationale: the default deliberately stays Pankow because the default serves
 Berlin-questionnaire cases and Pankow's rules are keyed on Berlin question keys.
 Five of the seven live fallback cases are Berlin residents (Mitte,
 Marzahn-Hellersdorf, Friedrichshain-Kreuzberg ×2, Charlottenburg-Wilmersdorf).
-For them the trio may be *Berlin-wide* practice rather than Pankow-only — the
+For them the trio may be _Berlin-wide_ practice rather than Pankow-only — the
 repo's evidence distinguishes Pankow vs Essen, not Pankow vs other Berlin
 districts (the complete Marzahn case uploaded all three; its district office
 presumably accepted them). The purge applies to these Berlin cases identically.
@@ -130,7 +130,7 @@ at [page.tsx:335](../../app/case/page.tsx)); the period-suffix suppression
 duplicated ladder (`usedFallback`,
 [case-export.mjs:237-263](../../scripts/case-export.mjs)) driving its
 documents.md preamble. Nothing else. No runtime code assumes the default office
-*is* Pankow, and office names render user-facing nowhere (recorded in
+_is_ Pankow, and office names render user-facing nowhere (recorded in
 `20260813000004:17-19`).
 
 ### 1.2 Where requirement definitions live → Phase 2 contains a migration
@@ -153,19 +153,19 @@ prod cases and corroborated by `golive_blockers_state.md:31-35`); conditional
 rules add more as answers accumulate (§4 appendix has each real case's full
 list):
 
-| # | Rule | Doc | German name (live catalog) | Classification | Evidence |
-|---|------|-----|---------------------------|----------------|----------|
-| 1 | PAN-001 | DOC-0001 | Personaldokument | **generic** | `used_for_offices: "Pankow, Essen"`; ESS-001 |
-| 2 | PAN-005 | DOC-0003 | Kontoauszüge (– Girokonto) | **generic** | "Pankow, Essen"; ESS-010 |
-| 3 | PAN-007 | DOC-0004 | Pflegegutachten MDK | **Pankow-only per master** — but a nationwide-standard document | `"Pankow"`, note "Currently Pankow only."; no ESS rule |
-| 4 | PAN-008 | DOC-0005 | Leistungsbescheid Pflegekasse | **generic** | "Pankow, Essen"; ESS-005 |
-| 5 | PAN-010 | DOC-0006 | Vertretungsvollmacht / Betreuungsnachweis | **generic** | "Pankow, Essen"; ESS-012; master note: "Always mandatory due to product/application submission logic." |
-| 6 | PAN-012 | DOC-0007 | Heimvertrag | **generic** | "Pankow, Essen"; ESS-006 |
-| 7 | PAN-014 | DOC-0008 | Bisherige Heimrechnungen | **generic** | "Pankow, Essen"; ESS-007 |
-| 8 | PAN-016 | DOC-0009 | **Nachweis Bedarfsanzeige** | **office-specific — confirmed** | `"Pankow"`; named in known-limitations.md:39-40; no ESS rule; a Berlin-administration process artifact |
-| 9 | PAN-017 | DOC-0010 | **Polizeiliche Anmeldung im Heim** | **office-specific — confirmed** | same three sources |
-| 10 | PAN-018 | DOC-0011 | **Mobilitätsnachweis** | **office-specific — confirmed** | same three sources + `milestone-log.md:703` ("Pankow-only mandatories (Mobilitätsnachweis etc.)") |
-| 11 | PAN-019 | DOC-0012 | Krankenversicherungskarte | **Pankow-only per master** — but a universal document | `"Pankow"`, note "Not used as upload slot for Essen at current decision stage."; no ESS rule |
+| #   | Rule    | Doc      | German name (live catalog)                | Classification                                                  | Evidence                                                                                               |
+| --- | ------- | -------- | ----------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 1   | PAN-001 | DOC-0001 | Personaldokument                          | **generic**                                                     | `used_for_offices: "Pankow, Essen"`; ESS-001                                                           |
+| 2   | PAN-005 | DOC-0003 | Kontoauszüge (– Girokonto)                | **generic**                                                     | "Pankow, Essen"; ESS-010                                                                               |
+| 3   | PAN-007 | DOC-0004 | Pflegegutachten MDK                       | **Pankow-only per master** — but a nationwide-standard document | `"Pankow"`, note "Currently Pankow only."; no ESS rule                                                 |
+| 4   | PAN-008 | DOC-0005 | Leistungsbescheid Pflegekasse             | **generic**                                                     | "Pankow, Essen"; ESS-005                                                                               |
+| 5   | PAN-010 | DOC-0006 | Vertretungsvollmacht / Betreuungsnachweis | **generic**                                                     | "Pankow, Essen"; ESS-012; master note: "Always mandatory due to product/application submission logic." |
+| 6   | PAN-012 | DOC-0007 | Heimvertrag                               | **generic**                                                     | "Pankow, Essen"; ESS-006                                                                               |
+| 7   | PAN-014 | DOC-0008 | Bisherige Heimrechnungen                  | **generic**                                                     | "Pankow, Essen"; ESS-007                                                                               |
+| 8   | PAN-016 | DOC-0009 | **Nachweis Bedarfsanzeige**               | **office-specific — confirmed**                                 | `"Pankow"`; named in known-limitations.md:39-40; no ESS rule; a Berlin-administration process artifact |
+| 9   | PAN-017 | DOC-0010 | **Polizeiliche Anmeldung im Heim**        | **office-specific — confirmed**                                 | same three sources                                                                                     |
+| 10  | PAN-018 | DOC-0011 | **Mobilitätsnachweis**                    | **office-specific — confirmed**                                 | same three sources + `milestone-log.md:703` ("Pankow-only mandatories (Mobilitätsnachweis etc.)")      |
+| 11  | PAN-019 | DOC-0012 | Krankenversicherungskarte                 | **Pankow-only per master** — but a universal document           | `"Pankow"`, note "Not used as upload slot for Essen at current decision stage."; no ESS rule           |
 
 All three of the brief's hypotheses are **confirmed** — none turned out
 generic. The conditional Pankow rules classify as follows (fire only on
@@ -202,7 +202,7 @@ common-sense genericity diverge (MDK-Gutachten, KV-Karte — universal documents
 any office may plausibly want), the call is the founder's, not derivable from
 evidence. Also on record: the accepted-over-collection stance, in Roman's own
 words — "lieber ein Dokument zu viel einsammeln als eines zu wenig"
-(`roman_package_pass3.md:41-47`) — which cuts *against* aggressive purging.
+(`roman_package_pass3.md:41-47`) — which cuts _against_ aggressive purging.
 
 ### 1.4 The infobox
 
@@ -231,6 +231,7 @@ words — "lieber ein Dokument zu viel einsammeln als eines zu wenig"
   shipped as PLACEHOLDER_DE, then finalized under the 2026-08-13 blanket waiver
   ("approved by Erman 2026-08-13, Roman review waived",
   `german_copy_for_roman.md:49-60`).
+
 - **Removal touches:** the JSX block + `fallbackNotice` prop + now-unused
   `Info` import (document-area.tsx); the `fallbackNoticeText` call (page.tsx:335)
   and the gate function + its 5 unit tests; optionally the `docsFallbackNotice`
@@ -255,18 +256,18 @@ The **only counting logic** is pure `countMissingSlots(slots, uploads)`
 ([document-rules.ts:269-273](../../lib/document-rules.ts)) — slots with zero
 `(rule_id, instance_key)`-matching uploads. Surfaces:
 
-| Surface | Where | Derivation |
-|---|---|---|
-| "Es fehlen noch X Dokumente." / "Es fehlt noch 1 Dokument." / "Alle erforderlichen Dokumente sind hochgeladen." header + `data-missing` | [document-area.tsx:168-190](../../app/case/document-area.tsx) | client recompute over the **server's own props** — cannot diverge |
-| Tab badge "Unterlagen · N offen" (two mounted instances, desktop pill + mobile row) | [case-tabs.tsx:54-65](../../app/case/case-tabs.tsx), fed from [page.tsx:306](../../app/case/page.tsx) | the same server `countMissingSlots` result |
-| Locked-card docs variant + `data-docs-missing` + AllAnsweredCard button | [chat-view.tsx:532](../../app/case/chat-view.tsx), :548-549, :487 | same server value, boolean/attribute only |
-| Export summary + per-slot `**FEHLT**` | [case-export.mjs:272-296](../../scripts/case-export.mjs) | **its own duplicated ladder** — the genuinely separate derivation |
+| Surface                                                                                                                                 | Where                                                                                                 | Derivation                                                        |
+| --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| "Es fehlen noch X Dokumente." / "Es fehlt noch 1 Dokument." / "Alle erforderlichen Dokumente sind hochgeladen." header + `data-missing` | [document-area.tsx:168-190](../../app/case/document-area.tsx)                                         | client recompute over the **server's own props** — cannot diverge |
+| Tab badge "Unterlagen · N offen" (two mounted instances, desktop pill + mobile row)                                                     | [case-tabs.tsx:54-65](../../app/case/case-tabs.tsx), fed from [page.tsx:306](../../app/case/page.tsx) | the same server `countMissingSlots` result                        |
+| Locked-card docs variant + `data-docs-missing` + AllAnsweredCard button                                                                 | [chat-view.tsx:532](../../app/case/chat-view.tsx), :548-549, :487                                     | same server value, boolean/attribute only                         |
+| Export summary + per-slot `**FEHLT**`                                                                                                   | [case-export.mjs:272-296](../../scripts/case-export.mjs)                                              | **its own duplicated ladder** — the genuinely separate derivation |
 
 **Progress % and completion are questions-only** — `buildNav` has no document
 input ([questionnaire-nav.ts:273-276](../../lib/questionnaire-nav.ts));
 `cases.status` flips solely on `nav.allRequiredAnswered`
 ([actions.ts:249-255](../../app/case/actions.ts)); upload/delete never touch
-status (e2e-pinned). So the rule-set change moves *only* the document counters,
+status (e2e-pinned). So the rule-set change moves _only_ the document counters,
 and all in-app surfaces move together automatically because nothing is cached —
 `getDocumentData` re-queries on every server render, and upload/delete/save all
 `router.refresh()`. **The one surface that can drift is the export's duplicated
@@ -277,9 +278,9 @@ drifted once already; this fix makes it change a second time, and M8's
 ### 1.6 Upload ↔ requirement binding, hide-but-retain, and the sweep
 
 - **Schema** (`20260711000005:70-93`): `document_upload(id, case_id, rule_id →
-  office_document_rule(id) with NO cascade, document_id, subject, instance_key
-  DEFAULT 'default', storage_path UNIQUE, original_filename, mime_type,
-  size_bytes, created_at)`. The no-cascade FK is why rules are retired via
+office_document_rule(id) with NO cascade, document_id, subject, instance_key
+DEFAULT 'default', storage_path UNIQUE, original_filename, mime_type,
+size_bytes, created_at)`. The no-cascade FK is why rules are retired via
   `active=false`, never deleted (PAN-011 precedent, `20260730000003`).
 - **Hide-but-retain already exists structurally.** The UI renders uploads only
   inside their matching slot (`filesFor`, document-area.tsx:99-100); an upload
@@ -306,7 +307,7 @@ drifted once already; this fix makes it change a second time, and M8's
   Phase 2 adds an unmatched-uploads section to `documents.md`, flagged
   `not_required`, derived as the exact complement of the slot join
   (`uploads.filter(u => !slots.some(s => s.ruleId === u.rule_id &&
-  s.instanceKey === u.instance_key))`) — as a pure, unit-testable function.
+s.instanceKey === u.instance_key))`) — as a pure, unit-testable function.
 - **`storage-sweep.mjs` is safe** — read in full: it is the manual GDPR per-case
   wipe; it lists/deletes **all** objects under one case prefix on an explicit
   `--delete`, has no concept of rules or orphans-by-rule, and cannot
@@ -367,11 +368,11 @@ B and C are priced so the founder can draw the line elsewhere in one decision.
 > change, only the `fallback_excluded_rule_ids` list changes (via UPDATE, not
 > the seeding INSERT — see §3a).
 
-| Line | Drops (rules) | Fresh-case list | Rationale boundary |
-|---|---|---|---|
-| **A (recommended)** | PAN-016, PAN-017, PAN-018 | 11 → **8** | the documented over-collection trio; process artifacts a non-Pankow user may not be able to produce |
-| B | A + PAN-007, PAN-019 | 11 → **6** | all five always-mandatory docs the master tags Pankow-only (adds MDK-Gutachten, KV-Karte — universal documents) |
-| C | B + PAN-026/027, PAN-034/035, PAN-037/038, PAN-041/042, PAN-049/050 | 11 → **6** (conditionals also gone) | every doc the master tags Pankow-only (except DOC-0016, generic by ESS-056 override) |
+| Line                | Drops (rules)                                                       | Fresh-case list                     | Rationale boundary                                                                                              |
+| ------------------- | ------------------------------------------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **A (recommended)** | PAN-016, PAN-017, PAN-018                                           | 11 → **8**                          | the documented over-collection trio; process artifacts a non-Pankow user may not be able to produce             |
+| B                   | A + PAN-007, PAN-019                                                | 11 → **6**                          | all five always-mandatory docs the master tags Pankow-only (adds MDK-Gutachten, KV-Karte — universal documents) |
+| C                   | B + PAN-026/027, PAN-034/035, PAN-037/038, PAN-041/042, PAN-049/050 | 11 → **6** (conditionals also gone) | every doc the master tags Pankow-only (except DOC-0016, generic by ESS-056 override)                            |
 
 Per-entry rationale for A (each: mandatory, `person_1`, fires for every
 fallback case today):
@@ -444,7 +445,7 @@ ON CONFLICT (key) DO NOTHING;
   user (`authenticated read USING (true)`, `20260722000002:17-20`), so the
   exclusion list is client-visible. Harmless — rule ids only — but the
   mechanism is not purely server-side and should not be described as such.
-- **Governance trade-off (the honest cost):** the default list stays *derived*
+- **Governance trade-off (the honest cost):** the default list stays _derived_
   from Pankow's live set. A future Pankow rule edit propagates to the fallback
   unless the exclusion list is updated in the same migration — and a future
   repoint of `default_document_office_id` (which the code explicitly
@@ -509,16 +510,16 @@ Numbers = the app's own derivation, computed read-only (see header note);
 **Line A** primary. "Hidden uploads" = files that leave the end-user list but
 stay in DB + storage + `files/`, flagged `not_required` in documents.md.
 
-| Case | Recipient | Status | Rules | Slots now → A | "Es fehlen noch X" now → A | Hidden uploads under A |
-|---|---|---|---|---|---|---|
-| `c8542a35` | ttt ttt (test-shaped) | in_progress | fallback | 13 → 10 | 13 → 10 | — |
-| `52e364f1` | Klaus Schinzel | **under_review** | fallback | 17 → 14 | **0 → 0** | 3 — `…Bedarfsanzeige…pdf` (PAN-016), `…Meldebescheinigung…pdf` (PAN-017), `…Mobilitätsbescheinigu…pdf` (PAN-018) |
-| `3b201f7f` | Müller Müller | **under_review** | fallback | 12 → 9 | 12 → 9 | — |
-| `ecdf545d` | Josef Rockert | **under_review** | **own (Essen)** | **13 → 13** | **7 → 7** | — (must be provably untouched) |
-| `e29041c5` | Ebru Cilingir | in_progress | fallback | 12 → 9 | 12 → 9 | — |
-| `656568d4` | Herrmann Bosch | in_progress | fallback | 12 → 9 | 12 → 9 | — |
-| `78293a6c` | Roland Hütges | **under_review** | fallback | 21 → 18 | 7 → 5 | 1 — `Ummeldung Hütges.png` (PAN-017) |
-| `480c2e44` | Roman Busch | in_progress | fallback | 11 → 8 | 10 → 7 | — |
+| Case       | Recipient             | Status           | Rules           | Slots now → A | "Es fehlen noch X" now → A | Hidden uploads under A                                                                                           |
+| ---------- | --------------------- | ---------------- | --------------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `c8542a35` | ttt ttt (test-shaped) | in_progress      | fallback        | 13 → 10       | 13 → 10                    | —                                                                                                                |
+| `52e364f1` | Klaus Schinzel        | **under_review** | fallback        | 17 → 14       | **0 → 0**                  | 3 — `…Bedarfsanzeige…pdf` (PAN-016), `…Meldebescheinigung…pdf` (PAN-017), `…Mobilitätsbescheinigu…pdf` (PAN-018) |
+| `3b201f7f` | Müller Müller         | **under_review** | fallback        | 12 → 9        | 12 → 9                     | —                                                                                                                |
+| `ecdf545d` | Josef Rockert         | **under_review** | **own (Essen)** | **13 → 13**   | **7 → 7**                  | — (must be provably untouched)                                                                                   |
+| `e29041c5` | Ebru Cilingir         | in_progress      | fallback        | 12 → 9        | 12 → 9                     | —                                                                                                                |
+| `656568d4` | Herrmann Bosch        | in_progress      | fallback        | 12 → 9        | 12 → 9                     | —                                                                                                                |
+| `78293a6c` | Roland Hütges         | **under_review** | fallback        | 21 → 18       | 7 → 5                      | 1 — `Ummeldung Hütges.png` (PAN-017)                                                                             |
+| `480c2e44` | Roman Busch           | in_progress      | fallback        | 11 → 8        | 10 → 7                     | —                                                                                                                |
 
 Delta note: under A every fallback case loses exactly the same three
 always-fire `person_1` slots (PAN-016/017/018); no conditional slot moves.
@@ -540,16 +541,16 @@ answers before the gate closes change the numbers — re-run the scan then.
 
 Lines B and C, same cases (slots/missing):
 
-| Case | B slots/missing | B hidden uploads | C slots/missing | C hidden uploads |
-|---|---|---|---|---|
-| `c8542a35` | 8 / 8 | — | 8 / 8 | — |
-| `52e364f1` | 12 / 0 | 5 (+ `Pflege Gutachten.pdf`, `KV Bescheinigung.pdf`) | 12 / 0 | 5 (same) |
-| `3b201f7f` | 7 / 7 | — | 6 / 6 (also loses PAN-026 Aufenthaltsstatus) | — |
-| `ecdf545d` | 13 / 7 | — | 13 / 7 | — |
-| `e29041c5` | 7 / 7 | — | 7 / 7 | — |
-| `656568d4` | 7 / 7 | — | 7 / 7 | — |
-| `78293a6c` | 16 / 5 | 3 (+ `Gutachten.png`, `Krankenkarte Hütges.png`) | 15 / 4 (also loses the open PAN-041 "Einkommen 1: Pflegegeld" slot) | 3 (same) |
-| `480c2e44` | 6 / 5 | — | 6 / 5 | — |
+| Case       | B slots/missing | B hidden uploads                                     | C slots/missing                                                     | C hidden uploads |
+| ---------- | --------------- | ---------------------------------------------------- | ------------------------------------------------------------------- | ---------------- |
+| `c8542a35` | 8 / 8           | —                                                    | 8 / 8                                                               | —                |
+| `52e364f1` | 12 / 0          | 5 (+ `Pflege Gutachten.pdf`, `KV Bescheinigung.pdf`) | 12 / 0                                                              | 5 (same)         |
+| `3b201f7f` | 7 / 7           | —                                                    | 6 / 6 (also loses PAN-026 Aufenthaltsstatus)                        | —                |
+| `ecdf545d` | 13 / 7          | —                                                    | 13 / 7                                                              | —                |
+| `e29041c5` | 7 / 7           | —                                                    | 7 / 7                                                               | —                |
+| `656568d4` | 7 / 7           | —                                                    | 7 / 7                                                               | —                |
+| `78293a6c` | 16 / 5          | 3 (+ `Gutachten.png`, `Krankenkarte Hütges.png`)     | 15 / 4 (also loses the open PAN-041 "Einkommen 1: Pflegegeld" slot) | 3 (same)         |
+| `480c2e44` | 6 / 5           | —                                                    | 6 / 5                                                               | —                |
 
 ### Appendix: current full slot lists per case (scan output, Line-A drops marked †)
 
@@ -631,7 +632,7 @@ throwaway-user protocol — no new prod-writing tests):**
 `m7-regression.spec.ts` R2 and `completion.spec.ts` C6/C7 stay green
 structurally (counts are DOM-relative; C7's upload rounds shrink — note
 `completion.spec`'s fixture PLZ 10115 has been fallback-served its entire life
-— its office never had rules; Batch C only changed *which* rule-less office it
+— its office never had rules; Batch C only changed _which_ rule-less office it
 resolves to (Mitte) — so it exercises the purged list automatically); `documents-m6.spec.ts` /
 `feedback-pass.spec.ts` / `mobile-footer.spec.ts` are own-office and stay
 untouched. Prod verification after the founder's push = the Phase-2 live
@@ -713,7 +714,7 @@ no-live-Pankow-case coverage hole (§4).
    2026-08-09; M8 Q11 re-asks)? Needed for the preview gate; not needed for
    the unit layer or the live verification script.
 9. **Hidden uploads and their owners** (§1.6 critic finding): dropped-rule
-   uploads become unviewable *and undeletable* by the user (the affordances
+   uploads become unviewable _and undeletable_ by the user (the affordances
    live only in slot rows) while the files stay in storage. Should affected
    users (today: Klaus — 3 files, Roland — 1 file, both `under_review`) be
    told, e.g. by the team during processing? Should hidden uploads ever get a

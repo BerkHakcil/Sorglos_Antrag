@@ -30,12 +30,12 @@ Decisions of record:
 
 ## Phase status
 
-| Phase                        | Status                         | Gate                                                                                                      |
-| ---------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| Phase 1 discovery + impact   | ✅ DONE 2026-08-25 — READ-ONLY | `fallback_docs_phase1.md`. 6 readers → 4 adversarial verifiers + completeness critic; load-bearing claims re-read by hand; impact numbers from a read-only prod scan mirroring the app derivation, doubly corroborated against the documentary record |
-| **Gate 1**                   | ✅ **APPROVED 2026-08-26**     | Decisions above; report §2 carries the Line-A note                                                         |
-| Phase 2 migration + code     | 🔨 in progress on `fix/fallback-doclist` | Migration file only, never pushed; live verification script (**GET-only**, like the Phase-1 scan) asserts every §4 Line-A number; then dependent code |
-| **Gate 2 (migration push)**  | ⛔ next                        | Founder reviews the package, pushes the migration, runs the verification script; no merge to main before that |
+| Phase                       | Status                                   | Gate                                                                                                                                                                                                                                                  |
+| --------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phase 1 discovery + impact  | ✅ DONE 2026-08-25 — READ-ONLY           | `fallback_docs_phase1.md`. 6 readers → 4 adversarial verifiers + completeness critic; load-bearing claims re-read by hand; impact numbers from a read-only prod scan mirroring the app derivation, doubly corroborated against the documentary record |
+| **Gate 1**                  | ✅ **APPROVED 2026-08-26**               | Decisions above; report §2 carries the Line-A note                                                                                                                                                                                                    |
+| Phase 2 migration + code    | 🔨 in progress on `fix/fallback-doclist` | Migration file only, never pushed; live verification script (**GET-only**, like the Phase-1 scan) asserts every §4 Line-A number; then dependent code                                                                                                 |
+| **Gate 2 (migration push)** | ⛔ next                                  | Founder reviews the package, pushes the migration, runs the verification script; no merge to main before that                                                                                                                                         |
 
 ## The findings that shaped the plan
 
