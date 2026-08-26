@@ -50,6 +50,54 @@ Quick orientation for anyone picking this up cold:
 
 ---
 
+## Fallback document list: Line-A purge + banner removal — 🔒 GATED, package ready 2026-08-26 (awaiting founder migration push)
+
+Two-phase fix on branch `fix/fallback-doclist` (Phase-1 record:
+`docs/feedback/fallback_docs_phase1.md` + `fallback_docs_state.md`; Gate 1
+approved by the founder 2026-08-26). Unmapped/rule-less-office cases stop
+being asked for the default (Pankow) set's office-specific entries, and the
+fallback infobox is removed. **Nothing here is live yet** — this entry is
+finalized (verification numbers appended) after the founder pushes migration
+`20260826000001` and the branch merges.
+
+**Decisions of record (Gate 1):** Line A — the fallback list drops exactly
+PAN-016 Nachweis Bedarfsanzeige, PAN-017 Polizeiliche Anmeldung im Heim,
+PAN-018 Mobilitätsnachweis (the documented over-collection trio; Lines B/C
+rejected pending Roman). Mechanism: additive `app_config`
+`fallback_excluded_rule_ids` row, filtered on the fallback branch only — the
+literal "new rule set + repoint" was rejected because the slot↔upload join is
+`(rule_id, instance_key)` and new rule ids would detach every existing
+fallback upload. Berlin scope confirmed intended (non-Pankow Berlin cases are
+fallback-served by design). Suffix suppression kept; `fallbackNoticeText`
+deleted; the `docs.fallback_notice` static row stays in the DB, unread — the
+removed German is recorded verbatim in the Phase-1 report §5 for Roman.
+
+**Q9 (founder): no proactive user notice for hidden uploads.** The two
+affected accounts, recorded per the decision: case `52e364f1` (Klaus
+Schinzel, under_review — 3 uploads on the dropped trio become
+hidden-but-retained) and case `78293a6c` (Roland Hütges, under_review — 1
+upload on PAN-017). Files stay in DB + storage + `case:export` (`files/` and
+the new `not_required` table in documents.md); erasure by request stays the
+manual sweep tool.
+
+**Shipped in the package (branch, not merged):** migration
+`20260826000001_fallback_excluded_rule_ids.sql` (additive row + push-time
+guards; NEVER pushed by the agent); pure shared ladder `lib/rules-source.ts`
+(dal.ts + case-export.mjs both consume it — ends the twice-drifted
+duplication) with fail-open config parsing (absent/malformed row → no
+exclusions = pre-fix behavior, making deploy ordering benign — unit-pinned,
+not asserted); `classifyUploads` + `not_required` export section; banner
+removal (component, gate fn, plumbing); e2e F1 flipped to
+banner-absent + migration-state-aware trio assert; new unit suites
+`rules-source.test.ts` + `fallback-doclist.test.ts` (subtraction golden
+`default-golden-slots.json`, migration/fixture lockstep, hide-but-retain);
+docs pass (known-limitations, operations §2, architecture §4 as-built,
+uat-m7). Live verification: `scripts/verify-fallback-doclist.mjs` (GET-only)
+asserts the Phase-1 §4 Line-A numbers per case, Pankow/Essen own-resolution
+unaffected by the exclusion row, and the config row's exact content.
+
+---
+
 ## UI round 2: full mockup adoption (sidebar layout) — ✅ SHIPPED 2026-08-14, live-verified in two checkpoints
 
 The founder's decision to adopt Roman's Lovable mockup **in full**, including

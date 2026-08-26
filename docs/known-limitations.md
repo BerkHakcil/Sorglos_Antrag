@@ -32,17 +32,22 @@
 - **Unmapped postal codes silently get the Berlin questionnaire** (CP3/D12,
   by design). The internal `plz_resolution_status='unsupported'` signal is
   written; no user-facing notice (its replacement copy is pending Roman).
-- **Every case gets the DEFAULT (Pankow) document checklist** until an
-  office-specific rule set exists (feedback-pass founder decision, supersedes
-  D5's Pankow-only scoping; default configured in `app_config`, flipped to
-  Essen by one migration when Roman's seed lands). Consequences, accepted:
-  **over-collection** — Pankow-specific mandatory documents (Mobilitätsnachweis,
-  Nachweis Bedarfsanzeige, polizeiliche Anmeldung im Heim) are requested from
-  all users; **under-collection for Essen-questionnaire cases** — conditional
-  rules keyed on Berlin-only questions (Haftpflicht, Wohngeld, KFZ, Miete,
-  Spätaussiedler, Sozialhilfe, citizenship, spouse-in-facility) silently never
-  fire there, and PAN-022 (Sterbeversicherung) stays Berlin-triggered only
-  (its Essen mapping was excluded — the candidate key exists in Berlin too).
+- **Cases without an own-office rule set get the DEFAULT document checklist**
+  (feedback-pass founder decision; default office configured in `app_config`
+  `default_document_office_id` — Pankow, deliberately kept since 2026-07-25
+  because the default serves Berlin-questionnaire cases and Pankow's rules are
+  keyed on Berlin question keys; Essen owns its own rules since
+  `20260724000001`). **Since the fallback-docs fix (Gate 1, 2026-08-26) the
+  fallback branch serves the default set MINUS the office-specific entries
+  listed in `app_config` `fallback_excluded_rule_ids`** — Line A: Nachweis
+  Bedarfsanzeige, Polizeiliche Anmeldung im Heim, Mobilitätsnachweis, the
+  trio previously accepted as over-collection. Residual accepted
+  over-collection: Roman's master also tags Pflegegutachten MDK (DOC-0004)
+  and Krankenversicherungskarte (DOC-0012) `used_for_offices: "Pankow"`; the
+  founders treat that as a seeding artifact pending Roman — if he confirms,
+  the purge widens by one config-row UPDATE (Phase-1 report §2, Lines B/C).
+  Standing rule: any migration touching PAN rules or repointing
+  `default_document_office_id` re-reviews the exclusion list.
 - **Optional questions**: pressing "Weiter" with no input re-asks; only the
   skip button moves on. Affects `birth_name` only today.
 

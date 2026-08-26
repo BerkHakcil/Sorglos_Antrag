@@ -1,5 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import {
+  resolveEffectiveRules,
+  parseDefaultOfficeId,
+  parseExcludedRuleIds,
+  DEFAULT_OFFICE_CONFIG_KEY,
+  FALLBACK_EXCLUSIONS_CONFIG_KEY,
+} from '@/lib/rules-source'
 
 /**
  * Primary identity check for protected Server Components and Server Actions.
@@ -169,7 +176,6 @@ export type StaticContent = {
   docsAllUploaded: string
   docsPlaceholderNeedsPlz: string
   docsPeriodSuffix: string
-  docsFallbackNotice: string
   nextStepsHeading: string
   nextSteps1: string
   nextSteps2: string
@@ -218,7 +224,9 @@ const STATIC_CONTENT_KEYS: Record<keyof StaticContent, string> = {
   docsAllUploaded: 'docs.all_uploaded',
   docsPlaceholderNeedsPlz: 'docs.placeholder_needs_plz',
   docsPeriodSuffix: 'docs.period_suffix',
-  docsFallbackNotice: 'docs.fallback_notice',
+  // docs.fallback_notice is deliberately NOT mapped since 2026-08-26: the
+  // fallback banner was removed (fallback-docs fix, Gate 1). The DB row stays
+  // — getStaticContent only surfaces mapped keys, so the row is inert.
   nextStepsHeading: 'case.next_steps_heading',
   nextSteps1: 'case.next_steps_1',
   nextSteps2: 'case.next_steps_2',
@@ -282,19 +290,11 @@ export type UploadRow = {
   size_bytes: number
 }
 
-/**
- * Where a case's document rules came from — carried alongside the rules so the
- * UI can be honest about a generic checklist (go-live fallback banner) without
- * re-deriving the decision or issuing a second query:
- *
- *   'own'      — the case's resolved office has its own active rule set
- *                (today: Pankow, Essen). Never shows the fallback notice.
- *   'fallback' — the rules are the configured default office's (the case's
- *                office has none, or the PLZ resolved no office at all).
- *   'none'     — no rules from either source (safety branch: docsPaneMode
- *                'none', no documents pane, so nothing to annotate).
- */
-export type RulesSource = 'own' | 'fallback' | 'none'
+// RulesSource + the ladder decision live in lib/rules-source.ts since the
+// fallback-docs fix (2026-08-26) — one shared, pure, unit-tested module for
+// this file and scripts/case-export.mjs, which previously carried a hand-
+// synced copy that had drifted once (go-live follow-up, 2026-08-11).
+export type { RulesSource } from '@/lib/rules-source'
 
 /**
  * Rules + catalog for the case's resolved office, and the case's uploads.
@@ -311,39 +311,55 @@ export async function getDocumentData(caseId: string, socialOfficeId: string | n
   // An office WITH rules always uses its own (feedback pass item 3).
   // `active = false` rules are retired content (pass 3 item 5, PAN-011) — they
   // stay in the table so existing uploads keep their FK, but never emit a slot.
-  let rules: unknown[] = []
-  let rulesSource: RulesSource = 'none'
+  let ownRules: { id: string }[] = []
   if (socialOfficeId) {
     const { data } = await sb
       .from('office_document_rule')
       .select('*')
       .eq('social_office_id', socialOfficeId)
       .eq('active', true)
-    rules = data ?? []
-    if (rules.length > 0) rulesSource = 'own'
+    ownRules = data ?? []
   }
 
   // Default-office fallback: rule-less offices AND office-less (unsupported-PLZ)
-  // cases use the configured default rule set (Pankow until the Essen seed
-  // lands — app_config.default_document_office_id, changed by migration only).
-  // Degrades silently when app_config is absent/empty → no rules → no tab.
-  if (rules.length === 0) {
-    const { data: cfg } = await sb
+  // cases use the configured default rule set (app_config
+  // default_document_office_id, changed by migration only) MINUS the fallback
+  // exclusions (fallback_excluded_rule_ids — the default office's house-
+  // specific entries, Gate 1 / Line A). Both config reads degrade silently:
+  // no default → no rules → no tab; no/malformed exclusion row → no
+  // exclusions, i.e. the pre-fix list (benign deploy ordering — the code may
+  // ship before the migration row lands). Decision logic + failure semantics
+  // live in lib/rules-source.ts, shared with scripts/case-export.mjs.
+  let defaultOfficeId: string | null = null
+  let excludedRuleIds: string[] = []
+  let defaultRules: { id: string }[] = []
+  if (ownRules.length === 0) {
+    const { data: cfgRows } = await sb
       .from('app_config')
-      .select('value')
-      .eq('key', 'default_document_office_id')
-      .maybeSingle()
-    const defaultOffice = typeof cfg?.value === 'string' ? cfg.value : null
-    if (defaultOffice && defaultOffice !== socialOfficeId) {
+      .select('key, value')
+      .in('key', [DEFAULT_OFFICE_CONFIG_KEY, FALLBACK_EXCLUSIONS_CONFIG_KEY])
+    for (const row of (cfgRows ?? []) as { key: string; value: unknown }[]) {
+      if (row.key === DEFAULT_OFFICE_CONFIG_KEY) defaultOfficeId = parseDefaultOfficeId(row.value)
+      if (row.key === FALLBACK_EXCLUSIONS_CONFIG_KEY)
+        excludedRuleIds = parseExcludedRuleIds(row.value)
+    }
+    if (defaultOfficeId && defaultOfficeId !== socialOfficeId) {
       const { data } = await sb
         .from('office_document_rule')
         .select('*')
-        .eq('social_office_id', defaultOffice)
+        .eq('social_office_id', defaultOfficeId)
         .eq('active', true)
-      rules = data ?? []
-      if (rules.length > 0) rulesSource = 'fallback'
+      defaultRules = data ?? []
     }
   }
+
+  const { rules, rulesSource } = resolveEffectiveRules({
+    socialOfficeId,
+    ownRules,
+    defaultOfficeId,
+    defaultRules,
+    excludedRuleIds,
+  })
 
   const [{ data: catalog }, { data: uploads }] = await Promise.all([
     sb.from('document_catalog').select('*').eq('active', true),

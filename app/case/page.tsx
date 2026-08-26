@@ -10,7 +10,7 @@ import {
 } from '@/lib/dal'
 import { loadQuestionnaire } from '@/lib/questionnaire-engine'
 import { countMissingSlots, evaluateDocumentRules } from '@/lib/document-rules'
-import { docsPaneMode, fallbackNoticeText } from '@/lib/docs-pane'
+import { docsPaneMode } from '@/lib/docs-pane'
 import { deriveGroupData } from '@/lib/group-instances'
 import { DocumentArea } from './document-area'
 import { CaseTabs } from './case-tabs'
@@ -330,11 +330,11 @@ async function CaseTabsSection({
         slots={slots}
         uploads={uploads}
         content={content}
-        // Go-live honesty banner: non-null exactly when this checklist is the
-        // default office's generic list, not the case's own office's rules.
-        fallbackNotice={fallbackNoticeText(rulesSource, paneMode, content.docsFallbackNotice)}
-        // Same signal, no text dependency: fallback lists also drop the
-        // per-office period suffix (a claim the default list cannot make).
+        // Fallback lists drop the per-office period suffix (a claim the
+        // default list cannot make). The fallback-notice banner that used to
+        // ride this signal was removed 2026-08-26 (fallback-docs fix, Gate 1)
+        // — the fallback list is now the purged generic default and carries
+        // no caveat; the suffix suppression deliberately stays (§8 Q5).
         fromFallbackRules={rulesSource === 'fallback'}
       />
     ) : null

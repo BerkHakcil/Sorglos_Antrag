@@ -21,8 +21,20 @@ import { createClient } from '@supabase/supabase-js'
 import { mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { config } from 'dotenv'
-import { evaluateDocumentRules, countMissingSlots, periodSuffix } from '../lib/document-rules.ts'
+import {
+  evaluateDocumentRules,
+  countMissingSlots,
+  periodSuffix,
+  classifyUploads,
+} from '../lib/document-rules.ts'
 import { deriveGroupData } from '../lib/group-instances.ts'
+import {
+  resolveEffectiveRules,
+  parseDefaultOfficeId,
+  parseExcludedRuleIds,
+  DEFAULT_OFFICE_CONFIG_KEY,
+  FALLBACK_EXCLUSIONS_CONFIG_KEY,
+} from '../lib/rules-source.ts'
 
 config({ path: '.env.local' })
 
@@ -225,45 +237,57 @@ let uploads = []
   const suffixTemplate = suffixRow?.value_de ?? ''
   uploads = uploadRows ?? []
 
-  // Rule resolution mirrors dal.ts getDocumentData (go-live follow-up,
-  // 2026-08-11 — previously the export skipped the fallback, so exactly the
-  // fallback-served cases got a checklist in the app but "_no rules_" here):
-  // the case's own office's active rules first; if none (rule-less office OR
-  // no office at all), the configured default office's set (app_config
-  // 'default_document_office_id'). active = true only — retired rules
-  // (pass 3 item 5) emit no slot, matching the app. files/ below still
-  // exports EVERY upload row, so a file uploaded before a rule was retired
-  // is never lost to the team.
-  let rules = []
-  let usedFallback = false
+  // Rule resolution: same shared decision as the app (lib/rules-source.ts,
+  // fallback-docs fix 2026-08-26 — previously a hand-synced copy of dal.ts
+  // that had drifted once, go-live follow-up 2026-08-11): the case's own
+  // office's active rules first; if none (rule-less office OR no office at
+  // all), the configured default office's set MINUS the configured fallback
+  // exclusions. active = true only — retired rules (pass 3 item 5) emit no
+  // slot, matching the app. files/ below still exports EVERY upload row, so
+  // a file uploaded before a rule was retired or excluded is never lost to
+  // the team.
+  let ownRules = []
   if (caseRow.social_office_id) {
     const { data } = await db
       .from('office_document_rule')
       .select('*')
       .eq('social_office_id', caseRow.social_office_id)
       .eq('active', true)
-    rules = data ?? []
+    ownRules = data ?? []
   }
-  if (rules.length === 0) {
-    const { data: cfg } = await db
+  let defaultOfficeId = null
+  let excludedRuleIds = []
+  let defaultRules = []
+  if (ownRules.length === 0) {
+    const { data: cfgRows } = await db
       .from('app_config')
-      .select('value')
-      .eq('key', 'default_document_office_id')
-      .maybeSingle()
-    const defaultOffice = typeof cfg?.value === 'string' ? cfg.value : null
-    if (defaultOffice && defaultOffice !== caseRow.social_office_id) {
+      .select('key, value')
+      .in('key', [DEFAULT_OFFICE_CONFIG_KEY, FALLBACK_EXCLUSIONS_CONFIG_KEY])
+    for (const row of cfgRows ?? []) {
+      if (row.key === DEFAULT_OFFICE_CONFIG_KEY) defaultOfficeId = parseDefaultOfficeId(row.value)
+      if (row.key === FALLBACK_EXCLUSIONS_CONFIG_KEY)
+        excludedRuleIds = parseExcludedRuleIds(row.value)
+    }
+    if (defaultOfficeId && defaultOfficeId !== caseRow.social_office_id) {
       const { data } = await db
         .from('office_document_rule')
         .select('*')
-        .eq('social_office_id', defaultOffice)
+        .eq('social_office_id', defaultOfficeId)
         .eq('active', true)
-      rules = data ?? []
-      if (rules.length > 0) usedFallback = true
+      defaultRules = data ?? []
     }
   }
+  const { rules, rulesSource } = resolveEffectiveRules({
+    socialOfficeId: caseRow.social_office_id,
+    ownRules,
+    defaultOfficeId,
+    defaultRules,
+    excludedRuleIds,
+  })
+  const usedFallback = rulesSource === 'fallback'
 
+  const catalogById = Object.fromEntries(catalog.map((d) => [d.id, d]))
   if (rules.length) {
-    const catalogById = Object.fromEntries(catalog.map((d) => [d.id, d]))
     slots = evaluateDocumentRules(rules, catalogById, {
       answers: answersMap,
       groupInstances: capped.groupInstances,
@@ -273,9 +297,10 @@ let uploads = []
     if (usedFallback) {
       docLines.push(
         '_Default-office FALLBACK list — the case office has no rules of its own ' +
-          '(or no office resolved); this mirrors the checklist the app shows. ' +
-          'Period suffixes omitted: the period is an office-specific claim the ' +
-          'fallback list must not make._',
+          '(or no office resolved); this mirrors the checklist the app shows, ' +
+          'office-specific entries of the default set excluded (app_config ' +
+          'fallback_excluded_rule_ids). Period suffixes omitted: the period is ' +
+          'an office-specific claim the fallback list must not make._',
         ''
       )
     }
@@ -299,6 +324,29 @@ let uploads = []
     docLines.push(
       '_No document rules from the case office or the default office — no checklist (matches the app)._'
     )
+  }
+
+  // not_required (fallback-docs fix, 2026-08-26): uploads whose requirement
+  // is not in the current checklist — a dropped fallback exclusion, a retired
+  // rule, or an answer change. The app hides them by construction; an
+  // operational view must never silently lose sight of a file that exists,
+  // so they are listed here explicitly. The rows stay in the DB, the files
+  // stay in storage and in files/ below, and they never count as missing.
+  const { notRequired } = classifyUploads(slots, uploads)
+  if (notRequired.length) {
+    docLines.push(
+      '',
+      `**not_required** — ${notRequired.length} upload(s) whose requirement is not in the ` +
+        'current checklist (retained in storage and in files/; hidden in the app; not counted as missing):',
+      ''
+    )
+    docLines.push(`| Person | Document | Rule/slot | File | Status |`, `|---|---|---|---|---|`)
+    for (const u of notRequired) {
+      const name = catalogById[u.document_id]?.name_de ?? u.document_id
+      docLines.push(
+        `| ${u.subject} | ${name} | ${u.rule_id}/${u.instance_key} | ${u.original_filename} | not_required |`
+      )
+    }
   }
 }
 

@@ -1,0 +1,395 @@
+{
+  "F1": [
+    {
+      "ruleId": "PAN-001",
+      "documentId": "DOC-0001",
+      "nameDe": "Personaldokument",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-002",
+      "documentId": "DOC-0001",
+      "nameDe": "Personaldokument",
+      "subject": "person_2",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-003",
+      "documentId": "DOC-0002",
+      "nameDe": "Renten/Pensionsbescheid",
+      "subject": "person_1",
+      "instanceKey": "instance-1",
+      "instanceLabel": "Rente 1: Altersrente",
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-003",
+      "documentId": "DOC-0002",
+      "nameDe": "Renten/Pensionsbescheid",
+      "subject": "person_1",
+      "instanceKey": "instance-2",
+      "instanceLabel": "Rente 2: Witwen Rente",
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-004",
+      "documentId": "DOC-0002",
+      "nameDe": "Renten/Pensionsbescheid",
+      "subject": "person_2",
+      "instanceKey": "instance-3",
+      "instanceLabel": "Rente 1: Altersrente",
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-005",
+      "documentId": "DOC-0003",
+      "nameDe": "Kontoauszüge",
+      "subject": "person_1",
+      "instanceKey": "giro",
+      "instanceLabel": "Girokonto",
+      "periodMonths": 4
+    },
+    {
+      "ruleId": "PAN-005",
+      "documentId": "DOC-0003",
+      "nameDe": "Kontoauszüge",
+      "subject": "person_1",
+      "instanceKey": "savings",
+      "instanceLabel": "Sparkonto",
+      "periodMonths": 4
+    },
+    {
+      "ruleId": "PAN-005",
+      "documentId": "DOC-0003",
+      "nameDe": "Kontoauszüge",
+      "subject": "person_1",
+      "instanceKey": "instance-4",
+      "instanceLabel": "Sparkasse",
+      "periodMonths": 4
+    },
+    {
+      "ruleId": "PAN-006",
+      "documentId": "DOC-0003",
+      "nameDe": "Kontoauszüge",
+      "subject": "person_2",
+      "instanceKey": "spouse_giro",
+      "instanceLabel": "Girokonto",
+      "periodMonths": 4
+    },
+    {
+      "ruleId": "PAN-007",
+      "documentId": "DOC-0004",
+      "nameDe": "Pflegegutachten MDK",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-008",
+      "documentId": "DOC-0005",
+      "nameDe": "Leistungsbescheid Pflegekasse",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-010",
+      "documentId": "DOC-0006",
+      "nameDe": "Vertretungsvollmacht / Betreuungsnachweis",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-012",
+      "documentId": "DOC-0007",
+      "nameDe": "Heimvertrag",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-014",
+      "documentId": "DOC-0008",
+      "nameDe": "Bisherige Heimrechnungen",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-019",
+      "documentId": "DOC-0012",
+      "nameDe": "Krankenversicherungskarte",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-032",
+      "documentId": "DOC-0020",
+      "nameDe": "Wohngeldbescheid",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-039",
+      "documentId": "DOC-0024",
+      "nameDe": "Mietvertrag",
+      "subject": "previous_home",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    }
+  ],
+  "F2": [
+    {
+      "ruleId": "PAN-001",
+      "documentId": "DOC-0001",
+      "nameDe": "Personaldokument",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-005",
+      "documentId": "DOC-0003",
+      "nameDe": "Kontoauszüge",
+      "subject": "person_1",
+      "instanceKey": "giro",
+      "instanceLabel": "Girokonto",
+      "periodMonths": 4
+    },
+    {
+      "ruleId": "PAN-007",
+      "documentId": "DOC-0004",
+      "nameDe": "Pflegegutachten MDK",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-008",
+      "documentId": "DOC-0005",
+      "nameDe": "Leistungsbescheid Pflegekasse",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-010",
+      "documentId": "DOC-0006",
+      "nameDe": "Vertretungsvollmacht / Betreuungsnachweis",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-012",
+      "documentId": "DOC-0007",
+      "nameDe": "Heimvertrag",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-014",
+      "documentId": "DOC-0008",
+      "nameDe": "Bisherige Heimrechnungen",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-019",
+      "documentId": "DOC-0012",
+      "nameDe": "Krankenversicherungskarte",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    }
+  ],
+  "F3": [
+    {
+      "ruleId": "PAN-001",
+      "documentId": "DOC-0001",
+      "nameDe": "Personaldokument",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-005",
+      "documentId": "DOC-0003",
+      "nameDe": "Kontoauszüge",
+      "subject": "person_1",
+      "instanceKey": "giro",
+      "instanceLabel": "Girokonto",
+      "periodMonths": 4
+    },
+    {
+      "ruleId": "PAN-005",
+      "documentId": "DOC-0003",
+      "nameDe": "Kontoauszüge",
+      "subject": "person_1",
+      "instanceKey": "savings",
+      "instanceLabel": "Sparkonto",
+      "periodMonths": 4
+    },
+    {
+      "ruleId": "PAN-007",
+      "documentId": "DOC-0004",
+      "nameDe": "Pflegegutachten MDK",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-008",
+      "documentId": "DOC-0005",
+      "nameDe": "Leistungsbescheid Pflegekasse",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-010",
+      "documentId": "DOC-0006",
+      "nameDe": "Vertretungsvollmacht / Betreuungsnachweis",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-012",
+      "documentId": "DOC-0007",
+      "nameDe": "Heimvertrag",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-014",
+      "documentId": "DOC-0008",
+      "nameDe": "Bisherige Heimrechnungen",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-019",
+      "documentId": "DOC-0012",
+      "nameDe": "Krankenversicherungskarte",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-020",
+      "documentId": "DOC-0013",
+      "nameDe": "Lebensversicherung",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-026",
+      "documentId": "DOC-0017",
+      "nameDe": "Aufenthaltsstatus",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-028",
+      "documentId": "DOC-0018",
+      "nameDe": "Schwerbehindertenausweis",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-037",
+      "documentId": "DOC-0023",
+      "nameDe": "Leistungsnachweis Sozialhilfe",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-039",
+      "documentId": "DOC-0024",
+      "nameDe": "Mietvertrag",
+      "subject": "previous_home",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-041",
+      "documentId": "DOC-0026",
+      "nameDe": "Nachweis anderes Einkommen",
+      "subject": "person_1",
+      "instanceKey": "instance-5",
+      "instanceLabel": "Einkommen 1: Nebenjob",
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-043",
+      "documentId": "DOC-0027",
+      "nameDe": "KFZ Versicherung",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-045",
+      "documentId": "DOC-0028",
+      "nameDe": "KFZ Fahrzeugbrief",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    },
+    {
+      "ruleId": "PAN-047",
+      "documentId": "DOC-0029",
+      "nameDe": "KFZ Wertnachweis",
+      "subject": "person_1",
+      "instanceKey": "default",
+      "instanceLabel": null,
+      "periodMonths": null
+    }
+  ]
+}

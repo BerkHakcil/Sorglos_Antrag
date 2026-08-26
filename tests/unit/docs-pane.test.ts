@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { docsPaneMode, fallbackNoticeText } from '@/lib/docs-pane'
+import { docsPaneMode } from '@/lib/docs-pane'
 
 /**
  * Pass 4 / D3 — the Dokumente tab exists from first login; what the pane
@@ -26,34 +26,6 @@ describe('docsPaneMode (D3)', () => {
   })
 })
 
-/**
- * Go-live out-of-coverage banner — renders exactly on the default-office
- * fallback branch, above a rendered list, with authored text. Every other
- * combination is a hard null: an own-office case (Pankow/Essen) must never
- * be told its list is generic, and no state may show an empty panel.
- */
-describe('fallbackNoticeText (go-live banner)', () => {
-  const TEXT = 'Hinweis: Für Ihre Postleitzahl …'
-
-  it('fallback rules + rendered list + text → the notice', () => {
-    expect(fallbackNoticeText('fallback', 'list', TEXT)).toBe(TEXT)
-  })
-
-  it('own-office rules (Pankow/Essen case) → never, regardless of mode', () => {
-    expect(fallbackNoticeText('own', 'list', TEXT)).toBeNull()
-    expect(fallbackNoticeText('own', 'none', TEXT)).toBeNull()
-  })
-
-  it('no rules at all (safety branch, nothing rendered) → null', () => {
-    expect(fallbackNoticeText('none', 'none', TEXT)).toBeNull()
-  })
-
-  it('pre-PLZ placeholder state stays unchanged — no banner before a list exists', () => {
-    expect(fallbackNoticeText('fallback', 'placeholder', TEXT)).toBeNull()
-    expect(fallbackNoticeText('none', 'placeholder', TEXT)).toBeNull()
-  })
-
-  it('missing static_content row (pre-migration deploy) degrades to no banner, not an empty panel', () => {
-    expect(fallbackNoticeText('fallback', 'list', '')).toBeNull()
-  })
-})
+// The fallbackNoticeText tests were removed with the function itself
+// (fallback-docs fix, 2026-08-26). The banner's never-returns guards are the
+// e2e count-0 asserts in tests/e2e/fallback-notice.spec.ts.

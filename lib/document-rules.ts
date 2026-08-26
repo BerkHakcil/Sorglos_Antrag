@@ -241,12 +241,13 @@ export function instancesForBinding(
  *
  * fromFallbackRules (go-live follow-up, 2026-08-11): the period is an
  * OFFICE-SPECIFIC claim from that office's own master file. A checklist
- * served by the default-office fallback (dal.ts rulesSource 'fallback' —
- * the same signal that shows the fallback-notice banner) must not make it:
- * the caregiver's actual Sozialamt never stated a period. Pass true there
- * and the suffix is suppressed wholesale; own-office rendering (Pankow,
- * Essen) is byte-unchanged. The parameter is required so every render site
- * decides explicitly.
+ * served by the default-office fallback (rules-source.ts rulesSource
+ * 'fallback') must not make it: the caregiver's actual Sozialamt never
+ * stated a period. Pass true there and the suffix is suppressed wholesale;
+ * own-office rendering (Pankow, Essen) is byte-unchanged. The parameter is
+ * required so every render site decides explicitly. (The fallback-notice
+ * banner that used to ride the same signal was removed 2026-08-26 — the
+ * suppression deliberately survives it, per the Phase-1 report §8 Q5.)
  */
 export function periodSuffix(
   periodMonths: number | null | undefined,
@@ -270,6 +271,28 @@ export function countMissingSlots(slots: DocumentSlot[], uploads: UploadRef[]): 
   return slots.filter(
     (s) => !uploads.some((u) => u.rule_id === s.ruleId && u.instance_key === s.instanceKey)
   ).length
+}
+
+/**
+ * Partitions a case's uploads against the evaluated slots — the exact
+ * complement of the checklist join (fallback-docs fix, 2026-08-26).
+ * `notRequired` holds uploads whose requirement is not in the current
+ * checklist (a dropped fallback exclusion, a retired rule, or an answer
+ * change): hidden from the end-user list by construction, but operational
+ * views must never silently lose sight of a file that exists — the case
+ * export renders these flagged `not_required`.
+ */
+export function classifyUploads<U extends UploadRef>(
+  slots: DocumentSlot[],
+  uploads: U[]
+): { matched: U[]; notRequired: U[] } {
+  const matched: U[] = []
+  const notRequired: U[] = []
+  for (const u of uploads) {
+    const hasSlot = slots.some((s) => s.ruleId === u.rule_id && s.instanceKey === u.instance_key)
+    ;(hasSlot ? matched : notRequired).push(u)
+  }
+  return { matched, notRequired }
 }
 
 // ── Main entry ────────────────────────────────────────────────────────────────

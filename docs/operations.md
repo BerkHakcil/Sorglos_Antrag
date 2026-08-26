@@ -36,10 +36,18 @@ Produces `exports/<case_id>-<date>/`:
   repeatable groups as "«Gruppe» 1/2/…" — this is what Roman works from when
   filling the official PDF by hand.
 - `documents.md` — the evaluated checklist (same evaluator as the app):
-  person, document, slot label, uploaded files or **FEHLT**.
-- `files/` — all uploads downloaded, named `<rule>_<instance>_<original name>`.
-  HEIC files have no preview anywhere — open locally (macOS/iOS natively;
-  Windows may need the HEIF extension).
+  person, document, slot label, uploaded files or **FEHLT**. Below the
+  checklist, a **not_required** table lists any upload whose requirement is
+  not in the current checklist (a fallback exclusion — see the standing
+  `fallback_excluded_rule_ids` config —, a retired rule, or an answer
+  change): the app hides these files entirely, but they stay in the DB, in
+  storage, and in `files/`, and never count as missing. An ops view must
+  never lose sight of a file that exists.
+- `files/` — **all** uploads downloaded, `not_required` ones included.
+  Phase-D nested keys keep their readable `<Folder>_<Basename>` name; legacy
+  flat keys fall back to `<rule>_<instance>_<original name>`. HEIC files have
+  no preview anywhere — open locally (macOS/iOS natively; Windows may need
+  the HEIF extension).
 
 `exports/` is gitignored (personal data). **Delete the folder once the case is
 processed.**

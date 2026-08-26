@@ -1,19 +1,23 @@
 /**
- * Go-live out-of-coverage banner (data-testid="fallback-notice").
+ * Fallback checklist guards (fallback-docs fix, 2026-08-26).
  *
- * A case served by the DEFAULT-OFFICE fallback branch (dal.ts getDocumentData
- * → rulesSource 'fallback') gets an honesty notice above its checklist: the
- * list shown is the generic default, not its own office's. Cases whose office
- * HAS rules must never see it. The mechanism itself (fallback to the default
- * list) is correct and untested here beyond presence — m7-regression R2 owns
- * the deep fallback drive.
+ * The out-of-coverage banner (data-testid="fallback-notice") was REMOVED:
+ * fallback-served cases now get the purged generic default list with no
+ * caveat. This spec is the banner's never-returns guard (count-0 on every
+ * path, fallback and own-office alike), the period-suffix suppression guard
+ * (which deliberately survives the banner — Phase-1 report §8 Q5), and the
+ * Line-A purge guard.
  *
- *  F1  21682 (Stade — no office-specific ruleset): pre-PLZ placeholder shows
- *      NO banner (state unchanged); after PLZ the checklist renders WITH the
- *      banner above the first document group, on desktop and mobile widths.
- *  F2  13187 (Pankow — own rules): checklist, NO banner.
- *  F3  45127 (Essen — own rules): checklist with the "(letzte 4 Monate)"
- *      period suffix intact, NO banner.
+ *  F1  21682 (Stade — no office-specific ruleset): pre-PLZ placeholder, no
+ *      banner; after PLZ the default checklist renders with NO banner, no
+ *      "(letzte …)" suffix, on desktop and mobile widths. The Line-A trio
+ *      (Nachweis Bedarfsanzeige / Polizeiliche Anmeldung im Heim /
+ *      Mobilitätsnachweis) is asserted ABSENT once the migration row
+ *      fallback_excluded_rule_ids exists, and PRESENT while it does not —
+ *      the spec is green on both sides of the founder's db push and proves
+ *      the flip when it lands.
+ *  F2  13187 (Pankow — own rules): checklist with period suffix, no banner.
+ *  F3  45127 (Essen — own rules): checklist with period suffix, no banner.
  *
  * No questionnaire drive: the checklist is live from PLZ resolution (D5
  * superseded), so each test is login → pre-steps → Dokumente tab.
@@ -92,13 +96,31 @@ async function openDocumentsTab(page: Page) {
   await expect(page.locator('[data-testid=document-area]')).toBeVisible({ timeout: 15_000 })
 }
 
-test.describe('Out-of-coverage fallback notice', () => {
-  test('F1: non-covered PLZ 21682 → banner above the default checklist; absent pre-PLZ', async ({
+/** The Line-A trio flips from PRESENT to ABSENT when the founder pushes
+ *  migration 20260826000001 (app_config fallback_excluded_rule_ids). The
+ *  spec reads the row (read-only select) so it asserts the correct side. */
+async function fallbackExclusionsActive(): Promise<boolean> {
+  const { data } = await adminDb
+    .from('app_config')
+    .select('value')
+    .eq('key', 'fallback_excluded_rule_ids')
+    .maybeSingle()
+  return Array.isArray(data?.value) && data.value.length > 0
+}
+
+const LINE_A_TRIO = [
+  'Nachweis Bedarfsanzeige',
+  'Polizeiliche Anmeldung im Heim',
+  'Mobilitätsnachweis',
+]
+
+test.describe('Fallback checklist (banner removed, Line-A purge)', () => {
+  test('F1: non-covered PLZ 21682 → default checklist, NO banner, no suffix; trio per migration state', async ({
     page,
   }) => {
     await makeUserAndLogin(page, 'stade')
 
-    // Pre-PLZ state unchanged: placeholder pane, NO banner anywhere.
+    // Pre-PLZ state unchanged: placeholder pane, no banner anywhere.
     await page.locator('[data-testid=tab-documents]:visible').click()
     await expect(page.locator('[data-testid=docs-placeholder]')).toBeVisible({ timeout: 15_000 })
     await expect(page.locator('[data-testid=fallback-notice]')).toHaveCount(0)
@@ -107,29 +129,34 @@ test.describe('Out-of-coverage fallback notice', () => {
     await completePreSteps(page, '21682')
     await openDocumentsTab(page)
 
-    // Banner present, and ABOVE the first document group.
-    const notice = page.locator('[data-testid=fallback-notice]')
-    await expect(notice).toBeVisible()
+    // The banner never returns — the checklist renders directly.
     await expect(page.locator('[data-testid=doc-slot]').first()).toBeVisible()
-    const noticePrecedesSlots = await page.evaluate(() => {
-      const n = document.querySelector('[data-testid=fallback-notice]')
-      const s = document.querySelector('[data-testid=doc-slot]')
-      return !!n && !!s && !!(n.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING)
-    })
-    expect(noticePrecedesSlots).toBe(true)
+    await expect(page.locator('[data-testid=fallback-notice]')).toHaveCount(0)
 
-    // Suffix suppression (go-live follow-up): the fallback list carries the
-    // default office's bank slot but must NOT make its period claim — the
-    // Kontoauszüge slot renders WITHOUT "(letzte …)" while Pankow's own list
-    // keeps it (F2) and Essen's keeps it (F3).
+    // Suffix suppression (go-live follow-up) survives the banner removal:
+    // the fallback list carries the default office's bank slot but must NOT
+    // make its period claim — the Kontoauszüge slot renders WITHOUT
+    // "(letzte …)" while Pankow's own list keeps it (F2) and Essen's (F3).
     const area = page.locator('[data-testid=document-area]')
     await expect(area.getByText('Kontoauszüge').first()).toBeVisible()
     await expect(area.getByText('(letzte')).toHaveCount(0)
 
+    // Line-A purge: trio absent once the exclusion row exists, present until
+    // then (pre-migration deploy window — the fail-open contract).
+    const purged = await fallbackExclusionsActive()
+    for (const name of LINE_A_TRIO) {
+      if (purged) {
+        await expect(area.getByText(name)).toHaveCount(0)
+      } else {
+        await expect(area.getByText(name).first()).toBeVisible()
+      }
+    }
+
     // Both viewports (the pane is one markup path; this guards regressions
     // that hide it responsively).
     await page.setViewportSize({ width: 375, height: 812 })
-    await expect(notice).toBeVisible()
+    await expect(page.locator('[data-testid=doc-slot]').first()).toBeVisible()
+    await expect(page.locator('[data-testid=fallback-notice]')).toHaveCount(0)
   })
 
   test('F2: Pankow PLZ 13187 (own rules) → checklist with period suffix, NO banner', async ({
