@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect, useRef, useTransition } from 'react'
+import { useState, useMemo, useEffect, useRef, useSyncExternalStore, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   buildNav,
@@ -12,6 +12,7 @@ import {
 } from '@/lib/questionnaire-nav'
 import { QuestionRenderer } from '@/components/ui/questionnaire/question-renderer'
 import { saveAnswerAction, deleteGroupInstanceAction } from './actions'
+import { AUTOSAVE_NOTICE_DISMISSED_KEY } from '@/lib/autosave-notice'
 import { capInstances, parseCount } from '@/lib/group-instances'
 import { Check, Clock, Info } from 'lucide-react'
 import { de } from '@/lib/strings/de'
@@ -26,7 +27,6 @@ import {
 import { useCaseTabSwitch } from '@/components/case-tab-context'
 
 const s = de.case.chat
-const sc = de.case
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -36,10 +36,9 @@ type Props = {
   initialGroupInstances: Record<string, string[]>
   initialGroupAnswers: Record<string, Record<string, unknown>>
   caseStatus: string
-  /** R2-2: mobile-only copies of the shell header (below lg the pinned block
-      is hidden — it would eat the answer footer's height; see case-tabs). */
-  headerTitle: string
-  headerIntro: string
+  /* Round 3: headerTitle/headerIntro are gone — the shell's pinned mobile
+     chrome (case-tabs) carries title + intro on every viewport now, so this
+     view no longer renders an in-scroller copy. */
   /** Live missing-documents count (same number as the tab badge) — drives the
       locked card's docs-aware variant (item 3, go-live round 2). */
   missingDocs: number
@@ -97,6 +96,22 @@ function initialValueFor(question: {
 function draftKey(qId: string, instanceId: string | null): string {
   return instanceId ? `${qId}:${instanceId}` : qId
 }
+
+/* R7 (mobile round 3): the session-scoped dismissal flag is an EXTERNAL
+   store, read via useSyncExternalStore — hydration-safe (the server snapshot
+   says "not dismissed", the client snapshot takes over after hydration
+   without a mismatch) and free of the setState-in-effect cascade the naive
+   effect-read has. The store never *pushes* changes (nothing external writes
+   it mid-session), so subscribe is a stable no-op. */
+const subscribeToNothing = () => () => {}
+const readNoticeDismissed = () => {
+  try {
+    return sessionStorage.getItem(AUTOSAVE_NOTICE_DISMISSED_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+const serverNoticeDismissed = () => false
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -243,12 +258,13 @@ function AnsweredBubble({
         className="flex flex-col gap-2"
       >
         {/* Assistant side — the question.
-            R2-3: cream-deep, NOT the mockup's white. The transcript now sits on
-            a white card, and the mockup puts white bubbles on it — separation
-            by shadow alone, measured 1.00:1, which the founder rejected. At
-            cream-deep the bubble reads as its own shape against the card
-            (1.20:1) while the prompt text keeps 11.21:1. The user's petrol
-            bubble opposite is 7.72:1, so the two sides stay unmistakable. */}
+            R2-3: cream-deep, NOT the mockup's white — separation by shadow
+            alone (1.00:1) was rejected by the founder. R8 (gate answer 6c)
+            maps cream-deep to brand Cream #F8F3EB: the bubble now separates
+            from the white card at 1.09:1 (down from 1.18:1 — the founder's
+            explicit call) while the prompt text keeps 12.65:1. The user's
+            petrol bubble opposite is 7.61:1, so the two sides stay
+            unmistakable. (Re-measured 2026-08-27.) */}
         <div className="bg-cream-deep text-foreground max-w-[85%] self-start rounded-2xl rounded-bl-md px-4 py-3 text-[15px] leading-relaxed sm:max-w-[75%]">
           {question.prompt_de}
         </div>
@@ -257,7 +273,8 @@ function AnsweredBubble({
             filled petrol bubble, a deferred one has none, so the two states
             differ in SHAPE and not only in colour (WCAG 1.4.1). No amber and no
             red either — deferring is an expected step, not a warning (the
-            semantic palette rule). graphite-soft on the card measures 6.26:1. */}
+            semantic palette rule). graphite-soft on the card measures 6.79:1
+            (re-measured 2026-08-27, R8 values). */}
         {deferred ? (
           <div
             data-testid="deferred-marker"
@@ -322,7 +339,7 @@ function CurrentQuestionCard({
         /* E-3: the re-ask note takes the mockup's sage hint-bubble treatment
            instead of the amber alert. Sage reads as guidance rather than
            warning, which is what a re-ask is. graphite-soft on sage-soft/40
-           measures 9.1:1. */
+           over the card measures 6.26:1 (re-measured 2026-08-27, R8 values). */
         <div className="border-sage-soft/70 bg-sage-soft/40 rounded-xl border px-3 py-2">
           <p className="text-graphite-soft text-sm leading-relaxed">{s.reaskNote}</p>
         </div>
@@ -575,8 +592,9 @@ function EditLockedCard({
           missing, so "Antrag zur Unterschrift" would over-promise there.
           Tones stay in this card's neutral register (E-6): being under
           review is not a celebration, so the number medallions are
-          cream-deep/graphite (5.21:1), not petrol. Renders nothing while the
-          content rows are absent ('' by design). */}
+          cream-deep/graphite-soft (6.26:1, re-measured 2026-08-27), not
+          petrol. Renders nothing while the content rows are absent ('' by
+          design). */}
       {effectiveSteps.length > 0 && (
         <div data-testid="next-steps" className="mt-6 w-full max-w-md text-left">
           {nextStepsHeading && (
@@ -609,8 +627,6 @@ export function ChatView({
   initialGroupInstances,
   initialGroupAnswers,
   caseStatus,
-  headerTitle,
-  headerIntro,
   missingDocs,
   content,
 }: Props) {
@@ -641,6 +657,41 @@ export function ChatView({
 
   // Ref for the scrollable history container — scrolled to bottom when new answers arrive
   const historyRef = useRef<HTMLDivElement>(null)
+
+  /* ── R7 (mobile round 3): the autosave notice is dismissed by SCROLLING,
+     once per login session — a founder-confirmed reversal of R2-3's
+     static-on-purpose decision. Pure client state: a sessionStorage flag
+     (cleared on the login page, see lib/autosave-notice.ts) plus local
+     state; no X button, no DB row. */
+  const dismissedAtLoad = useSyncExternalStore(
+    subscribeToNothing,
+    readNoticeDismissed,
+    serverNoticeDismissed
+  )
+  const [noticeDismissed, setNoticeDismissed] = useState(false)
+  const noticeVisible = !!content.autosaveNotice && !dismissedAtLoad && !noticeDismissed
+  /* The P1-7 trap: the effect below programmatically scrolls the history to
+     the bottom on mount and after every answer — those scroll events must
+     NOT count as the user's dismissal scroll, or a returning user's notice
+     would vanish before their first gesture. The flag is raised right before
+     each programmatic assignment and lowered by the first event it causes
+     (direct scrollTop writes fire a single scroll event; smooth scrolling is
+     never used here). */
+  const programmaticScroll = useRef(false)
+
+  const handleHistoryScroll = () => {
+    if (programmaticScroll.current) {
+      programmaticScroll.current = false
+      return
+    }
+    if (!noticeVisible) return
+    setNoticeDismissed(true)
+    try {
+      sessionStorage.setItem(AUTOSAVE_NOTICE_DISMISSED_KEY, '1')
+    } catch {
+      /* storage unavailable → dismissal lasts this render only */
+    }
+  }
 
   const nav = useMemo(
     () =>
@@ -725,11 +776,21 @@ export function ChatView({
         !(activeQ && activeQ.id === q.id && activeQ.instanceId === q.instanceId))
   )
 
-  // Scroll history to bottom whenever a new answer lands
+  // Scroll history to bottom whenever a new answer lands. Marked as
+  // programmatic so R7's scroll-dismiss ignores it (see handleHistoryScroll);
+  // when the content fits and no scroll event fires, the stale flag is
+  // cleared on the next frame so it cannot swallow a later user scroll.
   useEffect(() => {
     const el = historyRef.current
     if (!el) return
+    programmaticScroll.current = true
     el.scrollTop = el.scrollHeight
+    const raf = requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        programmaticScroll.current = false
+      })
+    )
+    return () => cancelAnimationFrame(raf)
   }, [answeredCount])
 
   // ── Event handlers ─────────────────────────────────────────────────────────
@@ -1051,31 +1112,20 @@ export function ChatView({
         <div
           ref={historyRef}
           data-testid="chat-history"
+          onScroll={handleHistoryScroll}
           className={`${card} mx-auto h-full max-w-2xl space-y-4 overflow-y-auto px-4 py-4`}
         >
-          {/* Mobile copy of the shell header (title + intro). It renders HERE,
-              inside the scroller, for the same reason the patient banner it
-              replaces did: anything above the scroller is fixed height, and on
-              a 667px viewport that height is taken from the answer footer until
-              its buttons fall off screen. Desktop pins the copy in the shell. */}
-          {(headerTitle || headerIntro) && (
-            <div className="lg:hidden">
-              {headerTitle && (
-                <h1 className="text-foreground text-xl font-bold tracking-tight">{headerTitle}</h1>
-              )}
-              {headerIntro && (
-                <p className="text-graphite-soft mt-2 text-sm leading-relaxed">{headerIntro}</p>
-              )}
-            </div>
-          )}
+          {/* Round 3: the mobile title/intro copy that opened this scroller is
+              gone — the shell's pinned chrome carries both now (R1/R3). */}
 
-          {/* R2-3: the mockup's autosave reassurance, as a sage hint bubble at
-              the head of the transcript. Static on purpose — the mockup hides
-              it once the user scrolls, which is demo behaviour that would make
-              the one piece of "you can stop any time" reassurance vanish for a
-              caregiver who scrolls before reading it. Renders nothing while the
-              content row is absent ('' by design). */}
-          {content.autosaveNotice && (
+          {/* The autosave reassurance, as a sage hint bubble at the head of
+              the transcript. R7 (mobile round 3, founder-confirmed reversal
+              of R2-3's static-on-purpose): shown once per login session and
+              dismissed by the user's first scroll of this history — no X
+              button, no persistence beyond sessionStorage (see
+              lib/autosave-notice.ts). Renders nothing while the content row
+              is absent ('' by design). */}
+          {noticeVisible && (
             <div className="border-sage-soft/70 bg-sage-soft/40 mx-auto flex w-full max-w-[92%] items-start gap-2 rounded-xl border px-3 py-2 sm:max-w-[85%]">
               <Info aria-hidden className="text-primary/70 mt-0.5 size-4 shrink-0" />
               <p className="text-graphite-soft text-sm leading-relaxed">{content.autosaveNotice}</p>

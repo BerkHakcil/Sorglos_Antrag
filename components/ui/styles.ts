@@ -19,17 +19,21 @@
  * against the current tokens if a real need appears.)
  *
  * ── Colour rules encoded below, all measured, none assumed ──────────────
- *  • Copper is a FILL. White on copper = 4.69:1 (AA). Copper as TEXT on the
- *    cream page is 4.27:1 and on cream-deep 3.91:1 — both FAIL AA at normal
- *    size, so copper never appears as text. Links use petrol (7.03:1).
- *  • Control boundaries use `border-input` (#8c8272), not `border-border`
- *    (#e6e0d0). See the token split in globals.css.
+ *    (re-measured 2026-08-27 for the mobile-round-3 R8 brand values)
+ *  • Copper is a FILL. White #FFFDFA on copper = 4.62:1 (AA). Copper as
+ *    TEXT on the cream page is 4.25:1 — FAILS AA at normal size, so copper
+ *    never appears as text. Links use petrol (6.99:1 on cream).
+ *  • Control boundaries use `border-input` (#868383, 3.69:1 on white /
+ *    3.39:1 on cream), not `border-border` (#e8e3dc, decorative). See the
+ *    token split in globals.css.
  *  • Focus is a full-opacity petrol ring with an offset, not the mockup's
  *    `ring-petrol/20` — at 20% alpha the ring is ~1.2:1 against a white card
  *    and effectively invisible, which is a 2.4.7 failure. The offset is what
  *    keeps the ring legible on a control whose own border is already dark.
  *
- * ── SEMANTIC COLOUR RULE (founder decision, 2026-07-31) ─────────────────
+ * ── SEMANTIC COLOUR RULE (founder decision, 2026-07-31; re-affirmed as the
+ * one R8 palette exception via `--semantic-error`, gate answer 6a,
+ * 2026-08-27) ────────────────────────────────────────────────────────────
  * **Amber and red are reserved for genuine warnings and errors.** Neither
  * may be used for an ordinary, expected, non-problematic state.
  *

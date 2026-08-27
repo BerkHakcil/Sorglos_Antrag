@@ -231,6 +231,28 @@ export const de = {
       closeLabel: 'Schließen',
     },
 
+    // Mobile round 3 / R2 — the burger side menu. All three are
+    // assistive-tech-only labels (never painted on screen). PLACEHOLDER_DE,
+    // ledgered in german_copy_for_roman.md; "Schließen" repeats the word
+    // already approved for the help sheet's close button, but this is a new
+    // SITE, so it is placeholdered pro forma rather than inheriting the
+    // waiver.
+    menu: {
+      title: 'Menü', // PLACEHOLDER_DE — sr-only dialog title
+      openLabel: 'Menü öffnen', // PLACEHOLDER_DE — burger button aria-label
+      closeLabel: 'Schließen', // PLACEHOLDER_DE — close button aria-label
+    },
+
+    // Mobile round 3 / R10 (gate answer 3): the docs intro row
+    // (static_content 'docs.area_intro') now carries the founder's new
+    // sentence; Roman's type/size information is RETAINED as this smaller
+    // secondary line. The wording is his second sentence from the old row
+    // value, character-for-character (migration 20260711000005) — relocated,
+    // not authored, so NOT a placeholder. Ledgered.
+    docs: {
+      typesLine: 'Erlaubt sind PDF, JPG, PNG und HEIC bis 15 MB pro Datei.',
+    },
+
     chat: {
       stepLabel: 'Schritt 3: Fragebogen ausfüllen',
       // R2-3 (UI round 2, D4): the mockup's wording. Approved by Erman

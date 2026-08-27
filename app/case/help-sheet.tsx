@@ -97,7 +97,8 @@ export function HelpSheet({
               />
             ) : (
               /* aria-hidden: the initials repeat nothing a screen reader needs —
-                 the name follows as text. White on petrol measures 7.72:1. */
+                 the name follows as text. White on petrol measures 7.61:1
+                 (re-measured 2026-08-27, R8 values). */
               <span
                 aria-hidden
                 className="bg-primary grid size-14 shrink-0 place-items-center rounded-full text-lg font-semibold text-white"

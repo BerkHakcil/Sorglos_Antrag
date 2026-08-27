@@ -77,7 +77,7 @@ later rewording by Roman is a one-line UPDATE migration / de.ts edit:
   the canonical master tags DOC-0016 „Pankow"-only — approved override,
   noted in `essen_document_rules.json` (rule entry + meta); the workbook
   update itself is Roman's.
-- **Klaus-Schinzel dates CLOSED** (item 5 follow-up): Roman says leave the
+- **Case-`52e364f1` dates CLOSED** (item 5 follow-up): Roman says leave the
   twin „2027-08-11" values as they are — the customer re-confirmation ask
   is withdrawn, no data touched. (The `20260813000003` sequencing rule is
   moot since that migration is long applied.)
@@ -191,4 +191,44 @@ Platzhalter — amtliche Namen per Founder-Entscheid D-1; Roman bestätigt oder
 korrigiert (Paket Punkt 6). Die Namen erscheinen nirgends nutzerseitig
 (einziger Renderer: Ops-Export `scripts/case-export.mjs`). Dazu im Paket:
 die D-3-Randnotiz (vier Grenz-PLZs bleiben bei Pankow, geänderter Kontext
-seit Juli) und der Ops-Hinweis zu rico/Marzahn-Hellersdorf (Punkt 7).
+seit Juli) und der Ops-Hinweis zu Fall 52e364f1/Marzahn-Hellersdorf (Punkt 7).
+
+## Mobile-Runde 3 (2026-08-27) — Burger-Menü, R10-Split, Foto-Platzhalter
+
+**PLACEHOLDER_DE (offen)** — drei unsichtbare Screenreader-Labels des neuen
+Burger-Menüs (`lib/strings/de.ts`, `case.menu.*`); nie sichtbar gemalt,
+jedes Wort ist deins:
+
+> **PLACEHOLDER_DE (Menü-Titel, nur Screenreader):** „Menü"
+> **PLACEHOLDER_DE (Burger-Knopf):** „Menü öffnen"
+> **PLACEHOLDER_DE (Schließen-Knopf):** „Schließen" — dasselbe Wort wie beim
+> Hilfe-Fenster (dort bereits freigegeben), aber eine neue Stelle, darum pro
+> forma hier.
+
+**R10-Split (Gate-Antwort 3, KEIN Platzhalter — Provenienz-Notiz):** die
+Zeile `docs.area_intro` trägt nach Migration `20260827000001` den vom
+Gründer wörtlich vorgegebenen Satz („PDFs, Fotos und mehrere Dateien pro
+Unterlage sind möglich. Vor der Einreichung prüfen wir alle Ihre
+Unterlagen."). Dein bisheriger zweiter Satz („Erlaubt sind PDF, JPG, PNG
+und HEIC bis 15 MB pro Datei.") bleibt zeichengenau erhalten, steht aber
+jetzt in `de.ts` (`case.docs.typesLine`) als kleinere Zweitzeile — d. h.
+er ist **nicht mehr per DB-Zeile editierbar**; eine Umformulierung wäre
+eine Ein-Zeilen-Änderung in `de.ts`.
+
+**Foto-Platzhalter (offen):** das Burger-Menü zeigt statt deines Fotos die
+neutrale Silhouette `public/roman-placeholder.svg` (Markenfarben, bewusst
+kein „falsches" Foto). Sobald dein echtes Foto da ist: Datei in `public/`
+ablegen, eine Zeile im Menü (page.tsx) + optional `photoSrc` im
+Hilfe-Fenster — beides vorbereitet.
+
+**Für Roman zu klären (aus den Gate-Antworten, kein Copy-Item):**
+
+1. **Zwei Telefonnummern, absichtlich (Gate-Antwort 4):** das Burger-Menü
+   wählt `tel:+491789125300` (Vorgabe des Gründers, wörtlich); das
+   Hilfe-Fenster zeigt weiter `contact.phone` = „0159 0469 5761". Welche
+   Nummer soll überall gelten? Bis dahin bleiben beide.
+2. **„sie ist der Antragsteller" (Gate-Antwort 2):** deine Zeile
+   `case.patient_banner_body` bleibt UNVERÄNDERT bestehen. Der Gründer hat
+   für Runde 3 eine Variante ohne „der" vorgegeben („… sie ist
+   Antragsteller."); ob sie deine ersetzt, entscheidest du — wäre dann eine
+   Ein-Zeilen-UPDATE-Migration.

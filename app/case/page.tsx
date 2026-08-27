@@ -12,15 +12,17 @@ import { loadQuestionnaire } from '@/lib/questionnaire-engine'
 import { countMissingSlots, evaluateDocumentRules } from '@/lib/document-rules'
 import { docsPaneMode } from '@/lib/docs-pane'
 import { deriveGroupData } from '@/lib/group-instances'
+import { Phone } from 'lucide-react'
 import { DocumentArea } from './document-area'
 import { CaseTabs } from './case-tabs'
 import { HelpSheet } from './help-sheet'
+import { MobileMenu } from './mobile-menu'
 import { de } from '@/lib/strings/de'
 import { CareHomeSelector } from './care-home-selector'
 import { PlzForm } from './plz-form'
 import { ChatView } from './chat-view'
 import { logoutAction } from './actions'
-import { btnGhost, card, focusRing } from '@/components/ui/styles'
+import { card, focusRing } from '@/components/ui/styles'
 import { LegalFooter } from '@/components/legal-footer'
 import { caseHeaderTitle } from '@/lib/case-header'
 
@@ -31,9 +33,9 @@ const sb = de.brand
 
 /**
  * R2-1: the sidebar's foot links (Hilfe, Abmelden). The mockup renders them as
- * plain graphite-soft text at base size — bigger and chrome-less compared with
- * the top bar's ghost buttons. min-h-11 keeps the 44px touch floor from the
- * E-7 audit; graphite-soft on the sage sidebar measures 5.09:1.
+ * plain graphite-soft text at base size. min-h-11 keeps the 44px touch floor
+ * from the E-7 audit; graphite-soft on the sage sidebar measures 5.94:1
+ * (re-measured 2026-08-27 for the R8 brand values).
  */
 const sidebarLinkClass = `text-graphite-soft hover:text-foreground inline-flex min-h-11 items-center rounded-sm text-base font-medium transition-colors ${focusRing}`
 
@@ -58,9 +60,9 @@ export default async function CasePage() {
         unoptimized
         className="h-8 w-auto"
       />
-      {/* Petrol on the sage sidebar measures 5.5:1 — the mockup's own
-          treatment, and the tagline is an existing DB row (brand.tagline),
-          not new German. */}
+      {/* Petrol on the sage sidebar measures 6.64:1 (re-measured 2026-08-27,
+          R8 values) — the mockup's own treatment, and the tagline is an
+          existing DB row (brand.tagline), not new German. */}
       <p className="text-primary text-sm leading-tight font-medium">{content.brandTagline}</p>
     </div>
   )
@@ -89,6 +91,71 @@ export default async function CasePage() {
     </div>
   )
 
+  /* ── Burger-menu content (mobile round 3 / R2) ───────────────────────────
+     Server-rendered here and handed to the client MobileMenu shell, for the
+     same reason the sidebar chrome is: the logout form posts to a Server
+     Action, and the images/contact rows have no reason to ship as client
+     code. Item order is the mockup's, verbatim from the brief: Hilfe, photo
+     of Roman, tap-to-call, logo + name, Logout. */
+  const mobileMenuItemClass = `text-foreground hover:text-primary inline-flex min-h-11 items-center gap-3 rounded-sm text-base font-medium transition-colors ${focusRing}`
+  const mobileMenu = (
+    <MobileMenu>
+      <nav className="mt-2 flex flex-col gap-4">
+        {/* 1 · Hilfe — gate answer 1: reuses the existing HelpSheet contact
+            dialog (opens over the menu); no new page, no new German. */}
+        <HelpSheet
+          helpButton={content.contactHelpButton}
+          cardLabel={content.contactCardLabel}
+          name={content.contactName}
+          phone={content.contactPhone}
+          email={content.contactEmail}
+          triggerClassName={mobileMenuItemClass}
+        />
+        {/* 2 · Roman's photo — PLACEHOLDER asset until his real photo arrives
+            (ledger). aria-hidden/alt="": the silhouette repeats nothing the
+            adjacent name text doesn't already say (HelpSheet-initials
+            precedent). */}
+        <div className="flex items-center gap-3">
+          <Image
+            src="/roman-placeholder.svg"
+            alt=""
+            aria-hidden
+            data-testid="menu-roman-photo"
+            width={56}
+            height={56}
+            unoptimized
+            className="size-14 shrink-0 rounded-full"
+          />
+          <p className="text-foreground text-base font-medium">{content.contactName}</p>
+        </div>
+        {/* 3 · Tap-to-call — the brief's number VERBATIM (tel:+491789125300).
+            Gate answer 4: deliberately a DIFFERENT number than the HelpSheet's
+            contact.phone row — two numbers on purpose, conflict queued for
+            Roman; contact.phone untouched. The visible number doubles as the
+            accessible name, so the icon needs no German label. */}
+        <a href="tel:+491789125300" data-testid="menu-call-link" className={mobileMenuItemClass}>
+          <Phone aria-hidden className="size-5 shrink-0" />
+          <span>+49 178 9125300</span>
+        </a>
+        {/* 4 · Company logo + name — the lockup already contains the wordmark. */}
+        <Image
+          src="/logo.svg"
+          alt={sb.name}
+          width={172}
+          height={28}
+          unoptimized
+          className="h-8 w-auto self-start"
+        />
+        {/* 5 · Logout — the existing Server Action, reused. */}
+        <form action={logoutAction}>
+          <button type="submit" className={mobileMenuItemClass}>
+            {s.logoutButton}
+          </button>
+        </form>
+      </nav>
+    </MobileMenu>
+  )
+
   return (
     <div className="bg-background flex h-dvh flex-col overflow-hidden">
       {/* E-7: the case screen had no h1 at all — it began at h2, so screen-reader
@@ -97,53 +164,14 @@ export default async function CasePage() {
           headings, so the page title is exposed here for assistive tech only.
           Reuses the already-authored de.case.pageTitle: no new German. */}
       <h1 className="sr-only">{s.pageTitle}</h1>
-      {/* ── Brand header — pinned at top BELOW lg only ───────
-          E-2: the mockup's AppHeader sits on the page background with a soft
-          rule, not on a white slab — the white card surface is reserved for
-          content.
-          R2-1: from lg every member of this bar has a home in the sidebar
-          (logo + tagline at its head, Hilfe/Abmelden at its foot), so the bar
-          itself is hidden rather than duplicated. */}
-      <header className="border-border/60 bg-background/95 shrink-0 border-b backdrop-blur lg:hidden">
-        <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-4 py-3">
-          <div className="flex min-w-0 items-center gap-3">
-            {/* Logo lockup (icon + "Sorglos Antrag" wordmark) — replaces the brand
-                name text, which the image already contains. Tagline kept alongside.
-                Roman's SVG (mini round 2026-08-13); unoptimized: the Next image
-                optimizer refuses SVG, the file is served as-is. */}
-            <Image
-              src="/logo.svg"
-              alt={sb.name}
-              data-testid="brand-logo"
-              width={172}
-              height={28}
-              priority
-              unoptimized
-              className="h-9 w-auto shrink-0"
-            />
-            <p className="text-graphite-soft min-w-0 truncate text-[11px] leading-tight">
-              {content.brandTagline}
-            </p>
-          </div>
-          <div className="flex shrink-0 items-center gap-1">
-            {/* Pass 4 / D11: contact sheet, reachable from every state incl.
-                the pre-steps. Renders nothing while its content rows are
-                missing (static_content degrades to ''). */}
-            <HelpSheet
-              helpButton={content.contactHelpButton}
-              cardLabel={content.contactCardLabel}
-              name={content.contactName}
-              phone={content.contactPhone}
-              email={content.contactEmail}
-            />
-            <form action={logoutAction}>
-              <button type="submit" className={`${btnGhost} px-3 py-1.5 text-xs`}>
-                {s.logoutButton}
-              </button>
-            </form>
-          </div>
-        </div>
-      </header>
+      {/* ── Mobile top bar (round 3 / R1+R2): the old logo/tagline/Hilfe/
+          Abmelden header is GONE below lg — CaseTabs renders burger + the
+          applicant-name title instead, and every old member has a home in
+          the burger menu (logo, Hilfe, Abmelden) except the tagline, which
+          is dropped below lg by gate answer 5. Desktop (lg+) is untouched:
+          the sidebar carries logo/tagline/Hilfe/Abmelden as before, and the
+          Hilfe sheet stays reachable from every state incl. the pre-steps
+          (D11) — now via the burger. */}
 
       {/* ── Content ──────────────────────────────────────────── */}
       {hasQuestionnaire ? (
@@ -159,6 +187,7 @@ export default async function CasePage() {
           content={content}
           sidebarTop={sidebarTop}
           sidebarBottom={sidebarBottom}
+          mobileMenu={mobileMenu}
         />
       ) : (
         /* Pre-questionnaire (D3, pass 4): the "Angaben | Unterlagen" tabs exist
@@ -169,6 +198,7 @@ export default async function CasePage() {
           missing={0}
           sidebarTop={sidebarTop}
           sidebarBottom={sidebarBottom}
+          mobileMenu={mobileMenu}
           /* Pre-steps: no answers exist yet, so the header shows the standing
              fallback. The patient intro is deliberately absent here — the
              questions it describes have not started. */
@@ -269,6 +299,7 @@ async function CaseTabsSection({
   content,
   sidebarTop,
   sidebarBottom,
+  mobileMenu,
 }: {
   caseId: string
   questionnaireId: string
@@ -277,6 +308,7 @@ async function CaseTabsSection({
   content: StaticContent
   sidebarTop: ReactNode
   sidebarBottom: ReactNode
+  mobileMenu: ReactNode
 }) {
   const [{ rules, rulesSource, catalog, uploads }, questionnaire, { answersMap, answersRaw }] =
     await Promise.all([
@@ -312,14 +344,15 @@ async function CaseTabsSection({
   )
 
   const chat = (
+    /* Round 3: headerTitle/headerIntro are no longer passed — the shell's
+       pinned mobile chrome carries them now (R1/R3), so ChatView renders no
+       in-scroller copy. */
     <ChatView
       questionnaire={questionnaire}
       initialAnswersMap={answersMap}
       initialGroupInstances={groupInstances}
       initialGroupAnswers={groupAnswers}
       caseStatus={caseStatus}
-      headerTitle={headerTitle}
-      headerIntro={content.patientBannerBody}
       content={content}
       missingDocs={missingDocs}
     />
@@ -346,6 +379,7 @@ async function CaseTabsSection({
       missing={missingDocs}
       sidebarTop={sidebarTop}
       sidebarBottom={sidebarBottom}
+      mobileMenu={mobileMenu}
       headerTitle={headerTitle}
       /* F2: the Angaben intro is Roman's EXISTING patient-banner body, reused
          verbatim rather than adopting the mockup's near-identical sentence —

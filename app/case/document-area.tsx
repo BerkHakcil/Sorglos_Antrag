@@ -21,6 +21,7 @@ import {
   createDownloadUrlAction,
 } from './document-actions'
 import { btnOutline, card, focusRing, linkPetrol } from '@/components/ui/styles'
+import { de } from '@/lib/strings/de'
 
 const MAX_BYTES = 15 * 1024 * 1024
 const ALLOWED_MIME = ['application/pdf', 'image/jpeg', 'image/png', 'image/heic', 'image/heif']
@@ -162,6 +163,13 @@ export function DocumentArea({ slots, uploads, content, fromFallbackRules }: Pro
         ? content.docsMissingCountOne
         : content.docsMissingCount.replace('{n}', String(missing))
 
+  // Mobile round 3 (gate answer 3): upload progress = uploaded ÷ required
+  // document slots — the SAME slots/uploads the M6 counter derives from, no
+  // new logic, so bar and counter can never disagree.
+  const totalSlots = slots.length
+  const uploadedSlots = totalSlots - missing
+  const progressPercent = totalSlots > 0 ? Math.round((uploadedSlots / totalSlots) * 100) : 0
+
   return (
     <section data-testid="document-area" className="space-y-5">
       <div>
@@ -170,14 +178,51 @@ export function DocumentArea({ slots, uploads, content, fromFallbackRules }: Pro
             green-700. Missing stays neutral by the semantic colour rule —
             an un-uploaded document is an unreached step, not a warning, so it
             gets no amber and no red. */}
+        {/* id: the round-3 progress bar labels itself via aria-labelledby with
+            this element, so the bar needs no German of its own. */}
         <p
+          id="missing-docs-counter"
           data-testid="missing-docs-counter"
           data-missing={missing}
           className={missing === 0 ? 'text-primary text-sm font-medium' : 'text-sm font-medium'}
         >
           {counterText}
         </p>
-        <p className="text-graphite-soft mt-1 text-sm leading-relaxed">{content.docsAreaIntro}</p>
+        {/* ── Upload progress (mobile round 3, gate answer 3) ─────────────
+            The mockup's docs-page bar: percentage in dark green above a
+            petrol-filled track. MOBILE ONLY (`lg:hidden`) — this round's
+            scope; the desktop pass decides its own treatment later. The
+            %-label is aria-hidden: the labelled progressbar role already
+            states the value, and the adjacent counter says it in words. */}
+        {totalSlots > 0 && (
+          <div className="mt-3 lg:hidden" data-testid="docs-progress">
+            <p aria-hidden className="text-primary text-sm font-semibold">
+              {progressPercent}%
+            </p>
+            <div
+              role="progressbar"
+              aria-valuenow={progressPercent}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-labelledby="missing-docs-counter"
+              className="bg-sage-soft/60 mt-1 h-1.5 overflow-hidden rounded-full"
+            >
+              <div
+                className="bg-primary h-full rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          </div>
+        )}
+        {/* R10 (gate answer 3): docs.area_intro now carries the founder's
+            sentence (migration 20260827000001); Roman's type/size info is
+            RETAINED as the smaller secondary line below, wording relocated
+            character-for-character from the old row value into de.ts. Until
+            the founder pushes the migration, the old (longer) row value
+            renders here and briefly duplicates the type info — cosmetic only,
+            self-heals on push. */}
+        <p className="text-graphite-soft mt-3 text-sm leading-relaxed">{content.docsAreaIntro}</p>
+        <p className="text-graphite-soft mt-1 text-xs leading-relaxed">{de.case.docs.typesLine}</p>
       </div>
       {groups.map(({ heading, subject }) => {
         const list = slots.filter((s) => s.subject === subject)

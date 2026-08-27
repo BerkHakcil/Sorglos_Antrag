@@ -265,10 +265,18 @@ function MultiSelectInput({
        rather than scrolls — without a cap, a tall list pushes the
        Weiter/skip buttons off-screen unreachably (measured 703px button
        bottom on a 667px viewport, iPhone field report 2026-08-11). The cap
-       keeps the buttons visible WITHOUT scrolling: 35dvh leaves room for
-       card chrome + a 3-line prompt on a 667px phone; from sm up, 45dvh
-       never binds on current content, so desktop renders unchanged. */
-    <div className="max-h-[35dvh] space-y-1 overflow-y-auto overscroll-contain sm:max-h-[45dvh]">
+       keeps the buttons visible WITHOUT scrolling.
+
+       Mobile round 3: 35dvh → 24dvh below sm. The round's pinned mobile
+       chrome (burger top bar + R3 subheader + R4 pills, case-tabs.tsx) costs
+       ~70px more of the 667px column than the old top-bar + tab-row, so the
+       cap gives exactly that back (0.35*667−70 ≈ 163 ≈ 0.24*667). The
+       trade-off is the OPTION LIST scrolling internally a little sooner —
+       reachability of the buttons is the requirement, and
+       mobile-footer.spec.ts re-verifies it at 375x667 against this value.
+       From sm up, 45dvh never binds on current content, so desktop renders
+       unchanged. */
+    <div className="max-h-[24dvh] space-y-1 overflow-y-auto overscroll-contain sm:max-h-[45dvh]">
       {options.map((o) => (
         <label
           key={o.id}

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 112">
+  <!-- Mobile round 3 / R2: PLACEHOLDER for Roman's photo (he will send the
+       real one — ledgered in german_copy_for_roman.md). Deliberately a
+       generic silhouette in brand colors (Light green / Dark green), never a
+       fake photo. Swap: drop the real image into public/ and update the
+       mobile-menu row + HelpSheet photoSrc. -->
+  <circle cx="56" cy="56" r="56" fill="#DDE8DE"/>
+  <circle cx="56" cy="43" r="17" fill="#245B5A"/>
+  <path d="M56 66c-19 0-32.5 10.5-36.5 25A55.8 55.8 0 0 0 56 112a55.8 55.8 0 0 0 36.5-21C88.5 76.5 75 66 56 66z" fill="#245B5A"/>
+</svg>

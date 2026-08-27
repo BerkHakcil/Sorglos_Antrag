@@ -2,6 +2,11 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
+/* Class-based dark variant, kept although no token block feeds it any more
+   (mobile round 3 / R8): without this line Tailwind's default `dark:` variant
+   is MEDIA-QUERY based, so any `dark:` utility (e.g. from a future shadcn
+   generate) would silently activate for prefers-dark users. The class is
+   never set, so with this variant such utilities stay inert. */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -11,7 +16,7 @@
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
 
-  /* ── Brand tokens (Phase E-1, from the mockup's src/styles.css) ──────────
+  /* ── Brand tokens (Phase E-1; values remapped in mobile round 3 / R8) ────
      These MUST be registered here, not only in :root — Tailwind v4 generates
      utilities from @theme, so without these entries `bg-petrol`,
      `text-graphite-soft`, `bg-sage-soft/40` etc. silently produce nothing. */
@@ -25,24 +30,18 @@
   --color-graphite-soft: var(--graphite-soft);
   --color-cream: var(--cream);
   --color-cream-deep: var(--cream-deep);
+  /* R8 (mobile round 3): brand White/Black OVERRIDE Tailwind's default
+     `white`/`black` utilities app-wide — every `text-white` in the codebase
+     now renders #FFFDFA without touching the call sites. */
+  --color-white: var(--white);
+  --color-black: var(--black);
+  --color-semantic-error: var(--semantic-error);
 
-  /* Signature card lift from the mockup — a petrol-tinted shadow, used on
-     every card there. Named here so it isn't repeated inline. */
+  /* Signature card lift from the mockup — a shadow tinted with brand Dark
+     green rgb(36 91 90), used on every card. Named here so it isn't repeated
+     inline. */
   --shadow-card: 0 2px 20px -14px rgb(36 91 90 / 0.25);
   --shadow-card-lg: 0 2px 24px -14px rgb(36 91 90 / 0.3);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -76,108 +75,81 @@ body {
 }
 
 :root {
-  /* ── Brand palette (Phase E-1) ─────────────────────────────────────────
-     Values verified byte-for-byte against the mockup's src/styles.css.
-     NOTE: .lovable/plan.md names copper #C9825A — that file is stale; the
-     shipped code uses #C44F15 and code wins.
+  /* ── Brand palette — mobile round 3 / R8 (GATE 1 APPROVED 2026-08-27) ────
+     The founder's six brand colors are the ONLY hues in the app:
 
-     ⚠ ACCESSIBILITY RULE FOR COPPER (measured, not assumed): copper is a
-     FILL colour. White on copper = 4.69:1 (AA ok). But copper TEXT on the
-     cream page background is only 4.27:1 and on cream-deep 3.91:1 — both
-     FAIL AA at normal size. Use copper text only on white cards or at large
-     sizes; for links on cream use petrol (7.03:1). */
-  --petrol: #245b5a;
-  --petrol-soft: #2f7371;
-  --sage: #a9bfae;
-  --sage-soft: #cbd8ce;
-  --copper: #c44f15;
-  --copper-hover: #a34111;
-  --graphite: #2c2f32;
-  --graphite-soft: #5c6166;
-  --cream: #f7f4ed;
-  --cream-deep: #efeadd;
+       Black #2F2B2C · Orange #C44F15 · Dark green #245B5A
+       Light green #DDE8DE · Cream #F8F3EB · White #FFFDFA
 
-  --background: #f7f4ed;
-  --foreground: #2c2f32;
-  --card: #ffffff;
-  --card-foreground: #2c2f32;
-  --popover: #ffffff;
-  --popover-foreground: #2c2f32;
-  --primary: #245b5a;
-  --primary-foreground: #f7f4ed;
-  --secondary: #efeadd;
-  --secondary-foreground: #2c2f32;
-  --muted: #efeadd;
-  --muted-foreground: #5c6166;
-  --accent: #a9bfae;
-  --accent-foreground: #2c2f32;
-  --destructive: oklch(0.577 0.245 27.325);
-  /* ── E-2: the border token is SPLIT ────────────────────────────────────
+     Gate answer 6b: alpha/tint variants DERIVED from these six are allowed
+     (hovers, overlays, shadows, muted text) — no new hues. Every derived
+     value below states its recipe (srgb channel mix) so the derivation is
+     auditable. Gate answer 6a: the error red stays as the ONE documented
+     semantic exception (see --semantic-error below).
+
+     ⚠ ACCESSIBILITY RULE FOR COPPER/ORANGE (re-measured 2026-08-27 against
+     the new surfaces): Orange is a FILL colour. White #FFFDFA on Orange =
+     4.62:1 (AA ok). Orange as TEXT on the Cream page is 4.25:1 — FAILS AA at
+     normal size. Orange text only on white cards at large sizes; links on
+     cream use Dark green (6.99:1). */
+  --petrol: #245b5a; /* Dark green, exact */
+  --petrol-soft: #3a6b6a; /* Dark green 90% + White 10% — Cream text on it: 5.43:1 */
+  --sage: #afc5bd; /* Light green 75% + Dark green 25% (decorative borders/accent) */
+  --sage-soft: #dde8de; /* Light green, exact */
+  --copper: #c44f15; /* Orange, exact */
+  --copper-hover: #ac4919; /* Orange 84% + Black 16% — White text on it: 5.54:1 */
+  --graphite: #2f2b2c; /* Black, exact */
+  --graphite-soft: #5d5959; /* Black 78% + White 22% — 6.79:1 on White, 6.25:1 on Cream */
+  --cream: #f8f3eb; /* Cream, exact */
+  --cream-deep: #f8f3eb; /* = Cream (gate answer 6c: chat bubbles map to Cream).
+                            Token kept so ~20 call sites need no rename; bubble
+                            separation on the white card is now 1.09:1 (was
+                            1.18:1 at #efeadd) — the founder's explicit call. */
+  --white: #fffdfa; /* White, exact (overrides Tailwind `white`) */
+  --black: #2f2b2c; /* Black, exact (overrides Tailwind `black`) */
+
+  --background: #f8f3eb; /* Cream */
+  --foreground: #2f2b2c; /* Black — 12.65:1 on Cream, 13.76:1 on White */
+  --card: #fffdfa; /* White */
+  --card-foreground: #2f2b2c;
+  --popover: #fffdfa;
+  --popover-foreground: #2f2b2c;
+  --primary: #245b5a; /* Dark green — 7.61:1 White text, 6.99:1 as text on Cream */
+  --primary-foreground: #f8f3eb; /* Cream — 6.99:1 on primary */
+  --secondary: #f8f3eb;
+  --secondary-foreground: #2f2b2c;
+  --muted: #f8f3eb;
+  --muted-foreground: #5d5959; /* = graphite-soft */
+  --accent: #dde8de; /* Light green */
+  --accent-foreground: #2f2b2c;
+  /* ── THE documented semantic exception to R8 (founder, gate answer 6a,
+     2026-08-27): genuine errors keep an off-palette red — mapping errors to
+     Orange would collide with the primary-CTA colour, and the semantic rule
+     (styles.ts: amber/red reserved for real errors) needs a hue the six
+     don't provide. Measured: 4.70:1 on White cards, 4.32:1 on the Cream
+     page — error text belongs on cards, as it renders today. No OTHER
+     off-palette hue is permitted anywhere. `--destructive` aliases it so
+     every existing text-destructive/border-destructive site keeps working. */
+  --semantic-error: oklch(0.577 0.245 27.325);
+  --destructive: var(--semantic-error);
+  /* ── E-2: the border token is SPLIT (values remapped in R8) ─────────────
      One value cannot serve both jobs. WCAG 1.4.11 requires >= 3:1 only for
      boundaries that convey information — a form control's edge does, a
-     decorative divider does not. The mockup uses #e6e0d0 for both, which is
-     1.32:1 on white: correct for dividers, a real failure for inputs.
+     decorative divider does not.
 
-     --border  = decorative only (dividers, card edges, table rules). Keeps
-                 the mockup's soft cream so the design reads as authored.
-     --input   = form-control boundaries. Measured against every surface a
-                 control actually sits on: 3.78:1 on white cards, 3.44:1 on
-                 the cream page, 3.15:1 on cream-deep. All clear 3:1.
-
-     Fallback if #8c8272 reads too warm on real screens: graphite-soft
-     #5c6166 (6.26:1 on white). Both are rendered side by side in the E-2
-     gallery; the founder makes the final call at the STOP. */
-  --border: #e6e0d0;
-  --input: #8c8272;
+     --border  = decorative only (dividers, card edges, table rules).
+                 Cream 92% + Black 8% — 1.26:1 on White, soft by design.
+     --input   = form-control boundaries. Black 58% + White 42% — measured
+                 3.69:1 on White cards and 3.39:1 on the Cream page, both
+                 clear of 3:1 (re-measured 2026-08-27 for the R8 values). */
+  --border: #e8e3dc;
+  --input: #868383;
   --ring: #245b5a;
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
   --radius: 0.875rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* The shadcn scaffold's chart and sidebar token sets and the .dark block
+     were DELETED in mobile round 3 (R8): nothing in the app referenced them,
+     the dark class is never set, and R8 forbids the off-palette values they
+     carried. `npx shadcn add <x>` regenerates tokens if a real need appears. */
 }
 
 @layer base {

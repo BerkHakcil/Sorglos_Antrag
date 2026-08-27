@@ -1,8 +1,9 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect } from 'react'
 import Link from 'next/link'
 import { loginAction, type LoginState } from './actions'
+import { AUTOSAVE_NOTICE_DISMISSED_KEY } from '@/lib/autosave-notice'
 import {
   btnCopper,
   controlFull,
@@ -16,6 +17,18 @@ export function LoginForm() {
     loginAction,
     undefined
   )
+
+  // R7 (mobile round 3): reaching the login page starts a fresh "login
+  // session" for the autosave notice — clearing the dismissal flag here is
+  // what makes the notice show again "on every login" (incl. logout → login
+  // in the same tab) while staying pure client state.
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem(AUTOSAVE_NOTICE_DISMISSED_KEY)
+    } catch {
+      /* storage unavailable → nothing to clear */
+    }
+  }, [])
 
   return (
     <form action={formAction} className="space-y-5">
