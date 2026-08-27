@@ -1,12 +1,12 @@
 -- Batch C push 2 (C1 + C2), founder-approved D-5/D-6 2026-08-13.
 -- SEQUENCING SATISFIED: ships only after push 1 (20260813000004, Parts A/B)
 -- was applied AND live-verified on 2026-08-13 (post-push data checks ALL
--- PASS incl. rico slot-set byte-identity at missing=0; live drives: 12619 ->
+-- PASS incl. customer 52e364f1 slot-set byte-identity at missing=0; live drives: 12619 ->
 -- new MH office + fallback banner + suppressed suffix, 13187 -> Pankow own
 -- list unchanged; record: docs/feedback/golive_round2_batch_c.md §VI).
 --
 -- C1 (D-5): backfill ALL cases parked on the city-level office (3 at the
--- time of writing: rico -> Marzahn-Hellersdorf, berk -> Friedrichshain-
+-- time of writing: customer 52e364f1 -> Marzahn-Hellersdorf, berk -> Friedrichshain-
 -- Kreuzberg, completion-fixture -> Mitte). ZERO user-visible effect — both
 -- source and target offices hold zero document rules, so the fallback chain
 -- (app_config default = Pankow set + banner, suffix suppressed) is
@@ -52,12 +52,12 @@ BEGIN
                 '461038b0-8846-4194-bff9-043f2d76d6dd');
   IF n <> 3 THEN RAISE EXCEPTION 'C1 blocked: city-office case set drifted from the surveyed ids'; END IF;
 
-  -- rico (REAL, LOCKED under_review) -> Marzahn-Hellersdorf
+  -- customer 52e364f1 (REAL, LOCKED under_review) -> Marzahn-Hellersdorf
   UPDATE public.cases SET social_office_id = mh
    WHERE id = '52e364f1-e27e-4e79-b455-55d658e1be95'
      AND plz_before_move = '12687' AND social_office_id = city;
   GET DIAGNOSTICS n = ROW_COUNT;
-  IF n <> 1 THEN RAISE EXCEPTION 'rico backfill matched % rows', n; END IF;
+  IF n <> 1 THEN RAISE EXCEPTION 'customer 52e364f1 backfill matched % rows', n; END IF;
   INSERT INTO public.status_event (case_id, event_type, payload) VALUES
     ('52e364f1-e27e-4e79-b455-55d658e1be95', 'social_office_backfilled',
      jsonb_build_object('from', city, 'to', mh, 'plz', '12687',
@@ -90,7 +90,7 @@ BEGIN
 
   SELECT count(*) INTO n FROM public.cases WHERE social_office_id = city;
   IF n <> 0 THEN RAISE EXCEPTION 'C1 end-state: % cases still on the city office', n; END IF;
-  RAISE NOTICE 'C1 applied: 3 cases backfilled (rico->MH, berk->FK, fixture->Mitte), 3 audit rows, 0 cases remain on the city office';
+  RAISE NOTICE 'C1 applied: 3 cases backfilled (customer 52e364f1->MH, berk->FK, fixture->Mitte), 3 audit rows, 0 cases remain on the city office';
 END $$;
 
 -- ── C2: deactivate the city-level row (asserts, not assumptions) ─────────────

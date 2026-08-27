@@ -295,7 +295,7 @@ size_bytes, created_at)`. The no-cascade FK is why rules are retired via
   (`createDownloadUrlAction` / `deleteUploadAction` are reachable only from
   [document-area.tsx:302-334](../../app/case/document-area.tsx)), so a
   hidden upload is not merely invisible — it is **unviewable and undeletable
-  by its owner**. After the purge, Klaus's 3 files and Roland's 1 file stay in
+  by its owner**. After the purge, customer 52e364f1's 3 files and customer 78293a6c's 1 file stay in
   storage but leave the users' reach entirely; only the ops export and the
   GDPR deletion runbook can touch them. The brief's decision §1.3 mandates the
   hiding; whether affected users should be told, and whether hidden uploads
@@ -510,21 +510,21 @@ Numbers = the app's own derivation, computed read-only (see header note);
 **Line A** primary. "Hidden uploads" = files that leave the end-user list but
 stay in DB + storage + `files/`, flagged `not_required` in documents.md.
 
-| Case       | Recipient             | Status           | Rules           | Slots now → A | "Es fehlen noch X" now → A | Hidden uploads under A                                                                                           |
-| ---------- | --------------------- | ---------------- | --------------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `c8542a35` | ttt ttt (test-shaped) | in_progress      | fallback        | 13 → 10       | 13 → 10                    | —                                                                                                                |
-| `52e364f1` | Klaus Schinzel        | **under_review** | fallback        | 17 → 14       | **0 → 0**                  | 3 — `…Bedarfsanzeige…pdf` (PAN-016), `…Meldebescheinigung…pdf` (PAN-017), `…Mobilitätsbescheinigu…pdf` (PAN-018) |
-| `3b201f7f` | Müller Müller         | **under_review** | fallback        | 12 → 9        | 12 → 9                     | —                                                                                                                |
-| `ecdf545d` | Josef Rockert         | **under_review** | **own (Essen)** | **13 → 13**   | **7 → 7**                  | — (must be provably untouched)                                                                                   |
-| `e29041c5` | Ebru Cilingir         | in_progress      | fallback        | 12 → 9        | 12 → 9                     | —                                                                                                                |
-| `656568d4` | Herrmann Bosch        | in_progress      | fallback        | 12 → 9        | 12 → 9                     | —                                                                                                                |
-| `78293a6c` | Roland Hütges         | **under_review** | fallback        | 21 → 18       | 7 → 5                      | 1 — `Ummeldung Hütges.png` (PAN-017)                                                                             |
-| `480c2e44` | Roman Busch           | in_progress      | fallback        | 11 → 8        | 10 → 7                     | —                                                                                                                |
+| Case       | Recipient                | Status           | Rules           | Slots now → A | "Es fehlen noch X" now → A | Hidden uploads under A                                                                                           |
+| ---------- | ------------------------ | ---------------- | --------------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `c8542a35` | ttt ttt (test-shaped)    | in_progress      | fallback        | 13 → 10       | 13 → 10                    | —                                                                                                                |
+| `52e364f1` | Antragsteller `52e364f1` | **under_review** | fallback        | 17 → 14       | **0 → 0**                  | 3 — `…Bedarfsanzeige…pdf` (PAN-016), `…Meldebescheinigung…pdf` (PAN-017), `…Mobilitätsbescheinigu…pdf` (PAN-018) |
+| `3b201f7f` | Antragsteller `3b201f7f` | **under_review** | fallback        | 12 → 9        | 12 → 9                     | —                                                                                                                |
+| `ecdf545d` | Antragsteller `ecdf545d` | **under_review** | **own (Essen)** | **13 → 13**   | **7 → 7**                  | — (must be provably untouched)                                                                                   |
+| `e29041c5` | Antragsteller `e29041c5` | in_progress      | fallback        | 12 → 9        | 12 → 9                     | —                                                                                                                |
+| `656568d4` | Antragsteller `656568d4` | in_progress      | fallback        | 12 → 9        | 12 → 9                     | —                                                                                                                |
+| `78293a6c` | Antragsteller `78293a6c` | **under_review** | fallback        | 21 → 18       | 7 → 5                      | 1 — `Ummeldung ….png` (Dateiname redigiert; PAN-017)                                                             |
+| `480c2e44` | Antragsteller `480c2e44` | in_progress      | fallback        | 11 → 8        | 10 → 7                     | —                                                                                                                |
 
 Delta note: under A every fallback case loses exactly the same three
 always-fire `person_1` slots (PAN-016/017/018); no conditional slot moves.
-Roland's missing drops by 2 (not 3) because his PAN-017 slot already had an
-upload; Klaus's stays 0 (all three dropped slots were filled — those files
+customer 78293a6c's missing drops by 2 (not 3) because his PAN-017 slot already had an
+upload; customer 52e364f1's stays 0 (all three dropped slots were filled — those files
 become the hidden-retained set). **No case's missing count increases; no
 completed case becomes incomplete; the "Alle erforderlichen Dokumente sind
 hochgeladen." state of `52e364f1` is preserved.** Every number in this table
@@ -541,16 +541,16 @@ answers before the gate closes change the numbers — re-run the scan then.
 
 Lines B and C, same cases (slots/missing):
 
-| Case       | B slots/missing | B hidden uploads                                     | C slots/missing                                                     | C hidden uploads |
-| ---------- | --------------- | ---------------------------------------------------- | ------------------------------------------------------------------- | ---------------- |
-| `c8542a35` | 8 / 8           | —                                                    | 8 / 8                                                               | —                |
-| `52e364f1` | 12 / 0          | 5 (+ `Pflege Gutachten.pdf`, `KV Bescheinigung.pdf`) | 12 / 0                                                              | 5 (same)         |
-| `3b201f7f` | 7 / 7           | —                                                    | 6 / 6 (also loses PAN-026 Aufenthaltsstatus)                        | —                |
-| `ecdf545d` | 13 / 7          | —                                                    | 13 / 7                                                              | —                |
-| `e29041c5` | 7 / 7           | —                                                    | 7 / 7                                                               | —                |
-| `656568d4` | 7 / 7           | —                                                    | 7 / 7                                                               | —                |
-| `78293a6c` | 16 / 5          | 3 (+ `Gutachten.png`, `Krankenkarte Hütges.png`)     | 15 / 4 (also loses the open PAN-041 "Einkommen 1: Pflegegeld" slot) | 3 (same)         |
-| `480c2e44` | 6 / 5           | —                                                    | 6 / 5                                                               | —                |
+| Case       | B slots/missing | B hidden uploads                                                  | C slots/missing                                                     | C hidden uploads |
+| ---------- | --------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------- | ---------------- |
+| `c8542a35` | 8 / 8           | —                                                                 | 8 / 8                                                               | —                |
+| `52e364f1` | 12 / 0          | 5 (+ `Pflege Gutachten.pdf`, `KV Bescheinigung.pdf`)              | 12 / 0                                                              | 5 (same)         |
+| `3b201f7f` | 7 / 7           | —                                                                 | 6 / 6 (also loses PAN-026 Aufenthaltsstatus)                        | —                |
+| `ecdf545d` | 13 / 7          | —                                                                 | 13 / 7                                                              | —                |
+| `e29041c5` | 7 / 7           | —                                                                 | 7 / 7                                                               | —                |
+| `656568d4` | 7 / 7           | —                                                                 | 7 / 7                                                               | —                |
+| `78293a6c` | 16 / 5          | 3 (+ `Gutachten.png`, `Krankenkarte ….png` (Dateiname redigiert)) | 15 / 4 (also loses the open PAN-041 "Einkommen 1: Pflegegeld" slot) | 3 (same)         |
+| `480c2e44` | 6 / 5           | —                                                                 | 6 / 5                                                               | —                |
 
 ### Appendix: current full slot lists per case (scan output, Line-A drops marked †)
 
@@ -716,7 +716,7 @@ no-live-Pankow-case coverage hole (§4).
 9. **Hidden uploads and their owners** (§1.6 critic finding): dropped-rule
    uploads become unviewable _and undeletable_ by the user (the affordances
    live only in slot rows) while the files stay in storage. Should affected
-   users (today: Klaus — 3 files, Roland — 1 file, both `under_review`) be
+   users (today: customer 52e364f1 — 3 files, customer 78293a6c — 1 file, both `under_review`) be
    told, e.g. by the team during processing? Should hidden uploads ever get a
    user surface, or is ops-only reach (export + GDPR runbook) acceptable?
    Recommendation: ops-only is consistent with the brief's decision §1.3 and

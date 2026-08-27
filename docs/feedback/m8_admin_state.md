@@ -1,5 +1,17 @@
 # M8 — read-only admin: session state
 
+> ## 🧊 M8 IS SHELVED (not cancelled) — founder decision at Gate 1, 2026-08-25
+>
+> M8 was shelved at Gate 1 on 2026-08-25 in favor of **M9**. Nothing below
+> was approved, nothing was built, and the Gate-1 questions (report §9)
+> remain unanswered. The Phase-1 report (`m8_admin_phase1.md`) **stays valid
+> as a discovery reference** — its findings (missing `document_upload` admin
+> policy, prod-only Supabase, DAL client-injection needs, stale
+> architecture §3.2, …) hold independently of when M8 resumes. Whoever
+> reopens M8 starts by re-answering Gate 1 against the then-current repo,
+> since other work (e.g. the fallback-docs fix, mobile round 3) keeps
+> moving the ground this report describes.
+
 > Resume protocol: read this file first, then the Phase-1 report
 > (`m8_admin_phase1.md`). Gated phases, founder approval at every gate.
 > Phase 1 was read-only and created exactly two files: that report and this one.

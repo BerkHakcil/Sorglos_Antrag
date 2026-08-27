@@ -20,7 +20,7 @@
 --
 -- EFFECTS: FUTURE cases only. cases.social_office_id is frozen at PLZ entry
 -- (app/case/actions.ts is the sole writer; PlzForm is unreachable once
--- questionnaire_id is set). The existing-case backfill (rico -> Marzahn-
+-- questionnaire_id is set). The existing-case backfill (customer 52e364f1 -> Marzahn-
 -- Hellersdorf, berk -> Friedrichshain-Kreuzberg, test fixture -> Mitte) is
 -- Part C1 — a SEPARATE migration in push 2, only after THIS migration is
 -- verified live (founder sequencing rule, 2026-08-13).
@@ -38,10 +38,10 @@
 -- 8180 rules total; 190 city rules (all prio 1, all single-PLZ); 21 Pankow
 -- prio-20 rules = exactly the shadowed set; the remaining 169 partition
 -- exactly into the 11 district lists below; id range 0002..0012 free;
--- 3 cases parked on the city office (berk 10245, rico 12687 LOCKED, test
--- fixture 10115 LOCKED). Rico slot-set identity re-proven: 17 slots,
+-- 3 cases parked on the city office (berk 10245, customer 52e364f1 12687 LOCKED, test
+-- fixture 10115 LOCKED). Customer 52e364f1 slot-set identity re-proven: 17 slots,
 -- byte-identical under city office vs MH office, missing count 0 under both.
--- (Drift on record vs the morning report: rico's missing count was 3
+-- (Drift on record vs the morning report: customer 52e364f1's missing count was 3
 -- [PAN-016/017/018]; he uploaded all documents since — 19 files, all slots
 -- covered. Legitimate user activity; nothing in this migration depends on
 -- his uploads.) Post-state resolver anchors simulated in memory: 12687->MH,

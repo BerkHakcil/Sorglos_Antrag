@@ -254,7 +254,7 @@ WHERE a.question_id = '61000000-0000-0000-0000-00000000009e' AND a.group_instanc
 ON CONFLICT (case_id, question_id, group_instance) DO NOTHING;
 
 -- ════════════════════════════════════════════════════════════════════════════
--- 7) Post-check: rico carries gate="Nein"; generically, no case anywhere holds
+-- 7) Post-check: customer 52e364f1 carries gate="Nein"; generically, no case anywhere holds
 --    an expiry answer without its gate answer (all four pairs)
 -- ════════════════════════════════════════════════════════════════════════════
 DO $$

@@ -44,7 +44,15 @@ import {
 const LINE_A = ['PAN-016', 'PAN-017', 'PAN-018']
 
 /** Phase-1 §4 baseline (scan of 2026-08-25). answer_rows anchors drift
- *  detection; hidden = original_filenames expected not_required under Line A. */
+ *  detection; hidden = RULE IDS of the uploads expected not_required under
+ *  Line A — ONE ENTRY PER UPLOAD (duplicates meaningful), compared against
+ *  each not_required upload's `rule_id`. Deliberately NOT original_filename
+ *  (the pre-2026-08-27 mechanism): filenames are user-supplied and can carry
+ *  real customers' names — the PII sweep of 2026-08-27 moved this assert to
+ *  the rule id, which also pins WHICH dropped rule each hidden upload
+ *  belongs to. Trade-off, on the record: a same-rule file swap (one file
+ *  replaced by a different file on the same rule) is no longer detectable —
+ *  counts and classification, this script's actual job, are unaffected. */
 const BASELINE = {
   'c8542a35-b5b1-4748-b054-a7a1914b2d62': {
     answers: 12,
@@ -56,11 +64,7 @@ const BASELINE = {
     answers: 78,
     now: [17, 0],
     lineA: [14, 0],
-    hidden: [
-      'AAJe61UdMlaco5vhzNaWn195EHz2_Bedarfsanzeige_260813_095031.pdf',
-      'AAJe61UdMlaco5vhzNaWn195EHz3_Meldebescheinigung_260813_095055.pdf',
-      'AAJe61UdMlaco5vhzNaWn195EHz4_Mobilitätsbescheinigu_260813_095122.pdf',
-    ],
+    hidden: ['PAN-016', 'PAN-017', 'PAN-018'],
   },
   '3b201f7f-d3f2-4e8c-b8e5-cd95049f29cf': { answers: 47, now: [12, 12], lineA: [9, 9], hidden: [] },
   'ecdf545d-5ce2-4b49-8b7b-43feaa8244dc': {
@@ -76,7 +80,7 @@ const BASELINE = {
     answers: 79,
     now: [21, 7],
     lineA: [18, 5],
-    hidden: ['Ummeldung Hütges.png'],
+    hidden: ['PAN-017'],
   },
   '480c2e44-7144-4655-876a-02b788d3b308': { answers: 6, now: [11, 10], lineA: [8, 7], hidden: [] },
 }
@@ -322,10 +326,11 @@ for (const c of cases) {
     )
   }
   const expHidden = POST ? base.hidden : []
-  const gotHidden = notRequired.map((u) => u.original_filename).sort()
+  // Rule ids, not filenames — see the BASELINE comment (PII sweep 2026-08-27).
+  const gotHidden = notRequired.map((u) => u.rule_id).sort()
   check(
     JSON.stringify(gotHidden) === JSON.stringify([...expHidden].sort()),
-    `${short}: not_required uploads = [${expHidden.join(', ') || 'none'}]`,
+    `${short}: not_required uploads on rules [${expHidden.join(', ') || 'none'}]`,
     `got [${gotHidden.join(', ')}]`
   )
 }

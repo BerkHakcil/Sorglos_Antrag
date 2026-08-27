@@ -20,11 +20,11 @@
 Prod was cleaned around go-live. Today: **4 auth users, 3 cases, all on the
 Berlin questionnaire**, 84 answer rows, 17 uploads.
 
-| Case       | Who                                        | Status                  | Answers | Key facts                                                                                                                                                                                                                          |
-| ---------- | ------------------------------------------ | ----------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `52e364f1` | rico.schinzel@yahoo.de — **REAL customer** | `under_review` (LOCKED) | 77      | `marital_status="verwitwet"`, `power_of_attorney="Bevollmächtigter Angehöriger"`, `disability_card="Ja"`, `disability_card_expiry="2027-08-11"`, `id_expiry_date="2027-08-11"`, 16 uploads incl. **Sterbeurkunde against PAN-025** |
-| `adf1ad79` | roman.pfeiffer@sorglosantrag.de            | in_progress             | 2       | Created 2026-08-12. PLZ 66646 → Sozialamt St. Wendel (0 rules) → fallback. `marital_status` UNANSWERED                                                                                                                             |
-| `c8542a35` | bhakcil@gmail.com (founder-dev)            | in_progress             | 5       | Berlin, PLZ 10245                                                                                                                                                                                                                  |
+| Case       | Who                                             | Status                  | Answers | Key facts                                                                                                                                                                                                                          |
+| ---------- | ----------------------------------------------- | ----------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `52e364f1` | **REAL customer** `52e364f1` (E-Mail redigiert) | `under_review` (LOCKED) | 77      | `marital_status="verwitwet"`, `power_of_attorney="Bevollmächtigter Angehöriger"`, `disability_card="Ja"`, `disability_card_expiry="2027-08-11"`, `id_expiry_date="2027-08-11"`, 16 uploads incl. **Sterbeurkunde against PAN-025** |
+| `adf1ad79` | roman.pfeiffer@sorglosantrag.de                 | in_progress             | 2       | Created 2026-08-12. PLZ 66646 → Sozialamt St. Wendel (0 rules) → fallback. `marital_status` UNANSWERED                                                                                                                             |
+| `c8542a35` | founder-dev (E-Mail redigiert)                  | in_progress             | 5       | Berlin, PLZ 10245                                                                                                                                                                                                                  |
 
 **Structural discovery (affects items 3 + 4, and worth its own follow-up):**
 the Berlin questionnaire's routing office `10000000-…-0001` is **"Sozialamt
@@ -64,12 +64,12 @@ counts a saved `''` row as answered _for optional questions only_
 resurfaces and blocks completion; empty saves are then rejected
 (actions.ts:333).
 
-**Real data.** Exactly ONE `power_of_attorney` answer exists in prod: rico's,
+**Real data.** Exactly ONE `power_of_attorney` answer exists in prod: customer 52e364f1's,
 non-empty. **Zero `''` rows for it anywhere** (the only `''` answer in prod is
 Roman's optional `birth_name`). The two in_progress cases haven't reached it.
 
 **Effect of the flip.** In_progress: denominator 52→53, question loses the
-"Optional" badge — desired. Locked rico: 75/75 → **76/76, stays 100%** (his
+"Optional" badge — desired. Locked customer 52e364f1: 75/75 → **76/76, stays 100%** (his
 answer is non-empty). Nothing functional recomputes for locked cases (saves
 refused at actions.ts:155; status never flips downward); worst hypothetical is
 a cosmetic <100% progress bar — no such case exists today.
@@ -81,7 +81,7 @@ changes no visibility and no documents.
 
 **Fix (draft).** One migration: (1) execution-time guard — ABORT if any locked
 Berlin case lacks a non-empty answer (re-verifies the real-data claim at push
-time; today passes via rico); (2) value-guarded `UPDATE … SET
+time; today passes via customer 52e364f1); (2) value-guarded `UPDATE … SET
 is_required=true` asserted to exactly 1 row; (3) Essen assert-only block.
 Full SQL draft in the triage record. **No backfill shipped** — the abort-guard
 covers the race window; auto-inserting an answer into a locked real case would
@@ -140,7 +140,7 @@ required answer that is simply not a duplicate of Row A's. Essen has neither
 subject (no issuer question, no Vertriebenen topic in its bulk options) —
 ambiguity is Berlin-only.
 
-**Real data.** rico answered `issuer_of_id="BA Lichtenberg BÜA 1"` and
+**Real data.** customer 52e364f1 answered `issuer_of_id="BA Lichtenberg BÜA 1"` and
 `special_origin_rights="Nein"` → he never saw the second question. No prod
 answers exist for any special-origin follow-up.
 
@@ -162,7 +162,7 @@ sweep, or doc-slot effect; grep confirms zero tests assert these prompts.
 **Migration vs code.** Nothing ships now. After approval: migration-only,
 benign row-update class.
 
-**Real-data impact.** None (text-only; rico's gated question was never
+**Real-data impact.** None (text-only; customer 52e364f1's gated question was never
 visible to him).
 
 **Open decisions.** (1) Roman: approve/reword/keep. (2) Include the two
@@ -187,7 +187,7 @@ user's remaining work. Note: the transient in-session card
 fehlende Unterlagen hoch…" — the misleading copy is specifically the locked
 card's.
 
-**Real data.** rico (locked) has **missing = 3** (PAN-016 "Nachweis
+**Real data.** customer 52e364f1 (locked) has **missing = 3** (PAN-016 "Nachweis
 Bedarfsanzeige", PAN-017 "Polizeiliche Anmeldung im Heim", PAN-018
 "Mobilitätsnachweis" — all always-mandatory, zero uploads), computed with an
 evaluator-faithful port over the dumps (16 uploads cover 14 of his 17 slots;
@@ -282,7 +282,7 @@ seconds before `router.refresh()` lands — transient, self-healing, by design.
 **PAN-025** (DOC-0016 "Sterbeurkunde Partner", conditional
 `{"field":"marital_status","value":"verwitwet","operator":"equals"}`, subject
 person_1, active) is live — and **provably working on the real locked case**:
-rico (verwitwet, fallback-served → Pankow rules) has the slot and **uploaded
+customer 52e364f1 (verwitwet, fallback-served → Pankow rules) has the slot and **uploaded
 `SterbeurkundePartner1.jpg` against PAN-025 on 2026-08-11**. The sole gap in
 all 105 rules: **Essen has no DOC-0016 rule** — while the divorce sibling
 exists in both offices (PAN-036 / ESS-046 → DOC-0022 Scheidungsurkunde,
@@ -312,7 +312,7 @@ toward "omission". Still his call.
 options: `ledig | eheähnliche Gemeinschaft | eingetragene Lebenspartnerschaft
 | verheiratet | dauernd getrennt lebend | geschieden | verwitwet`. Essen:
 `ledig | verheiratet | Lebenspartnerschaft | eheähnliche Gemeinschaft |
-verwitwet | getrennt lebend | geschieden`. rico's stored answer: exactly
+verwitwet | getrennt lebend | geschieden`. customer 52e364f1's stored answer: exactly
 `"verwitwet"`. No visibility rule anywhere references the value (partner
 gates use the married-triple only); PAN-025 is the only doc rule testing it.
 
@@ -343,7 +343,7 @@ has zero golden coverage.
 already handles the shape; no new German — DOC-0016's name_de is existing
 Roman content). Tests/fixtures ride as a normal code commit.
 
-**Real-data impact.** rico: **no change** (his slot exists and is satisfied;
+**Real-data impact.** customer 52e364f1: **no change** (his slot exists and is satisfied;
 the hypothesized "locked case gains a missing slot" does not occur — nothing
 is inserted for Pankow). Roman/Berk: no change until they answer
 marital_status. Essen insert affects zero live cases (no Essen-questionnaire
@@ -441,7 +441,7 @@ assert must target the server error "Ungültiges Datum.").
 seed/baseline change. Rollback = revert.
 
 **Real-data impact.** **No existing answer becomes invalid** (all 11 date
-answers checked; future keys only gain headroom). Evidence FOR the fix: rico's
+answers checked; future keys only gain headroom). Evidence FOR the fix: customer 52e364f1's
 `id_expiry_date` and `disability_card_expiry` are both exactly
 **"2027-08-11"** — identical dates on two unrelated documents, exactly +1
 year from his fill date, just under the cap; born 1941, his real ID expiry is
@@ -506,7 +506,7 @@ Essen spouse has pre-existing holes at 41/54/87 — shift harmlessly).
 Proposed ids `…0101/…0102` per prefix (current max `…0100`; re-verify at
 execution).
 
-**⚠ The one real hazard — rico's locked case (backfill REQUIRED).** He holds
+**⚠ The one real hazard — customer 52e364f1's locked case (backfill REQUIRED).** He holds
 `disability_card="Ja"` + expiry `"2027-08-11"`. Without backfill the gate is
 visible-and-unanswered on his locked case: simulated **75/75 (100%) → 74/75
 (99%)**, AND his answered expiry bubble **vanishes from the chat history**
@@ -518,7 +518,7 @@ with a vanished answer is exactly the pass-4 additive-backfill class.
 insert gate=`"Nein"` (the uniquely consistent answer — they gave a date), as
 generic idempotent `INSERT…SELECT … ON CONFLICT (case_id, question_id,
 group_instance) DO NOTHING` (4 sibling INSERTs), PLUS the pass-4-strict named
-assert on rico (pre-check his current state, drift → abort; post-check
+assert on customer 52e364f1 (pre-check his current state, drift → abort; post-check
 gate="Nein" landed and no expiry-holder lacks a gate answer). With backfill:
 **76/76 = 100%**, bubble stays, one backfilled gate bubble appears (same
 accepted side effect as the children-gate backfill). The backfill also closes
@@ -558,7 +558,7 @@ Verify pass extended the denominator census: mobile-footer.spec.ts:154
 prefer "Nein", the gate never appears. Cosmetic seed note: Berlin's existing
 disability selects use option KEYS 'ja'/'nein' while the children-gate
 precedent uses 'o0'/'o1' — keys are per-question cosmetic, values are "Ja"/
-"Nein" everywhere; follow the o0/o1 precedent. Post-push live check: rico
+"Nein" everywhere; follow the o0/o1 precedent. Post-push live check: customer 52e364f1
 recomputes to 100%.
 
 **Open decisions.**
@@ -567,7 +567,7 @@ recomputes to 100%.
    real-world problem; zero spouse answers exist — backfills nothing; one
    Roman round-trip instead of two).
 2. The four gate wordings (Roman) + the Feststellungsbescheid echo question.
-3. Backfill shape: generic INSERT…SELECT + named rico assert (recommended
+3. Backfill shape: generic INSERT…SELECT + named customer 52e364f1 assert (recommended
    middle ground) vs strict named-cases-only.
 4. Berlin gate at sort 18 vs directly after the card (17.5-equivalent) —
    user-invisible either way (application question and gate are mutually
@@ -581,16 +581,16 @@ recomputes to 100%.
 
 1. **Denominators compose:** Item 1 moves Berlin fresh 52→53 (e2e asserts
    change in Batch A). Item 6 moves NO fresh denominator (gate hidden until
-   "Ja"). After both: fresh Berlin 53, Essen 49. rico end-state: 75/75 →
+   "Ja"). After both: fresh Berlin 53, Essen 49. customer 52e364f1 end-state: 75/75 →
    77/77 (item 1: +1/+1 via his non-empty answer; item 6: +1/+1 via
    backfill) — **stays 100% throughout**.
-2. **Item 4 does NOT change rico's checklist** (no PAN insert) — item 3's
+2. **Item 4 does NOT change customer 52e364f1's checklist** (no PAN insert) — item 3's
    variant math stands at missing = 3 for him.
-3. **Sequencing note (items 5+6):** item 6's migration asserts rico's expiry
+3. **Sequencing note (items 5+6):** item 6's migration asserts customer 52e364f1's expiry
    = "2027-08-11" as a drift guard, while item 5 recommends ops re-confirm
    (and possibly correct) exactly that date with the customer. **Run item 6's
    migration BEFORE any ops correction**, or update the named assert.
-4. **Item 3's variant is what rico will actually see** (locked, missing=3,
+4. **Item 3's variant is what customer 52e364f1 will actually see** (locked, missing=3,
    fallback banner also visible on his Dokumente tab). The completion e2e
    fixture locks with missing>0 → existing specs will exercise the variant
    path; the byte-identical-at-0-missing leg needs a new upload-everything
@@ -616,14 +616,14 @@ recomputes to 100%.
 
 ## Summary table
 
-| #   | Item                            | Root cause                                                                                            | Fix                                                                                                     | Migration vs code                                   | Real-data impact                                                                     | Blocking decisions                        |
-| --- | ------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------- |
-| 1   | Betreuer mandatory              | Berlin `power_of_attorney` optional by Tier-7 decision; Essen already required                        | `is_required=true` flip + locked-case abort-guard; e2e 52→53                                            | Migration + test edits                              | None today (rico answered non-empty; zero `''` rows)                                 | Ratify abort-not-backfill                 |
-| 2   | Behörde "duplicate"             | Verdict B: Personaldokument vs Vertriebenen-/Spätaussiedlerausweis (feeds DOC-0021)                   | No deletion; ClickUp wording proposal to Roman                                                          | Nothing now; optional copy migration after approval | None (text-only)                                                                     | Roman wording                             |
-| 3   | Completion card vs missing docs | Locked card says "nichts weiter tun" unconditionally; gate ignores docs by design                     | Docs-aware locked-card variant + petrol "Zu den Dokumenten" (context tab-switch); 4 PLACEHOLDER_DE rows | Row-add migration + code                            | rico (locked, missing=3) sees the corrected card                                     | 4 German texts; all-answered-card button? |
-| 4   | Verwitwet → Sterbeurkunde       | Premise corrected: PAN-025 exists + works (rico uploaded); gap is Essen-only; master says Pankow-only | ESS-056 INSERT iff Roman confirms; widowed fixture/golden added                                         | Migration-only (conditional)                        | None today (zero Essen cases; rico satisfied)                                        | **Roman: does Essen require it?**         |
-| 5   | Date cap                        | One app-wide bound (1900…+1y), no overrides; expiries unenterable past 2027                           | `lib/date-bounds.ts`: 14 future keys → today+10y; past-only untouched                                   | Code only (Option A)                                | No answer invalidated; rico's twin "2027-08-11" expiries suspicious → ops re-confirm | Ratify Option A; past-only tightening?    |
-| 6   | Unbefristet disability card     | Expiry required whenever card="Ja"; unbefristet cards can't complete truthfully                       | 4 gate questions (incl. spouse) + expiry re-gate + **backfill gate="Nein" for expiry-holders (rico!)**  | Migration-only (data), zero code                    | Without backfill rico drops to 99% + answer bubble vanishes; with backfill 100%      | Spouse scope (rec: yes); gate wordings    |
+| #   | Item                            | Root cause                                                                                                         | Fix                                                                                                                 | Migration vs code                                   | Real-data impact                                                                                  | Blocking decisions                        |
+| --- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| 1   | Betreuer mandatory              | Berlin `power_of_attorney` optional by Tier-7 decision; Essen already required                                     | `is_required=true` flip + locked-case abort-guard; e2e 52→53                                                        | Migration + test edits                              | None today (customer 52e364f1 answered non-empty; zero `''` rows)                                 | Ratify abort-not-backfill                 |
+| 2   | Behörde "duplicate"             | Verdict B: Personaldokument vs Vertriebenen-/Spätaussiedlerausweis (feeds DOC-0021)                                | No deletion; ClickUp wording proposal to Roman                                                                      | Nothing now; optional copy migration after approval | None (text-only)                                                                                  | Roman wording                             |
+| 3   | Completion card vs missing docs | Locked card says "nichts weiter tun" unconditionally; gate ignores docs by design                                  | Docs-aware locked-card variant + petrol "Zu den Dokumenten" (context tab-switch); 4 PLACEHOLDER_DE rows             | Row-add migration + code                            | customer 52e364f1 (locked, missing=3) sees the corrected card                                     | 4 German texts; all-answered-card button? |
+| 4   | Verwitwet → Sterbeurkunde       | Premise corrected: PAN-025 exists + works (customer 52e364f1 uploaded); gap is Essen-only; master says Pankow-only | ESS-056 INSERT iff Roman confirms; widowed fixture/golden added                                                     | Migration-only (conditional)                        | None today (zero Essen cases; customer 52e364f1 satisfied)                                        | **Roman: does Essen require it?**         |
+| 5   | Date cap                        | One app-wide bound (1900…+1y), no overrides; expiries unenterable past 2027                                        | `lib/date-bounds.ts`: 14 future keys → today+10y; past-only untouched                                               | Code only (Option A)                                | No answer invalidated; customer 52e364f1's twin "2027-08-11" expiries suspicious → ops re-confirm | Ratify Option A; past-only tightening?    |
+| 6   | Unbefristet disability card     | Expiry required whenever card="Ja"; unbefristet cards can't complete truthfully                                    | 4 gate questions (incl. spouse) + expiry re-gate + **backfill gate="Nein" for expiry-holders (customer 52e364f1!)** | Migration-only (data), zero code                    | Without backfill customer 52e364f1 drops to 99% + answer bubble vanishes; with backfill 100%      | Spouse scope (rec: yes); gate wordings    |
 
 **STOP.** Awaiting batch GOs (and the Roman round-trip items above). Nothing
 has been changed in code, migrations, or prod.

@@ -11,7 +11,7 @@
 > mirror → migration `20260813000006` (optional „Wann…" symmetry not
 > taken); items 3+4 texts + all other placeholders: **approved via the
 > founder's blanket waiver** ("approved by Erman 2026-08-13, Roman review
-> waived"); item 5 / Klaus dates: **leave as is** — re-confirmation ask
+> waived"); item 5 / Fall 52e364f1 dates: **leave as is** — re-confirmation ask
 > withdrawn, no data touched; point 6 office names: covered by the waiver;
 > point 7 ops note: acknowledged. Photo: Roman sends later (non-blocking).
 > Dispositions ledgered in `german_copy_for_roman.md`.
@@ -90,7 +90,7 @@ bleiben bewusst vergangenheitsbeschränkt** — ein Geburtsdatum im Jahr 2031
 wäre ein Tippfehler, kein Wunsch. Sag Bescheid, falls du das anders siehst.
 
 **Dazu eine Bitte (Kundengespräch, dein Ermessen wie):** Beim echten Fall
-(Klaus Schinzel) stehen als „gültig bis" für Personalausweis **und**
+(Fall `52e364f1`) stehen als „gültig bis" für Personalausweis **und**
 Schwerbehindertenausweis jeweils exakt **11.08.2027** — beide genau ein Jahr
 nach dem Ausfülltag, beide knapp unter der alten Datumsgrenze. Gut möglich,
 dass die echten Daten später liegen und die alte Grenze im Weg war. Magst du
@@ -137,7 +137,7 @@ nicht. Heute wäre die Alternative dieselbe Liste, aber ehrlich als allgemeine
 Liste mit dem Hinweisbanner gekennzeichnet. Wenn dir das inzwischen lieber
 ist, ist die Umstellung ein Einzeiler — deine Entscheidung, keine Eile.
 
-**7) Ops-Hinweis:** rico ist Marzahn-Hellersdorf — seine Checkliste ist
+**7) Ops-Hinweis:** Fall 52e364f1 ist Marzahn-Hellersdorf — seine Checkliste ist
 bewusst die allgemeine; beim Einreichen seines Antrags MH-Anforderungen einmal
 manuell gegenprüfen.
 

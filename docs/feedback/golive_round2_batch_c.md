@@ -16,7 +16,7 @@
 > 3. **The other 11 Berlin district offices do not exist in social_office**, and
 >    **cases.social_office_id is frozen at PLZ entry** — the remap affects only
 >    FUTURE cases unless an explicit case backfill ships (Part C1, decision D-5).
-> 4. **Rico keeps banner + suppressed suffix after the remap** — his PLZ 12687 is
+> 4. **Customer 52e364f1 keeps banner + suppressed suffix after the remap** — his PLZ 12687 is
 >    100% Marzahn-Hellersdorf (rule-less office → fallback). That is the CORRECT
 >    behavior; the expected "banner gone, suffix returns" would require a
 >    Marzahn rule set or a deliberate policy mapping (§IV.3).
@@ -89,17 +89,17 @@ Only ONE rule ≤14199 outside city+Pankow: 12529→Dahme-Spreewald, which is co
 
 3 cases, **all 3 real** by the given pattern rule (no `@hzp-test.invalid`/`pw-*`/`verif+*` emails). 4th user `verif+202606281400@hzp-test.invalid` (test) has no case.
 
-| Office                                    | Cases | Detail                                                                                                                                                                             |
-| ----------------------------------------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Sozialamt Berlin (city, 0 doc rules)      | 2     | berk `c8542a35` bhakcil@gmail.com, plz 10245 (Friedrichshain), in_progress; rico `52e364f1` rico.schinzel@yahoo.de, plz 12687 (**Marzahn-Hellersdorf**), **under_review (locked)** |
-| Sozialamt St. Wendel (…0232, 0 doc rules) | 1     | roman `adf1ad79` roman.pfeiffer@sorglosantrag.de (founder's own account), plz 66646, in_progress                                                                                   |
-| Sozialamt Berlin-Pankow                   | **0** | —                                                                                                                                                                                  |
+| Office                                    | Cases | Detail                                                                                                                                                                              |
+| ----------------------------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sozialamt Berlin (city, 0 doc rules)      | 2     | berk `c8542a35` (E-Mail redigiert), plz 10245 (Friedrichshain), in_progress; customer `52e364f1` (E-Mail redigiert), plz 12687 (**Marzahn-Hellersdorf**), **under_review (locked)** |
+| Sozialamt St. Wendel (…0232, 0 doc rules) | 1     | roman `adf1ad79` roman.pfeiffer@sorglosantrag.de (founder's own account), plz 66646, in_progress                                                                                    |
+| Sozialamt Berlin-Pankow                   | **0** | —                                                                                                                                                                                   |
 
 All three offices-of-record have zero document rules → all three cases are served the Pankow doc set via the app_config fallback (`lib/dal.ts` L319–334, `rulesSource='fallback'`, banner visible). Confirms the three known scout facts exactly.
 
 ### 5. resolvePlzAction — DECIDES #2
 
-`app/case/actions.ts` L52–128: on a rule match it does `supabase.from('cases').update({ social_office_id: match.social_office_id, questionnaire_id, plz_before_move: plz, plz_resolution_status: 'resolved' }).eq('user_id', userId)` (L87–95); no-match path (L111–118) sets `questionnaire_id` to the Berlin default without touching `social_office_id`. So the action itself CAN overwrite the office — **but it is unreachable after first submission**: `PlzForm` renders only in the `!hasQuestionnaire` branch (`app/case/page.tsx` L32 `const hasQuestionnaire = !!caseData.questionnaire_id`, branch at L84, form at L146), and resolvePlzAction always sets `questionnaire_id` on both paths (L91, L114). Grep confirms `actions.ts` L90 is the **only** writer of `cases.social_office_id` in app code. **Conclusion: `social_office_id` is frozen at PLZ entry. A remap migration that should move existing cases MUST also `UPDATE public.cases` rows — nothing in the app will ever re-resolve them.** Corollaries: (a) rico (12687, locked) and berk (10245) will stay on the city-level office id unless the migration updates them; (b) `social_office.is_active` is checked NOWHERE in code (lib grep: the only `.eq('is_active', true)` in `lib/dal.ts` L56 is on questionnaire) — "deactivating" the city-level row is purely cosmetic today, while DELETING it would break the cases FK; the doc fallback keys off rule-count, not office activity, so cases parked on a rule-less office keep working either way.
+`app/case/actions.ts` L52–128: on a rule match it does `supabase.from('cases').update({ social_office_id: match.social_office_id, questionnaire_id, plz_before_move: plz, plz_resolution_status: 'resolved' }).eq('user_id', userId)` (L87–95); no-match path (L111–118) sets `questionnaire_id` to the Berlin default without touching `social_office_id`. So the action itself CAN overwrite the office — **but it is unreachable after first submission**: `PlzForm` renders only in the `!hasQuestionnaire` branch (`app/case/page.tsx` L32 `const hasQuestionnaire = !!caseData.questionnaire_id`, branch at L84, form at L146), and resolvePlzAction always sets `questionnaire_id` on both paths (L91, L114). Grep confirms `actions.ts` L90 is the **only** writer of `cases.social_office_id` in app code. **Conclusion: `social_office_id` is frozen at PLZ entry. A remap migration that should move existing cases MUST also `UPDATE public.cases` rows — nothing in the app will ever re-resolve them.** Corollaries: (a) customer 52e364f1 (12687, locked) and berk (10245) will stay on the city-level office id unless the migration updates them; (b) `social_office.is_active` is checked NOWHERE in code (lib grep: the only `.eq('is_active', true)` in `lib/dal.ts` L56 is on questionnaire) — "deactivating" the city-level row is purely cosmetic today, while DELETING it would break the cases FK; the doc fallback keys off rule-count, not office activity, so cases parked on a rule-less office keep working either way.
 
 **Bottom line for Batch C:** (1) executable today only as "Pankow keeps its 21, delete/deprioritize the 21 shadowed city rules"; routing the other 169 PLZs to district offices needs 11 new office rows plus an externally-sourced PLZ→district table; (2) any remap must include `UPDATE cases SET social_office_id …` for the 2 city-level cases if they are meant to move; (3) 13187/13189 already route to Pankow — correct the founder's premise before he plans around it.
 
@@ -163,9 +163,9 @@ All three offices-of-record have zero document rules → all three cases are ser
 
 ---
 
-# III–V. Remap proposal, draft migration, rico proof, R2, decisions
+# III–V. Remap proposal, draft migration, customer 52e364f1 proof, R2, decisions
 
-# Batch C — Berlin PLZ remap: proposal, draft migration, rico proof, R2 (read-only synthesis @ 4f21de8, prod dumps 2026-08-13)
+# Batch C — Berlin PLZ remap: proposal, draft migration, customer 52e364f1 proof, R2 (read-only synthesis @ 4f21de8, prod dumps 2026-08-13)
 
 **Premise correction, first:** the founder's premise "13189 is Pankow and unmapped" is **false on today's prod**. 13189 (and 13187) each carry a priority-20 Pankow rule that beats the priority-1 city rule; both already route to Sozialamt Berlin-Pankow. Verified against `dump_plz_rules.json`: 21 Pankow rules at prio 20, all 21 double-covered by prio-1 city rules. Please plan from that fact.
 
@@ -388,8 +388,8 @@ COMMIT;
 -- the city office. cases.social_office_id is frozen — nothing in the app ever
 -- re-resolves it (actions.ts L90 is the sole writer, unreachable post-submit).
 -- User-visible effect: NONE (both target offices have zero doc rules; the
--- fallback checklist is byte-identical either way — see rico proof). Effect is
--- internal bookkeeping only. Note rico's case is under_review (locked).
+-- fallback checklist is byte-identical either way — see customer 52e364f1 proof). Effect is
+-- internal bookkeeping only. Note customer 52e364f1's case is under_review (locked).
 --
 -- BEGIN;
 -- DO $$
@@ -397,9 +397,9 @@ COMMIT;
 -- BEGIN
 --   UPDATE public.cases SET social_office_id = '11000000-0000-0000-0000-000000000010'
 --    WHERE id = '52e364f1-...' AND plz_before_move = '12687'
---      AND social_office_id = '10000000-0000-0000-0000-000000000001';  -- rico → Marzahn-Hellersdorf
+--      AND social_office_id = '10000000-0000-0000-0000-000000000001';  -- customer 52e364f1 → Marzahn-Hellersdorf
 --   GET DIAGNOSTICS n = ROW_COUNT;
---   IF n <> 1 THEN RAISE EXCEPTION 'rico backfill matched % rows', n; END IF;
+--   IF n <> 1 THEN RAISE EXCEPTION 'customer 52e364f1 backfill matched % rows', n; END IF;
 --   UPDATE public.cases SET social_office_id = '11000000-0000-0000-0000-000000000003'
 --    WHERE id = 'c8542a35-...' AND plz_before_move = '10245'
 --      AND social_office_id = '10000000-0000-0000-0000-000000000001';  -- berk → Friedrichshain-Kreuzberg
@@ -437,23 +437,23 @@ COMMIT;
 
 ---
 
-## 3. Rico proof (computed, not assumed)
+## 3. Customer 52e364f1 proof (computed, not assumed)
 
-**Frozen-office finding first, because it gates everything:** `cases.social_office_id` is written exactly once, at PLZ entry (`app/case/actions.ts` L90 — grep-confirmed sole writer). `PlzForm` renders only while `!caseData.questionnaire_id` (`app/case/page.tsx` L32/L84/L146), and `resolvePlzAction` sets `questionnaire_id` on both paths (L91, L114), so the form is unreachable after first submission. **The remap (Parts A/B) therefore affects FUTURE cases only. Rico's and berk's rows keep the city-level office id unless the Part-C backfill ships — an explicit, separate founder decision (D-5).**
+**Frozen-office finding first, because it gates everything:** `cases.social_office_id` is written exactly once, at PLZ entry (`app/case/actions.ts` L90 — grep-confirmed sole writer). `PlzForm` renders only while `!caseData.questionnaire_id` (`app/case/page.tsx` L32/L84/L146), and `resolvePlzAction` sets `questionnaire_id` on both paths (L91, L114), so the form is unreachable after first submission. **The remap (Parts A/B) therefore affects FUTURE cases only. Customer 52e364f1's and berk's rows keep the city-level office id unless the Part-C backfill ships — an explicit, separate founder decision (D-5).**
 
-**Rico (`52e364f1`, rico.schinzel@yahoo.de, PLZ 12687, under_review/LOCKED):**
+**Customer `52e364f1` (PLZ 12687, under_review/LOCKED):**
 
 1. 12687 → Marzahn-Hellersdorf, 100.0% area share (official geometry; sanity anchor passed). Post-remap rule: → new MH office `11000000-…-0010`, prio 1, sole match.
 2. MH office is created with **zero** `office_document_rule` rows (dump: only Pankow 50 and Essen 55 doc rules exist in the entire table).
 3. `lib/dal.ts` L319–334: own-office rules = 0 → falls to `app_config.default_document_office_id` = Pankow (`11000000-…-0001`, set 2026-07-22); guard `defaultOffice !== socialOfficeId` passes → loads Pankow's 49 active rules → **`rulesSource='fallback'`**.
 4. Therefore: **his checklist is byte-identical** (same Pankow-default rule set he sees today from the city office, which also has 0 rules), the **fallback banner STAYS**, and the **per-office period suffix stays suppressed** (commit 346bb08: fallback-served checklists drop the suffix). This holds **whether or not** the C1 backfill runs — city office and MH office are both rule-less, so the fallback path is identical from either.
 
-**This contradicts the founder's stated expectation ("banner gone, suffix returns"). The post-remap behavior is the CORRECT one:** Marzahn-Hellersdorf genuinely has no authored document rule set, and the banner exists precisely to say "you are seeing the default set, not your office's own." Making the banner disappear by remap alone would be lying to the user. What WOULD make it disappear for rico — both founder decisions, not ours:
+**This contradicts the founder's stated expectation ("banner gone, suffix returns"). The post-remap behavior is the CORRECT one:** Marzahn-Hellersdorf genuinely has no authored document rule set, and the banner exists precisely to say "you are seeing the default set, not your office's own." Making the banner disappear by remap alone would be lying to the user. What WOULD make it disappear for customer 52e364f1 — both founder decisions, not ours:
 
 - (a) author a Marzahn-Hellersdorf rule set (`rulesSource='own'`, banner gone, suffix returns), or
 - (b) deliberately map him to the Pankow office (then `socialOfficeId === Pankow`, own-office query returns 49 rules, `rulesSource='own'`, banner gone, suffix returns) — defensible only as an explicit policy call, since 12687 is not Pankow.
 
-**Berk (`c8542a35`, bhakcil@gmail.com, PLZ 10245):** 10245 → Friedrichshain-Kreuzberg 100% → new FK office `11000000-…-0003` → zero doc rules → identical fallback chain → checklist byte-identical, banner stays, suffix suppressed. Same with/without backfill.
+**Berk (`c8542a35`, E-Mail redigiert, PLZ 10245):** 10245 → Friedrichshain-Kreuzberg 100% → new FK office `11000000-…-0003` → zero doc rules → identical fallback chain → checklist byte-identical, banner stays, suffix suppressed. Same with/without backfill.
 
 **Roman (`adf1ad79`, 66646 → Sozialamt St. Wendel `…-0232`):** entirely outside the remap; unchanged fallback behavior.
 
@@ -461,11 +461,11 @@ COMMIT;
 
 ## 4. R2 real-data report for the draft migration
 
-| Case                                          | Today                                                       | After Parts A/B               | After optional C1 backfill                                          | User-visible delta |
-| --------------------------------------------- | ----------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------- | ------------------ |
-| rico `52e364f1` (12687, under_review, LOCKED) | city office, fallback checklist + banner, suffix suppressed | **unchanged** (office frozen) | office id → MH `…-0010`; checklist/banner/suffix **byte-identical** | **NONE**           |
-| berk `c8542a35` (10245, in_progress)          | city office, fallback + banner                              | **unchanged**                 | office id → FK `…-0003`; display identical                          | **NONE**           |
-| roman `adf1ad79` (66646, in_progress)         | St. Wendel, fallback + banner                               | unchanged (out of scope)      | unchanged                                                           | **NONE**           |
+| Case                                              | Today                                                       | After Parts A/B               | After optional C1 backfill                                          | User-visible delta |
+| ------------------------------------------------- | ----------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------- | ------------------ |
+| customer `52e364f1` (12687, under_review, LOCKED) | city office, fallback checklist + banner, suffix suppressed | **unchanged** (office frozen) | office id → MH `…-0010`; checklist/banner/suffix **byte-identical** | **NONE**           |
+| berk `c8542a35` (10245, in_progress)              | city office, fallback + banner                              | **unchanged**                 | office id → FK `…-0003`; display identical                          | **NONE**           |
+| roman `adf1ad79` (66646, in_progress)             | St. Wendel, fallback + banner                               | unchanged (out of scope)      | unchanged                                                           | **NONE**           |
 
 - **Test-account impact: none.** The only test user (`verif+202606281400@hzp-test.invalid`) has no case.
 - Future cases: a Berlin PLZ entered post-migration resolves to a district office; that office has no questionnaire, so D12 (actions.ts L85) assigns the Berlin default questionnaire `30000000-…-0001` — same questionnaire UX as today; checklist = Pankow fallback + banner — exactly the founder's intended "rule-less → fallback + banner is CORRECT" state. A Pankow-PLZ future case behaves exactly as today (prio-20 rules untouched).
@@ -480,7 +480,7 @@ COMMIT;
 - **D-2 — Multi-district convention:** primary-district (largest area share) assignment for split PLZs, as tabled in §1.2. PLZ routing cannot discriminate at street level; accepted as a known approximation.
 - **D-3 — The 4 minority-Pankow codes** (10119 ~25% Pankow, 10247 ~14%, 10249 ~12%, 13051 ~35%): keep on Pankow per your recorded "when in doubt, include" policy (recommended — it is your documented deliberate choice), or reassign to their primary districts (Mitte / FK / FK / Lichtenberg)?
 - **D-4 — Premise correction acknowledged:** 13187/13189 already route to Pankow today; no action item exists for them beyond deleting the shadowed prio-1 duplicates.
-- **D-5 — Case backfill (Part C1):** move rico → MH and berk → FK office ids? Zero user-visible effect either way (proof in §3); pure internal bookkeeping, but rico's case is locked/under_review. Ship, or leave both parked on the (soon-inactive) city row?
+- **D-5 — Case backfill (Part C1):** move customer 52e364f1 → MH and berk → FK office ids? Zero user-visible effect either way (proof in §3); pure internal bookkeeping, but customer 52e364f1's case is locked/under_review. Ship, or leave both parked on the (soon-inactive) city row?
 - **D-6 — City-office deactivation (Part C2):** only after A/B verified live and D-5 settled. Note `is_active` is checked nowhere in code today — this is hygiene, not behavior — and the row must never be DELETEd (cases FK + the D12 default questionnaire FK to it).
 - **D-7 (flag, no action):** expectation reset — for banner-gone/suffix-back in any district, someone must author that district's document rule set (or you accept fallback permanently). The remap alone changes no checklist anywhere, by design.
 - **D-8 (flag, no action):** 15537/15566/15569 stay on Sozialamt Oder-Spree (near-zero-area Berlin slivers; defensible, on record).
@@ -493,7 +493,7 @@ Verification provenance: every count above re-computed this session from `dump_p
 
 **All eight decisions GO (founder, 2026-08-13).** D-7 resolved as premise
 error on the founder's side: 12687 is Marzahn-Hellersdorf, the report's
-framing wins — rico correctly keeps banner + suppressed suffix; the live
+framing wins — customer 52e364f1 correctly keeps banner + suppressed suffix; the live
 check is rewritten to BYTE-IDENTICAL before/after. D-1 addendum: office
 names = OFFICIAL designations ("Bezirksamt <X> von Berlin – Amt für
 Soziales", source cited in the migration header), full list to Roman as
@@ -527,7 +527,7 @@ found. `npm run verify` green (incl. encoding guard over the umlaut names).
 
 ## VI.2 Drift on record (execution-time R2, does not block)
 
-1. **Rico uploaded everything.** The §III/§IV "missing 3 (PAN-016/017/018)"
+1. **Customer 52e364f1 uploaded everything.** The §III/§IV "missing 3 (PAN-016/017/018)"
    premise is stale as of this evening: 19 uploads now cover all 17 slots →
    **missing = 0**, PAN-016/017/018 among the uploads. Legitimate user
    activity; nothing in the migration reads uploads. The identity proof was
@@ -539,7 +539,7 @@ found. `npm run verify` green (incl. encoding guard over the umlaut names).
    `pw-completion+…@hzp-test.invalid`, PLZ 10115, city office, under_review —
    the KEPT completion fixture from the round-2 close (on record there).
    TEST case. D-5's "backfill ALL cases currently on the city office"
-   therefore covers **3 cases**: rico → MH `…-0010`, berk → FK `…-0003`,
+   therefore covers **3 cases**: customer 52e364f1 → MH `…-0010`, berk → FK `…-0003`,
    fixture → Mitte `…-0002`. A completion.spec re-seed between pushes would
    replace the fixture case (post-A/B it resolves 10115 → Mitte on its own);
    C1's exact-set assert would then abort for a trivial re-derive.
@@ -569,9 +569,9 @@ BEGIN
 
   UPDATE public.cases SET social_office_id = '11000000-0000-0000-0000-000000000010'
    WHERE id = '52e364f1-e27e-4e79-b455-55d658e1be95'
-     AND plz_before_move = '12687' AND social_office_id = city;      -- rico -> MH
+     AND plz_before_move = '12687' AND social_office_id = city;      -- customer 52e364f1 -> MH
   GET DIAGNOSTICS n = ROW_COUNT;
-  IF n <> 1 THEN RAISE EXCEPTION 'rico backfill matched % rows', n; END IF;
+  IF n <> 1 THEN RAISE EXCEPTION 'customer 52e364f1 backfill matched % rows', n; END IF;
   INSERT INTO public.status_event (case_id, event_type, payload) VALUES
     ('52e364f1-e27e-4e79-b455-55d658e1be95', 'social_office_backfilled',
      jsonb_build_object('from', city, 'to', '11000000-0000-0000-0000-000000000010',
@@ -614,7 +614,7 @@ COMMIT;
 
 After push 1 + data-level checks:
 
-1. **rico BYTE-IDENTICAL** (read-only render check, zero writes): banner
+1. **customer 52e364f1 BYTE-IDENTICAL** (read-only render check, zero writes): banner
    PRESENT, "(letzte 4 Monate)" suffix SUPPRESSED, slot set (17) and
    missing count (**0** — drift on record) identical to the pre-push
    computation; locked card = STANDARD variant.
@@ -625,8 +625,8 @@ After push 1 + data-level checks:
 4. 45127 Essen + 21682 Stade: untouched.
 5. Throwaways deleted, leak sweep zero debris.
 
-Then push 2 (C1+C2), post-push: rico/berk/fixture office ids moved, audit
-rows present, rico's render STILL byte-identical from the MH office, city
+Then push 2 (C1+C2), post-push: customer 52e364f1/berk/fixture office ids moved, audit
+rows present, customer 52e364f1's render STILL byte-identical from the MH office, city
 office inactive with zero references. Close-out: milestone log, state file,
 ClickUp two-liner, ledger refresh (all queued per the founder brief).
 
@@ -643,7 +643,7 @@ per-district counts exact, all prio 1; LIVE resolver: 12687→MH, 10245→FK,
 10115→Mitte, 13187/13189→Pankow, 10247/13051→Pankow (policy), 45127 Essen /
 21682 Stade / 12529 Dahme-Spreewald untouched; 4 cases with 3 still on the
 city office (C1 pending); doc rules untouched (105, Pankow+Essen only);
-app_config default still Pankow. **Rico BYTE-IDENTITY re-proven pre- vs
+app_config default still Pankow. **Customer 52e364f1 BYTE-IDENTITY re-proven pre- vs
 post-push over live data: 17 slots byte-identical, missing 0=0,
 rulesSource fallback both sides.**
 

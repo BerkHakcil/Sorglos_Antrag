@@ -333,7 +333,7 @@ created_at`.
 
 | case (owner)                                          | rule / doc                                  | instance | original_filename                                 | stored object    | date  |
 | ----------------------------------------------------- | ------------------------------------------- | -------- | ------------------------------------------------- | ---------------- | ----- |
-| `2c8a5ca2` (bhakcil@gmail.com)                        | PAN-001 / DOC-0001 Personaldokument         | default  | gisma_logo.jpeg                                   | `cdf9a394….jpeg` | 07-21 |
+| `2c8a5ca2` (E-Mail redigiert)                         | PAN-001 / DOC-0001 Personaldokument         | default  | gisma_logo.jpeg                                   | `cdf9a394….jpeg` | 07-21 |
 | `2c8a5ca2`                                            | PAN-005 / DOC-0003 Kontoauszuege            | giro     | admission letter.pdf                              | `e8ff0e5a….pdf`  | 07-21 |
 | `2c8a5ca2`                                            | PAN-005 / DOC-0003 Kontoauszuege            | giro     | April 2025 M509_AB.pdf                            | `db57f137….pdf`  | 07-21 |
 | `fc446257` (iremkarabulutlu@gmail.com)                | PAN-001 / DOC-0001                          | default  | sunexpress-boarding-pass-2.pdf                    | `26432e24….pdf`  | 07-21 |

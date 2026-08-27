@@ -88,9 +88,9 @@ deleted; the `docs.fallback_notice` static row stays in the DB, unread — the
 removed German is recorded verbatim in the Phase-1 report §5 for Roman.
 
 **Q9 (founder): no proactive user notice for hidden uploads.** The two
-affected accounts, recorded per the decision: case `52e364f1` (Klaus
-Schinzel, under_review — 3 uploads on the dropped trio become
-hidden-but-retained) and case `78293a6c` (Roland Hütges, under_review — 1
+affected accounts, recorded per the decision: case `52e364f1`
+(under_review — 3 uploads on the dropped trio become
+hidden-but-retained) and case `78293a6c` (under_review — 1
 upload on PAN-017). Files stay in DB + storage + `case:export` (`files/` and
 the new `not_required` table in documents.md); erasure by request stays the
 manual sweep tool.
@@ -212,7 +212,7 @@ word **„offen"** which now ships („· 4 offen"; sibling span keeps the
 specs' `Number(textContent)` reads intact — zero e2e anchor changes needed
 anywhere, incl. the item-2 rewording). Ledger rewritten: the only open
 items are the Ansprechpartner photo (Roman sends later), Roman-owned auth
-emails, and the Marzahn-Hellersdorf-ruleset backlog. Klaus-dates
+emails, and the Marzahn-Hellersdorf-ruleset backlog. Case-`52e364f1` dates
 re-confirmation ask withdrawn (Roman: leave as is).
 
 **ESS-056:** Essen requires the partner's death certificate for widowed
@@ -259,7 +259,7 @@ city-level rules shadowed by Pankow's prio-20 set deleted (each guarded by
 its twin, D-4); the remaining 169 repointed to their primary district
 (largest-area-share, official Geoportal/ALKIS geometry; the 4
 minority-Pankow codes stay on Pankow per Roman's July policy, D-3); then
-push 2: ALL 3 city-office cases backfilled (rico→Marzahn-Hellersdorf,
+push 2: ALL 3 city-office cases backfilled (customer 52e364f1→Marzahn-Hellersdorf,
 berk→Friedrichshain-Kreuzberg, completion-fixture→Mitte) each with a
 `status_event` audit row, and the city office row deactivated (NEVER
 deleted — the D12 default questionnaire FKs to it; `is_active` is unread
@@ -270,7 +270,7 @@ migration simulation + adversarial SQL cross-check (symmetric copy errors);
 push-1 data checks ALL PASS + live drives (12619 throwaway → NEW MH office
 id recorded, fallback checklist + banner, NO suffix — the intended "UX
 unchanged, bookkeeping corrected"; 13187 → Pankow own list unchanged);
-push-2 checks ALL PASS; rico's slot set proven BYTE-IDENTICAL at every
+push-2 checks ALL PASS; customer 52e364f1's slot set proven BYTE-IDENTICAL at every
 stage (17 slots, missing 0 — drift on record: he uploaded everything
 between the morning report and execution). The re-seeded completion
 fixture resolved 10115 → **Mitte** through the new rules and

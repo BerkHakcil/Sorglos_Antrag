@@ -799,7 +799,7 @@ describe('unbefristet gate chain (item 6)', () => {
   })
 
   it('backfilled locked shape: card Ja + gate Nein + expiry answered = 100%', () => {
-    // rico's post-migration state: all three answered, nothing hidden.
+    // customer 52e364f1's post-migration state: all three answered, nothing hidden.
     const nav = buildNav(gated, {
       disability_card: 'Ja',
       disability_card_unlimited: 'Nein',
