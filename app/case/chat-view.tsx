@@ -1100,63 +1100,76 @@ export function ChatView({
         </div>
       </div>
 
-      {/* ── Scrollable middle: answered history ─────────────── */}
+      {/* ── Scrollable middle + pinned bottom, in ONE lg+ white box ───────── */}
       {/* R2-3: the mockup wraps the transcript in one white card. We take the
           LOOK, never its geometry: there the card is a single
           max-h-[calc(100vh-320px)] scroller with the active input INSIDE it,
           which is the shape that clipped the save buttons on real phones. Here
           the frame is painted on the existing flex chain — history keeps its
           own scroller, the answer footer stays a separate shrinkable row — so
-          nothing about the reachability guarantee changes. */}
-      <div className="min-h-0 flex-1 overflow-hidden px-4 pt-4 pb-2">
-        <div
-          ref={historyRef}
-          data-testid="chat-history"
-          onScroll={handleHistoryScroll}
-          className={`${card} mx-auto h-full max-w-2xl space-y-4 overflow-y-auto px-4 py-4`}
-        >
-          {/* Round 3: the mobile title/intro copy that opened this scroller is
+          nothing about the reachability guarantee changes.
+          D5 (desktop round 1, GATE 1 APPROVED 2026-08-28): from `lg` this
+          wrapper IS the screenshot's white central box — infobox, transcript
+          and answer area together on #FFFDFA, with the progress band above
+          staying outside on cream. Visual only: the wrapper is a plain flex
+          pass-through below lg (every lg: class inert), and inside it the
+          flex chain is byte-for-byte the one described above, one level
+          deeper. At lg the transcript card drops its own chrome (white-in-
+          white card would read as a nested box) and the answer footer swaps
+          its cream band for the box's white; the border-t hairline stays as
+          the divider between scroller and input (decorative, border-border). */}
+      <div className="lg:bg-card lg:shadow-card flex min-h-0 flex-1 flex-col lg:mx-auto lg:my-4 lg:w-full lg:max-w-2xl lg:overflow-hidden lg:rounded-2xl">
+        <div className="min-h-0 flex-1 overflow-hidden px-4 pt-4 pb-2">
+          <div
+            ref={historyRef}
+            data-testid="chat-history"
+            onScroll={handleHistoryScroll}
+            className={`${card} mx-auto h-full max-w-2xl space-y-4 overflow-y-auto px-4 py-4 lg:rounded-none lg:shadow-none`}
+          >
+            {/* Round 3: the mobile title/intro copy that opened this scroller is
               gone — the shell's pinned chrome carries both now (R1/R3). */}
 
-          {/* The autosave reassurance, as a sage hint bubble at the head of
+            {/* The autosave reassurance, as a sage hint bubble at the head of
               the transcript. R7 (mobile round 3, founder-confirmed reversal
               of R2-3's static-on-purpose): shown once per login session and
               dismissed by the user's first scroll of this history — no X
               button, no persistence beyond sessionStorage (see
               lib/autosave-notice.ts). Renders nothing while the content row
               is absent ('' by design). */}
-          {noticeVisible && (
-            <div className="border-sage-soft/70 bg-sage-soft/40 mx-auto flex w-full max-w-[92%] items-start gap-2 rounded-xl border px-3 py-2 sm:max-w-[85%]">
-              <Info aria-hidden className="text-primary/70 mt-0.5 size-4 shrink-0" />
-              <p className="text-graphite-soft text-sm leading-relaxed">{content.autosaveNotice}</p>
-            </div>
-          )}
+            {noticeVisible && (
+              <div className="border-sage-soft/70 bg-sage-soft/40 mx-auto flex w-full max-w-[92%] items-start gap-2 rounded-xl border px-3 py-2 sm:max-w-[85%]">
+                <Info aria-hidden className="text-primary/70 mt-0.5 size-4 shrink-0" />
+                <p className="text-graphite-soft text-sm leading-relaxed">
+                  {content.autosaveNotice}
+                </p>
+              </div>
+            )}
 
-          {/* Answered + deferred history — bubble exchange (E-3, R2-7) */}
-          {transcript.length > 0 && (
-            <div className="flex flex-col gap-2">
-              {transcript.map((q, i) => (
-                <AnsweredBubble
-                  key={q.instanceId ? `${q.id}:${q.instanceId}` : q.id}
-                  question={q}
-                  prevQuestion={transcript[i - 1]}
-                  onEdit={startEditing}
-                  onRemoveInstance={handleDeleteInstance}
-                  isEditing={editingId === q.id && editingInstanceId === q.instanceId}
-                  locked={isLocked}
-                  deferred={!q.isAnswered}
-                />
-              ))}
-            </div>
-          )}
+            {/* Answered + deferred history — bubble exchange (E-3, R2-7) */}
+            {transcript.length > 0 && (
+              <div className="flex flex-col gap-2">
+                {transcript.map((q, i) => (
+                  <AnsweredBubble
+                    key={q.instanceId ? `${q.id}:${q.instanceId}` : q.id}
+                    question={q}
+                    prevQuestion={transcript[i - 1]}
+                    onEdit={startEditing}
+                    onRemoveInstance={handleDeleteInstance}
+                    isEditing={editingId === q.id && editingInstanceId === q.instanceId}
+                    locked={isLocked}
+                    deferred={!q.isAnswered}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* ── Pinned bottom: action area ───────────────────────── */}
-      {/* data-testid is the e2e anchor for this region. The suites previously
+        {/* ── Pinned bottom: action area ───────────────────────── */}
+        {/* data-testid is the e2e anchor for this region. The suites previously
           targeted the CSS classes (`.shrink-0.border-t`), which couples them to
           styling — see docs/feedback/pass3_phase_e_plan.md §6. */}
-      {/* NOT shrink-0 (mobile field report, 2026-08-11): this slot sits below
+        {/* NOT shrink-0 (mobile field report, 2026-08-11): this slot sits below
           the only scroller inside overflow-hidden ancestors, so content
           taller than the viewport remainder used to CLIP unreachably —
           measured 36px of the Weiter row cut off at a 667px viewport. As a
@@ -1166,63 +1179,65 @@ export function ChatView({
           the footer instead of clipping. min-h-0 documents the intent; the
           overflow already disables the min-content floor. Fits-anyway
           content renders byte-identically. */}
-      <div
-        data-testid="answer-footer"
-        className="border-border/60 bg-background/95 min-h-0 overflow-y-auto overscroll-contain border-t backdrop-blur"
-      >
-        <div className="mx-auto max-w-2xl px-4 py-4">
-          {isLocked ? (
-            <EditLockedCard
-              heading={content.lockedHeading}
-              body={content.lockedBody}
-              nextStepsHeading={content.nextStepsHeading}
-              nextSteps={[content.nextSteps1, content.nextSteps2, content.nextSteps3].filter(
-                Boolean
-              )}
-              missingDocs={missingDocs}
-              docsHeading={content.lockedDocsHeading}
-              docsBody={content.lockedDocsBody}
-              docsButtonLabel={content.lockedDocsButton}
-              nextStepsUpload={content.nextStepsUpload}
-            />
-          ) : showGroupPrompt && nav.groupPrompt ? (
-            <GroupPromptCard
-              prompt={nav.groupPrompt}
-              onYes={() => handleGroupYes(nav.groupPrompt!.groupKey)}
-              onNo={() => handleGroupNo(nav.groupPrompt!.groupKey)}
-              saving={isPending}
-            />
-          ) : pendingCountDecrease && activeQ ? (
-            <CountDecreaseConfirmCard
-              onConfirm={() => handleSave(true)}
-              onCancel={() => setPendingCountDecrease(null)}
-              saving={isPending}
-            />
-          ) : showQuestionCard && activeQ ? (
-            <CurrentQuestionCard
-              question={activeQ}
-              value={currentValue}
-              onChange={handleChange}
-              error={validationError}
-              saving={isPending}
-              /* Wrapped: handleSave takes countDecreaseConfirmed — passing the
+        <div
+          data-testid="answer-footer"
+          className="border-border/60 bg-background/95 lg:bg-card min-h-0 overflow-y-auto overscroll-contain border-t backdrop-blur lg:backdrop-blur-none"
+        >
+          <div className="mx-auto max-w-2xl px-4 py-4">
+            {isLocked ? (
+              <EditLockedCard
+                heading={content.lockedHeading}
+                body={content.lockedBody}
+                nextStepsHeading={content.nextStepsHeading}
+                nextSteps={[content.nextSteps1, content.nextSteps2, content.nextSteps3].filter(
+                  Boolean
+                )}
+                missingDocs={missingDocs}
+                docsHeading={content.lockedDocsHeading}
+                docsBody={content.lockedDocsBody}
+                docsButtonLabel={content.lockedDocsButton}
+                nextStepsUpload={content.nextStepsUpload}
+              />
+            ) : showGroupPrompt && nav.groupPrompt ? (
+              <GroupPromptCard
+                prompt={nav.groupPrompt}
+                onYes={() => handleGroupYes(nav.groupPrompt!.groupKey)}
+                onNo={() => handleGroupNo(nav.groupPrompt!.groupKey)}
+                saving={isPending}
+              />
+            ) : pendingCountDecrease && activeQ ? (
+              <CountDecreaseConfirmCard
+                onConfirm={() => handleSave(true)}
+                onCancel={() => setPendingCountDecrease(null)}
+                saving={isPending}
+              />
+            ) : showQuestionCard && activeQ ? (
+              <CurrentQuestionCard
+                question={activeQ}
+                value={currentValue}
+                onChange={handleChange}
+                error={validationError}
+                saving={isPending}
+                /* Wrapped: handleSave takes countDecreaseConfirmed — passing the
                  handler bare would feed it the click event (truthy) and skip
                  the confirm dialog. */
-              onSave={() => handleSave()}
-              onSkip={!editingId ? handleSkip : undefined}
-              onCancel={editingId ? cancelEdit : undefined}
-              isEditMode={!!editingId}
-              isReask={isReaskingSkipped}
-            />
-          ) : showAllDone ? (
-            <AllAnsweredCard
-              heading={content.allAnsweredHeading}
-              message={content.allAnsweredMessage}
-              missingDocs={missingDocs}
-              docsButtonLabel={content.lockedDocsButton}
-            />
-          ) : null}
+                onSave={() => handleSave()}
+                onSkip={!editingId ? handleSkip : undefined}
+                onCancel={editingId ? cancelEdit : undefined}
+                isEditMode={!!editingId}
+                isReask={isReaskingSkipped}
+              />
+            ) : showAllDone ? (
+              <AllAnsweredCard
+                heading={content.allAnsweredHeading}
+                message={content.allAnsweredMessage}
+                missingDocs={missingDocs}
+                docsButtonLabel={content.lockedDocsButton}
+              />
+            ) : null}
+          </div>
         </div>
+        {/* closes the D5 lg+ white box (transcript + answer area) */}
       </div>
     </div>
   )

@@ -16,12 +16,22 @@
  * drop-in slot (D11: photo pending, not integrated).
  *
  * base-ui Dialog provides focus trap, Escape and backdrop dismissal; the
- * popup renders as a bottom sheet on mobile and a right slide-over on sm+.
+ * default 'panel' variant renders as a bottom sheet on mobile and a right
+ * slide-over on sm+.
+ *
+ * Desktop round 1 / D9 (GATE 1 APPROVED 2026-08-28): the 'bottomSheet'
+ * variant — used ONLY by the desktop sidebar instance (page.tsx), which is
+ * hidden below lg — is a centred max-w-xl sheet that slides up from the
+ * bottom over the dimmed page at every size it can appear at. The burger
+ * menu's instance keeps 'panel', so the mobile experience is untouched.
+ * Slide-up is pure CSS on base-ui's [data-starting-style]/[data-ending-style]
+ * transition attributes; prefers-reduced-motion is honoured by the global
+ * override in globals.css.
  */
 
 import Image from 'next/image'
 import { Dialog } from '@base-ui/react/dialog'
-import { X } from 'lucide-react'
+import { Phone, X } from 'lucide-react'
 import { de } from '@/lib/strings/de'
 import { btnGhost, focusRing, linkPetrol, linkStandalone } from '@/components/ui/styles'
 
@@ -36,6 +46,9 @@ type Props = {
   /** R2-1: the trigger sits in the top bar on mobile and in the sidebar foot
    *  on desktop, at different type scales. Only the trigger chrome varies. */
   triggerClassName?: string
+  /** D9: 'panel' (default) = the shipped mobile/tablet chrome; 'bottomSheet'
+   *  = the desktop centred slide-up sheet with the phone pictogram row. */
+  variant?: 'panel' | 'bottomSheet'
 }
 
 /** "Roman Pfeiffer" → "RP" (first letter of the first two words). */
@@ -56,11 +69,24 @@ export function HelpSheet({
   email,
   photoSrc,
   triggerClassName,
+  variant = 'panel',
 }: Props) {
   // Missing static_content rows degrade to '' by design — without the button
   // word there is nothing to render a trigger with, so the feature waits for
   // its content instead of showing an empty button.
   if (!helpButton || !name) return null
+
+  const isBottomSheet = variant === 'bottomSheet'
+  /* 'panel' is the shipped chrome, byte-identical (mobile untouched). The
+     bottom sheet keeps the same paint but pins to the bottom at EVERY width
+     (its only trigger lives in the lg+ sidebar), centred at max-w-xl per the
+     gate answer, and slides up: base-ui stamps [data-starting-style] on the
+     opening frame and [data-ending-style] while closing, so translate-y-full
+     at both edges + transition-transform is the whole animation. The
+     load-bearing data-closed:hidden still snaps it away once fully closed. */
+  const popupClass = isBottomSheet
+    ? 'bg-card shadow-card-lg fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-xl rounded-t-2xl p-6 transition-transform duration-300 ease-out data-starting-style:translate-y-full data-ending-style:translate-y-full data-closed:hidden'
+    : 'bg-card shadow-card-lg fixed inset-x-0 bottom-0 z-50 rounded-t-2xl p-6 data-closed:hidden sm:inset-x-auto sm:inset-y-0 sm:right-0 sm:bottom-auto sm:w-80 sm:rounded-none sm:rounded-l-2xl'
 
   return (
     <Dialog.Root>
@@ -74,7 +100,7 @@ export function HelpSheet({
             over the whole app (found in the Batch-1 visual check: the closed
             sheet swallowed the pre-step submit click). */}
         <Dialog.Backdrop className="bg-graphite/40 fixed inset-0 z-40 data-closed:hidden" />
-        <Dialog.Popup className="bg-card shadow-card-lg fixed inset-x-0 bottom-0 z-50 rounded-t-2xl p-6 data-closed:hidden sm:inset-x-auto sm:inset-y-0 sm:right-0 sm:bottom-auto sm:w-80 sm:rounded-none sm:rounded-l-2xl">
+        <Dialog.Popup className={popupClass}>
           <div className="flex items-start justify-between gap-2">
             <Dialog.Title className="text-graphite-soft text-xs font-semibold tracking-wide uppercase">
               {cardLabel}
@@ -88,11 +114,18 @@ export function HelpSheet({
           </div>
           <div className="mt-4 flex items-center gap-4">
             {photoSrc ? (
+              /* alt=""/aria-hidden (D9): like the initials circle it replaces,
+                 the photo repeats nothing the adjacent name text doesn't say —
+                 the burger-menu placeholder set the precedent. Today photoSrc
+                 is the neutral silhouette; the rule holds for the real photo. */
               <Image
                 src={photoSrc}
-                alt={name}
+                alt=""
+                aria-hidden
+                data-testid="help-sheet-photo"
                 width={56}
                 height={56}
+                unoptimized
                 className="size-14 shrink-0 rounded-full object-cover"
               />
             ) : (
@@ -111,10 +144,15 @@ export function HelpSheet({
           <ul className="mt-4 space-y-1 text-sm">
             {phone && (
               <li>
+                {/* D9: the bottom sheet adds the call pictogram. aria-hidden —
+                    the visible number is the accessible name, so the icon
+                    needs no German label (burger tap-to-call precedent). The
+                    panel variant renders the row byte-identically to before. */}
                 <a
                   href={`tel:${phone.replace(/\s+/g, '')}`}
-                  className={`${linkPetrol} ${linkStandalone}`}
+                  className={`${linkPetrol} ${linkStandalone} ${isBottomSheet ? 'gap-2' : ''}`}
                 >
+                  {isBottomSheet && <Phone aria-hidden className="size-4 shrink-0" />}
                   {phone}
                 </a>
               </li>

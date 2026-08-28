@@ -70,12 +70,21 @@ export default async function CasePage() {
   const sidebarBottom = (
     <div className="flex flex-col gap-5 pt-8">
       <div className="flex items-center gap-5">
+        {/* Desktop round 1 / D9 (GATE 1 APPROVED 2026-08-28): this instance —
+            the only Hilfe surface at lg+ — opens as a centred bottom sheet.
+            The photo is the Roman placeholder asset (real photo still on his
+            queue); the phone stays the DB-driven contact.phone row — the
+            burger's tel:+491789125300 is deliberately NOT repeated here while
+            the two-number question sits with Roman. The burger-menu instance
+            below keeps the default panel variant, untouched. */}
         <HelpSheet
           helpButton={content.contactHelpButton}
           cardLabel={content.contactCardLabel}
           name={content.contactName}
           phone={content.contactPhone}
           email={content.contactEmail}
+          photoSrc="/roman-placeholder.svg"
+          variant="bottomSheet"
           triggerClassName={sidebarLinkClass}
         />
         <form action={logoutAction}>
@@ -214,26 +223,14 @@ export default async function CasePage() {
           chat={
             <div className="bg-muted/40 h-full overflow-y-auto">
               <div className="mx-auto max-w-2xl space-y-6 px-4 py-6">
-                {/* Case meta */}
-                <div className={`${card} p-6`}>
-                  <h2 className="mb-3 font-semibold">{content.caseSubheading}</h2>
-                  <dl className="divide-border divide-y text-sm">
-                    <div className="flex justify-between py-2">
-                      <dt className="text-muted-foreground">{s.statusLabel}</dt>
-                      <dd>{s.statusLabels[caseData.status] ?? caseData.status}</dd>
-                    </div>
-                    {caseData.plz_before_move && (
-                      <div className="flex justify-between py-2">
-                        <dt className="text-muted-foreground">{s.plzLabel}</dt>
-                        <dd>{caseData.plz_before_move}</dd>
-                      </div>
-                    )}
-                    {/* unsupported-PLZ notice suppressed (CP3/D12): its copy promised a
-                        team follow-up, but such users now proceed normally in the Berlin
-                        questionnaire. Status stays 'unsupported' internally; new notice
-                        copy pending Roman review. */}
-                  </dl>
-                </div>
+                {/* Desktop round 1 / D6 (GATE 1 APPROVED 2026-08-28): the case-meta
+                    card (subheading + Status row + PLZ row) is GONE on every
+                    viewport — case id, PLZ and case status no longer appear
+                    anywhere in the applicant-facing UI. The subheading already
+                    renders as the pinned header title in this state, so the card
+                    had become a duplicate heading plus two meta rows the founder
+                    removed. (The suppressed unsupported-PLZ notice that lived
+                    here is still an open Roman item; its copy is in de.ts.) */}
 
                 {/* Step 1: Care-home selection */}
                 {!caseData.care_home_id && (

@@ -188,14 +188,16 @@ export function DocumentArea({ slots, uploads, content, fromFallbackRules }: Pro
         >
           {counterText}
         </p>
-        {/* ── Upload progress (mobile round 3, gate answer 3) ─────────────
+        {/* ── Upload progress (mobile round 3, gate answer 3; desktop round 1
+            / D10 dropped the `lg:hidden` — same bar, same position, at every
+            breakpoint) ─────────────────────────────────────────────────────
             The mockup's docs-page bar: percentage in dark green above a
-            petrol-filled track. MOBILE ONLY (`lg:hidden`) — this round's
-            scope; the desktop pass decides its own treatment later. The
+            petrol-filled track, derived from the SAME slots/uploads as the
+            counter (uploaded ÷ required), so the two can never disagree. The
             %-label is aria-hidden: the labelled progressbar role already
             states the value, and the adjacent counter says it in words. */}
         {totalSlots > 0 && (
-          <div className="mt-3 lg:hidden" data-testid="docs-progress">
+          <div className="mt-3" data-testid="docs-progress">
             <p aria-hidden className="text-primary text-sm font-semibold">
               {progressPercent}%
             </p>

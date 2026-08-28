@@ -162,8 +162,8 @@ export const de = {
     heading: 'Mein Antrag',
     // subheading moved to DB (static_content 'case.subheading') — CLAUDE.md rule #2
     logoutButton: 'Abmelden',
-    plzLabel: 'PLZ vor Heimeinzug',
-    statusLabel: 'Status',
+    // plzLabel/statusLabel/statusLabels deleted in desktop round 1 (D6): the
+    // case-meta card they labelled is gone from the applicant-facing UI.
 
     careHome: {
       heading: 'Schritt 1: Pflegeheim auswählen',
@@ -203,12 +203,6 @@ export const de = {
         'Noch keine Einträge vorhanden. Das Hinzufügen folgt in einem späteren Schritt.',
       repeatableGroupLabel: 'Wiederholbare Gruppe',
     },
-
-    statusLabels: {
-      in_progress: 'In Bearbeitung',
-      under_review: 'In Prüfung',
-      completed: 'Fragebogen vollständig',
-    } as Record<string, string>,
 
     // Tab switcher (feedback pass item 2). Trivial UI words — pending-Roman
     // pro forma.
