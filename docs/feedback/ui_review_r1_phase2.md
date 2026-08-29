@@ -144,5 +144,20 @@ stays inert in the DB, per the gate answer).
 
 ## Ship record
 
-- Branch: `feat/ui-review-r1` — commit/push after the full local suite;
-  preview suite next; **merge is the founder's call** (hard stop).
+- Branch `feat/ui-review-r1`, commit `b869953` (17 files, +721/−165),
+  pushed 2026-08-29; this results addendum is a follow-up commit on the
+  same branch.
+- **Preview suite: ALL GREEN** against the branch deployment
+  `sorglos-antrag-git-feat-ui-review-r1-sorglos-antrag.vercel.app`
+  (bypass secret from `.env.local` — alive again despite the team-transfer
+  note; agent memory updated):
+  - Chunk A (auth, date-bounds, disability-gate, documents-m6,
+    fallback-notice, legal-footer, transitive-visibility-fix, visibility):
+    **13 passed, 13 skipped, 0 failed** (3.4m) — T2 green here, closing the
+    local-flake question; the U5 legal-footer asserts green on the real
+    build.
+  - Chunk B (feedback-pass, m7-regression): **7 passed** (1.4m).
+  - Chunk C (completion — fresh fixture, mobile-footer): **2 passed**
+    (1.5m).
+  - Net: **22 passed, 13 skipped (standing auth signup skips), 0 failed.**
+- **HARD STOP — merge is the founder's call.**
