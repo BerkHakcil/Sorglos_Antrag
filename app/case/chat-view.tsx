@@ -53,6 +53,12 @@ type Props = {
     lockedDocsHeading: string
     lockedDocsBody: string
     lockedDocsButton: string
+    // C-1 (bank-docs pass, GATE 1 2026-08-29): the completion cards show the
+    // SAME approved missing-documents counter line the docs pane shows —
+    // reused rows, no new German. Only the >0 texts are needed here: the
+    // cards render the line exclusively in their docs-aware state.
+    docsMissingCount: string
+    docsMissingCountOne: string
     nextStepsUpload: string
     nextStepsHeading: string
     nextSteps1: string
@@ -465,11 +471,14 @@ function AllAnsweredCard({
   message,
   missingDocs,
   docsButtonLabel,
+  counterText,
 }: {
   heading: string
   message: string
   missingDocs: number
   docsButtonLabel: string
+  /** C-1: the docs pane's approved missing-count line, '' when nothing to say. */
+  counterText: string
 }) {
   /* Item 3 (go-live round 2): when documents are still missing, this
      transient card carries the same "Zu den Dokumenten" push as the locked
@@ -501,6 +510,18 @@ function AllAnsweredCard({
       </span>
       <p className="text-primary mt-5 text-xl font-medium">{heading}</p>
       <p className="text-foreground mt-3 max-w-md text-base leading-relaxed">{message}</p>
+      {/* C-1 (bank-docs pass, GATE 1 2026-08-29): the concrete count, in the
+          docs pane's approved words — "questions done" must not read as
+          "application done" while documents are outstanding. '' renders
+          nothing (rows absent, or missing == 0 — parent decides). */}
+      {counterText !== '' && (
+        <p
+          data-testid="completion-docs-counter"
+          className="text-foreground mt-3 text-sm font-medium"
+        >
+          {counterText}
+        </p>
+      )}
       {missingDocs > 0 && docsButtonLabel !== '' && switchTab && (
         <button
           type="button"
@@ -525,6 +546,7 @@ function EditLockedCard({
   docsBody,
   docsButtonLabel,
   nextStepsUpload,
+  counterText,
 }: {
   heading: string
   body: string
@@ -535,6 +557,8 @@ function EditLockedCard({
   docsBody: string
   docsButtonLabel: string
   nextStepsUpload: string
+  /** C-1: the docs pane's approved missing-count line, '' when nothing to say. */
+  counterText: string
 }) {
   /* Item 3 (go-live round 2): docs-aware variant. While documents are still
      missing, "Sie müssen nichts weiter tun" is false — the variant swaps
@@ -577,6 +601,17 @@ function EditLockedCard({
       </span>
       <p className="text-foreground mt-5 text-xl font-medium">{effectiveHeading}</p>
       <p className="text-graphite-soft mt-3 max-w-md text-base leading-relaxed">{effectiveBody}</p>
+      {/* C-1 (bank-docs pass, GATE 1 2026-08-29): the concrete count in the
+          docs pane's approved words, docs-variant only — the plain locked
+          card says "nichts weiter tun" and must not carry a missing count. */}
+      {docsVariant && counterText !== '' && (
+        <p
+          data-testid="completion-docs-counter"
+          className="text-foreground mt-3 text-sm font-medium"
+        >
+          {counterText}
+        </p>
+      )}
       {docsVariant && docsButtonLabel !== '' && switchTab && (
         <button
           type="button"
@@ -728,6 +763,18 @@ export function ChatView({
   )
 
   const isLocked = caseStatus === 'under_review'
+
+  /* C-1 (bank-docs pass, GATE 1 2026-08-29): the completion cards state the
+     concrete missing-documents count in the docs pane's own approved words —
+     the SAME derivation DocumentArea uses for its counter (missing > 0 only;
+     the cards' existing copy stands alone at 0). '' rows degrade to nothing,
+     the standard content rollout contract. */
+  const docsCounterText =
+    missingDocs > 0
+      ? missingDocs === 1
+        ? content.docsMissingCountOne
+        : content.docsMissingCount.replace('{n}', String(missingDocs))
+      : ''
 
   /* R2-2 (F1): the live status label and its colour class are gone with the
      header meta row they fed. The state they described is still communicated,
@@ -1197,6 +1244,7 @@ export function ChatView({
                 docsBody={content.lockedDocsBody}
                 docsButtonLabel={content.lockedDocsButton}
                 nextStepsUpload={content.nextStepsUpload}
+                counterText={docsCounterText}
               />
             ) : showGroupPrompt && nav.groupPrompt ? (
               <GroupPromptCard
@@ -1233,6 +1281,7 @@ export function ChatView({
                 message={content.allAnsweredMessage}
                 missingDocs={missingDocs}
                 docsButtonLabel={content.lockedDocsButton}
+                counterText={docsCounterText}
               />
             ) : null}
           </div>

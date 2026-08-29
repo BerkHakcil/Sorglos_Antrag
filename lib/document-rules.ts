@@ -230,7 +230,7 @@ export function instancesForBinding(
 
 /**
  * Per-office bank-statement period, rendered as a display suffix on the slot
- * name — e.g. "Kontoauszüge – Girokonto (letzte 4 Monate)". The German lives
+ * name — e.g. "Kontoauszüge – Girokonto (letzte 3 Monate)". The German lives
  * in static_content ('docs.period_suffix', "(letzte {n} Monate)"); this only
  * fills {n}. Display-only by design: stored filenames come from the catalog
  * name via lib/storage-path.ts, so the suffix can never fork the counters.
@@ -239,22 +239,15 @@ export function instancesForBinding(
  * ("letzte 1 Monate") and no rule carries 1 today — a future 1-month rule
  * must bring Roman-approved singular wording before it can render (R3).
  *
- * fromFallbackRules (go-live follow-up, 2026-08-11): the period is an
- * OFFICE-SPECIFIC claim from that office's own master file. A checklist
- * served by the default-office fallback (rules-source.ts rulesSource
- * 'fallback') must not make it: the caregiver's actual Sozialamt never
- * stated a period. Pass true there and the suffix is suppressed wholesale;
- * own-office rendering (Pankow, Essen) is byte-unchanged. The parameter is
- * required so every render site decides explicitly. (The fallback-notice
- * banner that used to ride the same signal was removed 2026-08-26 — the
- * suppression deliberately survives it, per the Phase-1 report §8 Q5.)
+ * The former `fromFallbackRules` suppression (2026-08-11: "the fallback
+ * list must not make an office-specific period claim") was LIFTED by the
+ * bank-docs pass (GATE 1, founder-confirmed reversal, 2026-08-29): Roman
+ * ruled a default of 3 months that explicitly covers fallback-served
+ * cases, so the suffix now renders on every list from the rule rows it
+ * serves — fallback lists carry the default office's rows and therefore
+ * the default period.
  */
-export function periodSuffix(
-  periodMonths: number | null | undefined,
-  template: string,
-  fromFallbackRules: boolean
-): string {
-  if (fromFallbackRules) return ''
+export function periodSuffix(periodMonths: number | null | undefined, template: string): string {
   if (periodMonths == null || periodMonths < 2 || !template) return ''
   return template.replace('{n}', String(periodMonths))
 }

@@ -99,9 +99,9 @@
       "document_id": "DOC-0003",
       "requirement_type": "mandatory",
       "subject": "person_1",
-      "period_months": 4,
+      "period_months": 3,
       "condition": {
-        "period_months": 4,
+        "period_months": 3,
         "repeat_for_each": "applicant_bank_account"
       },
       "active": true
@@ -111,7 +111,7 @@
       "document_id": "DOC-0003",
       "requirement_type": "mandatory",
       "subject": "person_2",
-      "period_months": 4,
+      "period_months": 3,
       "condition": {
         "all": [
           {
@@ -139,7 +139,7 @@
             ]
           },
           {
-            "period_months": 4,
+            "period_months": 3,
             "repeat_for_each": "spouse_bank_account"
           }
         ]

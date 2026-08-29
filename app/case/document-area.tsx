@@ -68,17 +68,9 @@ type Props = {
     | 'docsAllUploaded'
     | 'docsPeriodSuffix'
   >
-  /**
-   * True exactly when the slots came from the default-office fallback
-   * (lib/rules-source.ts rulesSource 'fallback') — those lists drop the
-   * per-office period suffix, an office-specific claim the generic default
-   * cannot make. (The fallback-notice banner that used to accompany this
-   * signal was removed 2026-08-26, fallback-docs fix.)
-   */
-  fromFallbackRules: boolean
 }
 
-export function DocumentArea({ slots, uploads, content, fromFallbackRules }: Props) {
+export function DocumentArea({ slots, uploads, content }: Props) {
   const router = useRouter()
   const [busySlot, setBusySlot] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -244,16 +236,12 @@ export function DocumentArea({ slots, uploads, content, fromFallbackRules }: Pro
                 const files = filesFor(slot)
                 const done = files.length > 0
                 // D10 (pass 4): per-office bank-statement period as a display
-                // suffix, e.g. "Kontoauszüge – Girokonto (letzte 4 Monate)".
+                // suffix, e.g. "Kontoauszüge – Girokonto (letzte 3 Monate)".
                 // NULL period renders unchanged; display-only (never in
-                // stored filenames — see periodSuffix docs). Suppressed on
-                // fallback-served lists: the period is the default office's
-                // claim, not this case's office's.
-                const suffix = periodSuffix(
-                  slot.periodMonths,
-                  content.docsPeriodSuffix,
-                  fromFallbackRules
-                )
+                // stored filenames — see periodSuffix docs). Renders on
+                // fallback lists too since the bank-docs pass (GATE 1
+                // 2026-08-29): Roman's default ruling covers them.
+                const suffix = periodSuffix(slot.periodMonths, content.docsPeriodSuffix)
                 return (
                   <div
                     key={key}

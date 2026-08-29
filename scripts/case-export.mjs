@@ -299,8 +299,9 @@ let uploads = []
         '_Default-office FALLBACK list — the case office has no rules of its own ' +
           '(or no office resolved); this mirrors the checklist the app shows, ' +
           'office-specific entries of the default set excluded (app_config ' +
-          'fallback_excluded_rule_ids). Period suffixes omitted: the period is ' +
-          'an office-specific claim the fallback list must not make._',
+          'fallback_excluded_rule_ids). Period suffixes render since the ' +
+          'bank-docs pass (2026-08-29): the default rows carry the ' +
+          'Roman-ruled default period._',
         ''
       )
     }
@@ -314,8 +315,8 @@ let uploads = []
         (u) => u.rule_id === s.ruleId && u.instance_key === s.instanceKey
       )
       // D10: period suffix on the displayed document name (checklist parity);
-      // suppressed on fallback-served lists, same as the app.
-      const sfx = periodSuffix(s.periodMonths, suffixTemplate, usedFallback)
+      // renders on fallback lists too since 2026-08-29, same as the app.
+      const sfx = periodSuffix(s.periodMonths, suffixTemplate)
       docLines.push(
         `| ${s.subject} | ${s.nameDe}${sfx ? ` ${sfx}` : ''} | ${s.instanceLabel ?? '—'} | ${files.length ? files.map((f) => f.original_filename).join(', ') : '**FEHLT**'} |`
       )

@@ -232,3 +232,44 @@ Hilfe-Fenster — beides vorbereitet.
    für Runde 3 eine Variante ohne „der" vorgegeben („… sie ist
    Antragsteller."); ob sie deine ersetzt, entscheidest du — wäre dann eine
    Ein-Zeilen-UPDATE-Migration.
+
+## Bank-Docs-Pass (2026-08-29) — Abschluss-Texte: **AWAITING ROMAN** (nichts davon ist live)
+
+Nach der letzten Antwort sagt die App heute sinngemäß „alle Fragen
+beantwortet, wir prüfen" — der Gründer möchte deutlicher trennen: **Fragen
+fertig ≠ Antrag fertig**, solange Unterlagen fehlen. Was bereits OHNE dich
+umgesetzt wurde (C-1, keine neuen deutschen Texte): die Abschluss-Karten
+zeigen jetzt zusätzlich deine bereits freigegebene Zähler-Zeile („Es fehlen
+noch {n} Dokumente." / Einzahl-Variante) aus der Unterlagen-Seite.
+
+Die folgenden DREI Zeilen sind **Vorschläge des Entwicklers — bewusst NICHT
+live geschaltet** (Gate-Antwort 3: die prominenteste Stelle der App bekommt
+keine Platzhalter). Jedes Wort ist deins: freigeben, umschreiben oder
+verwerfen. Sobald du entscheidest, geht deine Fassung als eigene
+Ein-Zeilen-Content-Migration live.
+
+1. **NEU `case.all_answered_docs_message`** (Karte „alle Fragen
+   beantwortet", NUR wenn Unterlagen fehlen — ersetzt dann die heutige
+   Einheitsnachricht):
+
+   > **VORSCHLAG (AWAITING ROMAN):** „Sie haben alle Fragen beantwortet.
+   > Ihr Antrag ist damit noch nicht vollständig: Es fehlen noch
+   > Unterlagen. Bitte laden Sie diese hoch — erst dann können wir alles
+   > prüfen."
+
+2. **UPDATE `case.all_answered_message`** (dieselbe Karte, dann NUR noch
+   wenn KEINE Unterlagen fehlen — heutiger Text bittet auch dann um
+   „fehlende Unterlagen"):
+
+   > **Heute live:** „Sie haben alle Fragen beantwortet. Bitte laden Sie
+   > noch fehlende Unterlagen hoch — danach prüfen wir Ihre Angaben."
+   > **VORSCHLAG (AWAITING ROMAN):** „Sie haben alle Fragen beantwortet
+   > und alle Unterlagen liegen vor. Wir prüfen jetzt Ihren Antrag und
+   > melden uns bei Ihnen."
+
+3. **UPDATE `case.locked_docs_heading`** (gesperrte Karte bei fehlenden
+   Unterlagen — optionale Schärfung):
+
+   > **Heute live:** „Es fehlen noch Unterlagen"
+   > **VORSCHLAG (AWAITING ROMAN):** „Fragen beantwortet – Unterlagen
+   > fehlen noch"

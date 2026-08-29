@@ -307,7 +307,7 @@ async function CaseTabsSection({
   sidebarBottom: ReactNode
   mobileMenu: ReactNode
 }) {
-  const [{ rules, rulesSource, catalog, uploads }, questionnaire, { answersMap, answersRaw }] =
+  const [{ rules, catalog, uploads }, questionnaire, { answersMap, answersRaw }] =
     await Promise.all([
       getDocumentData(caseId, socialOfficeId),
       loadQuestionnaire(questionnaireId),
@@ -356,17 +356,11 @@ async function CaseTabsSection({
   )
   const documents =
     paneMode === 'list' ? (
-      <DocumentArea
-        slots={slots}
-        uploads={uploads}
-        content={content}
-        // Fallback lists drop the per-office period suffix (a claim the
-        // default list cannot make). The fallback-notice banner that used to
-        // ride this signal was removed 2026-08-26 (fallback-docs fix, Gate 1)
-        // — the fallback list is now the purged generic default and carries
-        // no caveat; the suffix suppression deliberately stays (§8 Q5).
-        fromFallbackRules={rulesSource === 'fallback'}
-      />
+      // The period suffix renders on fallback lists too since the bank-docs
+      // pass (GATE 1 2026-08-29, reversing the 2026-08-11 suppression):
+      // Roman's default ruling covers fallback-served cases, so the rows'
+      // period_months speaks for every list they serve.
+      <DocumentArea slots={slots} uploads={uploads} content={content} />
     ) : null
 
   return (

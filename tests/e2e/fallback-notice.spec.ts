@@ -1,23 +1,29 @@
 /**
- * Fallback checklist guards (fallback-docs fix, 2026-08-26).
+ * Fallback checklist guards (fallback-docs fix, 2026-08-26; period asserts
+ * updated by the bank-docs pass, GATE 1 2026-08-29).
  *
  * The out-of-coverage banner (data-testid="fallback-notice") was REMOVED:
  * fallback-served cases now get the purged generic default list with no
  * caveat. This spec is the banner's never-returns guard (count-0 on every
- * path, fallback and own-office alike), the period-suffix suppression guard
- * (which deliberately survives the banner — Phase-1 report §8 Q5), and the
- * Line-A purge guard.
+ * path, fallback and own-office alike), the period-suffix guard (the
+ * 2026-08-11 fallback suppression was LIFTED 2026-08-29 — Roman's default
+ * ruling of 3 months covers fallback lists, so the suffix renders
+ * everywhere the rows carry a period), and the Line-A purge guard.
+ *
+ * ⚠ Run only AFTER migration 20260829000001 is pushed (Pankow 4 → 3): the
+ * F1/F2 suffix asserts pin the post-migration values.
  *
  *  F1  21682 (Stade — no office-specific ruleset): pre-PLZ placeholder, no
- *      banner; after PLZ the default checklist renders with NO banner, no
- *      "(letzte …)" suffix, on desktop and mobile widths. The Line-A trio
- *      (Nachweis Bedarfsanzeige / Polizeiliche Anmeldung im Heim /
- *      Mobilitätsnachweis) is asserted ABSENT once the migration row
- *      fallback_excluded_rule_ids exists, and PRESENT while it does not —
- *      the spec is green on both sides of the founder's db push and proves
- *      the flip when it lands.
- *  F2  13187 (Pankow — own rules): checklist with period suffix, no banner.
- *  F3  45127 (Essen — own rules): checklist with period suffix, no banner.
+ *      banner; after PLZ the default checklist renders with NO banner and
+ *      WITH the default "(letzte 3 Monate)" suffix, on desktop and mobile
+ *      widths. The Line-A trio (Nachweis Bedarfsanzeige / Polizeiliche
+ *      Anmeldung im Heim / Mobilitätsnachweis) is asserted ABSENT once the
+ *      migration row fallback_excluded_rule_ids exists, and PRESENT while
+ *      it does not.
+ *  F2  13187 (Pankow — own rules): checklist with "(letzte 3 Monate)", no
+ *      banner.
+ *  F3  45127 (Essen — own rules): checklist with "(letzte 4 Monate)" (Roman:
+ *      Essen stays 4), no banner.
  *
  * No questionnaire drive: the checklist is live from PLZ resolution (D5
  * superseded), so each test is login → pre-steps → Dokumente tab.
@@ -115,7 +121,7 @@ const LINE_A_TRIO = [
 ]
 
 test.describe('Fallback checklist (banner removed, Line-A purge)', () => {
-  test('F1: non-covered PLZ 21682 → default checklist, NO banner, no suffix; trio per migration state', async ({
+  test('F1: non-covered PLZ 21682 → default checklist, NO banner, "(letzte 3 Monate)" suffix; trio per migration state', async ({
     page,
   }) => {
     await makeUserAndLogin(page, 'stade')
@@ -133,13 +139,15 @@ test.describe('Fallback checklist (banner removed, Line-A purge)', () => {
     await expect(page.locator('[data-testid=doc-slot]').first()).toBeVisible()
     await expect(page.locator('[data-testid=fallback-notice]')).toHaveCount(0)
 
-    // Suffix suppression (go-live follow-up) survives the banner removal:
-    // the fallback list carries the default office's bank slot but must NOT
-    // make its period claim — the Kontoauszüge slot renders WITHOUT
-    // "(letzte …)" while Pankow's own list keeps it (F2) and Essen's (F3).
+    // Bank-docs pass (GATE 1 2026-08-29): the 2026-08-11 suppression is
+    // LIFTED — Roman ruled a default of 3 months covering fallback-served
+    // lists, so the fallback Kontoauszüge slot now ASSERTS the suffix,
+    // unconditionally (this deliberately closes the old migration-state-
+    // aware F1 assert loose end from the 2026-08-27 handoff: the suite runs
+    // only after migration 20260829000001 is pushed — push first, then gate).
     const area = page.locator('[data-testid=document-area]')
     await expect(area.getByText('Kontoauszüge').first()).toBeVisible()
-    await expect(area.getByText('(letzte')).toHaveCount(0)
+    await expect(area.getByText('(letzte 3 Monate)').first()).toBeVisible()
 
     // Line-A purge: trio absent once the exclusion row exists, present until
     // then (pre-migration deploy window — the fail-open contract).
@@ -168,10 +176,10 @@ test.describe('Fallback checklist (banner removed, Line-A purge)', () => {
 
     await expect(page.locator('[data-testid=doc-slot]').first()).toBeVisible()
     await expect(page.locator('[data-testid=fallback-notice]')).toHaveCount(0)
-    // D10 regression guard (Pankow side): own-office rendering is untouched
-    // by the fallback suppression — PAN-005/006 keep their 4-month suffix.
+    // Bank-docs pass: Roman's Pankow ruling — PAN-005/006 carry 3 months
+    // since migration 20260829000001 (push first, then gate).
     await expect(
-      page.locator('[data-testid=document-area]').getByText('(letzte 4 Monate)').first()
+      page.locator('[data-testid=document-area]').getByText('(letzte 3 Monate)').first()
     ).toBeVisible()
   })
 
@@ -184,8 +192,8 @@ test.describe('Fallback checklist (banner removed, Line-A purge)', () => {
 
     await expect(page.locator('[data-testid=doc-slot]').first()).toBeVisible()
     await expect(page.locator('[data-testid=fallback-notice]')).toHaveCount(0)
-    // D10 regression guard: the Essen bank-statement suffix must survive the
-    // banner change untouched.
+    // Bank-docs pass: Essen stays 4 months by Roman's ruling — ESS-010/011
+    // deliberately untouched; this guard pins that.
     await expect(
       page.locator('[data-testid=document-area]').getByText('(letzte 4 Monate)').first()
     ).toBeVisible()

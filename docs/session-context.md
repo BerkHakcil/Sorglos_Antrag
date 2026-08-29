@@ -84,9 +84,18 @@ dev and e2e all hit PRODUCTION data.
   against the one prod Supabase; DAL fetchers need client injection;
   `docs/architecture.md` §3.2 is stale).
 - **Fallback docs fix shipped 2026-08-26:** the fallback checklist is the
-  purged generic default with NO notice banner; the per-office period
-  suffix stays suppressed on fallback lists. `docs.fallback_notice` row
-  exists but is inert (unmapped in `lib/dal.ts`).
+  purged generic default with NO notice banner. `docs.fallback_notice` row
+  exists but is inert (unmapped in `lib/dal.ts`). The period-suffix
+  suppression that shipped alongside was LIFTED by the bank-docs pass
+  (GATE 1 2026-08-29): fallback lists render "(letzte {n} Monate)" from
+  the default office's rows.
+- **⚠ Duration coupling (bank-docs pass, founder gate answer 2026-08-29):**
+  "default bank-statement duration = 3 Monate" is implemented ONLY as "the
+  fallback serves Pankow's rows (PAN-005/006) and Roman ruled Pankow = 3";
+  no separate default-duration value exists. **If Pankow's duration ever
+  diverges from the intended default, decoupling
+  `default_document_office_id`'s duration becomes its own governance
+  item** — never patch it inline in another pass.
 - **Open PII decision (no names here on purpose):** a 2026-08-27 sweep
   found two real-customer surnames in historical `docs/feedback/` reports,
   the milestone log, the Roman ledger and

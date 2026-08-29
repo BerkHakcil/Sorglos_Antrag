@@ -52,7 +52,7 @@
       "subject": "person_1",
       "instanceKey": "giro",
       "instanceLabel": "Girokonto",
-      "periodMonths": 4
+      "periodMonths": 3
     },
     {
       "ruleId": "PAN-005",
@@ -61,7 +61,7 @@
       "subject": "person_1",
       "instanceKey": "savings",
       "instanceLabel": "Sparkonto",
-      "periodMonths": 4
+      "periodMonths": 3
     },
     {
       "ruleId": "PAN-005",
@@ -70,7 +70,7 @@
       "subject": "person_1",
       "instanceKey": "instance-4",
       "instanceLabel": "Sparkasse",
-      "periodMonths": 4
+      "periodMonths": 3
     },
     {
       "ruleId": "PAN-006",
@@ -79,7 +79,7 @@
       "subject": "person_2",
       "instanceKey": "spouse_giro",
       "instanceLabel": "Girokonto",
-      "periodMonths": 4
+      "periodMonths": 3
     },
     {
       "ruleId": "PAN-007",
@@ -207,7 +207,7 @@
       "subject": "person_1",
       "instanceKey": "giro",
       "instanceLabel": "Girokonto",
-      "periodMonths": 4
+      "periodMonths": 3
     },
     {
       "ruleId": "PAN-007",
@@ -308,7 +308,7 @@
       "subject": "person_1",
       "instanceKey": "giro",
       "instanceLabel": "Girokonto",
-      "periodMonths": 4
+      "periodMonths": 3
     },
     {
       "ruleId": "PAN-005",
@@ -317,7 +317,7 @@
       "subject": "person_1",
       "instanceKey": "savings",
       "instanceLabel": "Sparkonto",
-      "periodMonths": 4
+      "periodMonths": 3
     },
     {
       "ruleId": "PAN-007",
