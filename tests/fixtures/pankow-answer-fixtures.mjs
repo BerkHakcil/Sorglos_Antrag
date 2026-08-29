@@ -1,9 +1,13 @@
 /**
- * Three representative Pankow answer sets for the evaluator regression gate.
+ * Representative Pankow answer sets for the evaluator regression gate.
  * F1 mirrors the real pilot-shaped case (married, 2 pensions, savings + one
  * additional account, Wohngeld, disability Nein — the M6 acceptance shape).
  * F2 is the minimal single applicant. F3 exercises the conditional edges
  * (citizenship Nein, automobile, prior aid, life insurance, rент debt).
+ * F4 (widowed pass, GATE 1 2026-08-29) is the widowed single applicant with
+ * a Witwenrente — consumed ONLY by the PAN-025 coverage
+ * (pankow-widowed-death-certificate.test.ts); deliberately absent from the
+ * golden files, whose loops pin exactly F1–F3.
  */
 
 const inst = (n) => `instance-${n}`
@@ -58,4 +62,15 @@ export const F3 = {
   },
   groupInstances: { other_income: [inst(5)] },
   groupAnswers: { [inst(5)]: { other_income_type: 'Nebenjob' } },
+}
+
+export const F4 = {
+  answers: {
+    marital_status: 'verwitwet',
+    disability_card: 'Nein',
+    bank_savings_account_yes_no: 'Nein',
+    german_citizenship_yes_no: 'Ja',
+  },
+  groupInstances: { pension: [inst(6)] },
+  groupAnswers: { [inst(6)]: { pension_type: 'Witwenrente', pension_amount: '800' } },
 }
