@@ -126,16 +126,18 @@ function ProgressBar({ nav }: { nav: NavState }) {
     .replace('{answered}', String(nav.answeredRequired))
     .replace('{total}', String(nav.totalRequired))
 
-  /* E-2: mockup progress treatment — sage-soft track, petrol fill, and the
-     percentage as a petrol chip rather than plain text. The bar is the only
-     part of chat-view E-2 touches; bubbles, history and the answer footer
-     belong to E-3. role/aria added here because the old markup conveyed
-     progress purely visually. */
-  /* R2-2: the mockup's treatment — a petrol %-chip that FLOATS above the fill
-     edge, with a ring marker riding the same edge, instead of a chip parked in
-     the corner. The "{n} von {m} Fragen beantwortet" label stays (the mockup
-     shows a bare percentage): the denominator is real information a percentage
-     hides, and four spec sites read it.
+  /* E-2: mockup progress treatment — sage-soft track, petrol fill. R2-2 gave
+     DESKTOP the petrol %-chip floating above the fill edge; U9 (GATE 1
+     2026-08-29) gives MOBILE the drafts' treatment instead: a plain
+     left-aligned percentage above the track, no chip, no count line (U6),
+     and a size-5 ring marker. Desktop keeps the R2-2 chrome unchanged,
+     including the "{n} von {m} Fragen beantwortet" line — the denominator is
+     real information a percentage hides. Spec surface (re-verified when U6
+     shipped, 2026-08-29): four sites read the line as text at DESKTOP
+     viewport ("von N Fragen" — m7-regression ×3, feedback-pass ×1) and stay
+     valid; the one mobile-viewport reader (mobile-footer M1) now reads the
+     progressbar's aria-label, which keeps the denominator on EVERY viewport
+     for screen readers and specs alike.
 
      The marker is DECORATIVE and must not read as a slider. It carries no
      role and no tabindex, is aria-hidden along with the chip (the track's
@@ -144,37 +146,51 @@ function ProgressBar({ nav }: { nav: NavState }) {
      does not exist — the user cannot drag their progress. */
   return (
     <div className="space-y-1.5">
-      <p className="text-graphite-soft text-xs">{label}</p>
-      {/* pt-6 reserves the row the floating chip occupies, so it never
-          overlaps the label above it. */}
-      <div className="relative pt-6">
-        <div
-          className="bg-sage-soft/60 h-1.5 overflow-hidden rounded-full"
-          role="progressbar"
-          aria-valuenow={nav.progressPercent}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label={label}
-        >
-          <div
-            className="bg-primary h-full rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${nav.progressPercent}%` }}
-          />
-        </div>
+      {/* U6: desktop-only — the mobile drafts show a bare percentage. */}
+      <p className="text-graphite-soft hidden text-xs lg:block">{label}</p>
+      {/* U9: the mobile percentage — plain graphite, left-aligned (replaces
+          the floating chip below lg). */}
+      <p className="text-foreground text-xs font-semibold lg:hidden">{nav.progressPercent}%</p>
+      {/* lg:pt-6 reserves the row the desktop floating chip occupies, so it
+          never overlaps the label above it; mobile has no chip and no
+          reserved row. */}
+      <div className="relative lg:pt-6">
         <div
           aria-hidden
-          className="pointer-events-none absolute top-0 -translate-x-1/2 transition-all duration-500 ease-out"
+          className="pointer-events-none absolute top-0 hidden -translate-x-1/2 transition-all duration-500 ease-out lg:block"
           style={{ left: `${nav.progressPercent}%` }}
         >
           <span className="bg-primary rounded-md px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm">
             {nav.progressPercent}%
           </span>
         </div>
-        <div
-          aria-hidden
-          className="border-primary bg-background pointer-events-none absolute size-3 -translate-x-1/2 rounded-full border-2 transition-all duration-500 ease-out"
-          style={{ left: `${nav.progressPercent}%`, top: 'calc(1.5rem - 0.1875rem)' }}
-        />
+        {/* Inner relative wrapper: the marker centers on the TRACK at every
+            viewport (desktop geometry unchanged — track center is where the
+            old top-calc put it). */}
+        <div className="relative">
+          {/* Track color is per-band: sage-soft/60 reads on the DESKTOP cream
+              band but disappears on the mobile sage panel (same color), so
+              below lg the track uses the deeper sage — the drafts' own
+              unfilled-track tone. */}
+          <div
+            className="bg-sage/60 lg:bg-sage-soft/60 h-1.5 overflow-hidden rounded-full"
+            role="progressbar"
+            aria-valuenow={nav.progressPercent}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={label}
+          >
+            <div
+              className="bg-primary h-full rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${nav.progressPercent}%` }}
+            />
+          </div>
+          <div
+            aria-hidden
+            className="border-primary bg-background pointer-events-none absolute top-1/2 size-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 transition-all duration-500 ease-out lg:size-3"
+            style={{ left: `${nav.progressPercent}%` }}
+          />
+        </div>
       </div>
     </div>
   )
@@ -1127,12 +1143,16 @@ export function ChatView({
 
   return (
     <div className="flex h-full flex-col">
-      {/* ── Fixed top: subheader + progress bar ─────────────── */}
+      {/* ── Fixed top: subheader + progress bar ───────────────
+          U9 (2026-08-29): below lg this band CONTINUES the shell's sage
+          panel (same bg-sage-soft, no border — the panel simply ends where
+          the chat begins, per the drafts); desktop keeps the R2-2 cream
+          band with its border-b. */}
       <div
         data-testid="case-header"
-        className="border-border/60 bg-background/95 shrink-0 border-b backdrop-blur"
+        className="bg-sage-soft shrink-0 lg:border-border/60 lg:bg-background/95 lg:border-b lg:backdrop-blur"
       >
-        <div className="mx-auto max-w-2xl space-y-2 px-4 pt-3 pb-3">
+        <div className="mx-auto max-w-2xl space-y-2 px-7 pt-3 pb-3 lg:px-4">
           {/* R2-2 (F1): the case-id / PLZ / status meta row is gone. The id
               snippet served ops (which has scripts/case-export.mjs), the PLZ is
               confirmed in the pre-step, and the status is stated by the

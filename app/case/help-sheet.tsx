@@ -15,18 +15,16 @@
  * initials circle until Roman's photo arrives — passing `photoSrc` is the
  * drop-in slot (D11: photo pending, not integrated).
  *
- * base-ui Dialog provides focus trap, Escape and backdrop dismissal; the
- * default 'panel' variant renders as a bottom sheet on mobile and a right
- * slide-over on sm+.
+ * base-ui Dialog provides focus trap, Escape and backdrop dismissal.
  *
- * Desktop round 1 / D9 (GATE 1 APPROVED 2026-08-28): the 'bottomSheet'
- * variant — used ONLY by the desktop sidebar instance (page.tsx), which is
- * hidden below lg — is a centred max-w-xl sheet that slides up from the
- * bottom over the dimmed page at every size it can appear at. The burger
- * menu's instance keeps 'panel', so the mobile experience is untouched.
- * Slide-up is pure CSS on base-ui's [data-starting-style]/[data-ending-style]
- * transition attributes; prefers-reduced-motion is honoured by the global
- * override in globals.css.
+ * UI review round 1 / U4 (GATE 1 APPROVED 2026-08-29): ONE behavior at every
+ * width — below `sm` the bottom sheet (the true-mobile chrome, unchanged);
+ * from `sm` up a single CENTERED modal over the dimmed page. This supersedes
+ * BOTH previous sm+ chromes: the right slide-over (the old 'panel' shape the
+ * burger exposed in the sm–lg band) and D9's desktop bottom sheet — a
+ * founder-confirmed REVERSAL of the D9 decision (2026-08-28 → reversed
+ * 2026-08-29). The former `variant` prop is gone with them: both page.tsx
+ * instances now render identically.
  */
 
 import Image from 'next/image'
@@ -41,14 +39,12 @@ type Props = {
   name: string
   phone: string
   email: string
-  /** Drop-in slot for Roman's photo (public/ path) — initials render until then. */
+  /** Roman's photo (public/ path) — the initials circle is the no-photo
+   *  fallback only (U3 shipped the real photo to every instance). */
   photoSrc?: string
   /** R2-1: the trigger sits in the top bar on mobile and in the sidebar foot
    *  on desktop, at different type scales. Only the trigger chrome varies. */
   triggerClassName?: string
-  /** D9: 'panel' (default) = the shipped mobile/tablet chrome; 'bottomSheet'
-   *  = the desktop centred slide-up sheet with the phone pictogram row. */
-  variant?: 'panel' | 'bottomSheet'
 }
 
 /** "Roman Pfeiffer" → "RP" (first letter of the first two words). */
@@ -69,24 +65,21 @@ export function HelpSheet({
   email,
   photoSrc,
   triggerClassName,
-  variant = 'panel',
 }: Props) {
   // Missing static_content rows degrade to '' by design — without the button
   // word there is nothing to render a trigger with, so the feature waits for
   // its content instead of showing an empty button.
   if (!helpButton || !name) return null
 
-  const isBottomSheet = variant === 'bottomSheet'
-  /* 'panel' is the shipped chrome, byte-identical (mobile untouched). The
-     bottom sheet keeps the same paint but pins to the bottom at EVERY width
-     (its only trigger lives in the lg+ sidebar), centred at max-w-xl per the
-     gate answer, and slides up: base-ui stamps [data-starting-style] on the
-     opening frame and [data-ending-style] while closing, so translate-y-full
-     at both edges + transition-transform is the whole animation. The
-     load-bearing data-closed:hidden still snaps it away once fully closed. */
-  const popupClass = isBottomSheet
-    ? 'bg-card shadow-card-lg fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-xl rounded-t-2xl p-6 transition-transform duration-300 ease-out data-starting-style:translate-y-full data-ending-style:translate-y-full data-closed:hidden'
-    : 'bg-card shadow-card-lg fixed inset-x-0 bottom-0 z-50 rounded-t-2xl p-6 data-closed:hidden sm:inset-x-auto sm:inset-y-0 sm:right-0 sm:bottom-auto sm:w-80 sm:rounded-none sm:rounded-l-2xl'
+  /* U4: one chrome. Below `sm` the shipped bottom sheet, byte-identical
+     (mobile untouched). From `sm` a centered modal: fixed at the viewport
+     midpoint, max-w-md over the dimmed backdrop. No entry animation on
+     purpose — the shipped mobile sheet never had one, and D9's slide-up is
+     superseded along with its bottom-sheet geometry. The load-bearing
+     data-closed:hidden still snaps the closed dialog away (base-ui keeps it
+     mounted and only stamps [data-closed]). */
+  const popupClass =
+    'bg-card shadow-card-lg fixed inset-x-0 bottom-0 z-50 rounded-t-2xl p-6 data-closed:hidden sm:inset-x-auto sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl'
 
   return (
     <Dialog.Root>
@@ -114,10 +107,9 @@ export function HelpSheet({
           </div>
           <div className="mt-4 flex items-center gap-4">
             {photoSrc ? (
-              /* alt=""/aria-hidden (D9): like the initials circle it replaces,
+              /* alt=""/aria-hidden (D9, unchanged for the real photo — U3):
                  the photo repeats nothing the adjacent name text doesn't say —
-                 the burger-menu placeholder set the precedent. Today photoSrc
-                 is the neutral silhouette; the rule holds for the real photo. */
+                 the burger-menu treatment set the precedent. */
               <Image
                 src={photoSrc}
                 alt=""
@@ -144,15 +136,17 @@ export function HelpSheet({
           <ul className="mt-4 space-y-1 text-sm">
             {phone && (
               <li>
-                {/* D9: the bottom sheet adds the call pictogram. aria-hidden —
-                    the visible number is the accessible name, so the icon
-                    needs no German label (burger tap-to-call precedent). The
-                    panel variant renders the row byte-identically to before. */}
+                {/* The call pictogram (from D9's sheet) rides along into the
+                    U4 modal — every sm+ chrome shows it; below sm the row
+                    stays byte-identical to the shipped mobile sheet (no
+                    icon). aria-hidden — the visible number is the accessible
+                    name, so the icon needs no German label (burger
+                    tap-to-call precedent). */}
                 <a
                   href={`tel:${phone.replace(/\s+/g, '')}`}
-                  className={`${linkPetrol} ${linkStandalone} ${isBottomSheet ? 'gap-2' : ''}`}
+                  className={`${linkPetrol} ${linkStandalone} gap-2`}
                 >
-                  {isBottomSheet && <Phone aria-hidden className="size-4 shrink-0" />}
+                  <Phone aria-hidden className="size-4 shrink-0 max-sm:hidden" />
                   {phone}
                 </a>
               </li>

@@ -50,6 +50,11 @@ export default async function CasePage() {
      ship to the client. CaseTabs owns only the placement and the nav. */
   const sidebarTop = (
     <div className="flex flex-col gap-1.5">
+      {/* U1 (GATE 1 2026-08-29): the close-up's real delta was SIZE, not
+          alignment — logo h-8 → h-12 (+50%, per the mockup's ~48px lockup)
+          and the tagline one step up. Alignment was already flush (logo.svg
+          geometry starts at x≈0; all three blocks share the p-8 line) and
+          stays untouched. */}
       <Image
         src="/logo.svg"
         alt={sb.name}
@@ -58,33 +63,31 @@ export default async function CasePage() {
         height={28}
         priority
         unoptimized
-        className="h-8 w-auto"
+        className="h-12 w-auto"
       />
       {/* Petrol on the sage sidebar measures 6.64:1 (re-measured 2026-08-27,
           R8 values) — the mockup's own treatment, and the tagline is an
           existing DB row (brand.tagline), not new German. */}
-      <p className="text-primary text-sm leading-tight font-medium">{content.brandTagline}</p>
+      <p className="text-primary text-base leading-tight font-medium">{content.brandTagline}</p>
     </div>
   )
 
   const sidebarBottom = (
     <div className="flex flex-col gap-5 pt-8">
       <div className="flex items-center gap-5">
-        {/* Desktop round 1 / D9 (GATE 1 APPROVED 2026-08-28): this instance —
-            the only Hilfe surface at lg+ — opens as a centred bottom sheet.
-            The photo is the Roman placeholder asset (real photo still on his
-            queue); the phone stays the DB-driven contact.phone row — the
-            burger's tel:+491789125300 is deliberately NOT repeated here while
-            the two-number question sits with Roman. The burger-menu instance
-            below keeps the default panel variant, untouched. */}
+        {/* U4 (GATE 1 2026-08-29): this instance — the only Hilfe surface at
+            lg+ — opens the unified centered modal (help-sheet.tsx; D9's
+            bottom sheet is superseded, reversal on record). U3: the photo is
+            Roman's real one. The phone stays the DB-driven contact.phone row
+            — the burger's tel:+491789125300 is deliberately NOT repeated
+            here while the two-number question sits with Roman. */}
         <HelpSheet
           helpButton={content.contactHelpButton}
           cardLabel={content.contactCardLabel}
           name={content.contactName}
           phone={content.contactPhone}
           email={content.contactEmail}
-          photoSrc="/roman-placeholder.svg"
-          variant="bottomSheet"
+          photoSrc="/roman-photo.jpg"
           triggerClassName={sidebarLinkClass}
         />
         <form action={logoutAction}>
@@ -111,29 +114,33 @@ export default async function CasePage() {
     <MobileMenu>
       <nav className="mt-2 flex flex-col gap-4">
         {/* 1 · Hilfe — gate answer 1: reuses the existing HelpSheet contact
-            dialog (opens over the menu); no new page, no new German. */}
+            dialog (opens over the menu); no new page, no new German.
+            U3 (2026-08-29): carries the real photo too — one face for
+            support on every surface (the initials circle stays only as the
+            no-photo fallback inside HelpSheet). */}
         <HelpSheet
           helpButton={content.contactHelpButton}
           cardLabel={content.contactCardLabel}
           name={content.contactName}
           phone={content.contactPhone}
           email={content.contactEmail}
+          photoSrc="/roman-photo.jpg"
           triggerClassName={mobileMenuItemClass}
         />
-        {/* 2 · Roman's photo — PLACEHOLDER asset until his real photo arrives
-            (ledger). aria-hidden/alt="": the silhouette repeats nothing the
-            adjacent name text doesn't already say (HelpSheet-initials
-            precedent). */}
+        {/* 2 · Roman's photo — the REAL one since U3 (2026-08-29; the
+            placeholder-silhouette era is closed in the ledger). aria-hidden/
+            alt="": the photo repeats nothing the adjacent name text doesn't
+            already say. */}
         <div className="flex items-center gap-3">
           <Image
-            src="/roman-placeholder.svg"
+            src="/roman-photo.jpg"
             alt=""
             aria-hidden
             data-testid="menu-roman-photo"
             width={56}
             height={56}
             unoptimized
-            className="size-14 shrink-0 rounded-full"
+            className="size-14 shrink-0 rounded-full object-cover"
           />
           <p className="text-foreground text-base font-medium">{content.contactName}</p>
         </div>
@@ -250,14 +257,13 @@ export default async function CasePage() {
           }
         />
       )}
-      {/* Mini round 2026-08-13: legal footer INSIDE the h-dvh column as a
-          shrink-0 row — the chat area (with its own answer footer) ends above
-          it, so the two can never overlap on any viewport.
-          R2-1: below lg only. From lg the sidebar foot carries the links, and
-          two visible copies would be a duplicate landmark. */}
-      <div className="shrink-0 lg:hidden">
-        <LegalFooter />
-      </div>
+      {/* U5 (GATE 1 2026-08-29): the below-lg legal bar is GONE from the case
+          shell — founder+Roman decision (reversing round 3's "keep legal
+          bar" gate answer). Desktop keeps the sidebar-foot links above; the
+          auth screens keep their bar at EVERY width as the founder's
+          deliberate exception (login is where Impressum/Datenschutz
+          reachability matters most). Compliance trade-off recorded in
+          docs/feedback/ui_review_r1_phase1.md §U5. */}
     </div>
   )
 }

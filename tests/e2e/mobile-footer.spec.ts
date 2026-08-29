@@ -156,7 +156,12 @@ test.describe('Mobile answer-footer reachability', () => {
     await setupCase(page, '45326')
 
     // 45326 must load the Essen questionnaire (fresh denominator 49).
-    await expect(page.getByText('von 49 Fragen')).toBeVisible({ timeout: 10_000 })
+    // U6 (2026-08-29): the visible "{n} von {m} Fragen beantwortet" line is
+    // desktop-only now — at this mobile viewport the denominator lives on in
+    // the progressbar's aria-label, so the sentinel reads the role instead.
+    await expect(page.getByRole('progressbar', { name: /von 49 Fragen/ })).toBeVisible({
+      timeout: 10_000,
+    })
 
     // Multiselect encounters: option counts seen, for the tallest-coverage
     // assert at the end (wealth_bulk_topics has 9 — the max in either

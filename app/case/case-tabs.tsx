@@ -118,18 +118,25 @@ export function CaseTabs({
   ]
 
   // ── Nav pill (desktop sidebar AND, since round 3, the mobile row) ─────────
-  // Mockup treatment: active = copper fill + white text (4.62:1); inactive =
-  // a soft outlined tile. The pill is a real tab control, not a link — no
-  // routing comes across from the mockup. `compact` is the mobile variant:
-  // same paint, tighter box (min-h-11 keeps the E-7 touch floor while costing
-  // the pinned chrome as little height as possible — see the budget note).
+  // Desktop: the R2 mockup treatment, unchanged — label left / icon right,
+  // rounded-xl, active copper fill, inactive soft outlined tile.
+  // `compact` (mobile) follows the U7/U9 drafts since 2026-08-29: label+icon
+  // CENTERED as one group, rounded-lg (~8px per the drafts), inactive as a
+  // solid white tile with a soft shadow instead of the outlined translucent
+  // one. Gate answers on the drafts' deviations: min-h-11 STAYS (the drafts'
+  // ~40px loses to the E-7 44px touch floor — visual fidelity yields), and
+  // the docs badge STAYS (the drafts omit dynamic elements by convention).
   const pillClass = (active: boolean, compact = false) =>
-    `flex items-center justify-between gap-2 rounded-xl font-medium transition-colors ${
-      compact ? 'min-h-11 px-3 py-2 text-sm' : 'px-4 py-3 text-base'
+    `flex items-center font-medium transition-colors ${
+      compact
+        ? 'min-h-11 justify-center gap-2 rounded-lg px-3 py-2 text-sm'
+        : 'justify-between gap-2 rounded-xl px-4 py-3 text-base'
     } ${focusRing} ${
       active
         ? 'bg-copper text-white shadow-sm'
-        : 'border-sage/50 bg-background/60 text-foreground hover:bg-cream border'
+        : compact
+          ? 'bg-card text-foreground shadow-sm hover:bg-cream'
+          : 'border-sage/50 bg-background/60 text-foreground hover:bg-cream border'
     }`
 
   const sidebar = (
@@ -207,25 +214,34 @@ export function CaseTabs({
     </div>
   )
 
-  /* ── Mobile chrome (round 3, below lg): top bar + subheader + pills ──────
-     ONE chrome region, one border-b — burger + applicant name (R1/R2), the
-     per-tab intro line (R3/R9), and the pill nav (R4). Every row here is
-     PINNED height taken from the answer footer's budget at 667px, so the
-     paddings are deliberately tight; mobile-footer.spec verifies the sum. */
+  /* ── Mobile chrome (below lg): ONE sage panel (U9, GATE 1 2026-08-29) ────
+     The round-3 two-band cream chrome became the drafts' single sage-soft
+     panel: burger + applicant name (R1/R2) over a full-bleed hairline, then
+     the per-tab intro line (R3/R9) and the button nav (R4/U7) on the same
+     panel. The panel has NO bottom border — on the Angaben tab ChatView's
+     progress band continues it seamlessly (same bg, chat-view.tsx) and ends
+     it; on Unterlagen it ends here, against the pane background. Every row
+     is PINNED height taken from the answer footer's budget at 667px
+     (mobile-footer.spec verifies): the drafts' generous vertical air was
+     deliberately tightened to the shipped rhythm for the same reason their
+     40px buttons lost to the 44px floor — only the side inset (~px-7)
+     follows the drafts (gate answer 6b). */
   const mobileChrome = (
-    <div className="border-border/60 bg-background/95 shrink-0 border-b backdrop-blur lg:hidden">
-      <div className="mx-auto max-w-2xl px-4">
-        <div className="flex min-w-0 items-center gap-1 py-1.5">
+    <div className="bg-sage-soft shrink-0 lg:hidden">
+      <div className="border-border/60 border-b">
+        <div className="mx-auto flex min-w-0 max-w-2xl items-center gap-3 px-4 py-1.5">
           {mobileMenu}
           {headerTitle && (
-            <h1 className="text-foreground min-w-0 truncate text-base font-bold tracking-tight">
+            <h1 className="text-foreground min-w-0 truncate text-xl font-bold tracking-tight">
               {headerTitle}
             </h1>
           )}
         </div>
-        {intro && <p className="text-graphite-soft pb-2 text-sm leading-snug">{intro}</p>}
+      </div>
+      <div className="mx-auto max-w-2xl px-7">
+        {intro && <p className="text-graphite-soft pt-3 pb-2 text-[15px] leading-snug">{intro}</p>}
         {documents && (
-          <div className="grid grid-cols-2 gap-2 pb-2.5" role="tablist">
+          <div className="grid grid-cols-2 gap-3.5 pb-3" role="tablist">
             {items.map(({ key, label, Icon, testid }) => {
               const active = tab === key
               return (

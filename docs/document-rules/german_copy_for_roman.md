@@ -136,19 +136,27 @@ replacements of Roman's authored content):
 | Marzahn-Hellersdorf Regelwerk (eigene Dokumentenliste) | `office_document_rule` (does not exist yet)    | BACKLOG — first real customer lives there (PLZ 12687); natural next office once Roman confirms demand. Until then his checklist is deliberately the fallback set + banner (Batch C, D-7) |
 | Logo print-grade originals                             | `public/logo.svg` live (mini round 2026-08-13) | app-side ✅ RESOLVED; hi-res originals remain Roman's to send if ever needed (D16)                                                                                                       |
 
-## Go-live (2026-08-09): Hinweis-Banner für die Standard-Dokumentenliste — PLACEHOLDER_DE (open)
+## Go-live (2026-08-09): Hinweis-Banner für die Standard-Dokumentenliste — RESOLVED: Banner ENTFERNT
 
-Fälle, deren Postleitzahl (noch) keine amtsspezifische Dokumentenliste hat,
-sehen ab jetzt die Standard-Liste **mit einem Hinweis darüber** (sage
-Info-Panel über der ersten Dokumentgruppe; Pankow- und Essen-Fälle sehen ihn
-nie). Text ist ein **mechanischer Platzhalter** (static_content
-`docs.fallback_notice`, Migration `20260809000001`) — jedes Wort ist deins;
-eine Umformulierung ist eine Ein-Zeilen-UPDATE-Migration.
+**Status (2026-08-29, UI-Review Runde 1 / U2):** Der Banner ist seit dem
+2026-08-26 **komplett entfernt** (Fallback-Doclist-Fix, Commit `6b26571`) —
+von Roman am 2026-08-29 **bestätigt**: er erscheint nie wieder, auch nicht
+für Fallback-Fälle (bewusst in Kauf genommen: die Standard-Liste zeigt
+„(letzte 3 Monate)" ohne Einschränkungstext). Die DB-Zeile
+`docs.fallback_notice` bleibt ungelesen bestehen; der Wortlaut bleibt hier
+wörtlich dokumentiert. Kein AWAITING ROMAN — es ist seine eigene
+Entscheidung.
 
-> **PLACEHOLDER_DE:** „Hinweis: Für Ihre Postleitzahl liegt uns noch keine
-> spezifische Dokumentenliste vor. Diese Übersicht zeigt die üblicherweise
-> benötigten Unterlagen — Ihr zuständiges Sozialamt kann zusätzliche oder
-> abweichende Dokumente verlangen."
+Ursprünglicher Eintrag (Historie): Fälle, deren Postleitzahl (noch) keine
+amtsspezifische Dokumentenliste hat, sahen die Standard-Liste **mit einem
+Hinweis darüber** (sage Info-Panel über der ersten Dokumentgruppe; Pankow-
+und Essen-Fälle sahen ihn nie). Text war ein **mechanischer Platzhalter**
+(static_content `docs.fallback_notice`, Migration `20260809000001`).
+
+> **Entfernter Text (wörtlich erhalten):** „Hinweis: Für Ihre Postleitzahl
+> liegt uns noch keine spezifische Dokumentenliste vor. Diese Übersicht
+> zeigt die üblicherweise benötigten Unterlagen — Ihr zuständiges Sozialamt
+> kann zusätzliche oder abweichende Dokumente verlangen."
 
 ## Go-live round 2 (2026-08-13) — PLACEHOLDER_DE (open)
 
@@ -215,11 +223,15 @@ jetzt in `de.ts` (`case.docs.typesLine`) als kleinere Zweitzeile — d. h.
 er ist **nicht mehr per DB-Zeile editierbar**; eine Umformulierung wäre
 eine Ein-Zeilen-Änderung in `de.ts`.
 
-**Foto-Platzhalter (offen):** das Burger-Menü zeigt statt deines Fotos die
-neutrale Silhouette `public/roman-placeholder.svg` (Markenfarben, bewusst
-kein „falsches" Foto). Sobald dein echtes Foto da ist: Datei in `public/`
-ablegen, eine Zeile im Menü (page.tsx) + optional `photoSrc` im
-Hilfe-Fenster — beides vorbereitet.
+**Foto-Platzhalter — RESOLVED (2026-08-29, UI-Review Runde 1 / U3):** dein
+echtes Foto ist da und live: `public/roman-photo.jpg` (384×384, aus deinem
+Original verkleinert; der Kreis-Ausschnitt bleibt CSS, die Datei ist
+quadratisch). Es erscheint überall — Burger-Menü, Hilfe-Fenster mobil UND
+Desktop-Modal („ein Gesicht für den Support", Gründer-Entscheidung). Die
+neutrale Silhouette `public/roman-placeholder.svg` ist entfernt (die
+Git-Historie bewahrt sie). Historie: das Burger-Menü zeigte statt deines
+Fotos die Silhouette (Markenfarben, bewusst kein „falsches" Foto); der
+`photoSrc`-Slot im Hilfe-Fenster war dafür vorbereitet.
 
 **Für Roman zu klären (aus den Gate-Antworten, kein Copy-Item):**
 

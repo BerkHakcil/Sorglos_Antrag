@@ -1,7 +1,11 @@
 /**
- * App-wide legal footer (post-Batch-C mini round, 2026-08-13): Impressum ·
- * Datenschutz · AGB on every screen — auth and case (pre-steps and
- * questionnaire states share the same slot, outside the content ternary).
+ * Legal footer (post-Batch-C mini round, 2026-08-13; scope changed by UI
+ * review round 1 / U5, GATE 1 2026-08-29): Impressum · Datenschutz · AGB.
+ * AUTH screens keep the links at EVERY width (the founder's deliberate
+ * exception — login is where reachability matters most). The CASE shell
+ * keeps them on desktop only (sidebar foot); below lg it renders NO legal
+ * links (founder+Roman decision, reversing round 3's "keep legal bar" gate
+ * answer — compliance trade-off recorded in ui_review_r1_phase1.md §U5).
  *
  * URLs are deliberately hardcoded rather than imported from lib/legal-links.ts
  * (asserting the constant against itself would prove nothing — auth.spec
@@ -67,6 +71,12 @@ test.describe('Legal footer + SVG logo', () => {
     await page.goto(`${BASE}/login`)
     await expectFooterLinks(page)
 
+    // U5: auth KEEPS its links below lg too (founder exception) — re-assert
+    // at a mobile width before checking the logo.
+    await page.setViewportSize({ width: 375, height: 667 })
+    await expectFooterLinks(page)
+    await page.setViewportSize({ width: 1280, height: 720 })
+
     // Logo swap: the header/auth mark is now Roman's SVG, served as-is.
     const logo = page.locator('img[src="/logo.svg"]')
     await expect(logo).toBeVisible()
@@ -113,21 +123,22 @@ test.describe('Legal footer + SVG logo', () => {
     // case shell, not about which element wraps it.
     await expect(page.locator('[data-testid=brand-logo]:visible')).toBeVisible()
 
-    // The footer sits inside the viewport-locked shell: fully visible with
-    // the document unscrolled (desktop and mobile widths).
-    for (const viewport of [
-      { width: 1280, height: 800 },
-      { width: 375, height: 667 },
-    ]) {
-      await page.setViewportSize(viewport)
-      await page.waitForTimeout(300)
-      const box = await page.locator('[data-testid=legal-footer]:visible').boundingBox()
-      expect(box, 'footer must render').not.toBeNull()
-      expect(
-        box!.y + box!.height,
-        `footer bottom must fit the ${viewport.height}px viewport`
-      ).toBeLessThanOrEqual(viewport.height + 1)
-      expect(await page.evaluate(() => window.scrollY)).toBe(0)
-    }
+    // Desktop: the sidebar-foot links sit inside the viewport-locked shell,
+    // fully visible with the document unscrolled.
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.waitForTimeout(300)
+    const box = await page.locator('[data-testid=legal-footer]:visible').boundingBox()
+    expect(box, 'desktop footer must render').not.toBeNull()
+    expect(
+      box!.y + box!.height,
+      'footer bottom must fit the 800px viewport'
+    ).toBeLessThanOrEqual(801)
+    expect(await page.evaluate(() => window.scrollY)).toBe(0)
+
+    // U5 (2026-08-29): below lg the case shell renders NO legal links — the
+    // mobile bar is gone (the sidebar copy is display:hidden with its aside).
+    await page.setViewportSize({ width: 375, height: 667 })
+    await page.waitForTimeout(300)
+    await expect(page.locator('[data-testid=legal-footer]:visible')).toHaveCount(0)
   })
 })
