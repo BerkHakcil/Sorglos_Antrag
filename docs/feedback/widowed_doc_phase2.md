@@ -57,9 +57,19 @@ reproduced today with byte-identical app code that had passed the full
 preview suite an hour earlier). The preview suite below is the gate, per
 standing convention. All e2e users admin-created and deleted per-user.
 
-## Preview suite
+## Preview suite (branch deployment
+`sorglos-antrag-git-feat-widowed-doc-coverage-sorglos-antrag.vercel.app`)
 
-- RESULTS_PENDING (appended after the branch preview run)
+| Run | Result |
+|---|---|
+| Chunk A (9 files incl. **widowed-death-certificate — passed**) | 13 passed, 13 skipped, 1 failed: documents-m6 — an upload-settle poll stuck one count high under parallel load (married drive; PAN-025 not involved) |
+| documents-m6 isolated re-run | **1 passed** (3.0m) — flake confirmed; app code unchanged since the same spec passed this morning's ui-r1 preview suite |
+| Chunk B: feedback-pass + m7-regression | **7 passed** (1.6m) |
+| Chunk C: completion (fresh fixture) + mobile-footer | **2 passed** (1.5m) |
+
+Net: **23 passed, 13 skipped (standing auth signup skips), 0 real
+failures** — every spec green on the preview, the new widowed e2e among
+them on the first attempt.
 
 ## Ship record
 
